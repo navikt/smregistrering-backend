@@ -33,5 +33,15 @@ spec:
     requests:
       cpu: 100m
       memory: 128Mi
+  vault:
+    enabled: true
+    paths:
+      - kvPath: serviceuser/data/dev/srvregpapirsm
+        mountPath: /secrets/serviceuser
   ingresses:
     - "https://smregistrering-backend.nais.preprod.local"
+  env:
+    - name: SERVICE_USER_USERNAME
+      value: /secrets/serviceuser/username
+    - name: SERVICE_USER_PASSWORD
+      value: /secrets/serviceuser/password

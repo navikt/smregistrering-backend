@@ -33,5 +33,16 @@ spec:
     requests:
       cpu: 200m
       memory: 512Mi
+  vault:
+    enabled: true
+    paths:
+      - kvPath: serviceuser/data/prod/srvregpapirsm
+        mountPath: /secrets/serviceuser
+  webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.adeo.no"
+  env:
+    - name: SERVICE_USER_USERNAME
+      value: /secrets/serviceuser/username
+    - name: SERVICE_USER_PASSWORD
+      value: /secrets/serviceuser/password

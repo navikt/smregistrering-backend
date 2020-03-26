@@ -9,6 +9,9 @@ val logstashEncoderVersion = "5.1"
 val prometheusVersion = "0.8.0"
 val kluentVersion = "1.49"
 val junitJupiterVersion = "5.6.0"
+val jacksonVersion = "2.9.7"
+val smCommonVersion = "1.84cb553"
+val kafkaEmbeddedVersion = "2.3.0"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -51,11 +54,18 @@ dependencies {
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
+    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
