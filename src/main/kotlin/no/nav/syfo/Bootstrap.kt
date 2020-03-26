@@ -18,11 +18,14 @@ import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.clients.KafkaConsumers
+import no.nav.syfo.db.Database
+import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
+import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,6 +46,9 @@ fun main() {
         serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
     )
 
+    val vaultCredentialService = VaultCredentialService()
+    val database = Database(env, vaultCredentialService)
+
     val applicationState = ApplicationState()
 
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
@@ -51,10 +57,13 @@ fun main() {
 
     ApplicationServer(applicationEngine, applicationState).start()
 
+    RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
+
     launchListeners(
         applicationState,
         env,
-        kafkaConsumers
+        kafkaConsumers,
+        database
     )
 }
 
@@ -78,7 +87,8 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
 fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
-    kafkaConsumers: KafkaConsumers
+    kafkaConsumers: KafkaConsumers,
+    database: Database
 ) {
     createListener(applicationState) {
         val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
@@ -88,7 +98,8 @@ fun launchListeners(
         kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
         blockingApplicationLogic(
             applicationState,
-            kafkaConsumerPapirSmRegistering
+            kafkaConsumerPapirSmRegistering,
+            database
         )
     }
 }
@@ -96,7 +107,8 @@ fun launchListeners(
 @KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
-    kafkaConsumer: KafkaConsumer<String, String>
+    kafkaConsumer: KafkaConsumer<String, String>,
+    database: Database
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -109,7 +121,7 @@ suspend fun blockingApplicationLogic(
                 journalpostId = receivedPapirSmRegistering.journalpostId
             )
 
-            handleRecivedMessage(receivedPapirSmRegistering, loggingMeta)
+            handleRecivedMessage(receivedPapirSmRegistering, database, loggingMeta)
         }
         delay(100)
     }

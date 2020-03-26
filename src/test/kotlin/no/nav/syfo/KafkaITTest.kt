@@ -29,7 +29,9 @@ internal class KafkaITTest {
             kafkaBootstrapServers = embeddedEnvironment.brokersURL,
             applicationName = "syfosminfotrygd",
             serviceuserUsernamePath = "/secrets/serviceuser/username",
-            serviceuserPasswordPath = "/secrets/serviceuser/password"
+            serviceuserPasswordPath = "/secrets/serviceuser/password",
+            smregistreringbackendDBURL = "SMREGISTERINGB_BACKEND_DB_URL",
+            mountPathVault = "MOUNT_PATH_VAULT"
     )
 
     fun Properties.overrideForTest(): Properties = apply {

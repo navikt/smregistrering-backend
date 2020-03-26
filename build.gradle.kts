@@ -12,6 +12,10 @@ val junitJupiterVersion = "5.6.0"
 val jacksonVersion = "2.9.7"
 val smCommonVersion = "1.84cb553"
 val kafkaEmbeddedVersion = "2.3.0"
+val postgresVersion = "42.2.5"
+val flywayVersion = "5.2.4"
+val hikariVersion = "3.3.0"
+val vaultJavaDriveVersion = "3.1.0"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -63,6 +67,11 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
+
+    implementation("org.postgresql:postgresql:$postgresVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("com.bettercloud:vault-java-driver:$vaultJavaDriveVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")

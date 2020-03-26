@@ -9,7 +9,10 @@ data class Environment(
     override val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
     val sm2013SmregistreringTopic: String = getEnvVar("KAFKA_PAPIR_SM_REGISTERING_TOPIC", "privat-syfo-papir-sm-registering"),
     val serviceuserUsernamePath: String = getEnvVar("SERVICE_USER_USERNAME"),
-    val serviceuserPasswordPath: String = getEnvVar("SERVICE_USER_PASSWORD")
+    val serviceuserPasswordPath: String = getEnvVar("SERVICE_USER_PASSWORD"),
+    val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
+    val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
+    val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend")
 ) : KafkaConfig
 
 data class VaultSecrets(
