@@ -1,0 +1,2 @@
+rootProject.name = "smregistrering-backend"
+
