@@ -68,12 +68,14 @@ fun launchListeners(
     kafkaConsumers: KafkaConsumers
 ) {
     createListener(applicationState) {
-        val kafkaConsumerManuellOppgave = kafkaConsumers.kafkaConsumerManuellOppgave
+        val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
 
-        kafkaConsumerManuellOppgave.subscribe(listOf(env.sm2013SmregistreringTopic))
+        applicationState.ready = true
+
+        kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
         blockingApplicationLogic(
             applicationState,
-            kafkaConsumerManuellOppgave
+            kafkaConsumerPapirSmRegistering
         )
     }
 }
