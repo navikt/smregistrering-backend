@@ -18,6 +18,7 @@ val hikariVersion = "3.3.0"
 val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "7.5.1"
 val postgresEmbeddedVersion = "0.13.3"
+val mockkVersion = "1.9.3"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -87,6 +88,7 @@ dependencies {
     }
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusdsVersion")
     testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 tasks {

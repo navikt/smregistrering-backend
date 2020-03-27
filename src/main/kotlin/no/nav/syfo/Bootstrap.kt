@@ -22,7 +22,6 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.db.Database
@@ -78,7 +77,8 @@ fun main() {
         vaultSecrets,
         jwkProvider,
         wellKnown.issuer,
-        manuellOppgaveService
+        manuellOppgaveService,
+        httpClients.safClient
     )
 
     ApplicationServer(applicationEngine, applicationState).start()
@@ -90,8 +90,7 @@ fun main() {
         env,
         kafkaConsumers,
         database,
-        httpClients.oppgaveClient,
-        httpClients.safClient
+        httpClients.oppgaveClient
     )
 }
 
@@ -117,8 +116,7 @@ fun launchListeners(
     env: Environment,
     kafkaConsumers: KafkaConsumers,
     database: Database,
-    oppgaveClient: OppgaveClient,
-    safClient: SafDokumentClient
+    oppgaveClient: OppgaveClient
 ) {
     createListener(applicationState) {
         val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
@@ -130,8 +128,7 @@ fun launchListeners(
             applicationState,
             kafkaConsumerPapirSmRegistering,
             database,
-            oppgaveClient,
-            safClient
+            oppgaveClient
         )
     }
 }
@@ -141,8 +138,7 @@ suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
     database: Database,
-    oppgaveClient: OppgaveClient,
-    safClient: SafDokumentClient
+    oppgaveClient: OppgaveClient
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -155,7 +151,7 @@ suspend fun blockingApplicationLogic(
                 journalpostId = receivedPapirSmRegistering.journalpostId
             )
 
-            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, safClient, loggingMeta)
+            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
         }
         delay(100)
     }

@@ -37,5 +37,5 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     @KtorExperimentalAPI
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
     @KtorExperimentalAPI
-    val safClient = SafDokumentClient(env.hentDokumentUrl, oidcClient, httpClient)
+    val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
 }

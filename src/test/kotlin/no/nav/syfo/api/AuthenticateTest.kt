@@ -19,11 +19,14 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
+import io.mockk.coEvery
+import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirSmRegistering
@@ -32,7 +35,6 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import no.nav.syfo.util.LoggingMeta
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
@@ -44,21 +46,16 @@ internal class AuthenticateTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val database = TestDB()
     private val manuellOppgaveService = ManuellOppgaveService(database)
+    private val safDokumentClient = mockk<SafDokumentClient>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
         with(TestApplicationEngine()) {
             start()
 
-            val oppgaveid = 308076319
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ByteArray(1)
 
-            val loggingMeta = LoggingMeta(
-                mottakId = "1344444",
-                journalpostId = "134",
-                dokumentInfoId = "131313",
-                msgId = "1344444",
-                sykmeldingId = "1344444"
-            )
+            val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
                 journalpostId = "134",
@@ -69,7 +66,7 @@ internal class AuthenticateTest {
                 sykmeldingId = "1344444"
             )
 
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid, ByteArray(1))
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
                 VaultSecrets(
@@ -81,7 +78,7 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService)
+                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
                 }
             }
 
@@ -115,15 +112,9 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            val oppgaveid = 308076319
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ByteArray(1)
 
-            val loggingMeta = LoggingMeta(
-                mottakId = "1344444",
-                journalpostId = "134",
-                dokumentInfoId = "131313",
-                msgId = "1344444",
-                sykmeldingId = "1344444"
-            )
+            val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
                 journalpostId = "134",
@@ -134,7 +125,7 @@ internal class AuthenticateTest {
                 sykmeldingId = "1344444"
             )
 
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid, ByteArray(1))
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
                 VaultSecrets(
@@ -146,7 +137,7 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService)
+                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
                 }
             }
 

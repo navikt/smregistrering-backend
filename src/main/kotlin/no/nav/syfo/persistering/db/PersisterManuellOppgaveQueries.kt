@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
 
-fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int, pdfPapirsykmelding: ByteArray?) {
+fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
     connection.use { connection ->
         connection.prepareStatement(
             """
@@ -16,10 +16,9 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
                 dokument_info_id,
                 dato_opprettet,
                 oppgave_id,
-                ferdigstilt,
-                pdf_papir_sykmelding
+                ferdigstilt
                 )
-            VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES  (?, ?, ?, ?, ?, ?, ?, ?)
             """
         ).use {
             it.setString(1, papirSmRegistering.sykmeldingId)
@@ -30,7 +29,6 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
             it.setTimestamp(6, Timestamp.valueOf(papirSmRegistering.datoOpprettet))
             it.setInt(7, oppgaveId)
             it.setBoolean(8, false)
-            it.setBytes(9, pdfPapirsykmelding)
             it.executeUpdate()
         }
 

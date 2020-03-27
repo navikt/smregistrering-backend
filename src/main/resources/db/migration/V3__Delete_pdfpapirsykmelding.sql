@@ -1,0 +1,1 @@
+ALTER TABLE manuelloppgave DROP COLUMN pdf_papir_sykmelding;

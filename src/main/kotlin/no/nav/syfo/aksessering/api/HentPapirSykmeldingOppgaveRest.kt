@@ -6,26 +6,35 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
+@KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
-    manuellOppgaveService: ManuellOppgaveService
+    manuellOppgaveService: ManuellOppgaveService,
+    safDokumentClient: SafDokumentClient
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
             log.info("Mottok kall til /api/v1/hentPapirSykmeldingManuellOppgave")
             val oppgaveId = call.request.queryParameters["oppgaveid"]?.toInt()
+            val accessToken = getAccessTokenFromAuthHeader(call.request)
 
             when {
+                accessToken == null -> {
+                    log.info("Mangler JWT Bearer token i HTTP header")
+                    call.respond(HttpStatusCode.BadRequest)
+                }
                 oppgaveId == null -> {
                     log.info("Mangler query parameters: oppgaveid")
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {
-                    log.info(
-                        "Fant ingen uløste manuelloppgaver med oppgaveid {}",
+                    log.info("Fant ingen uløste manuelloppgaver med oppgaveid {}",
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
                     call.respond(
@@ -38,7 +47,15 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         "Henter ut oppgave med {}",
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
-                    val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+
+                    var manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                    val pdfPapirSykmelding = safDokumentClient.hentDokument(
+                        journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
+                        dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
+                        msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                        accessToken = accessToken)
+
+                    manuellOppgaveDTOList.firstOrNull()?.pdfPapirSmRegistering = pdfPapirSykmelding
 
                     call.respond(manuellOppgaveDTOList)
                 }
