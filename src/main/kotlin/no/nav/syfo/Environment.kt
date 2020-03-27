@@ -18,7 +18,8 @@ data class Environment(
     val smregistreringUrl: String = getEnvVar("SMREGISTERING_URL"),
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL", "http://oppgave/api/v1/oppgaver"),
-    val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL")
+    val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
+    val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-smpapir-automatiskBehandling")
 ) : KafkaConfig
 
 data class VaultSecrets(

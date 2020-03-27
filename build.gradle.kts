@@ -19,12 +19,40 @@ val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "7.5.1"
 val postgresEmbeddedVersion = "0.13.3"
 val mockkVersion = "1.9.3"
+val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
+val sykmelding2013Version = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
+val kithHodemeldingVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
+val jaxbApiVersion = "2.1"
+val jaxbVersion = "2.3.0.1"
+val javaxActivationVersion = "1.1.1"
+val jaxwsApiVersion = "2.3.1"
+val javaxAnnotationApiVersion = "1.3.2"
+val jaxbRuntimeVersion = "2.4.0-b180830.0438"
+val jaxwsToolsVersion = "2.3.1"
+val javaxJaxwsApiVersion = "2.2.1"
+val javaTimeAdapterVersion = "1.1.3"
 
 plugins {
     kotlin("jvm") version "1.3.71"
     id("org.jmailen.kotlinter") version "2.1.1"
     id("com.diffplug.gradle.spotless") version "3.24.0"
     id("com.github.johnrengelman.shadow") version "5.1.0"
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+        classpath("org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
+        classpath("com.sun.activation:javax.activation:1.2.0")
+        classpath("com.sun.xml.ws:jaxws-tools:2.3.1") {
+            exclude(group = "com.sun.xml.ws", module = "policy")
+        }
+    }
 }
 
 val githubUser: String by project
@@ -62,8 +90,14 @@ dependencies {
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-mq:$smCommonVersion")
     implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
-    implementation ("no.nav.helse:syfosm-common-rest-sts:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-rest-sts:$smCommonVersion")
+
+    implementation ("no.nav.helse.xml:xmlfellesformat:$fellesformatVersion")
+    implementation ("no.nav.helse.xml:sm2013:$sykmelding2013Version")
+    implementation ("no.nav.helse.xml:kith-hodemelding:$kithHodemeldingVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -77,6 +111,21 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.bettercloud:vault-java-driver:$vaultJavaDriveVersion")
+
+    implementation ("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    implementation ("org.glassfish.jaxb:jaxb-runtime:$jaxbVersion")
+    implementation ("javax.activation:activation:$javaxActivationVersion")
+
+
+    implementation ("javax.xml.ws:jaxws-api:$jaxwsApiVersion")
+    implementation ("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
+    implementation ("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    implementation ("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
+    implementation ("javax.activation:activation:$javaxActivationVersion")
+    implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
+        exclude(group = "com.sun.xml.ws", module = "policy")
+    }
+    implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
