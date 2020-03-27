@@ -62,3 +62,5 @@ spec:
       value: /secrets/azuread/smregistrering-backend/client_id
     - name: SMREGISTERING_URL
       value: smregistrering.nais.preprod.local
+    - name: HENT_DOKUMENT_URL
+      value: https://saf-q1.nais.preprod.local/

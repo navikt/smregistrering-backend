@@ -9,7 +9,7 @@ fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDT
     connection.use { connection ->
         connection.prepareStatement(
             """
-                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt
+                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, pdf_papir_sykmelding
                 FROM MANUELLOPPGAVE  
                 WHERE oppgave_id=? 
                 AND ferdigstilt=?;
@@ -30,5 +30,6 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         datoOpprettet = getTimestamp("dato_opprettet").toLocalDateTime(),
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
-        ferdigstilt = getBoolean("ferdigstilt")
+        ferdigstilt = getBoolean("ferdigstilt"),
+        pdfPapirSmRegistering = getBytes("pdf_papir_sykmelding")
     )

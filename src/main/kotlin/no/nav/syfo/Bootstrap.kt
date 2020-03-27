@@ -22,6 +22,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.db.Database
@@ -89,7 +90,8 @@ fun main() {
         env,
         kafkaConsumers,
         database,
-        httpClients.oppgaveClient
+        httpClients.oppgaveClient,
+        httpClients.safClient
     )
 }
 
@@ -115,7 +117,8 @@ fun launchListeners(
     env: Environment,
     kafkaConsumers: KafkaConsumers,
     database: Database,
-    oppgaveClient: OppgaveClient
+    oppgaveClient: OppgaveClient,
+    safClient: SafDokumentClient
 ) {
     createListener(applicationState) {
         val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
@@ -127,7 +130,8 @@ fun launchListeners(
             applicationState,
             kafkaConsumerPapirSmRegistering,
             database,
-            oppgaveClient
+            oppgaveClient,
+            safClient
         )
     }
 }
@@ -137,7 +141,8 @@ suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
     database: Database,
-    oppgaveClient: OppgaveClient
+    oppgaveClient: OppgaveClient,
+    safClient: SafDokumentClient
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -150,7 +155,7 @@ suspend fun blockingApplicationLogic(
                 journalpostId = receivedPapirSmRegistering.journalpostId
             )
 
-            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, safClient, loggingMeta)
         }
         delay(100)
     }

@@ -34,7 +34,8 @@ internal class KafkaITTest {
             mountPathVault = "MOUNT_PATH_VAULT",
             oidcWellKnownUriPath = "OIDC_WELL_KNOWN_URI",
             smregistreringBackendClientIdPath = "SMREGISTERING_BACKEND_CLIENT_ID_PATH",
-            smregistreringUrl = "SMREGISTERING_URL"
+            smregistreringUrl = "SMREGISTERING_URL",
+            hentDokumentUrl = "urlsaf"
     )
 
     fun Properties.overrideForTest(): Properties = apply {

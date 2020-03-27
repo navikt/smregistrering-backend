@@ -6,6 +6,7 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.OpprettOppgave
+import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.finnFristForFerdigstillingAvOppgave
 import no.nav.syfo.db.Database
 import no.nav.syfo.log
@@ -23,6 +24,7 @@ suspend fun handleRecivedMessage(
     papirSmRegistering: PapirSmRegistering,
     database: Database,
     oppgaveClient: OppgaveClient,
+    safClient: SafDokumentClient,
     loggingMeta: LoggingMeta
 ) {
     wrapExceptions(loggingMeta) {
@@ -57,7 +59,13 @@ suspend fun handleRecivedMessage(
                 fields(loggingMeta)
             )
 
-            database.opprettManuellOppgave(papirSmRegistering, oppgaveResponse.id)
+            val pdfPapirSykmelding = safClient.hentDokument(
+                journalpostId = papirSmRegistering.journalpostId,
+                dokumentInfoId = papirSmRegistering.dokumentInfoId ?: "",
+                msgId = papirSmRegistering.sykmeldingId,
+                loggingMeta = loggingMeta)
+
+            database.opprettManuellOppgave(papirSmRegistering, oppgaveResponse.id, pdfPapirSykmelding)
             log.info(
                 "Manuell papir sykmeldingoppgave lagret i databasen, for {}, {}",
                 StructuredArguments.keyValue("oppgaveId", oppgaveResponse.id),

@@ -10,5 +10,6 @@ data class ManuellOppgaveDTO(
     val datoOpprettet: LocalDateTime?,
     val sykmeldingId: String,
     val oppgaveid: Int,
-    val ferdigstilt: Boolean
+    val ferdigstilt: Boolean,
+    val pdfPapirSmRegistering: ByteArray?
 )

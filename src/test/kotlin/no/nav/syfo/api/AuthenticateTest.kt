@@ -43,13 +43,12 @@ internal class AuthenticateTest {
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val database = TestDB()
+    private val manuellOppgaveService = ManuellOppgaveService(database)
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
         with(TestApplicationEngine()) {
             start()
-
-            val manuellOppgaveService = ManuellOppgaveService(database)
 
             val oppgaveid = 308076319
 
@@ -71,7 +70,7 @@ internal class AuthenticateTest {
                 sykmeldingId = "1344444"
             )
 
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid, ByteArray(1))
 
             application.setupAuth(
                 VaultSecrets(
@@ -106,7 +105,8 @@ internal class AuthenticateTest {
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
             }) {
                 response.status() shouldEqual HttpStatusCode.OK
-                objectMapper.readValue<List<ManuellOppgaveDTO>>(response.content!!).first().oppgaveid shouldEqual oppgaveid
+                objectMapper.readValue<List<ManuellOppgaveDTO>>(response.content!!)
+                    .first().oppgaveid shouldEqual oppgaveid
             }
         }
     }
@@ -116,9 +116,27 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            val manuellOppgaveService = ManuellOppgaveService(database)
-
             val oppgaveid = 308076319
+
+            val loggingMeta = LoggingMeta(
+                mottakId = "1344444",
+                journalpostId = "134",
+                dokumentInfoId = "131313",
+                msgId = "1344444",
+                sykmeldingId = "1344444"
+            )
+
+            val manuellOppgave = PapirSmRegistering(
+                journalpostId = "134",
+                fnr = "41424",
+                aktorId = "1314",
+                dokumentInfoId = "131313",
+                datoOpprettet = LocalDateTime.now(),
+                loggingMeta = loggingMeta,
+                sykmeldingId = "1344444"
+            )
+
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid, ByteArray(1))
 
             application.setupAuth(
                 VaultSecrets(

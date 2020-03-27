@@ -14,6 +14,7 @@ import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.StsOidcClient
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
@@ -35,4 +36,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val oidcClient = StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
     @KtorExperimentalAPI
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
+    @KtorExperimentalAPI
+    val safClient = SafDokumentClient(env.hentDokumentUrl, oidcClient, httpClient)
 }
