@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.authenticate
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
@@ -69,9 +68,10 @@ fun createApplicationEngine(
         }
         routing {
             registerNaisApi(applicationState)
-            authenticate("jwt") {
+            hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
+            /*authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
-            }
+            }*/
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())
     }
