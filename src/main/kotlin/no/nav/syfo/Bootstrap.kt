@@ -1,5 +1,6 @@
 package no.nav.syfo
 
+import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -7,7 +8,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import java.net.URL
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -17,6 +20,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
+import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
@@ -43,8 +47,16 @@ fun main() {
     val env = Environment()
     val vaultSecrets = VaultSecrets(
         serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
-        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
+        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
+        oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath),
+        smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath)
     )
+
+    val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)
+    val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
+        .cached(10, 24, TimeUnit.HOURS)
+        .rateLimited(10, 1, TimeUnit.MINUTES)
+        .build()
 
     val vaultCredentialService = VaultCredentialService()
     val database = Database(env, vaultCredentialService)
@@ -53,7 +65,13 @@ fun main() {
 
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
 
-    val applicationEngine = createApplicationEngine(env, applicationState)
+    val applicationEngine = createApplicationEngine(
+        env,
+        applicationState,
+        vaultSecrets,
+        jwkProvider,
+        wellKnown.issuer
+    )
 
     ApplicationServer(applicationEngine, applicationState).start()
 

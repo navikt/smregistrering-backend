@@ -16,6 +16,7 @@ val postgresVersion = "42.2.5"
 val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val vaultJavaDriveVersion = "3.1.0"
+val nimbusdsVersion = "7.5.1"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -81,6 +82,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
+    testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusdsVersion")
 }
 
 tasks {

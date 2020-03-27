@@ -23,7 +23,7 @@ internal class KafkaITTest {
         topicNames = listOf(topic)
     )
 
-    val credentials = VaultSecrets("", "")
+    val credentials = VaultSecrets("", "", "", "")
 
     val config = Environment(
             kafkaBootstrapServers = embeddedEnvironment.brokersURL,
@@ -31,7 +31,10 @@ internal class KafkaITTest {
             serviceuserUsernamePath = "/secrets/serviceuser/username",
             serviceuserPasswordPath = "/secrets/serviceuser/password",
             smregistreringbackendDBURL = "SMREGISTERINGB_BACKEND_DB_URL",
-            mountPathVault = "MOUNT_PATH_VAULT"
+            mountPathVault = "MOUNT_PATH_VAULT",
+            oidcWellKnownUriPath = "OIDC_WELL_KNOWN_URI",
+            smregistreringBackendClientIdPath = "SMREGISTERING_BACKEND_CLIENT_ID_PATH",
+            smregistreringUrl = "SMREGISTERING_URL"
     )
 
     fun Properties.overrideForTest(): Properties = apply {

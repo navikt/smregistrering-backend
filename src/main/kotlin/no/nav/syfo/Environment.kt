@@ -12,12 +12,17 @@ data class Environment(
     val serviceuserPasswordPath: String = getEnvVar("SERVICE_USER_PASSWORD"),
     val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
     val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
-    val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend")
+    val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend"),
+    val oidcWellKnownUriPath: String = getEnvVar("OIDC_WELL_KNOWN_URI"),
+    val smregistreringBackendClientIdPath: String = getEnvVar("SMREGISTERING_BACKEND_CLIENT_ID_PATH"),
+    val smregistreringUrl: String = getEnvVar("SMREGISTERING_URL")
 ) : KafkaConfig
 
 data class VaultSecrets(
     val serviceuserUsername: String,
-    val serviceuserPassword: String
+    val serviceuserPassword: String,
+    val oidcWellKnownUri: String,
+    val smregistreringBackendClientId: String
 ) : KafkaCredentials {
     override val kafkaUsername: String = serviceuserUsername
     override val kafkaPassword: String = serviceuserPassword

@@ -38,6 +38,11 @@ spec:
     paths:
       - kvPath: serviceuser/data/dev/srvregpapirsm
         mountPath: /secrets/serviceuser
+      - kvPath: /azuread/data/dev/creds/smregistrering-backend
+        mountPath: /secrets/azuread/smregistrering-backend
+      - kvPath: /kv/preprod/fss/smregistrering-backend/default
+        mountPath: /secrets/default
+  webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.preprod.local"
   env:
@@ -51,3 +56,9 @@ spec:
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/smregistrering-backend
     - name: MOUNT_PATH_VAULT
       value: /postgresql/preprod-fss
+    - name: OIDC_WELL_KNOWN_URI
+      value: /secrets/default/oidcWellKnownUri
+    - name: SMREGISTERING_BACKEND_CLIENT_ID_PATH
+      value: /secrets/azuread/smregistrering-backend/client_id
+    - name: SMREGISTERING_URL
+      value: smregistrering.nais.preprod.local
