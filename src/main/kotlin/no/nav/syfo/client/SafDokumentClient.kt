@@ -42,7 +42,7 @@ class SafDokumentClient constructor(
                 null
             }
             else -> {
-                log.info("Hentet OCR-dokument for msgId {}, {}", msgId, fields(loggingMeta))
+                log.info("Hentet papirsykmelding pdf for msgId {}, {}", msgId, fields(loggingMeta))
                 httpResponse.call.response.receive<String>()
             }
         }
