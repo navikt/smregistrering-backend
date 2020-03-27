@@ -17,6 +17,7 @@ val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "7.5.1"
+val postgresEmbeddedVersion = "0.13.3"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -60,6 +61,8 @@ dependencies {
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
+    implementation ("no.nav.helse:syfosm-common-rest-sts:$smCommonVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -83,6 +86,7 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusdsVersion")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
 }
 
 tasks {

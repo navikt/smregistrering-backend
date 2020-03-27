@@ -21,11 +21,14 @@ import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.application.getWellKnown
+import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.handleRecivedMessage
+import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
@@ -63,14 +66,18 @@ fun main() {
 
     val applicationState = ApplicationState()
 
+    val manuellOppgaveService = ManuellOppgaveService(database)
+
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
+    val httpClients = HttpClients(env, vaultSecrets)
 
     val applicationEngine = createApplicationEngine(
         env,
         applicationState,
         vaultSecrets,
         jwkProvider,
-        wellKnown.issuer
+        wellKnown.issuer,
+        manuellOppgaveService
     )
 
     ApplicationServer(applicationEngine, applicationState).start()
@@ -81,7 +88,8 @@ fun main() {
         applicationState,
         env,
         kafkaConsumers,
-        database
+        database,
+        httpClients.oppgaveClient
     )
 }
 
@@ -106,7 +114,8 @@ fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
     kafkaConsumers: KafkaConsumers,
-    database: Database
+    database: Database,
+    oppgaveClient: OppgaveClient
 ) {
     createListener(applicationState) {
         val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
@@ -117,7 +126,8 @@ fun launchListeners(
         blockingApplicationLogic(
             applicationState,
             kafkaConsumerPapirSmRegistering,
-            database
+            database,
+            oppgaveClient
         )
     }
 }
@@ -126,7 +136,8 @@ fun launchListeners(
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
-    database: Database
+    database: Database,
+    oppgaveClient: OppgaveClient
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -139,7 +150,7 @@ suspend fun blockingApplicationLogic(
                 journalpostId = receivedPapirSmRegistering.journalpostId
             )
 
-            handleRecivedMessage(receivedPapirSmRegistering, database, loggingMeta)
+            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
         }
         delay(100)
     }

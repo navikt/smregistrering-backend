@@ -27,6 +27,7 @@ import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
+import no.nav.syfo.service.ManuellOppgaveService
 
 @InternalAPI
 fun createApplicationEngine(
@@ -34,7 +35,8 @@ fun createApplicationEngine(
     applicationState: ApplicationState,
     vaultSecrets: VaultSecrets,
     jwkProvider: JwkProvider,
-    issuer: String
+    issuer: String,
+    manuellOppgaveService: ManuellOppgaveService
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
@@ -66,7 +68,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave()
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

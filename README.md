@@ -1,6 +1,8 @@
 [![Build status](https://github.com/navikt/smregistrering-backend/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)](https://github.com/navikt/smregistrering-backend/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)
 
 # Manual registration of paper sykmelding
+Repo for manual registration of paper sykmelding, receives paper sykmelding and in turns them into digital sykmeldings
+<img src="./src/svg/flytdiagram.svg" alt="Image of the flow of the smregistrering-backend application">
 
 ## Technologies used
 * Kotlin
