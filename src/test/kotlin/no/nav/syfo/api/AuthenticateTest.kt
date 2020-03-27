@@ -66,7 +66,6 @@ internal class AuthenticateTest {
                 aktorId = "1314",
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
-                loggingMeta = loggingMeta,
                 sykmeldingId = "1344444"
             )
 
@@ -132,7 +131,6 @@ internal class AuthenticateTest {
                 aktorId = "1314",
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
-                loggingMeta = loggingMeta,
                 sykmeldingId = "1344444"
             )
 

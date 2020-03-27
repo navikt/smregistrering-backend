@@ -4,7 +4,6 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
@@ -27,10 +26,7 @@ import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
-import no.nav.syfo.model.PapirSmRegistering
-import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
 import no.nav.syfo.vault.RenewVaultService
@@ -146,6 +142,7 @@ suspend fun blockingApplicationLogic(
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
+            /*
             val receivedPapirSmRegistering: PapirSmRegistering = objectMapper.readValue(consumerRecord.value())
             val loggingMeta = LoggingMeta(
                 mottakId = receivedPapirSmRegistering.sykmeldingId,
@@ -156,6 +153,7 @@ suspend fun blockingApplicationLogic(
             )
 
             handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, safClient, loggingMeta)
+             */
         }
         delay(100)
     }
