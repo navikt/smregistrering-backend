@@ -31,5 +31,5 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
-        pdfPapirSmRegistering = null
+        pdfPapirSykmelding = null
     )

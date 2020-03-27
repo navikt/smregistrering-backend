@@ -55,7 +55,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
                         accessToken = accessToken)
 
-                    manuellOppgaveDTOList.firstOrNull()?.pdfPapirSmRegistering = pdfPapirSykmelding
+                    manuellOppgaveDTOList.firstOrNull()?.pdfPapirSykmelding = pdfPapirSykmelding
 
                     call.respond(manuellOppgaveDTOList)
                 }
