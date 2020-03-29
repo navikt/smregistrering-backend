@@ -31,6 +31,7 @@ val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxwsToolsVersion = "2.3.1"
 val javaxJaxwsApiVersion = "2.2.1"
 val javaTimeAdapterVersion = "1.1.3"
+val commonsTextVersion = "1.4"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -126,6 +127,8 @@ dependencies {
         exclude(group = "com.sun.xml.ws", module = "policy")
     }
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
+
+    implementation ("org.apache.commons:commons-text:$commonsTextVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
