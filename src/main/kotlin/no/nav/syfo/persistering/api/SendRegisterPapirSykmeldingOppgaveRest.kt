@@ -14,6 +14,7 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.AktoerIdClient
+import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
@@ -21,6 +22,7 @@ import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.persistering.handleManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
@@ -39,7 +41,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    aktoerIdClient: AktoerIdClient
+    aktoerIdClient: AktoerIdClient,
+    serviceuserUsername: String,
+    dokArkivClient: DokArkivClient
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave/{oppgaveid}") {
@@ -61,15 +65,35 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 else -> {
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
                     if (!manuellOppgaveDTOList.isNullOrEmpty()) {
-                        // TODO hande the oppgave handleManuellOppgave()
+                        val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
+                        val journalpostId = manuellOppgaveDTOList.first().journalpostId
+                        val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
 
                         val loggingMeta = LoggingMeta(
-                            mottakId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                            dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId,
-                            msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                            sykmeldingId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                            journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId
+                            mottakId = sykmeldingId,
+                            dokumentInfoId = dokumentInfoId,
+                            msgId = sykmeldingId,
+                            sykmeldingId = sykmeldingId,
+                            journalpostId = journalpostId
                         )
+
+                        val aktoerIds = aktoerIdClient.getAktoerIds(
+                            listOf(smRegisteringManuellt.sykmelderFnr, smRegisteringManuellt.pasientFnr),
+                            serviceuserUsername,
+                            loggingMeta
+                        )
+
+                        val patientIdents = aktoerIds[smRegisteringManuellt.pasientFnr]
+                        val doctorIdents = aktoerIds[smRegisteringManuellt.sykmelderFnr]
+
+                        if (patientIdents == null || patientIdents.feilmelding != null) {
+                            log.error("Pasienten finnes ikkje i aktorregistert")
+                            call.respond(HttpStatusCode.InternalServerError)
+                        }
+                        if (doctorIdents == null || doctorIdents.feilmelding != null) {
+                            log.error("Sykmelder finnes ikkje i aktorregistert")
+                            call.respond(HttpStatusCode.InternalServerError)
+                        }
 
                         val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuellt.sykmelderFnr)
                         val samhandlerPraksisMatch = findBestSamhandlerPraksis(
@@ -82,7 +106,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             smRegisteringManuellt = smRegisteringManuellt,
                             pasientFnr = smRegisteringManuellt.pasientFnr,
                             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
-                            sykmeldingId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                            sykmeldingId = sykmeldingId,
                             datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
                         )
 
@@ -90,10 +114,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         val msgHead = fellesformat.get<XMLMsgHead>()
 
                         val sykmelding = healthInformation.toSykmelding(
-                            sykmeldingId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                            pasientAktoerId = "TODO",
-                            legeAktoerId = "TODO",
-                            msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                            sykmeldingId = sykmeldingId,
+                            pasientAktoerId = patientIdents!!.identer!!.first().ident,
+                            legeAktoerId = doctorIdents!!.identer!!.first().ident,
+                            msgId = sykmeldingId,
                             signaturDato = msgHead.msgInfo.genDate
                         )
 
@@ -102,8 +126,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             personNrPasient = smRegisteringManuellt.sykmelderFnr,
                             tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
                             personNrLege = smRegisteringManuellt.sykmelderFnr,
-                            navLogId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                            msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                            navLogId = sykmeldingId,
+                            msgId = sykmeldingId,
                             legekontorOrgNr = null,
                             legekontorOrgName = "",
                             legekontorHerId = null,
@@ -115,6 +139,20 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         )
 
                         log.info("Papir Sykmelding mappet til internt format uten feil {}", fields(loggingMeta))
+
+                        handleManuellOppgave(
+                            receivedSykmelding = receivedSykmelding,
+                            kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                            loggingMeta = loggingMeta,
+                            session = session,
+                            syfoserviceProducer = syfoserviceProducer,
+                            oppgaveClient = oppgaveClient,
+                            dokArkivClient = dokArkivClient,
+                            sykmeldingId = sykmeldingId,
+                            journalpostId = journalpostId,
+                            healthInformation = healthInformation,
+                            oppgaveId = oppgaveId
+                        )
                     } else {
                         log.warn(
                             "Henting av papir sykmelding manuell registering returente null {}",

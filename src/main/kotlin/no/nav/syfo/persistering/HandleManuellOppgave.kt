@@ -1,64 +1,61 @@
 package no.nav.syfo.persistering
 
 import io.ktor.util.KtorExperimentalAPI
-import java.io.StringReader
 import javax.jms.MessageProducer
 import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
-import no.nav.helse.eiFellesformat.XMLEIFellesformat
+import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
+import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.FerdigStillOppgave
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.OppgaveStatus
+import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.service.notifySyfoService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
-import no.nav.syfo.util.fellesformatUnmarshaller
-import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 
 @KtorExperimentalAPI
 suspend fun handleManuellOppgave(
-    manuellOppgave: ManuellOppgaveDTO,
     receivedSykmelding: ReceivedSykmelding,
-    sm2013AutomaticHandlingTopic: String,
-    kafkaproducerreceivedSykmelding: KafkaProducer<String, ReceivedSykmelding>,
+    kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
     loggingMeta: LoggingMeta,
-    syfoserviceQueueName: String,
     session: Session,
     syfoserviceProducer: MessageProducer,
-    oppgaveClient: OppgaveClient
+    oppgaveClient: OppgaveClient,
+    dokArkivClient: DokArkivClient,
+    sykmeldingId: String,
+    journalpostId: String,
+    healthInformation: HelseOpplysningerArbeidsuforhet,
+    oppgaveId: Int
 ) {
-    val fellesformat = fellesformatUnmarshaller.unmarshal(
-        StringReader(receivedSykmelding.fellesformat)) as XMLEIFellesformat
-
-    // TODO remove notifySyfoService, when we no longer uses syfoService app to show sykmeldinger
-    notifySyfoService(
-        session = session,
-        receiptProducer = syfoserviceProducer,
-        ediLoggId = receivedSykmelding.navLogId,
-        sykmeldingId = receivedSykmelding.sykmelding.id,
-        msgId = receivedSykmelding.msgId,
-        healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
-    )
-    log.info("Melding sendt til syfoService kø {}, {}", syfoserviceQueueName, fields(loggingMeta))
-
-    kafkaproducerreceivedSykmelding.send(
+    dokArkivClient.ferdigStillJournalpost(journalpostId, sykmeldingId, loggingMeta)
+    kafkaRecievedSykmeldingProducer.producer.send(
         ProducerRecord(
-            sm2013AutomaticHandlingTopic,
+            kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic,
             receivedSykmelding.sykmelding.id,
-            receivedSykmelding)
+            receivedSykmelding
+        )
     )
-    log.info("Melding sendt til kafka topic {}, {}", sm2013AutomaticHandlingTopic, fields(loggingMeta))
+    log.info(
+        "Message send to kafka {}, {}",
+        kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic,
+        fields(loggingMeta)
+    )
 
-    val oppgaveVersjon = oppgaveClient.hentOppgave(manuellOppgave.oppgaveid, receivedSykmelding.msgId).versjon
+    notifySyfoService(
+        session = session, receiptProducer = syfoserviceProducer, ediLoggId = sykmeldingId,
+        sykmeldingId = receivedSykmelding.sykmelding.id, msgId = sykmeldingId, healthInformation = healthInformation
+    )
+    log.info("Message send to syfoService, {}", fields(loggingMeta))
 
-    val ferdigStillOppgave = ferdigStillOppgave(manuellOppgave, oppgaveVersjon)
+    val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
 
-    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, receivedSykmelding.msgId)
+    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon)
+
+    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(
         "Ferdigstilter oppgave med {}, {}",
         keyValue("oppgaveId", oppgaveResponse.id),
@@ -66,8 +63,8 @@ suspend fun handleManuellOppgave(
     )
 }
 
-fun ferdigStillOppgave(manuellOppgave: ManuellOppgaveDTO, oppgaveVersjon: Int) = FerdigStillOppgave(
+fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int) = FerdigStillOppgave(
     versjon = oppgaveVersjon,
-    id = manuellOppgave.oppgaveid,
+    id = oppgaveid,
     status = OppgaveStatus.FERDIGSTILT
 )
