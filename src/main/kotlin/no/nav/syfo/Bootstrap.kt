@@ -58,7 +58,9 @@ fun main() {
         mqUsername = getFileAsString(env.mqUsernamePath),
         mqPassword = getFileAsString(env.mqPasswordPath),
         oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath),
-        smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath)
+        smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath),
+        smregistreringBackendClientSecret = getFileAsString(env.smregistreringBackendClientSecretPath),
+        syfosmpapirregelClientId = getFileAsString(env.syfosmpapirregelClientIdPath)
     )
 
     val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)
@@ -98,7 +100,10 @@ fun main() {
         httpClients.sarClient,
         httpClients.aktoerIdClient,
         vaultSecrets.serviceuserUsername,
-        httpClients.dokArkivClient
+        httpClients.dokArkivClient,
+        httpClients.regelClient,
+        kafkaProducers.kafkaValidationResultProducer,
+        kafkaProducers.kafkaManuelTaskProducer
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

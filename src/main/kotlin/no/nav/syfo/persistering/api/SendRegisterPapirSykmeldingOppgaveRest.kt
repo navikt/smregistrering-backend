@@ -16,13 +16,16 @@ import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.Status
 import no.nav.syfo.persistering.handleManuellOppgave
+import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
@@ -43,7 +46,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     kuhrsarClient: SarClient,
     aktoerIdClient: AktoerIdClient,
     serviceuserUsername: String,
-    dokArkivClient: DokArkivClient
+    dokArkivClient: DokArkivClient,
+    regelClient: RegelClient,
+    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
+    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave/{oppgaveid}") {
@@ -140,28 +146,72 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         log.info("Papir Sykmelding mappet til internt format uten feil {}", fields(loggingMeta))
 
-                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                        val validationResult = regelClient.valider(receivedSykmelding, sykmeldingId)
+                        log.info(
+                            "Resultat: {}, {}, {}",
+                            StructuredArguments.keyValue("ruleStatus", validationResult.status.name),
+                            StructuredArguments.keyValue(
+                                "ruleHits",
+                                validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
+                            fields(loggingMeta)
+                        )
 
-                            handleManuellOppgave(
-                                receivedSykmelding = receivedSykmelding,
-                                kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
-                                loggingMeta = loggingMeta,
-                                session = session,
-                                syfoserviceProducer = syfoserviceProducer,
-                                oppgaveClient = oppgaveClient,
-                                dokArkivClient = dokArkivClient,
-                                sykmeldingId = sykmeldingId,
-                                journalpostId = journalpostId,
-                                healthInformation = healthInformation,
-                                oppgaveId = oppgaveId
-                            )
-                            call.respond(HttpStatusCode.NoContent)
-                        } else {
-                            log.error(
-                                "Ferdigstilling av sm registeirng i db feilet {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                            )
-                            call.respond(HttpStatusCode.InternalServerError)
+                        when (validationResult.status) {
+                            Status.OK -> {
+                                if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                                    handleOKOppgave(
+                                        receivedSykmelding = receivedSykmelding,
+                                        kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                        loggingMeta = loggingMeta,
+                                        session = session,
+                                        syfoserviceProducer = syfoserviceProducer,
+                                        oppgaveClient = oppgaveClient,
+                                        dokArkivClient = dokArkivClient,
+                                        sykmeldingId = sykmeldingId,
+                                        journalpostId = journalpostId,
+                                        healthInformation = healthInformation,
+                                        oppgaveId = oppgaveId
+                                    )
+                                    call.respond(HttpStatusCode.NoContent)
+                                } else {
+                                    log.error(
+                                        "Ferdigstilling av sm registeirng i db feilet {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                    call.respond(HttpStatusCode.InternalServerError)
+                                }
+                            }
+                            Status.MANUAL_PROCESSING -> {
+                                if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                                    handleManuellOppgave(
+                                        receivedSykmelding = receivedSykmelding,
+                                        kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                        loggingMeta = loggingMeta,
+                                        session = session,
+                                        syfoserviceProducer = syfoserviceProducer,
+                                        oppgaveClient = oppgaveClient,
+                                        dokArkivClient = dokArkivClient,
+                                        sykmeldingId = sykmeldingId,
+                                        journalpostId = journalpostId,
+                                        healthInformation = healthInformation,
+                                        oppgaveId = oppgaveId,
+                                        validationResult = validationResult,
+                                        kafkaManuelTaskProducer = kafkaManuelTaskProducer,
+                                        kafkaValidationResultProducer = kafkaValidationResultProducer
+                                    )
+                                    call.respond(HttpStatusCode.NoContent)
+                                } else {
+                                    log.error(
+                                        "Ferdigstilling av sm registeirng i db feilet {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                    call.respond(HttpStatusCode.InternalServerError)
+                                }
+                            }
+                            else -> {
+                                log.error("Ukjent status: ${validationResult.status} , Papirsykmeldinger kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                                call.respond(HttpStatusCode.InternalServerError)
+                            }
                         }
                     } else {
                         log.warn(

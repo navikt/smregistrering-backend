@@ -23,6 +23,7 @@ import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.Calendar
 import java.util.concurrent.Future
 import javax.jms.MessageProducer
 import javax.jms.Session
@@ -33,6 +34,7 @@ import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.OpprettOppgaveResponse
+import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.Samhandler
 import no.nav.syfo.client.SarClient
@@ -48,6 +50,8 @@ import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.Status
+import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -57,7 +61,6 @@ import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
-import java.util.Calendar
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -77,6 +80,9 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val serviceuserUsername = "serviceuser"
     private val dokArkivClient = mockk<DokArkivClient>()
     private val textMessage = mockk<TextMessage>()
+    private val regelClient = mockk<RegelClient>()
+    private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
+    private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
 
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
@@ -105,7 +111,9 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
                     smregistreringBackendClientId = "clientId",
                     mqUsername = "username",
-                    mqPassword = "password"
+                    mqPassword = "password",
+                    smregistreringBackendClientSecret = "secret",
+                    syfosmpapirregelClientId = "clientid"
                 ), jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
@@ -118,7 +126,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     kuhrsarClient,
                     aktoerIdClient,
                     serviceuserUsername,
-                    dokArkivClient
+                    dokArkivClient,
+                    regelClient,
+                    kafkaValidationResultProducer,
+                    kafkaManuelTaskProducer
                 )
             }
 
@@ -208,6 +219,11 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
             coEvery { dokArkivClient.ferdigStillJournalpost(any(), any(), any()) } returns ""
+            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
+            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
+            coEvery { regelClient.valider(any(), any()) } returns ValidationResult(status = Status.OK, ruleHits = emptyList())
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")

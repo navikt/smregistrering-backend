@@ -31,6 +31,7 @@ import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.clients.KafkaProducers
@@ -56,7 +57,10 @@ fun createApplicationEngine(
     kuhrsarClient: SarClient,
     aktoerIdClient: AktoerIdClient,
     serviceuserUsername: String,
-    dokArkivClient: DokArkivClient
+    dokArkivClient: DokArkivClient,
+    regelClient: RegelClient,
+    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
+    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
@@ -96,7 +100,10 @@ fun createApplicationEngine(
                 kuhrsarClient,
                 aktoerIdClient,
                 serviceuserUsername,
-                dokArkivClient
+                dokArkivClient,
+                regelClient,
+                kafkaValidationResultProducer,
+                kafkaManuelTaskProducer
             )
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)

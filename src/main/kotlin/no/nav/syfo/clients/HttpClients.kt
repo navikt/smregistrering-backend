@@ -11,14 +11,18 @@ import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.util.KtorExperimentalAPI
+import java.net.ProxySelector
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
+import no.nav.syfo.client.AccessTokenClient
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -32,6 +36,17 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         }
         expectSuccess = false
     }
+
+    val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+        config()
+        engine {
+            customizeClient {
+                setRoutePlanner(SystemDefaultRoutePlanner(ProxySelector.getDefault()))
+            }
+        }
+    }
+
+    private val httpClientWithProxy = HttpClient(Apache, proxyConfig)
 
     private val httpClient = HttpClient(Apache, config)
 
@@ -47,4 +62,8 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
     @KtorExperimentalAPI
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
+    @KtorExperimentalAPI
+    val accessTokenClient = AccessTokenClient(env.aadAccessTokenUrl, vaultSecrets.smregistreringBackendClientId, vaultSecrets.smregistreringBackendClientSecret, httpClientWithProxy)
+    @KtorExperimentalAPI
+    val regelClient = RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
 }

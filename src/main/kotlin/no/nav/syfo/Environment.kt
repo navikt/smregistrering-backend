@@ -30,7 +30,14 @@ data class Environment(
     val mqPasswordPath: String = getEnvVar("MQ_PASSWORD"),
     val syfoserviceQueueName: String = getEnvVar("MQ_SYFOSERVICE_QUEUE_NAME"),
     val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api"),
-    val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL")
+    val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
+    val aadAccessTokenUrl: String = getEnvVar("AADACCESSTOKEN_URL"),
+    val regelEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfosmpapirregler"),
+    val smregistreringBackendClientSecretPath: String = getEnvVar("SMREGISTERING_BACKEND_CLIENT_SECRET_PATH"),
+    val syfosmpapirregelClientIdPath: String = getEnvVar("SYFOSMPAIR_REGLER_CLIENT_ID_PATH"),
+    val smpapirManualHandlingTopic: String = getEnvVar("KAFKA_SMPAPIR_MANUAL_TOPIC", "privat-syfo-smpapir-manuellBehandling"),
+    val sm2013BehandlingsUtfallTopic: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-behandlingsUtfall"),
+    val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave")
 ) : MqConfig, KafkaConfig
 
 data class VaultSecrets(
@@ -39,7 +46,9 @@ data class VaultSecrets(
     val mqUsername: String,
     val mqPassword: String,
     val oidcWellKnownUri: String,
-    val smregistreringBackendClientId: String
+    val smregistreringBackendClientId: String,
+    val smregistreringBackendClientSecret: String,
+    val syfosmpapirregelClientId: String
 ) : KafkaCredentials {
     override val kafkaUsername: String = serviceuserUsername
     override val kafkaPassword: String = serviceuserPassword

@@ -32,6 +32,9 @@ val jaxwsToolsVersion = "2.3.1"
 val javaxJaxwsApiVersion = "2.2.1"
 val javaTimeAdapterVersion = "1.1.3"
 val commonsTextVersion = "1.4"
+val syfooppgaveSchemasVersion = "c8be932543e7356a34690ce7979d494c5d8516d8"
+val kafkaVersion = "2.3.0"
+val confluentVersion = "5.0.2"
 
 plugins {
     kotlin("jvm") version "1.3.71"
@@ -99,6 +102,7 @@ dependencies {
     implementation ("no.nav.helse.xml:xmlfellesformat:$fellesformatVersion")
     implementation ("no.nav.helse.xml:sm2013:$sykmelding2013Version")
     implementation ("no.nav.helse.xml:kith-hodemelding:$kithHodemeldingVersion")
+    implementation ("no.nav.syfo.schemas:syfosmoppgave-avro:$syfooppgaveSchemasVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -107,6 +111,9 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
+
+    implementation ("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    implementation ("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")

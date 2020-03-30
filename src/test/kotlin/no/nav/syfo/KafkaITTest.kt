@@ -29,6 +29,8 @@ internal class KafkaITTest {
         "",
         "",
         "",
+        "",
+        "",
         ""
     )
 
@@ -51,7 +53,11 @@ internal class KafkaITTest {
         mqGatewayName = "mqGateway",
         mqChannelName = "syfomottak",
         syfoserviceQueueName = "",
-        dokArkivUrl = ""
+        dokArkivUrl = "",
+        aadAccessTokenUrl = "",
+        smregistreringBackendClientSecretPath = "SMREGISTERING_BACKEND_CLIENT_SECRET_PATH",
+        syfosmpapirregelClientIdPath = "SYFOSMPAIR_REGLER_CLIENT_ID_PATH"
+
     )
 
     fun Properties.overrideForTest(): Properties = apply {

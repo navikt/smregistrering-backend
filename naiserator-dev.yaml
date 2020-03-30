@@ -42,6 +42,8 @@ spec:
         mountPath: /secrets/azuread/smregistrering-backend
       - kvPath: /kv/preprod/fss/smregistrering-backend/default
         mountPath: /secrets/default
+      - kvPath: /azuread/data/dev/creds/syfosmpapirregler
+        mountPath: /secrets/azuread/syfosmpapirregler
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.preprod.local"
@@ -82,3 +84,9 @@ spec:
       value: /secrets/default/mqUsername
     - name: MQ_PASSWORD
       value: /secrets/default/mqPassword
+    - name: AADACCESSTOKEN_URL
+      value: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/token
+    - name: SYFOSMPAIR_REGLER_CLIENT_ID_PATH
+      value: /secrets/azuread/syfosmpapirregler/client_id
+    - name: SMREGISTERING_BACKEND_CLIENT_SECRET_PATH
+      value: /secrets/azuread/smregistrering-backend/client_secret
