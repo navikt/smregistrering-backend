@@ -60,6 +60,42 @@ To build locally and run the integration tests you can simply run `./gradlew sha
 For triggering this app https://github.com/navikt/syfosmpapirmottak#testing-the-whole-flow-for-handling-paper-sykmelding-in-preprod
 And put in a invalid diagnose, then it will end up in this app
 
+### Verification in Gosys:
+1. Login User (Case managers / supervisors):
+   Z992389
+2. Check that the sykmelding is placed in gosys:
+   - Log in at https://gosys-nais-q1.nais.preprod.local/gosys
+   - Search for user with fnr
+3. Verify that there is a sykmelding task under tasks overview and 
+   that this is the sykmelding you submitted
+4. Click on the "Start buttom" for that task.   
+5. You may need to login, with the Login User, the mail adress follows this pattern:
+    F_ZXXXXXX.E_ZXXXXXX@trygdeetaten.no, where you change F_ZXXXXXX to F_Z992389 and E_ZXXXXXX to E_Z992389
+    Use the same passord that you used to login in gosys.
+    Username and password for testing can be found here(NAV-internal sites):
+    https://confluence.adeo.no/display/KES/Generell+testing+av+sykemelding+2013+i+preprod
+6. TODO
+7. TODO
+8. Then check that the task has been closed and completed in gosys
+
+
+### Verification in «ditt sykefravær»:
+1. Check that the sykmelding is on ditt sykefravær
+2. Go to https://tjenester-q1.nav.no/sykefravaer
+3. Log in with the fnr for the user as the username and a password
+3. Then select "Uten IDPorten"
+4. Enter the user's fnr again and press sign-in
+5. Verify that a new task has appeared for the user
+
+### Verification in Modia:
+1. Log in to the modes, https://syfomodiaperson.nais.preprod.local/sykefravaer/$fnr
+2. You may need to login, with the Login User, the mail adress follows this pattern:
+    F_ZXXXXXX.E_ZXXXXXX@trygdeetaten.no, where you change F_ZXXXXXX to F_Z992389 and E_ZXXXXXX to E_Z992389
+    Use the same passord that you used to login in gosys.
+    Username and password for testing can be found here(NAV-internal sites):
+    https://confluence.adeo.no/display/KES/Generell+testing+av+sykemelding+2013+i+preprod under "Verifisering i Modia"
+3. See "Sykmeldt enkeltperson" verifying that the sykmelding that is there is correct
+
 #### Creating a docker image
 Creating a docker image should be as simple as `docker build -t smregistrering-backend .`
 
