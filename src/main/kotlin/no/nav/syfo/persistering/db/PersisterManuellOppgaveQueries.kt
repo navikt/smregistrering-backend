@@ -49,3 +49,20 @@ fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
             it.executeQuery().next()
         }
     }
+
+fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int): Int =
+    connection.use { connection ->
+        val status = connection.prepareStatement(
+            """
+            UPDATE MANUELLOPPGAVE
+            SET ferdigstilt = ?
+            WHERE oppgaveid = ?;
+            """
+        ).use {
+            it.setBoolean(1, true)
+            it.setInt(2, oppgaveId)
+            it.executeUpdate()
+        }
+        connection.commit()
+        return status
+    }

@@ -140,20 +140,29 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         log.info("Papir Sykmelding mappet til internt format uten feil {}", fields(loggingMeta))
 
-                        handleManuellOppgave(
-                            receivedSykmelding = receivedSykmelding,
-                            kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
-                            loggingMeta = loggingMeta,
-                            session = session,
-                            syfoserviceProducer = syfoserviceProducer,
-                            oppgaveClient = oppgaveClient,
-                            dokArkivClient = dokArkivClient,
-                            sykmeldingId = sykmeldingId,
-                            journalpostId = journalpostId,
-                            healthInformation = healthInformation,
-                            oppgaveId = oppgaveId
-                        )
-                        call.respond(HttpStatusCode.NoContent)
+                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+
+                            handleManuellOppgave(
+                                receivedSykmelding = receivedSykmelding,
+                                kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                loggingMeta = loggingMeta,
+                                session = session,
+                                syfoserviceProducer = syfoserviceProducer,
+                                oppgaveClient = oppgaveClient,
+                                dokArkivClient = dokArkivClient,
+                                sykmeldingId = sykmeldingId,
+                                journalpostId = journalpostId,
+                                healthInformation = healthInformation,
+                                oppgaveId = oppgaveId
+                            )
+                            call.respond(HttpStatusCode.NoContent)
+                        } else {
+                            log.error(
+                                "Ferdigstilling av sm registeirng i db feilet {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            )
+                            call.respond(HttpStatusCode.InternalServerError)
+                        }
                     } else {
                         log.warn(
                             "Henting av papir sykmelding manuell registering returente null {}",
