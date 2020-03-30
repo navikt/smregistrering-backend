@@ -64,3 +64,21 @@ spec:
       value: smregistrering.nais.preprod.local
     - name: HENT_DOKUMENT_URL
       value: https://saf-q1.nais.preprod.local/
+    - name: AKTOR_REGISTER_V1_URL
+      value: https://app-q1.adeo.no/aktoerregister/api/v1
+    - name: DOK_ARKIV_URL
+      value: https://dokarkiv-q1.nais.preprod.local/rest/journalpostapi/v1/journalpost
+    - name: MQ_SYFOSERVICE_QUEUE_NAME
+      value: QA.Q1_EIA_SYFO_OUTBOUND
+    - name: MQ_HOST_NAME
+      value: b27apvl177.preprod.local
+    - name: MQ_PORT
+      value: '1413'
+    - name: MQ_GATEWAY_NAME
+      value: MQ1LSC04
+    - name: MQ_CHANNEL_NAME
+      value: Q1_SYFOSMPAPIRMOTTAK
+    - name: MQ_USERNAME
+      value: /secrets/default/mqUsername
+    - name: MQ_PASSWORD
+      value: /secrets/default/mqPassword

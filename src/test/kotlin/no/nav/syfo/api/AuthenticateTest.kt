@@ -73,7 +73,9 @@ internal class AuthenticateTest {
                     serviceuserUsername = "username",
                     serviceuserPassword = "password",
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId"
+                    smregistreringBackendClientId = "clientId",
+                    mqUsername = "username",
+                    mqPassword = "password"
                 ), jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
@@ -132,7 +134,9 @@ internal class AuthenticateTest {
                     serviceuserUsername = "username",
                     serviceuserPassword = "password",
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId"
+                    smregistreringBackendClientId = "clientId",
+                    mqUsername = "username",
+                    mqPassword = "password"
                 ), jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {

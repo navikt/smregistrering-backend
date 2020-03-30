@@ -13,8 +13,11 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
+import no.nav.syfo.client.AktoerIdClient
+import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SafDokumentClient
+import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
@@ -38,4 +41,10 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
     @KtorExperimentalAPI
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
+    @KtorExperimentalAPI
+    val aktoerIdClient = AktoerIdClient(env.aktoerregisterV1Url, oidcClient, httpClient)
+    @KtorExperimentalAPI
+    val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
+    @KtorExperimentalAPI
+    val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
 }

@@ -11,6 +11,7 @@ import io.ktor.util.KtorExperimentalAPI
 import java.net.URL
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import javax.jms.Session
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -24,9 +25,12 @@ import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
+import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.mq.connectionFactory
+import no.nav.syfo.mq.producerForQueue
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
@@ -51,6 +55,8 @@ fun main() {
     val vaultSecrets = VaultSecrets(
         serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
         serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
+        mqUsername = getFileAsString(env.mqUsernamePath),
+        mqPassword = getFileAsString(env.mqPasswordPath),
         oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath),
         smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath)
     )
@@ -69,7 +75,13 @@ fun main() {
     val manuellOppgaveService = ManuellOppgaveService(database)
 
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
+    val kafkaProducers = KafkaProducers(env, vaultSecrets)
     val httpClients = HttpClients(env, vaultSecrets)
+
+    val connection = connectionFactory(env).createConnection(vaultSecrets.mqUsername, vaultSecrets.mqPassword)
+    connection.start()
+    val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+    val syfoserviceProducer = session.producerForQueue(env.syfoserviceQueueName)
 
     val applicationEngine = createApplicationEngine(
         env,
@@ -78,7 +90,15 @@ fun main() {
         jwkProvider,
         wellKnown.issuer,
         manuellOppgaveService,
-        httpClients.safClient
+        httpClients.safClient,
+        kafkaProducers.kafkaRecievedSykmeldingProducer,
+        session,
+        syfoserviceProducer,
+        httpClients.oppgaveClient,
+        httpClients.sarClient,
+        httpClients.aktoerIdClient,
+        vaultSecrets.serviceuserUsername,
+        httpClients.dokArkivClient
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

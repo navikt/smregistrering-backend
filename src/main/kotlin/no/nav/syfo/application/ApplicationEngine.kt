@@ -21,15 +21,25 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
+import io.ktor.util.KtorExperimentalAPI
+import javax.jms.MessageProducer
+import javax.jms.Session
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
+import no.nav.syfo.client.AktoerIdClient
+import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SafDokumentClient
+import no.nav.syfo.client.SarClient
+import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
+import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 
+@KtorExperimentalAPI
 @InternalAPI
 fun createApplicationEngine(
     env: Environment,
@@ -38,7 +48,15 @@ fun createApplicationEngine(
     jwkProvider: JwkProvider,
     issuer: String,
     manuellOppgaveService: ManuellOppgaveService,
-    safDokumentClient: SafDokumentClient
+    safDokumentClient: SafDokumentClient,
+    kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
+    session: Session,
+    syfoserviceProducer: MessageProducer,
+    oppgaveClient: OppgaveClient,
+    kuhrsarClient: SarClient,
+    aktoerIdClient: AktoerIdClient,
+    serviceuserUsername: String,
+    dokArkivClient: DokArkivClient
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
@@ -69,6 +87,17 @@ fun createApplicationEngine(
         }
         routing {
             registerNaisApi(applicationState)
+            sendPapirSykmeldingManuellOppgave(
+                manuellOppgaveService,
+                kafkaRecievedSykmeldingProducer,
+                session,
+                syfoserviceProducer,
+                oppgaveClient,
+                kuhrsarClient,
+                aktoerIdClient,
+                serviceuserUsername,
+                dokArkivClient
+            )
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
             }
