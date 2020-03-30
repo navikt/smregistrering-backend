@@ -56,6 +56,10 @@ or the command line:
 To build locally and run the integration tests you can simply run `./gradlew shadowJar` or on windows 
 `gradlew.bat shadowJar`
 
+## Testing the whole flow for handling paper sykmelding in preprod
+For triggering this app https://github.com/navikt/syfosmpapirmottak#testing-the-whole-flow-for-handling-paper-sykmelding-in-preprod
+And put in a invalid diagnose, then it will end up in this app
+
 #### Creating a docker image
 Creating a docker image should be as simple as `docker build -t smregistrering-backend .`
 
