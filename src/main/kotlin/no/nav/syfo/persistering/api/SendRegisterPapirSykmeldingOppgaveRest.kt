@@ -153,6 +153,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             healthInformation = healthInformation,
                             oppgaveId = oppgaveId
                         )
+                        call.respond(HttpStatusCode.NoContent)
                     } else {
                         log.warn(
                             "Henting av papir sykmelding manuell registering returente null {}",
