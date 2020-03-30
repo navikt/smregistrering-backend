@@ -228,10 +228,7 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
         }
         avventendeSykmelding = null
         gradertSykmelding = null
-        behandlingsdager =
-            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
-                antallBehandlingsdagerUke = periode.behandlingsdager ?: 0
-            }
+        behandlingsdager = null
         isReisetilskudd = periode.reisetilskudd
     }
 
