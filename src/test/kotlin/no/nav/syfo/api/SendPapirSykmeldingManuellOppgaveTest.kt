@@ -34,11 +34,14 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.OpprettOppgaveResponse
 import no.nav.syfo.client.SafDokumentClient
+import no.nav.syfo.client.Samhandler
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.AktivitetIkkeMulig
 import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.IdentInfo
+import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.model.MedisinskArsak
 import no.nav.syfo.model.MedisinskArsakType
 import no.nav.syfo.model.MedisinskVurdering
@@ -51,8 +54,10 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
+import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
+import java.util.Calendar
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -74,7 +79,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val textMessage = mockk<TextMessage>()
 
     @Test
-    internal fun `Aksepterer gyldig JWT med riktig audience`() {
+    internal fun `Regsitering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -113,7 +118,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     kuhrsarClient,
                     aktoerIdClient,
                     serviceuserUsername,
-                    dokArkivClient)
+                    dokArkivClient
+                )
             }
 
             application.install(ContentNegotiation) {
@@ -134,26 +140,29 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             val smRegisteringManuellt = SmRegisteringManuellt(
                 pasientFnr = "143242345",
                 sykmelderFnr = "18459123134",
-                perioder = listOf(Periode(
-                    fom = LocalDate.now(),
-                    tom = LocalDate.now(),
-                    aktivitetIkkeMulig = AktivitetIkkeMulig(
-                        medisinskArsak = MedisinskArsak(
-                            beskrivelse = "test data",
-                            arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                perioder = listOf(
+                    Periode(
+                        fom = LocalDate.now(),
+                        tom = LocalDate.now(),
+                        aktivitetIkkeMulig = AktivitetIkkeMulig(
+                            medisinskArsak = MedisinskArsak(
+                                beskrivelse = "test data",
+                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                            ),
+                            arbeidsrelatertArsak = null
                         ),
-                        arbeidsrelatertArsak = null
-                    ),
-                    avventendeInnspillTilArbeidsgiver = null,
-                    behandlingsdager = null,
-                    gradert = null,
-                    reisetilskudd = false
-                )),
+                        avventendeInnspillTilArbeidsgiver = null,
+                        behandlingsdager = null,
+                        gradert = null,
+                        reisetilskudd = false
+                    )
+                ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(
                         system = "2.16.578.1.12.4.1.1.7170",
                         kode = "A070",
-                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium"),
+                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    ),
                     biDiagnoser = listOf(),
                     svangerskap = false,
                     yrkesskade = false,
@@ -166,16 +175,47 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { session.createTextMessage() } returns textMessage
             coEvery { syfoserviceProducer.send(any()) } returns Unit
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
+                Pair(
+                    "143242345", IdentInfoResult(
+                        identer = listOf(IdentInfo("645514141444", "asd", true)),
+                        feilmelding = null
+                    )
+                ), Pair(
+                    "18459123134", IdentInfoResult(
+                        identer = listOf(IdentInfo("6455142134", "asd", true)),
+                        feilmelding = null
+                    )
+                )
+            )
+            coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
+                Samhandler(
+                    samh_id = "12341",
+                    navn = "Perhansen",
+                    samh_type_kode = "fALE",
+                    behandling_utfall_kode = "auto",
+                    unntatt_veiledning = "1",
+                    godkjent_manuell_krav = "0",
+                    ikke_godkjent_for_refusjon = "0",
+                    godkjent_egenandel_refusjon = "0",
+                    godkjent_for_fil = "0",
+                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
+                    samh_praksis = listOf(),
+                    samh_ident = listOf()
+                )
+            )
+            coEvery { dokArkivClient.ferdigStillJournalpost(any(), any(), any()) } returns ""
 
-            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 setBody(objectMapper.writeValueAsString(smRegisteringManuellt))
             }) {
-                // response.status() shouldEqual HttpStatusCode.NoContent
+                response.status() shouldEqual HttpStatusCode.NoContent
             }
         }
     }
