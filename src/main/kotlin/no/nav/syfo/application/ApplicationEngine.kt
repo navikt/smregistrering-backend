@@ -91,22 +91,22 @@ fun createApplicationEngine(
         }
         routing {
             registerNaisApi(applicationState)
-            sendPapirSykmeldingManuellOppgave(
-                manuellOppgaveService,
-                kafkaRecievedSykmeldingProducer,
-                session,
-                syfoserviceProducer,
-                oppgaveClient,
-                kuhrsarClient,
-                aktoerIdClient,
-                serviceuserUsername,
-                dokArkivClient,
-                regelClient,
-                kafkaValidationResultProducer,
-                kafkaManuelTaskProducer
-            )
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
+                sendPapirSykmeldingManuellOppgave(
+                    manuellOppgaveService,
+                    kafkaRecievedSykmeldingProducer,
+                    session,
+                    syfoserviceProducer,
+                    oppgaveClient,
+                    kuhrsarClient,
+                    aktoerIdClient,
+                    serviceuserUsername,
+                    dokArkivClient,
+                    regelClient,
+                    kafkaValidationResultProducer,
+                    kafkaManuelTaskProducer
+                )
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())
