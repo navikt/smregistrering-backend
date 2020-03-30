@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 group = "no.nav.syfo"
 version = "1.0.0-SNAPSHOT"
@@ -163,8 +165,8 @@ tasks {
         kotlinOptions.jvmTarget = "12"
     }
 
-    withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-        transform(com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer::class.java) {
+    withType<ShadowJar> {
+        transform(ServiceFileTransformer::class.java) {
             setPath("META-INF/cxf")
             include("bus-extensions.txt")
         }
