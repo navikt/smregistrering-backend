@@ -56,7 +56,7 @@ fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int): Int =
             """
             UPDATE MANUELLOPPGAVE
             SET ferdigstilt = ?
-            WHERE oppgaveid = ?;
+            WHERE oppgave_id = ?;
             """
         ).use {
             it.setBoolean(1, true)
