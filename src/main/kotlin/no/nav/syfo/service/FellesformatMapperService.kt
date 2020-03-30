@@ -1,5 +1,6 @@
 package no.nav.syfo.service
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
@@ -141,7 +142,11 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             }
                             meldingTilNav = null
                             meldingTilArbeidsgiver = null
-                            kontaktMedPasient = null
+                            kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
+                                kontaktDato = LocalDate.now()
+                                begrunnIkkeKontakt = null
+                                behandletDato = LocalDateTime.now()
+                            }
                             behandler = tilBehandler(sykmelderFnr)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "ManuelltRegisterPapirsykmelding"
