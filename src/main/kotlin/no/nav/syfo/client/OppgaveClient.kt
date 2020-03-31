@@ -10,6 +10,9 @@ import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import java.time.LocalDate
 import no.nav.syfo.helpers.retry
+import no.nav.syfo.model.FerdigStillOppgave
+import no.nav.syfo.model.OpprettOppgave
+import no.nav.syfo.model.OpprettOppgaveResponse
 
 @KtorExperimentalAPI
 class OppgaveClient(
@@ -48,42 +51,6 @@ class OppgaveClient(
             header("X-Correlation-ID", msgId)
         }
     }
-}
-
-data class OpprettOppgave(
-    val tildeltEnhetsnr: String? = null,
-    val opprettetAvEnhetsnr: String? = null,
-    val aktoerId: String? = null,
-    val journalpostId: String? = null,
-    val behandlesAvApplikasjon: String? = null,
-    val saksreferanse: String? = null,
-    val tilordnetRessurs: String? = null,
-    val beskrivelse: String? = null,
-    val tema: String? = null,
-    val oppgavetype: String,
-    val behandlingstype: String? = null,
-    val aktivDato: LocalDate,
-    val fristFerdigstillelse: LocalDate? = null,
-    val prioritet: String
-)
-
-data class FerdigStillOppgave(
-    val versjon: Int,
-    val id: Int,
-    val status: OppgaveStatus
-)
-
-data class OpprettOppgaveResponse(
-    val id: Int,
-    val versjon: Int
-)
-
-enum class OppgaveStatus(val status: String) {
-    OPPRETTET("OPPRETTET"),
-    AAPNET("AAPNET"),
-    UNDER_BEHANDLING("UNDER_BEHANDLING"),
-    FERDIGSTILT("FERDIGSTILT"),
-    FEILREGISTRERT("FEILREGISTRERT")
 }
 
 fun finnFristForFerdigstillingAvOppgave(today: LocalDate): LocalDate {

@@ -48,7 +48,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
 
-                    var manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                    val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
                     val pdfPapirSykmelding = safDokumentClient.hentDokument(
                         journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
                         dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",

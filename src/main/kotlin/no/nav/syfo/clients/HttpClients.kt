@@ -51,19 +51,33 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val httpClient = HttpClient(Apache, config)
 
     @KtorExperimentalAPI
-    val oidcClient = StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
+    val oidcClient =
+        StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
+
     @KtorExperimentalAPI
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
+
     @KtorExperimentalAPI
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
+
     @KtorExperimentalAPI
     val aktoerIdClient = AktoerIdClient(env.aktoerregisterV1Url, oidcClient, httpClient)
+
     @KtorExperimentalAPI
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
+
     @KtorExperimentalAPI
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
+
     @KtorExperimentalAPI
-    val accessTokenClient = AccessTokenClient(env.aadAccessTokenUrl, vaultSecrets.smregistreringBackendClientId, vaultSecrets.smregistreringBackendClientSecret, httpClientWithProxy)
+    val accessTokenClient = AccessTokenClient(
+        env.aadAccessTokenUrl,
+        vaultSecrets.smregistreringBackendClientId,
+        vaultSecrets.smregistreringBackendClientSecret,
+        httpClientWithProxy
+    )
+
     @KtorExperimentalAPI
-    val regelClient = RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
+    val regelClient =
+        RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
 }

@@ -1,6 +1,5 @@
 package no.nav.syfo.application
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -14,6 +13,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
 import java.net.ProxySelector
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.model.WellKnown
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -34,11 +34,3 @@ val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
 
 fun getWellKnown(wellKnownUrl: String) =
     runBlocking { HttpClient(Apache, proxyConfig).get<WellKnown>(wellKnownUrl) }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class WellKnown(
-    val authorization_endpoint: String,
-    val token_endpoint: String,
-    val jwks_uri: String,
-    val issuer: String
-)

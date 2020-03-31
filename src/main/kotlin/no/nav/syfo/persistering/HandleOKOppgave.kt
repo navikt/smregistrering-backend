@@ -7,11 +7,11 @@ import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.FerdigStillOppgave
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.OppgaveStatus
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
+import no.nav.syfo.model.FerdigStillOppgave
+import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.service.notifySyfoService
 import no.nav.syfo.util.LoggingMeta

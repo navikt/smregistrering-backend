@@ -13,19 +13,21 @@ import org.apache.kafka.clients.producer.KafkaProducer
 
 class KafkaProducers(private val env: Environment, vaultSecrets: VaultSecrets) {
     private val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
-    private val properties = kafkaBaseConfig.toProducerConfig(env.applicationName, valueSerializer = JacksonKafkaSerializer::class)
-    private val manualValidationProducerProperties = kafkaBaseConfig.toProducerConfig(env.applicationName, valueSerializer = KafkaAvroSerializer::class)
+    private val properties =
+        kafkaBaseConfig.toProducerConfig(env.applicationName, valueSerializer = JacksonKafkaSerializer::class)
+    private val manualValidationProducerProperties =
+        kafkaBaseConfig.toProducerConfig(env.applicationName, valueSerializer = KafkaAvroSerializer::class)
 
     val kafkaRecievedSykmeldingProducer = KafkaRecievedSykmeldingProducer()
     val kafkaManuelTaskProducer = KafkaManuelTaskProducer()
     val kafkaValidationResultProducer = KafkaValidationResultProducer()
 
-        inner class KafkaRecievedSykmeldingProducer() {
-            val producer = KafkaProducer<String, ReceivedSykmelding>(properties)
+    inner class KafkaRecievedSykmeldingProducer() {
+        val producer = KafkaProducer<String, ReceivedSykmelding>(properties)
 
-            val sm2013AutomaticHandlingTopic = env.sm2013AutomaticHandlingTopic
-            val sm2013ManuellHandlingTopic = env.smpapirManualHandlingTopic
-        }
+        val sm2013AutomaticHandlingTopic = env.sm2013AutomaticHandlingTopic
+        val sm2013ManuellHandlingTopic = env.smpapirManualHandlingTopic
+    }
 
     inner class KafkaManuelTaskProducer() {
         val producer = KafkaProducer<String, ProduceTask>(manualValidationProducerProperties)

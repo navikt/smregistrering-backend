@@ -13,7 +13,8 @@ enum class Role {
     override fun toString() = name.toLowerCase()
 }
 
-class Database(private val env: Environment, private val vaultCredentialService: VaultCredentialService) : DatabaseInterface {
+class Database(private val env: Environment, private val vaultCredentialService: VaultCredentialService) :
+    DatabaseInterface {
     private val dataSource: HikariDataSource
 
     override val connection: Connection

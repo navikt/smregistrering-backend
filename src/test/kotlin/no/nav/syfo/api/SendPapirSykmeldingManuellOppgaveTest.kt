@@ -33,10 +33,8 @@ import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.OpprettOppgaveResponse
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.Samhandler
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
@@ -47,8 +45,10 @@ import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.model.MedisinskArsak
 import no.nav.syfo.model.MedisinskArsakType
 import no.nav.syfo.model.MedisinskVurdering
+import no.nav.syfo.model.OpprettOppgaveResponse
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
+import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SmRegisteringManuellt
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
@@ -223,7 +223,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
-            coEvery { regelClient.valider(any(), any()) } returns ValidationResult(status = Status.OK, ruleHits = emptyList())
+            coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
+                status = Status.OK,
+                ruleHits = emptyList()
+            )
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")

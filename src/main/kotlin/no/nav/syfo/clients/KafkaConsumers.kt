@@ -10,7 +10,8 @@ import org.apache.kafka.common.serialization.StringDeserializer
 class KafkaConsumers(env: Environment, vaultSecrets: KafkaCredentials) {
     private val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
     private val properties = kafkaBaseConfig.toConsumerConfig(
-            "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
+        "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class
+    )
 
     val kafkaConsumerPapirSmRegistering = KafkaConsumer<String, String>(properties)
 }

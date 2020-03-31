@@ -14,6 +14,7 @@ import java.io.IOException
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
+import no.nav.syfo.model.FerdigstillJournal
 import no.nav.syfo.util.LoggingMeta
 
 @KtorExperimentalAPI
@@ -66,8 +67,4 @@ class DokArkivClient(
             }
         }
     }
-
-    data class FerdigstillJournal(
-        val journalfoerendeEnhet: String
-    )
 }

@@ -25,12 +25,13 @@ class SafDokumentClient constructor(
         msgId: String,
         accessToken: String
     ): String? = retry("hent_dokument") {
-        val httpResponse = httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
-            accept(ContentType.Application.Pdf)
-            header("Authorization", "Bearer $accessToken")
-            header("Nav-Callid", msgId)
-            header("Nav-Consumer-Id", "smregistrering-backend")
-        }.execute()
+        val httpResponse =
+            httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
+                accept(ContentType.Application.Pdf)
+                header("Authorization", "Bearer $accessToken")
+                header("Nav-Callid", msgId)
+                header("Nav-Consumer-Id", "smregistrering-backend")
+            }.execute()
 
         when (httpResponse.status) {
             HttpStatusCode.NotFound -> {

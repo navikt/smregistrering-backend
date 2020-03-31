@@ -18,7 +18,7 @@ class RegelClient(
     private val client: HttpClient
 ) {
     @KtorExperimentalAPI
-    suspend fun valider(sykmelding: ReceivedSykmelding, msgId: String): ValidationResult = retry("valider_regler") {
+    suspend fun valider(sykmelding: ReceivedSykmelding, msgId: String): ValidationResult = retry("syfosmpapirregler_valider_regler") {
         client.post<ValidationResult>("$endpointUrl/api/v1/rules/validate") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
