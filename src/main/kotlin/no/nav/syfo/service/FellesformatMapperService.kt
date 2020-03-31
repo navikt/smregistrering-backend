@@ -1,6 +1,5 @@
 package no.nav.syfo.service
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
@@ -143,13 +142,13 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             meldingTilNav = null
                             meldingTilArbeidsgiver = null
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = LocalDate.now()
+                                kontaktDato = null
                                 begrunnIkkeKontakt = null
-                                behandletDato = LocalDateTime.now()
+                                behandletDato = datoOpprettet ?: LocalDateTime.of(smRegisteringManuellt.perioder.first().fom, LocalTime.NOON)
                             }
                             behandler = tilBehandler(sykmelderFnr)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
-                                systemNavn = "ManuelltRegisterPapirsykmelding"
+                                systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"
                             }
                             strekkode = "123456789qwerty"
@@ -165,7 +164,7 @@ fun tilBehandler(sykmelderFnr: String): HelseOpplysningerArbeidsuforhet.Behandle
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
         navn = NavnType().apply {
             fornavn = ""
-            mellomnavn = ""
+            mellomnavn = null
             etternavn = ""
         }
         id.addAll(
@@ -239,9 +238,9 @@ fun tilArbeidsgiver(): HelseOpplysningerArbeidsuforhet.Arbeidsgiver =
             v = "1"
         }
 
-        navnArbeidsgiver = ""
-        yrkesbetegnelse = ""
-        stillingsprosent = 100
+        navnArbeidsgiver = null
+        yrkesbetegnelse = null
+        stillingsprosent = null
     }
 
 fun tilMedisinskVurdering(

@@ -65,7 +65,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
             when {
                 accessToken == null -> {
-                    log.info("Mangler JWT Bearer token i HTTP header")
+                    log.warn("Mangler JWT Bearer token i HTTP header")
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 else -> {
