@@ -63,7 +63,13 @@ internal class FellesformatMapperServiceTest {
                     kode = "A070",
                     tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
                 ),
-                biDiagnoser = listOf(),
+                biDiagnoser = listOf(
+                    Diagnose(
+                        system = "2.16.578.1.12.4.1.1.7170",
+                        kode = "U070",
+                        tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
+                    )
+                ),
                 svangerskap = false,
                 yrkesskade = false,
                 yrkesskadeDato = null,
@@ -120,6 +126,16 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.tssid shouldEqual null
         receivedSykmelding.sykmelding.pasientAktoerId shouldEqual aktorId
         receivedSykmelding.sykmelding.medisinskVurdering shouldNotEqual null
+        receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose shouldEqual Diagnose(
+            system = "2.16.578.1.12.4.1.1.7170",
+            kode = "A070",
+            tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+        )
+        receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first() shouldEqual Diagnose(
+            system = "2.16.578.1.12.4.1.1.7170",
+            kode = "U070",
+            tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
+        )
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
         receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
@@ -131,7 +147,10 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual null
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(null, null)
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(
+            LocalDate.of(2020, 4, 1),
+            LocalTime.NOON
+        )
         receivedSykmelding.sykmelding.behandler shouldNotEqual null
         receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
         receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual smRegisteringManuellt.perioder.first().fom
@@ -140,7 +159,7 @@ internal class FellesformatMapperServiceTest {
     }
 
     @Test
-    internal fun `Minimal ocr-fil`() {
+    internal fun `Minimal input fra frontend`() {
         val smRegisteringManuellt = SmRegisteringManuellt(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
@@ -249,7 +268,10 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.meldingTilNAV shouldEqual null
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(null, null)
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(
+            LocalDate.of(2020, 4, 1),
+            LocalTime.NOON
+        )
         receivedSykmelding.sykmelding.behandler shouldEqual Behandler(
             fornavn = "",
             mellomnavn = null,
