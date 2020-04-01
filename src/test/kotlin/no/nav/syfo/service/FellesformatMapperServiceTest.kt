@@ -2,6 +2,7 @@ package no.nav.syfo.service
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.Month
 import java.util.UUID
 import no.nav.helse.msgHead.XMLMsgHead
@@ -32,7 +33,6 @@ internal class FellesformatMapperServiceTest {
     val aktorId = "aktorId"
     val fnrLege = "fnrLege"
     val aktorIdLege = "aktorIdLege"
-    val hprNummer = "10052512"
     val datoOpprettet = LocalDateTime.now()
 
     @Test
@@ -68,7 +68,11 @@ internal class FellesformatMapperServiceTest {
                 yrkesskade = false,
                 yrkesskadeDato = null,
                 annenFraversArsak = null
-            )
+            ),
+            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+            skjermesForPasient = false,
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            behandletDato = LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
         )
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
@@ -127,7 +131,7 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual null
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(null, null)
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual datoOpprettet
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
         receivedSykmelding.sykmelding.behandler shouldNotEqual null
         receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
         receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual smRegisteringManuellt.perioder.first().fom
@@ -165,7 +169,11 @@ internal class FellesformatMapperServiceTest {
                 yrkesskade = false,
                 yrkesskadeDato = null,
                 annenFraversArsak = null
-            )
+            ),
+            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+            skjermesForPasient = false,
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            behandletDato = LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
         )
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
@@ -225,9 +233,9 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
         receivedSykmelding.sykmelding.arbeidsgiver shouldEqual Arbeidsgiver(
             HarArbeidsgiver.EN_ARBEIDSGIVER,
-            null,
-            null,
-            null
+            "NAV ikt",
+            "Utvikler",
+            100
         )
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
@@ -241,7 +249,7 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.meldingTilNAV shouldEqual null
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(null, null)
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual datoOpprettet
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
         receivedSykmelding.sykmelding.behandler shouldEqual Behandler(
             fornavn = "",
             mellomnavn = null,
@@ -254,7 +262,7 @@ internal class FellesformatMapperServiceTest {
             tlf = "tel:55553336"
         )
         receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
-        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
+        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
         receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
         receivedSykmelding.sykmelding.navnFastlege shouldEqual null
     }

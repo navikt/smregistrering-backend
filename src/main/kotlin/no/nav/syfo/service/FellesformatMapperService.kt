@@ -23,7 +23,10 @@ import no.nav.helse.sm2013.Ident
 import no.nav.helse.sm2013.NavnType
 import no.nav.helse.sm2013.TeleCom
 import no.nav.helse.sm2013.URL
+import no.nav.syfo.log
+import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.SmRegisteringManuellt
@@ -110,7 +113,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     content = XMLRefDoc.Content().apply {
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = smRegisteringManuellt.perioder.first().fom
+                            syketilfelleStartDato = smRegisteringManuellt.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
                                 navn = NavnType().apply {
                                     fornavn = ""
@@ -126,9 +129,12 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                     }
                                 }
                             }
-                            arbeidsgiver = tilArbeidsgiver()
+                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuellt.arbeidsgiver)
                             medisinskVurdering =
-                                tilMedisinskVurdering(smRegisteringManuellt.medisinskVurdering)
+                                tilMedisinskVurdering(
+                                    smRegisteringManuellt.medisinskVurdering,
+                                    smRegisteringManuellt.skjermesForPasient
+                                )
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
                                 periode.addAll(tilPeriodeListe(smRegisteringManuellt.perioder))
                             }
@@ -144,7 +150,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
                                 kontaktDato = null
                                 begrunnIkkeKontakt = null
-                                behandletDato = datoOpprettet ?: LocalDateTime.of(smRegisteringManuellt.perioder.first().fom, LocalTime.NOON)
+                                behandletDato = smRegisteringManuellt.behandletDato
                             }
                             behandler = tilBehandler(sykmelderFnr)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
@@ -231,20 +237,36 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
         isReisetilskudd = periode.reisetilskudd
     }
 
-fun tilArbeidsgiver(): HelseOpplysningerArbeidsuforhet.Arbeidsgiver =
+fun tilArbeidsgiver(arbeidsgiver: Arbeidsgiver): HelseOpplysningerArbeidsuforhet.Arbeidsgiver =
     HelseOpplysningerArbeidsuforhet.Arbeidsgiver().apply {
-        harArbeidsgiver = CS().apply {
-            dn = "Én arbeidsgiver"
-            v = "1"
-        }
+        harArbeidsgiver =
+            when {
+                arbeidsgiver.harArbeidsgiver == HarArbeidsgiver.EN_ARBEIDSGIVER -> CS().apply {
+                    dn = "Én arbeidsgiver"
+                    v = "1"
+                }
+                arbeidsgiver.harArbeidsgiver == HarArbeidsgiver.FLERE_ARBEIDSGIVERE -> CS().apply {
+                    dn = "Flere arbeidsgivere"
+                    v = "2"
+                }
+                arbeidsgiver.harArbeidsgiver == HarArbeidsgiver.INGEN_ARBEIDSGIVER -> CS().apply {
+                    dn = "Ingen arbeidsgiver"
+                    v = "3"
+                }
+                else -> {
+                    log.error("Arbeidsgiver type er ukjent, skal ikke kunne skje")
+                    throw RuntimeException("Arbeidsgiver type er ukjent, skal ikke kunne skje")
+                }
+            }
 
-        navnArbeidsgiver = null
-        yrkesbetegnelse = null
-        stillingsprosent = null
+        navnArbeidsgiver = arbeidsgiver.navn
+        yrkesbetegnelse = arbeidsgiver.yrkesbetegnelse
+        stillingsprosent = arbeidsgiver.stillingsprosent
     }
 
 fun tilMedisinskVurdering(
-    medisinskVurdering: MedisinskVurdering
+    medisinskVurdering: MedisinskVurdering,
+    skjermesForPasient: Boolean
 ): HelseOpplysningerArbeidsuforhet.MedisinskVurdering {
 
     val biDiagnoseListe: List<CV>? = medisinskVurdering.biDiagnoser.map {
@@ -262,7 +284,7 @@ fun tilMedisinskVurdering(
                 diagnosekode.addAll(biDiagnoseListe)
             }
         }
-        isSkjermesForPasient = false
+        isSkjermesForPasient = skjermesForPasient
         annenFraversArsak = medisinskVurdering.annenFraversArsak?.let {
             ArsakType().apply {
                 arsakskode.add(CS())

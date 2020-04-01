@@ -39,7 +39,9 @@ import no.nav.syfo.client.SarClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.AktivitetIkkeMulig
+import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.IdentInfo
 import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.model.MedisinskArsak
@@ -179,7 +181,11 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     yrkesskade = false,
                     yrkesskadeDato = null,
                     annenFraversArsak = null
-                )
+                ),
+                syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+                skjermesForPasient = false,
+                arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+                behandletDato = LocalDateTime.now()
             )
 
             coEvery { textMessage.text = any() } returns Unit
