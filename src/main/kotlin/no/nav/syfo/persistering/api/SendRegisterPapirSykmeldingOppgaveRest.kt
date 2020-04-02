@@ -144,7 +144,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             tssid = samhandlerPraksis?.tss_ident ?: ""
                         )
 
-                        log.info("Papir Sykmelding mappet til internt format uten feil {}", fields(loggingMeta))
+                        log.info("Papirsykmelding manuell registering mappet til internt format uten feil {}", fields(loggingMeta))
 
                         val validationResult = regelClient.valider(receivedSykmelding, sykmeldingId)
                         log.info(
@@ -175,7 +175,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     call.respond(HttpStatusCode.NoContent)
                                 } else {
                                     log.error(
-                                        "Ferdigstilling av sm registeirng i db feilet {}",
+                                        "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
                                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                     )
                                     call.respond(HttpStatusCode.InternalServerError)
@@ -202,20 +202,20 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     call.respond(HttpStatusCode.NoContent)
                                 } else {
                                     log.error(
-                                        "Ferdigstilling av sm registeirng i db feilet {}",
+                                        "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
                                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                     )
                                     call.respond(HttpStatusCode.InternalServerError)
                                 }
                             }
                             else -> {
-                                log.error("Ukjent status: ${validationResult.status} , Papirsykmeldinger kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                                log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
                         }
                     } else {
                         log.warn(
-                            "Henting av papir sykmelding manuell registering returente null {}",
+                            "Henting av papirsykmeldinger manuell registering returente null {}",
                             StructuredArguments.keyValue("oppgaveId", oppgaveId)
                         )
                         call.respond(HttpStatusCode.InternalServerError)
