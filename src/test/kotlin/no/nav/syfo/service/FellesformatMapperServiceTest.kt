@@ -153,7 +153,7 @@ internal class FellesformatMapperServiceTest {
         )
         receivedSykmelding.sykmelding.behandler shouldNotEqual null
         receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
-        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual smRegisteringManuellt.perioder.first().fom
+        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
         receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
         receivedSykmelding.sykmelding.navnFastlege shouldEqual null
     }
