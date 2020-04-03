@@ -28,7 +28,7 @@ import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
-import no.nav.syfo.model.ManuellOppgaveDTO
+import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -105,8 +105,7 @@ internal class AuthenticateTest {
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
             }) {
                 response.status() shouldEqual HttpStatusCode.OK
-                objectMapper.readValue<List<ManuellOppgaveDTO>>(response.content!!)
-                    .first().oppgaveid shouldEqual oppgaveid
+                objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid shouldEqual oppgaveid
             }
         }
     }

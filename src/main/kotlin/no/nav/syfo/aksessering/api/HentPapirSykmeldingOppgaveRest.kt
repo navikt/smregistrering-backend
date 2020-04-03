@@ -10,6 +10,7 @@ import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
+import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
@@ -55,9 +56,14 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
                         accessToken = accessToken)
 
-                    manuellOppgaveDTOList.firstOrNull()?.pdfPapirSykmelding = pdfPapirSykmelding
+                    val papirManuellOppgave = PapirManuellOppgave(
+                        fnr = manuellOppgaveDTOList.first().fnr,
+                        sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                        oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                        pdfPapirSykmelding = pdfPapirSykmelding
+                    )
 
-                    call.respond(manuellOppgaveDTOList)
+                    call.respond(papirManuellOppgave)
                 }
             }
         }
