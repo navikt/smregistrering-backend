@@ -45,7 +45,9 @@ suspend fun handleRecivedMessage(
                 oppgavetype = "BEH_EL_SYM",
                 behandlingstype = "ae0239",
                 aktivDato = LocalDate.now(),
-                fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(LocalDate.now()),
+                fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                    LocalDate.now().plusDays(4)
+                ),
                 prioritet = "HOY"
             )
 

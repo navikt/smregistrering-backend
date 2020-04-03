@@ -8,6 +8,7 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
+import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.model.FerdigStillOppgave
@@ -53,6 +54,13 @@ class OppgaveClient(
     }
 }
 
-fun finnFristForFerdigstillingAvOppgave(today: LocalDate): LocalDate {
-    return today.plusDays(3)
+fun finnFristForFerdigstillingAvOppgave(ferdistilleDato: LocalDate): LocalDate {
+    return setToWorkDay(ferdistilleDato)
 }
+
+fun setToWorkDay(ferdistilleDato: LocalDate): LocalDate =
+    when (ferdistilleDato.dayOfWeek) {
+        DayOfWeek.SATURDAY -> ferdistilleDato.plusDays(2)
+        DayOfWeek.SUNDAY -> ferdistilleDato.plusDays(1)
+        else -> ferdistilleDato
+    }
