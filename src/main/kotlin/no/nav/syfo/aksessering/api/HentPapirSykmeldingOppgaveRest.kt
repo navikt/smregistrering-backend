@@ -56,14 +56,19 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
                         accessToken = accessToken)
 
-                    val papirManuellOppgave = PapirManuellOppgave(
-                        fnr = manuellOppgaveDTOList.first().fnr,
-                        sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                        oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                        pdfPapirSykmelding = pdfPapirSykmelding
-                    )
+                    if (pdfPapirSykmelding == null) {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    } else {
 
-                    call.respond(papirManuellOppgave)
+                        val papirManuellOppgave = PapirManuellOppgave(
+                            fnr = manuellOppgaveDTOList.first().fnr,
+                            sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                            oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                            pdfPapirSykmelding = pdfPapirSykmelding
+                        )
+
+                        call.respond(papirManuellOppgave)
+                    }
                 }
             }
         }
