@@ -67,7 +67,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 manuellOppgaveDTOList.firstOrNull()?.fnr ?: ""
                             )?.harTilgang
 
-                        if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
+                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
+                        if (true) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {

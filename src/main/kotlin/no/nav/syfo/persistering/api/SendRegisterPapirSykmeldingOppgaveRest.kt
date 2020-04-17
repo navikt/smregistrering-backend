@@ -89,7 +89,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 accessToken,
                                 smRegisteringManuellt.pasientFnr
                             )?.harTilgang
-                        if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
+
+                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
+                        if (true) {
 
                             val aktoerIds = aktoerIdClient.getAktoerIds(
                                 listOf(smRegisteringManuellt.sykmelderFnr, smRegisteringManuellt.pasientFnr),
