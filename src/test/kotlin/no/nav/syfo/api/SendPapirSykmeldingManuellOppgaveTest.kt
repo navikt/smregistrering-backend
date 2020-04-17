@@ -36,6 +36,8 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -85,6 +87,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val regelClient = mockk<RegelClient>()
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
+    private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
 
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
@@ -92,6 +95,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
 
             val oppgaveid = 308076319
 
@@ -131,7 +135,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     kafkaValidationResultProducer,
-                    kafkaManuelTaskProducer
+                    kafkaManuelTaskProducer,
+                    syfoTilgangsKontrollClient
                 )
             }
 

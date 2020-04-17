@@ -22,6 +22,7 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
@@ -80,4 +81,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     @KtorExperimentalAPI
     val regelClient =
         RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
+
+    @KtorExperimentalAPI
+    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, httpClient)
 }

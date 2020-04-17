@@ -103,7 +103,8 @@ fun main() {
         httpClients.dokArkivClient,
         httpClients.regelClient,
         kafkaProducers.kafkaValidationResultProducer,
-        kafkaProducers.kafkaManuelTaskProducer
+        kafkaProducers.kafkaManuelTaskProducer,
+        httpClients.syfoTilgangsKontrollClient
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

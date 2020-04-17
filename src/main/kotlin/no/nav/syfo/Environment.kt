@@ -20,7 +20,6 @@ data class Environment(
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL", "http://oppgave/api/v1/oppgaver"),
     val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
-    val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-smpapir-automatiskBehandling"),
     val aktoerregisterV1Url: String = getEnvVar("AKTOR_REGISTER_V1_URL"),
     override val mqHostname: String = getEnvVar("MQ_HOST_NAME"),
     override val mqPort: Int = getEnvVar("MQ_PORT").toInt(),
@@ -35,9 +34,11 @@ data class Environment(
     val regelEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfosmpapirregler"),
     val smregistreringBackendClientSecretPath: String = getEnvVar("SMREGISTERING_BACKEND_CLIENT_SECRET_PATH"),
     val syfosmpapirregelClientIdPath: String = getEnvVar("SYFOSMPAIR_REGLER_CLIENT_ID_PATH"),
-    val smpapirManualHandlingTopic: String = getEnvVar("KAFKA_SMPAPIR_MANUAL_TOPIC", "privat-syfo-smpapir-manuellBehandling"),
+    val sm2013ManualHandlingTopic: String = getEnvVar("KAFKA_SM2013_MANUAL_TOPIC", "privat-syfo-sm2013-manuellBehandling"),
+    val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-sm2013-automatiskBehandling"),
     val sm2013BehandlingsUtfallTopic: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-behandlingsUtfall"),
-    val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave")
+    val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave"),
+    val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL", "http://syfo-tilgangskontroll/syfo-tilgangskontroll")
 ) : MqConfig, KafkaConfig
 
 data class VaultSecrets(

@@ -34,6 +34,7 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
@@ -60,7 +61,8 @@ fun createApplicationEngine(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
-    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer
+    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
+    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
@@ -92,7 +94,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
@@ -105,7 +107,8 @@ fun createApplicationEngine(
                     dokArkivClient,
                     regelClient,
                     kafkaValidationResultProducer,
-                    kafkaManuelTaskProducer
+                    kafkaManuelTaskProducer,
+                    syfoTilgangsKontrollClient
                 )
             }
         }

@@ -26,7 +26,7 @@ class KafkaProducers(private val env: Environment, vaultSecrets: VaultSecrets) {
         val producer = KafkaProducer<String, ReceivedSykmelding>(properties)
 
         val sm2013AutomaticHandlingTopic = env.sm2013AutomaticHandlingTopic
-        val sm2013ManuellHandlingTopic = env.smpapirManualHandlingTopic
+        val sm2013ManuellHandlingTopic = env.sm2013ManualHandlingTopic
     }
 
     inner class KafkaManuelTaskProducer() {

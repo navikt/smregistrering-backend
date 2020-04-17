@@ -9,6 +9,7 @@ import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.SafDokumentClient
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -17,7 +18,8 @@ import no.nav.syfo.util.getAccessTokenFromAuthHeader
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
-    safDokumentClient: SafDokumentClient
+    safDokumentClient: SafDokumentClient,
+    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
@@ -35,7 +37,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {
-                    log.info("Fant ingen uløste manuelloppgaver med oppgaveid {}",
+                    log.info(
+                        "Fant ingen uløste manuelloppgaver med oppgaveid {}",
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
                     call.respond(
@@ -54,20 +57,51 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
                         dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                        accessToken = accessToken)
+                        accessToken = accessToken
+                    )
 
-                    if (pdfPapirSykmelding == null) {
-                        call.respond(HttpStatusCode.InternalServerError)
+                    if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
+                        val harTilgangTilOppgave =
+                            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                                accessToken,
+                                manuellOppgaveDTOList.firstOrNull()?.fnr ?: ""
+                            )?.harTilgang
+
+                        if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
+                            if (pdfPapirSykmelding == null) {
+                                call.respond(HttpStatusCode.InternalServerError)
+                            } else {
+
+                                val papirManuellOppgave = PapirManuellOppgave(
+                                    fnr = manuellOppgaveDTOList.first().fnr,
+                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                                    oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                                    pdfPapirSykmelding = pdfPapirSykmelding
+                                )
+
+                                call.respond(papirManuellOppgave)
+                            }
+                        } else {
+                            log.warn(
+                                "Veileder har ikkje tilgang, {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            )
+                            call.respond(HttpStatusCode.Unauthorized)
+                        }
                     } else {
+                        if (pdfPapirSykmelding == null) {
+                            call.respond(HttpStatusCode.InternalServerError)
+                        } else {
 
-                        val papirManuellOppgave = PapirManuellOppgave(
-                            fnr = manuellOppgaveDTOList.first().fnr,
-                            sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                            oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                            pdfPapirSykmelding = pdfPapirSykmelding
-                        )
+                            val papirManuellOppgave = PapirManuellOppgave(
+                                fnr = manuellOppgaveDTOList.first().fnr,
+                                sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                                oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                                pdfPapirSykmelding = pdfPapirSykmelding
+                            )
 
-                        call.respond(papirManuellOppgave)
+                            call.respond(papirManuellOppgave)
+                        }
                     }
                 }
             }

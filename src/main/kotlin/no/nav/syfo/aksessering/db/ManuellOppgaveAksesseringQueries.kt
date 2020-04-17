@@ -22,22 +22,6 @@ fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDT
         }
     }
 
-fun DatabaseInterface.hentPapirManuellOppgave(oppgaveId: Int): List<PapirManuellOppgave> =
-    connection.use { connection ->
-        connection.prepareStatement(
-            """
-                SELECT id, fnr, oppgave_id
-                FROM MANUELLOPPGAVE  
-                WHERE oppgave_id=? 
-                AND ferdigstilt=?;
-                """
-        ).use {
-            it.setInt(1, oppgaveId)
-            it.setBoolean(2, false)
-            it.executeQuery().toList { toPapirManuellOppgave() }
-        }
-    }
-
 fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
     ManuellOppgaveDTO(
         journalpostId = getString("journalpost_id")?.trim() ?: "",
