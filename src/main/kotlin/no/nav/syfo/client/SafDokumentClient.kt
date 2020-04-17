@@ -69,6 +69,7 @@ class SafDokumentClient constructor(
         accessToken: String
     ): ByteArray? {
         return try {
+            log.info("Henter dokuemnt fra journalpostId {}, og dokumentInfoId {}", journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
             dokument?.let {
                 dokument.toByteArray()
