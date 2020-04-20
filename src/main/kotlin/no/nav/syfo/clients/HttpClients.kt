@@ -10,6 +10,7 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
 import no.nav.syfo.Environment
@@ -58,6 +59,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     @KtorExperimentalAPI
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
 
+    @InternalAPI
     @KtorExperimentalAPI
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
 

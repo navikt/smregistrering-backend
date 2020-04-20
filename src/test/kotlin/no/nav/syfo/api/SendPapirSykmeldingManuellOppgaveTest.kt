@@ -17,6 +17,7 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
+import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -66,6 +67,7 @@ import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
 
+@InternalAPI
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
 

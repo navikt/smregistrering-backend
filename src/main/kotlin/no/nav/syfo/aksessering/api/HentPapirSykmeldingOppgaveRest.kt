@@ -6,16 +6,17 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
+import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
-import no.nav.syfo.objectMapper
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
+@InternalAPI
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
@@ -61,7 +62,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         accessToken = accessToken
                     )
 
-                    log.info("Papir pdf string: ${pdfPapirSykmelding}")
+                    log.info("Papir pdf string: $pdfPapirSykmelding")
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                         val harTilgangTilOppgave =

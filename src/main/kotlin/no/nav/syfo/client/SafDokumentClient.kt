@@ -14,6 +14,7 @@ import io.ktor.util.encodeBase64
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
+@InternalAPI
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
     private val url: String,
@@ -73,7 +74,6 @@ class SafDokumentClient constructor(
         }
     }
 
-    @InternalAPI
     suspend fun hentDokument(
         journalpostId: String,
         dokumentInfoId:
