@@ -36,26 +36,32 @@ class SafDokumentClient constructor(
 
         when (httpResponse.status) {
             HttpStatusCode.NotFound -> {
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Dokumentet finnes ikke for journalpostId {}", journalpostId)
                 null
             }
             HttpStatusCode.InternalServerError -> {
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}", journalpostId)
                 null
             }
             HttpStatusCode.Forbidden -> {
-                log.warn("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
+                log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
                 null
             }
             HttpStatusCode.Unauthorized -> {
-                log.warn("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
+                log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
                 null
             }
             HttpStatusCode.BadRequest -> {
-                log.warn("Dårlig requests for journalpostId {}", journalpostId)
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
+                log.error("Dårlig requests for journalpostId {}", journalpostId)
                 null
             }
             else -> {
+                log.info("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.info("Hentet papirsykmelding pdf for journalpostId {}", journalpostId)
                 httpResponse.call.response.receive<String>()
             }
