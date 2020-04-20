@@ -28,7 +28,7 @@ class SafDokumentClient constructor(
     ): String? = retry("hent_dokument") {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
-                accept(ContentType.Application.Pdf)
+                accept(ContentType.Application.Any)
                 header("Authorization", "Bearer $accessToken")
                 header("Nav-Callid", msgId)
                 header("Nav-Consumer-Id", "smregistrering-backend")
@@ -53,6 +53,11 @@ class SafDokumentClient constructor(
             HttpStatusCode.Unauthorized -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
+                null
+            }
+            HttpStatusCode.NotAcceptable -> {
+                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
+                log.error("Not Acceptable for journalpostId {}", journalpostId)
                 null
             }
             HttpStatusCode.BadRequest -> {
