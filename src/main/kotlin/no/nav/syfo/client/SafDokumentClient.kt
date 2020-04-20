@@ -8,7 +8,9 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.encodeBase64
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
@@ -71,6 +73,7 @@ class SafDokumentClient constructor(
         }
     }
 
+    @InternalAPI
     suspend fun hentDokument(
         journalpostId: String,
         dokumentInfoId:
@@ -81,7 +84,9 @@ class SafDokumentClient constructor(
         return try {
             log.info("Henter dokuemnt fra journalpostId {}, og dokumentInfoId {}", journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
-            dokument
+            dokument.let {
+                dokument?.encodeBase64()
+            }
         } catch (ex: Exception) {
             log.warn("Klarte ikke å tolke ByteArray-dokument ${ex.message}")
             null
