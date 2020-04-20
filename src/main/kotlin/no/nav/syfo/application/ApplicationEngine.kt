@@ -64,7 +64,10 @@ fun createApplicationEngine(
     kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
     syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ): ApplicationEngine =
-    embeddedServer(Netty, env.applicationPort) {
+    embeddedServer(Netty, env.applicationPort, configure = {
+        // Increase timeout of Netty to handle large content bodies
+        responseWriteTimeoutSeconds = 60
+    }) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
         install(ContentNegotiation) {
             jackson {
