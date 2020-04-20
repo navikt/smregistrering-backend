@@ -4,5 +4,5 @@ data class PapirManuellOppgave(
     val fnr: String?,
     val sykmeldingId: String,
     val oppgaveid: Int,
-    var pdfPapirSykmelding: ByteArray
+    var pdfPapirSykmelding: String
 )

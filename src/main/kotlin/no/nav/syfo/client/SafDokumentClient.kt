@@ -9,10 +9,8 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.utils.io.core.toByteArray
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
-import no.nav.syfo.objectMapper
 
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
@@ -79,14 +77,11 @@ class SafDokumentClient constructor(
         String,
         msgId: String,
         accessToken: String
-    ): ByteArray? {
+    ): String? {
         return try {
             log.info("Henter dokuemnt fra journalpostId {}, og dokumentInfoId {}", journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
-            log.info("Dokument fra saf: ${objectMapper.writeValueAsString(dokument)}")
-            dokument?.let {
-                dokument.toByteArray()
-            }
+            dokument
         } catch (ex: Exception) {
             log.warn("Klarte ikke å tolke ByteArray-dokument ${ex.message}")
             null

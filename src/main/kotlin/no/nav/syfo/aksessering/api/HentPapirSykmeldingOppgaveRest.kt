@@ -12,7 +12,6 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
-import no.nav.syfo.objectMapper
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
@@ -60,8 +59,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
                         accessToken = accessToken
                     )
-
-                    log.info("pdfPapirSykmelding : ${objectMapper.writeValueAsString(pdfPapirSykmelding)}")
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                         val harTilgangTilOppgave =

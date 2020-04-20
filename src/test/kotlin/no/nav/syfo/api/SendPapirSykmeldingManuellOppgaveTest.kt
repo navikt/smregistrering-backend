@@ -94,7 +94,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ""
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
 
             val oppgaveid = 308076319
