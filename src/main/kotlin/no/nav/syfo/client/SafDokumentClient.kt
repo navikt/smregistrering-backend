@@ -10,6 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.encodeBase64
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
@@ -85,7 +86,7 @@ class SafDokumentClient constructor(
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
             dokument
         } catch (ex: Exception) {
-            log.warn("Klarte ikke å tolke ByteArray-dokument ${ex.message}")
+            log.warn("Klarte ikke å tolke dokument fra saf ${ex.message}")
             null
         }
     }
