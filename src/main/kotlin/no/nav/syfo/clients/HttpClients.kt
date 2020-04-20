@@ -28,6 +28,11 @@ import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+        engine {
+            socketTimeout = 40_000
+            connectTimeout = 40_000
+            connectionRequestTimeout = 40_000
+        }
         install(JsonFeature) {
             serializer = JacksonSerializer {
                 registerKotlinModule()

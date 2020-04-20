@@ -66,7 +66,7 @@ fun createApplicationEngine(
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
         // Increase timeout of Netty to handle large content bodies
-        responseWriteTimeoutSeconds = 60
+        responseWriteTimeoutSeconds = 40
     }) {
         setupAuth(vaultSecrets, jwkProvider, issuer)
         install(ContentNegotiation) {
