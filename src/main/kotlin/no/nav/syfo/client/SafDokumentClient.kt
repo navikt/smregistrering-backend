@@ -12,6 +12,7 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.utils.io.core.toByteArray
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
+import no.nav.syfo.objectMapper
 
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
@@ -71,6 +72,7 @@ class SafDokumentClient constructor(
         return try {
             log.info("Henter dokuemnt fra journalpostId {}, og dokumentInfoId {}", journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
+            log.info("Dokument fra saf: ${objectMapper.writeValueAsString(dokument)}")
             dokument?.let {
                 dokument.toByteArray()
             }

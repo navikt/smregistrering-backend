@@ -61,7 +61,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         accessToken = accessToken
                     )
 
-                    log.info(objectMapper.writeValueAsString(pdfPapirSykmelding))
+                    log.info("pdfPapirSykmelding : ${objectMapper.writeValueAsString(pdfPapirSykmelding)}")
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                         val harTilgangTilOppgave =
