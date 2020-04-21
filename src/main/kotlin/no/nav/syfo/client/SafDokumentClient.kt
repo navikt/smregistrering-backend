@@ -79,15 +79,16 @@ class SafDokumentClient constructor(
         dokumentInfoId:
         String,
         msgId: String,
-        accessToken: String
+        accessToken: String,
+        oppgaveId: Int
     ): String? {
         return try {
-            log.info("Henter dokuemnt fra journalpostId {}, og dokumentInfoId {}", journalpostId, dokumentInfoId)
+            log.info("Henter dokuemnt fra oppgaveId {}, journalpostId {}, og dokumentInfoId {}", oppgaveId, journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
             dokument
         } catch (ex: Exception) {
-            log.warn("Klarte ikke å tolke dokument fra saf,journalpostId {}, og dokumentInfoId {}, {}",
-                journalpostId, dokumentInfoId, ex.message)
+            log.warn("Klarte ikke å tolke dokument fra saf oppgaveId {}, journalpostId {}, og dokumentInfoId {}, {}",
+                oppgaveId, journalpostId, dokumentInfoId, ex.message)
             null
         }
     }

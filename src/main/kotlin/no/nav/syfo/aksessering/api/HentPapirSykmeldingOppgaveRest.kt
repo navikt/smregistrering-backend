@@ -59,7 +59,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
                         dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
                         msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                        accessToken = accessToken
+                        accessToken = accessToken,
+                        oppgaveId = oppgaveId
                     )
 
                     log.info("Papir pdf string: $pdfPapirSykmelding")

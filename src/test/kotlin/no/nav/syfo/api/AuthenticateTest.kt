@@ -57,7 +57,7 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ""
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ""
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
             val oppgaveid = 308076319
 
@@ -119,7 +119,7 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any()) } returns ""
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ""
 
             val oppgaveid = 308076319
 
