@@ -62,8 +62,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         accessToken = accessToken
                     )
 
-                    log.info("AccesToken, $accessToken")
-
                     log.info("Papir pdf string: $pdfPapirSykmelding")
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {

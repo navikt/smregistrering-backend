@@ -8,9 +8,9 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.encodeBase64
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
@@ -29,7 +29,7 @@ class SafDokumentClient constructor(
     ): String? = retry("hent_dokument") {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
-                accept(ContentType.Application.Any)
+                accept(ContentType.Application.Any.withCharset(Charsets.US_ASCII))
                 header("Authorization", "Bearer $accessToken")
                 header("Nav-Callid", msgId)
                 header("Nav-Consumer-Id", "smregistrering-backend")
@@ -86,7 +86,8 @@ class SafDokumentClient constructor(
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
             dokument
         } catch (ex: Exception) {
-            log.warn("Klarte ikke å tolke dokument fra saf ${ex.message}")
+            log.warn("Klarte ikke å tolke dokument fra saf,journalpostId {}, og dokumentInfoId {}, {}",
+                journalpostId, dokumentInfoId, ex.message)
             null
         }
     }
