@@ -40,5 +40,5 @@ fun ResultSet.toPapirManuellOppgave(): PapirManuellOppgave =
         fnr = getString("fnr")?.trim(),
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
-        pdfPapirSykmelding = ""
+        pdfPapirSykmelding = ByteArray(1)
     )

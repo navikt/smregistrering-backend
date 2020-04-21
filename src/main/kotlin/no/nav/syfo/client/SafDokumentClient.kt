@@ -8,7 +8,6 @@ import io.ktor.client.request.header
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.withCharset
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.helpers.retry
@@ -26,7 +25,7 @@ class SafDokumentClient constructor(
         dokumentInfoId: String,
         msgId: String,
         accessToken: String
-    ): String? = retry("hent_dokument") {
+    ): ByteArray? = retry("hent_dokument") {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
                 accept(ContentType.Application.Pdf)
@@ -69,7 +68,7 @@ class SafDokumentClient constructor(
             else -> {
                 log.info("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.info("Hentet papirsykmelding pdf for journalpostId {}", journalpostId)
-                httpResponse.call.response.receive<String>()
+                httpResponse.call.response.receive<ByteArray>()
             }
         }
     }
@@ -81,7 +80,7 @@ class SafDokumentClient constructor(
         msgId: String,
         accessToken: String,
         oppgaveId: Int
-    ): String? {
+    ): ByteArray? {
         return try {
             log.info("Henter dokuemnt fra oppgaveId {}, journalpostId {}, og dokumentInfoId {}", oppgaveId, journalpostId, dokumentInfoId)
             val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
