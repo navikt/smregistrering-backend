@@ -29,7 +29,7 @@ class SafDokumentClient constructor(
     ): String? = retry("hent_dokument") {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
-                accept(ContentType.Application.Any.withCharset(Charsets.US_ASCII))
+                accept(ContentType.Application.Pdf)
                 header("Authorization", "Bearer $accessToken")
                 header("Nav-Callid", msgId)
                 header("Nav-Consumer-Id", "smregistrering-backend")
