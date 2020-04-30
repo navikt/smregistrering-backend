@@ -239,7 +239,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/$oppgaveid") {
+            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")

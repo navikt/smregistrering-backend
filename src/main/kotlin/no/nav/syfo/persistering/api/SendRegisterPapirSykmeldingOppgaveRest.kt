@@ -54,8 +54,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ) {
     route("/api/v1") {
-        put("/sendPapirSykmeldingManuellOppgave/{oppgaveid}") {
-            val oppgaveId = call.parameters["oppgaveid"]!!.toInt()
+        put("/sendPapirSykmeldingManuellOppgave") {
+            val oppgaveId = call.request.queryParameters["oppgaveid"]?.toInt()
+
             log.info(
                 "Mottok eit kall til /api/v1/sendPapirSykmeldingManuellOppgave med {}",
                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
@@ -66,6 +67,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             val smRegisteringManuellt: SmRegisteringManuellt = call.receive()
 
             when {
+                oppgaveId == null -> {
+                    log.warn("Mangler oppgaveid queryParameters")
+                    call.respond(HttpStatusCode.BadRequest)
+                }
                 accessToken == null -> {
                     log.warn("Mangler JWT Bearer token i HTTP header")
                     call.respond(HttpStatusCode.BadRequest)
