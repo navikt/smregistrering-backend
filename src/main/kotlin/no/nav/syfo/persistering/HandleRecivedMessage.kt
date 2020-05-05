@@ -39,7 +39,7 @@ suspend fun handleRecivedMessage(
             val opprettOppgave = OpprettOppgave(
                 aktoerId = papirSmRegistering.aktorId,
                 opprettetAvEnhetsnr = "9999",
-                behandlesAvApplikasjon = "FS22",
+                behandlesAvApplikasjon = "SMR",
                 beskrivelse = "Manuell papir sykmeldingoppgave, gjelder for journalpostid: ${papirSmRegistering.journalpostId}",
                 tema = "SYM",
                 oppgavetype = "BEH_EL_SYM",
