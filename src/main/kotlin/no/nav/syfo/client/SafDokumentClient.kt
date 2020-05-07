@@ -36,32 +36,32 @@ class SafDokumentClient constructor(
             HttpStatusCode.NotFound -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Dokumentet finnes ikke for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.InternalServerError -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Forbidden -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Unauthorized -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.NotAcceptable -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Not Acceptable for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.BadRequest -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Dårlig requests for journalpostId {}", journalpostId)
-                null
+                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             else -> {
                 log.info("Saf returnerte: httpstatus {}", httpResponse.status)
