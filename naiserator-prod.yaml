@@ -4,7 +4,7 @@ metadata:
   name: smregistrering-backend
   namespace: default
   labels:
-    team: teamsykefravr
+    team: teamsykmelding
 spec:
   image: {{ image }}
   replicas:
