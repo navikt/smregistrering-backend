@@ -46,7 +46,8 @@ suspend fun handleRecivedMessage(
                 fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
                     LocalDate.now().plusDays(4)
                 ),
-                prioritet = "HOY"
+                prioritet = "HOY",
+                journalpostId = papirSmRegistering.journalpostId
             )
 
             val oppgaveResponse = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
