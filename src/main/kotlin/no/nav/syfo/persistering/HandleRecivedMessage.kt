@@ -35,15 +35,13 @@ suspend fun handleRecivedMessage(
                 papirSmRegistering.sykmeldingId, fields(loggingMeta)
             )
         } else {
-            // TODO må få ein egen behandlingstype for papirsykmeldinger
             val opprettOppgave = OpprettOppgave(
                 aktoerId = papirSmRegistering.aktorId,
                 opprettetAvEnhetsnr = "9999",
                 behandlesAvApplikasjon = "SMR",
                 beskrivelse = "Manuell papir sykmeldingoppgave, gjelder for journalpostid: ${papirSmRegistering.journalpostId}",
                 tema = "SYM",
-                oppgavetype = "BEH_EL_SYM",
-                behandlingstype = "ae0239",
+                oppgavetype = "JFR",
                 aktivDato = LocalDate.now(),
                 fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
                     LocalDate.now().plusDays(4)
