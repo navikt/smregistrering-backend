@@ -14,7 +14,7 @@ Repo for manual registration of paper sykmelding, receives paper sykmelding and 
 
 #### Requirements
 
-* JDK 12
+* JDK 14
 
 ### Getting github-package-registry packages NAV-IT
 Some packages used in this repo is uploaded to the Github Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
