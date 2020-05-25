@@ -40,22 +40,7 @@ import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.model.AktivitetIkkeMulig
-import no.nav.syfo.model.Arbeidsgiver
-import no.nav.syfo.model.Diagnose
-import no.nav.syfo.model.HarArbeidsgiver
-import no.nav.syfo.model.IdentInfo
-import no.nav.syfo.model.IdentInfoResult
-import no.nav.syfo.model.MedisinskArsak
-import no.nav.syfo.model.MedisinskArsakType
-import no.nav.syfo.model.MedisinskVurdering
-import no.nav.syfo.model.OpprettOppgaveResponse
-import no.nav.syfo.model.PapirSmRegistering
-import no.nav.syfo.model.Periode
-import no.nav.syfo.model.Samhandler
-import no.nav.syfo.model.SmRegisteringManuellt
-import no.nav.syfo.model.Status
-import no.nav.syfo.model.ValidationResult
+import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -105,7 +90,48 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 aktorId = "1314",
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
-                sykmeldingId = "1344444"
+                sykmeldingId = "1344444",
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)

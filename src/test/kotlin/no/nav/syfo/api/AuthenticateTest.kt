@@ -30,8 +30,7 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.log
-import no.nav.syfo.model.PapirManuellOppgave
-import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -39,6 +38,7 @@ import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
+import java.time.LocalDate
 
 @KtorExperimentalAPI
 internal class AuthenticateTest {
@@ -66,8 +66,49 @@ internal class AuthenticateTest {
                 aktorId = "1314",
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
-                sykmeldingId = "1344444"
-            )
+                sykmeldingId = "1344444",
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false)
+
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -128,7 +169,48 @@ internal class AuthenticateTest {
                 aktorId = "1314",
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
-                sykmeldingId = "1344444"
+                sykmeldingId = "1344444",
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
