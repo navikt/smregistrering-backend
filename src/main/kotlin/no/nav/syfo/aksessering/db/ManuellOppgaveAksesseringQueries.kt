@@ -1,16 +1,19 @@
 package no.nav.syfo.aksessering.db
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirManuellOppgave
+import no.nav.syfo.objectMapper
 
 fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
     connection.use { connection ->
         connection.prepareStatement(
             """
-                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt
+                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering
                 FROM MANUELLOPPGAVE  
                 WHERE oppgave_id=? 
                 AND ferdigstilt=?;
@@ -32,6 +35,7 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
+        papirSmRegistering = objectMapper.readValue(getString("papir_sm_registrering")),
         pdfPapirSykmelding = null
     )
 

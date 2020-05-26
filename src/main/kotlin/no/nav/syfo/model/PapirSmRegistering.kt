@@ -1,7 +1,11 @@
 package no.nav.syfo.model
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
+import no.nav.syfo.objectMapper
+import org.postgresql.util.PGobject
 
 data class PapirSmRegistering(
     val journalpostId: String,
@@ -25,3 +29,8 @@ data class PapirSmRegistering(
     val behandletTidspunkt: LocalDate?,
     val behandler: Behandler?
 )
+
+fun PapirSmRegistering.toPGObject() = PGobject().also {
+    it.type = "json"
+    it.value = objectMapper.writeValueAsString(this)
+}
