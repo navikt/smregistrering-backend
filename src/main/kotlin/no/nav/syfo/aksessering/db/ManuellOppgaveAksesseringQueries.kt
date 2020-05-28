@@ -1,6 +1,5 @@
 package no.nav.syfo.aksessering.db
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import no.nav.syfo.db.DatabaseInterface
@@ -37,12 +36,4 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         ferdigstilt = getBoolean("ferdigstilt"),
         papirSmRegistering = objectMapper.readValue(getString("papir_sm_registrering")),
         pdfPapirSykmelding = null
-    )
-
-fun ResultSet.toPapirManuellOppgave(): PapirManuellOppgave =
-    PapirManuellOppgave(
-        fnr = getString("fnr")?.trim(),
-        sykmeldingId = getString("id")?.trim() ?: "",
-        oppgaveid = getInt("oppgave_id"),
-        pdfPapirSykmelding = ByteArray(1)
     )

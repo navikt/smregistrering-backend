@@ -78,7 +78,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     fnr = manuellOppgaveDTOList.first().fnr,
                                     sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                     oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                                    pdfPapirSykmelding = pdfPapirSykmelding
+                                    pdfPapirSykmelding = pdfPapirSykmelding,
+                                    papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                                 )
 
                                 call.respond(papirManuellOppgave)
@@ -99,7 +100,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 fnr = manuellOppgaveDTOList.first().fnr,
                                 sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                 oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                                pdfPapirSykmelding = pdfPapirSykmelding
+                                pdfPapirSykmelding = pdfPapirSykmelding,
+                                papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                             )
 
                             call.respond(papirManuellOppgave)
