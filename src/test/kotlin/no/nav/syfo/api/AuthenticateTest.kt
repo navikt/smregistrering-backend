@@ -30,7 +30,14 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.log
-import no.nav.syfo.model.*
+import no.nav.syfo.model.Adresse
+import no.nav.syfo.model.Behandler
+import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.PapirManuellOppgave
+import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.Prognose
+import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
