@@ -5,7 +5,7 @@ import java.sql.ResultSet
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.model.ManuellOppgaveDTO
-import no.nav.syfo.model.PapirManuellOppgave
+import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.objectMapper
 
 fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
@@ -34,6 +34,8 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
-        papirSmRegistering = objectMapper.readValue(getString("papir_sm_registrering")),
+        papirSmRegistering = getString("papir_sm_registrering")?.let {
+            objectMapper.readValue<PapirSmRegistering?>(it)
+        },
         pdfPapirSykmelding = null
     )

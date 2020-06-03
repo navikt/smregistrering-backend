@@ -32,6 +32,7 @@ import javax.jms.Session
 import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
+import no.nav.syfo.aksessering.db.hentManuellOppgaver
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
@@ -51,6 +52,8 @@ import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
+import java.sql.Connection
+import java.sql.Timestamp
 
 @KtorExperimentalAPI
 internal class HentPapirSykmeldingManuellOppgaveTest {
@@ -80,7 +83,10 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
+            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+                true,
+                null
+            )
 
             val oppgaveid = 308076319
 
@@ -230,4 +236,127 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
         }
     }
 
+    @Test
+    internal fun `Hent papirsykmelding papir_sm_registrering = null`() {
+
+        val oppgaveid = 308076319
+
+        val manuellOppgave = PapirSmRegistering(
+            journalpostId = "134",
+            fnr = "41424",
+            aktorId = "1314",
+            dokumentInfoId = "131313",
+            datoOpprettet = LocalDateTime.now(),
+            sykmeldingId = "1344444",
+            behandler = Behandler(
+                "John",
+                "Besserwisser",
+                "Doe",
+                "123",
+                "12345678912",
+                null,
+                null,
+                Adresse(null, null, null, null, null),
+                "12345"
+            ),
+            kontaktMedPasient = null,
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            utdypendeOpplysninger = null,
+            prognose = Prognose(
+                true,
+                "Nei",
+                ErIArbeid(
+                    true,
+                    false,
+                    LocalDate.now(),
+                    LocalDate.now()
+                ),
+                null
+            ),
+            medisinskVurdering = MedisinskVurdering(
+                hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                biDiagnoser = emptyList(),
+                annenFraversArsak = null,
+                yrkesskadeDato = null,
+                yrkesskade = false,
+                svangerskap = false
+            ),
+            arbeidsgiver = null,
+            behandletTidspunkt = null,
+            perioder = null,
+            skjermesForPasient = false
+        )
+
+        opprettManuellOppgaveNullPapirsm(database.connection, manuellOppgave, oppgaveid)
+
+        coEvery { textMessage.text = any() } returns Unit
+        coEvery { session.createTextMessage() } returns textMessage
+        coEvery { syfoserviceProducer.send(any()) } returns Unit
+        coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+        coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
+        coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+        coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+        coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
+            Pair(
+                "143242345", IdentInfoResult(
+                    identer = listOf(IdentInfo("645514141444", "asd", true)),
+                    feilmelding = null
+                )
+            ), Pair(
+                "18459123134", IdentInfoResult(
+                    identer = listOf(IdentInfo("6455142134", "asd", true)),
+                    feilmelding = null
+                )
+            )
+        )
+
+        val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
+
+        hentManuellOppgaver.size shouldEqual 1
+        hentManuellOppgaver.get(0).papirSmRegistering shouldEqual null
+    }
+
+    private fun opprettManuellOppgaveNullPapirsm(
+        connection: Connection,
+        papirSmRegistering: PapirSmRegistering,
+        oppgaveId: Int
+    ) {
+        connection.use { connection ->
+            connection.prepareStatement(
+                """
+            INSERT INTO manuelloppgave(
+                id,
+                journalpost_id,
+                fnr,
+                aktor_id,
+                dokument_info_id,
+                dato_opprettet,
+                oppgave_id,
+                ferdigstilt,
+                papir_sm_registrering
+                )
+            VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            ).use {
+                it.setString(1, papirSmRegistering.sykmeldingId)
+                it.setString(2, papirSmRegistering.journalpostId)
+                it.setString(3, papirSmRegistering.fnr)
+                it.setString(4, papirSmRegistering.aktorId)
+                it.setString(5, papirSmRegistering.dokumentInfoId)
+                it.setTimestamp(6, Timestamp.valueOf(papirSmRegistering.datoOpprettet))
+                it.setInt(7, oppgaveId)
+                it.setBoolean(8, false)
+                it.setObject(9, null) // Store it all so frontend can present whatever is present
+                it.executeUpdate()
+            }
+
+            connection.commit()
+        }
+    }
+
 }
+
