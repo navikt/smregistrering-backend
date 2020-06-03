@@ -1,0 +1,1 @@
+ALTER TABLE manuelloppgave ADD COLUMN papir_sm_registrering JSONB NULL;
