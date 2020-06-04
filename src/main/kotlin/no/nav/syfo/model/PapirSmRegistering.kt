@@ -14,6 +14,7 @@ data class PapirSmRegistering(
     val dokumentInfoId: String?,
     val datoOpprettet: LocalDateTime?,
     val sykmeldingId: String,
+    val syketilfelleStartDato: LocalDate?,
     val arbeidsgiver: Arbeidsgiver?,
     val medisinskVurdering: MedisinskVurdering?,
     val skjermesForPasient: Boolean?,
