@@ -97,6 +97,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 dokumentInfoId = "131313",
                 datoOpprettet = LocalDateTime.now(),
                 sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
                     "John",
                     "Besserwisser",
@@ -248,6 +249,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             dokumentInfoId = "131313",
             datoOpprettet = LocalDateTime.now(),
             sykmeldingId = "1344444",
+            syketilfelleStartDato = LocalDate.now(),
             behandler = Behandler(
                 "John",
                 "Besserwisser",
