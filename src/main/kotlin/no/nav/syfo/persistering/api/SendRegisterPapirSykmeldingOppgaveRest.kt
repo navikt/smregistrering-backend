@@ -25,7 +25,6 @@ import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuellt
 import no.nav.syfo.model.Status
-import no.nav.syfo.persistering.handleManuellOppgave
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
@@ -49,8 +48,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
-    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
-    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
     syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ) {
     route("/api/v1") {
@@ -201,31 +198,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     }
                                 }
                                 Status.MANUAL_PROCESSING -> {
-                                    if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
-                                        handleManuellOppgave(
-                                            receivedSykmelding = receivedSykmelding,
-                                            kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
-                                            loggingMeta = loggingMeta,
-                                            session = session,
-                                            syfoserviceProducer = syfoserviceProducer,
-                                            oppgaveClient = oppgaveClient,
-                                            dokArkivClient = dokArkivClient,
-                                            sykmeldingId = sykmeldingId,
-                                            journalpostId = journalpostId,
-                                            healthInformation = healthInformation,
-                                            oppgaveId = oppgaveId,
-                                            validationResult = validationResult,
-                                            kafkaManuelTaskProducer = kafkaManuelTaskProducer,
-                                            kafkaValidationResultProducer = kafkaValidationResultProducer
-                                        )
-                                        call.respond(HttpStatusCode.NoContent)
-                                    } else {
-                                        log.error(
-                                            "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                        )
-                                        call.respond(HttpStatusCode.InternalServerError)
-                                    }
+                                    log.info(
+                                        "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                    call.respond(HttpStatusCode.BadRequest, validationResult)
+
                                 }
                                 else -> {
                                     log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")

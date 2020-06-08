@@ -109,8 +109,6 @@ fun createApplicationEngine(
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    kafkaValidationResultProducer,
-                    kafkaManuelTaskProducer,
                     syfoTilgangsKontrollClient
                 )
             }

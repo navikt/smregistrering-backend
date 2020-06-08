@@ -180,8 +180,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    kafkaValidationResultProducer,
-                    kafkaManuelTaskProducer,
                     syfoTilgangsKontrollClient
                 )
             }
