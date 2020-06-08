@@ -1,7 +1,5 @@
 package no.nav.syfo.model
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.syfo.objectMapper
