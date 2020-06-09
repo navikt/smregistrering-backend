@@ -29,10 +29,10 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.SmRegisteringManuell
 
 fun mapsmRegisteringManuelltTilFellesformat(
-    smRegisteringManuellt: SmRegisteringManuellt,
+    smRegisteringManuell: SmRegisteringManuell,
     pasientFnr: String,
     sykmelderFnr: String,
     sykmeldingId: String,
@@ -46,7 +46,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     v = "SYKMELD"
                 }
                 miGversion = "v1.2 2006-05-24"
-                genDate = datoOpprettet ?: LocalDateTime.of(smRegisteringManuellt.perioder.first().fom, LocalTime.NOON)
+                genDate = datoOpprettet ?: LocalDateTime.of(smRegisteringManuell.perioder.first().fom, LocalTime.NOON)
                 msgId = sykmeldingId
                 ack = XMLCS().apply {
                     dn = "Ja"
@@ -113,7 +113,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     content = XMLRefDoc.Content().apply {
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = smRegisteringManuellt.syketilfelleStartDato
+                            syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
                                 navn = NavnType().apply {
                                     fornavn = ""
@@ -129,14 +129,14 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                     }
                                 }
                             }
-                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuellt.arbeidsgiver)
+                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuell.arbeidsgiver)
                             medisinskVurdering =
                                 tilMedisinskVurdering(
-                                    smRegisteringManuellt.medisinskVurdering,
-                                    smRegisteringManuellt.skjermesForPasient
+                                    smRegisteringManuell.medisinskVurdering,
+                                    smRegisteringManuell.skjermesForPasient
                                 )
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
-                                periode.addAll(tilPeriodeListe(smRegisteringManuellt.perioder))
+                                periode.addAll(tilPeriodeListe(smRegisteringManuell.perioder))
                             }
                             prognose = null
                             utdypendeOpplysninger = tilUtdypendeOpplysninger()
@@ -150,7 +150,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
                                 kontaktDato = null
                                 begrunnIkkeKontakt = null
-                                behandletDato = smRegisteringManuellt.behandletDato
+                                behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
                             behandler = tilBehandler(sykmelderFnr)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {

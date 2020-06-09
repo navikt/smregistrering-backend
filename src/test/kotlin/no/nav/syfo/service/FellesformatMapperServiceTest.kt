@@ -6,20 +6,7 @@ import java.time.LocalTime
 import java.time.Month
 import java.util.UUID
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.model.Adresse
-import no.nav.syfo.model.AktivitetIkkeMulig
-import no.nav.syfo.model.Arbeidsgiver
-import no.nav.syfo.model.AvsenderSystem
-import no.nav.syfo.model.Behandler
-import no.nav.syfo.model.Diagnose
-import no.nav.syfo.model.HarArbeidsgiver
-import no.nav.syfo.model.KontaktMedPasient
-import no.nav.syfo.model.MedisinskArsak
-import no.nav.syfo.model.MedisinskArsakType
-import no.nav.syfo.model.MedisinskVurdering
-import no.nav.syfo.model.Periode
-import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
@@ -35,9 +22,10 @@ internal class FellesformatMapperServiceTest {
     val aktorIdLege = "aktorIdLege"
     val datoOpprettet = LocalDateTime.now()
 
+
     @Test
     internal fun `Realistisk case ende-til-ende`() {
-        val smRegisteringManuellt = SmRegisteringManuellt(
+        val smRegisteringManuellt = SmRegisteringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
             perioder = listOf(
@@ -75,14 +63,24 @@ internal class FellesformatMapperServiceTest {
                 yrkesskadeDato = null,
                 annenFraversArsak = null
             ),
+            prognose = null,
+            utdypendeOpplysninger = null,
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-            behandletDato = LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
+            behandletDato = LocalDate.of(2020, 4, 1),
+            kontaktMedPasient = KontaktMedPasient(LocalDate.MAX, "Ja nei det."),
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            navnFastlege = "Per Person",
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
         )
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-            smRegisteringManuellt = smRegisteringManuellt,
+            smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             sykmeldingId = sykmeldingId,
@@ -160,7 +158,7 @@ internal class FellesformatMapperServiceTest {
 
     @Test
     internal fun `Minimal input fra frontend`() {
-        val smRegisteringManuellt = SmRegisteringManuellt(
+        val smRegisteringManuellt = SmRegisteringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
             perioder = listOf(
@@ -192,11 +190,31 @@ internal class FellesformatMapperServiceTest {
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-            behandletDato = LocalDateTime.of(LocalDate.of(2020, 4, 1), LocalTime.NOON)
+            behandletDato = LocalDate.of(2020, 4, 1),
+            utdypendeOpplysninger = null,
+            prognose = Prognose(
+                true,
+                "Nei",
+                ErIArbeid(
+                    true,
+                    false,
+                    LocalDate.now(),
+                    LocalDate.now()
+                ),
+                null
+            ),
+            kontaktMedPasient = KontaktMedPasient(LocalDate.MAX, "Ja nei det."),
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            navnFastlege = "Per Person",
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
         )
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-            smRegisteringManuellt = smRegisteringManuellt,
+            smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             sykmeldingId = sykmeldingId,

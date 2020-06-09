@@ -58,7 +58,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 @KtorExperimentalAPI
-internal class SendPapirSykmeldingManuellOppgaveTest {
+internal class SendPapirSykmeldingManuellOppgaveFraJSONTest {
 
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
@@ -80,7 +80,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
 
-    @Ignore
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {
@@ -190,65 +189,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
-
-
-            val smRegisteringManuellt = SmRegisteringManuell(
-                pasientFnr = "143242345",
-                sykmelderFnr = "18459123134",
-                perioder = listOf(
-                    Periode(
-                        fom = LocalDate.now(),
-                        tom = LocalDate.now(),
-                        aktivitetIkkeMulig = AktivitetIkkeMulig(
-                            medisinskArsak = MedisinskArsak(
-                                beskrivelse = "test data",
-                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
-                            ),
-                            arbeidsrelatertArsak = null
-                        ),
-                        avventendeInnspillTilArbeidsgiver = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        reisetilskudd = false
-                    )
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(
-                        system = "2.16.578.1.12.4.1.1.7170",
-                        kode = "A070",
-                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
-                    ),
-                    biDiagnoser = listOf(),
-                    svangerskap = false,
-                    yrkesskade = false,
-                    yrkesskadeDato = null,
-                    annenFraversArsak = null
-                ),
-                syketilfelleStartDato = LocalDate.of(2020, 4, 1),
-                skjermesForPasient = false,
-                arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-                behandletDato = LocalDate.now(),
-                andreTiltak = "Neida",
-                behandler = Behandler(
-                    "Per",
-                    "",
-                    "Person",
-                    "123",
-                    "",
-                    "",
-                    "",
-                    Adresse(null, null, null, null, null),
-                    ""
-                ),
-                kontaktMedPasient = KontaktMedPasient(LocalDate.MAX, "Ja nei det."),
-                meldingTilArbeidsgiver = "Nei",
-                meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
-                navnFastlege = "Per Person",
-                prognose = null,
-                tiltakArbeidsplassen = "Mer flesk og duppe!",
-                tiltakNAV = "Nei",
-                utdypendeOpplysninger = null
-            )
+            val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(String(Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")), StandardCharsets.UTF_8))
 
             coEvery { textMessage.text = any() } returns Unit
             coEvery { session.createTextMessage() } returns textMessage
@@ -300,7 +241,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuellt))
+                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
             }) {
                 response.status() shouldEqual HttpStatusCode.NoContent
             }

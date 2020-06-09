@@ -23,7 +23,7 @@ import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -61,7 +61,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
 
-            val smRegisteringManuellt: SmRegisteringManuellt = call.receive()
+            val smRegisteringManuell: SmRegisteringManuell = call.receive()
 
             when {
                 oppgaveId == null -> {
@@ -89,20 +89,20 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         val harTilgangTilOppgave =
                             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
                                 accessToken,
-                                smRegisteringManuellt.pasientFnr
+                                smRegisteringManuell.pasientFnr
                             )?.harTilgang
 
                         // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
                         if (true) {
 
                             val aktoerIds = aktoerIdClient.getAktoerIds(
-                                listOf(smRegisteringManuellt.sykmelderFnr, smRegisteringManuellt.pasientFnr),
+                                listOf(smRegisteringManuell.sykmelderFnr, smRegisteringManuell.pasientFnr),
                                 serviceuserUsername,
                                 loggingMeta
                             )
 
-                            val patientIdents = aktoerIds[smRegisteringManuellt.pasientFnr]
-                            val doctorIdents = aktoerIds[smRegisteringManuellt.sykmelderFnr]
+                            val patientIdents = aktoerIds[smRegisteringManuell.pasientFnr]
+                            val doctorIdents = aktoerIds[smRegisteringManuell.sykmelderFnr]
 
                             if (patientIdents == null || patientIdents.feilmelding != null) {
                                 log.error("Pasienten finnes ikkje i aktorregistert")
@@ -113,7 +113,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
 
-                            val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuellt.sykmelderFnr)
+                            val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuell.sykmelderFnr)
                             val samhandlerPraksisMatch = findBestSamhandlerPraksis(
                                 samhandlerInfo,
                                 loggingMeta
@@ -121,9 +121,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
 
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-                                smRegisteringManuellt = smRegisteringManuellt,
-                                pasientFnr = smRegisteringManuellt.pasientFnr,
-                                sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+                                smRegisteringManuell = smRegisteringManuell,
+                                pasientFnr = smRegisteringManuell.pasientFnr,
+                                sykmelderFnr = smRegisteringManuell.sykmelderFnr,
                                 sykmeldingId = sykmeldingId,
                                 datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
                             )
@@ -141,9 +141,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val receivedSykmelding = ReceivedSykmelding(
                                 sykmelding = sykmelding,
-                                personNrPasient = smRegisteringManuellt.sykmelderFnr,
+                                personNrPasient = smRegisteringManuell.sykmelderFnr,
                                 tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-                                personNrLege = smRegisteringManuellt.sykmelderFnr,
+                                personNrLege = smRegisteringManuell.sykmelderFnr,
                                 navLogId = sykmeldingId,
                                 msgId = sykmeldingId,
                                 legekontorOrgNr = null,

@@ -1,0 +1,79 @@
+{
+  "pasientFnr": "01078023410",
+  "sykmelderFnr": "1000092806879",
+  "perioder": [],
+  "medisinskVurdering": {
+    "hovedDiagnose": {
+      "system": "2.16.578.1.12.4.1.1.7110",
+      "kode": "S525",
+      "tekst": "Brudd i distal ende av radius"
+    },
+    "biDiagnoser": [],
+    "svangerskap": false,
+    "yrkesskade": false,
+    "yrkesskadeDato": null,
+    "annenFraversArsak": null
+  },
+  "syketilfelleStartDato": "2020-06-04",
+  "arbeidsgiver": {
+    "harArbeidsgiver": "EN_ARBEIDSGIVER",
+    "navn": null,
+    "yrkesbetegnelse": null,
+    "stillingsprosent": null
+  },
+  "behandletDato": "2020-06-04",
+  "skjermesForPasient": false,
+  "kontaktMedPasient": {
+    "kontaktDato": null,
+    "begrunnelseIkkeKontakt": null
+  },
+  "behandler": {
+    "fornavn": "",
+    "mellomnavn": null,
+    "etternavn": "",
+    "aktoerId": "",
+    "fnr": "",
+    "hpr": "7125186",
+    "her": "",
+    "adresse": {
+      "gate": "",
+      "postnummer": 0,
+      "kommune": "",
+      "postboks": "",
+      "land": ""
+    }
+  },
+  "kontaktMedPasient": {
+    "kontaktDato": "2020-06-04",
+    "begrunnelseIkkeKontakt": "Jeg er stum og døvblind."
+  },
+  "prognose": {
+    "arbeidsforEtterPeriode": true,
+    "hensynArbeidsplassen": "Han må nesten få cellekontor i sentrum, i alle fall ikke Helsfyr.",
+    "erIArbeid": {
+      "egetArbeidPaSikt": true,
+      "annetArbeidPaSikt": false,
+      "arbeidFOM": null,
+      "vurderingsdato": null
+    },
+    "erIkkeIArbeid": {
+      "arbeidsforPaSikt": true,
+      "arbeidsforFOM": "2020-06-04",
+      "vurderingsdato": "2020-06-04"
+    }
+  },
+  "meldingTilNAV": {
+    "bistandUmiddelbart": false,
+    "beskrivBistand": null
+  },
+  "meldingTilArbeidsgiver": "Pasienten trenger mer lønn og ferie. MASSSE MER!",
+  "tiltakNAV": null,
+  "tiltakArbeidsplassen": "Arbeidsplassen må bistå med mer lønn og ferie.",
+  "andreTiltak": "Mer flesk og duppe i kantina!",
+  "utdypendeOpplysninger": {
+    "6.1": {
+      "6.1.1": "Kanskje?"
+    }
+  },
+  "navnFastlege": "Skrue McDuck"
+}
