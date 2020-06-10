@@ -48,7 +48,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
+    cluster: String
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -87,7 +88,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                         if (hasAccess(syfoTilgangsKontrollClient, accessToken, smRegisteringManuell.pasientFnr)) {
+                         if (hasAccess(syfoTilgangsKontrollClient, accessToken, smRegisteringManuell.pasientFnr, cluster)) {
 
                             val aktoerIds = aktoerIdClient.getAktoerIds(
                                 listOf(smRegisteringManuell.sykmelderFnr, smRegisteringManuell.pasientFnr),
@@ -226,13 +227,17 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
 }
 
-suspend fun hasAccess(syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient, accessToken: String, pasientFnr: String): Boolean {
-    val harTilgangTilOppgave =
-        syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-            accessToken,
-            pasientFnr
-        )?.harTilgang
+suspend fun hasAccess(syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient, accessToken: String, pasientFnr: String, cluster: String): Boolean {
 
-    return harTilgangTilOppgave != null && harTilgangTilOppgave
+    if (cluster == "dev-fss") {
+        return true
+    } else {
+        val harTilgangTilOppgave =
+            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                accessToken,
+                pasientFnr
+            )?.harTilgang
 
+        return harTilgangTilOppgave != null && harTilgangTilOppgave
+    }
 }

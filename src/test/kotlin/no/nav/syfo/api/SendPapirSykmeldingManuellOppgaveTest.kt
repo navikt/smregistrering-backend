@@ -107,7 +107,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    syfoTilgangsKontrollClient
+                    syfoTilgangsKontrollClient,
+                    "edbmaskin"
                 )
             }
 
@@ -332,7 +333,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    syfoTilgangsKontrollClient
+                    syfoTilgangsKontrollClient,
+                    "edbmaskin"
                 )
             }
 

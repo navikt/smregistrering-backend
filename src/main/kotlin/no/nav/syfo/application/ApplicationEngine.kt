@@ -109,7 +109,8 @@ fun createApplicationEngine(
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    syfoTilgangsKontrollClient
+                    syfoTilgangsKontrollClient,
+                    env.cluster
                 )
             }
         }

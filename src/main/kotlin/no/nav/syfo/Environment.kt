@@ -39,7 +39,8 @@ data class Environment(
     val sm2013BehandlingsUtfallTopic: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-behandlingsUtfall"),
     val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave"),
     val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL", "http://syfo-tilgangskontroll/syfo-tilgangskontroll"),
-    val developmentMode: Boolean = getEnvVar("DEVELOPMENT_MODE", "false").toBoolean()
+    val developmentMode: Boolean = getEnvVar("DEVELOPMENT_MODE", "false").toBoolean(),
+    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
 
 ) : MqConfig, KafkaConfig
 
