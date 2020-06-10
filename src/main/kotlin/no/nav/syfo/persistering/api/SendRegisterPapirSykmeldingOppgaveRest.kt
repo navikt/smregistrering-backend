@@ -92,8 +92,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 smRegisteringManuell.pasientFnr
                             )?.harTilgang
 
-                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
-                        if (true) {
+                         if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
 
                             val aktoerIds = aktoerIdClient.getAktoerIds(
                                 listOf(smRegisteringManuell.sykmelderFnr, smRegisteringManuell.pasientFnr),
