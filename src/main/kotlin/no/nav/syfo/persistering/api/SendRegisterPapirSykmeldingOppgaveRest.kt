@@ -165,6 +165,45 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
                                 fields(loggingMeta)
                             )
+
+                            when (validationResult.status) {
+                                Status.OK -> {
+                                    if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                                        handleOKOppgave(
+                                            receivedSykmelding = receivedSykmelding,
+                                            kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                            loggingMeta = loggingMeta,
+                                            session = session,
+                                            syfoserviceProducer = syfoserviceProducer,
+                                            oppgaveClient = oppgaveClient,
+                                            dokArkivClient = dokArkivClient,
+                                            sykmeldingId = sykmeldingId,
+                                            journalpostId = journalpostId,
+                                            healthInformation = healthInformation,
+                                            oppgaveId = oppgaveId
+                                        )
+                                        call.respond(HttpStatusCode.NoContent)
+                                    } else {
+                                        log.error(
+                                            "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
+                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                        )
+                                        call.respond(HttpStatusCode.InternalServerError)
+                                    }
+                                }
+                                Status.MANUAL_PROCESSING -> {
+                                    log.info(
+                                        "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                    call.respond(HttpStatusCode.BadRequest, validationResult)
+
+                                }
+                                else -> {
+                                    log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                                    call.respond(HttpStatusCode.InternalServerError)
+                                }
+                            }
                         } else {
                             log.warn(
                                 "Veileder har ikkje tilgang, {}, {}",
