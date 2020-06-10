@@ -3,7 +3,6 @@ package no.nav.syfo.api
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.call
@@ -20,7 +19,6 @@ import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
-import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
@@ -52,7 +50,6 @@ import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.junit.Ignore
 import org.junit.Test
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -81,7 +78,7 @@ internal class SendPapirSykmeldingManuellOppgaveFraJSONTest {
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
 
     @Test
-    internal fun `Regsitering av papirsykmelding happycase`() {
+    internal fun `Regsitering av papirsykmelding fra JSON`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -186,6 +183,7 @@ internal class SendPapirSykmeldingManuellOppgaveFraJSONTest {
                 perioder = null,
                 skjermesForPasient = false
             )
+
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 

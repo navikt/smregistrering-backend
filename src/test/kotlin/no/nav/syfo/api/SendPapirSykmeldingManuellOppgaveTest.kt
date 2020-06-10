@@ -3,8 +3,6 @@ package no.nav.syfo.api
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.call
 import io.ktor.application.install
@@ -20,7 +18,6 @@ import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
-import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
@@ -54,8 +51,6 @@ import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Ignore
 import org.junit.Test
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -80,7 +75,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
 
-    @Ignore
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {
@@ -190,9 +184,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
-
-
-            val smRegisteringManuellt = SmRegisteringManuell(
+            val smRegisteringManuell = SmRegisteringManuell(
                 pasientFnr = "143242345",
                 sykmelderFnr = "18459123134",
                 perioder = listOf(
@@ -300,7 +292,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuellt))
+                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
             }) {
                 response.status() shouldEqual HttpStatusCode.NoContent
             }

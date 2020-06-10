@@ -1,6 +1,6 @@
 {
-  "pasientFnr": "01078023410",
-  "sykmelderFnr": "1000092806879",
+  "pasientFnr": "143242345",
+  "sykmelderFnr": "18459123134",
   "perioder": [],
   "medisinskVurdering": {
     "hovedDiagnose": {
@@ -28,13 +28,14 @@
     "begrunnelseIkkeKontakt": null
   },
   "behandler": {
-    "fornavn": "",
+    "fornavn": "Per",
     "mellomnavn": null,
-    "etternavn": "",
-    "aktoerId": "",
-    "fnr": "",
-    "hpr": "7125186",
-    "her": "",
+    "etternavn": "Person",
+    "aktoerId": "143242345",
+    "fnr": "123",
+    "hpr": null,
+    "her": null,
+    "tlf": "12345",
     "adresse": {
       "gate": "",
       "postnummer": 0,
