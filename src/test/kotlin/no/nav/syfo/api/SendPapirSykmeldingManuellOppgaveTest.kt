@@ -3,6 +3,7 @@ package no.nav.syfo.api
 import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.call
 import io.ktor.application.install
@@ -51,6 +52,8 @@ import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Ignore
 import org.junit.Test
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -298,5 +301,176 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             }
         }
     }
+
+
+    @Test
+    internal fun `Regsitering av papirsykmelding fra JSON`() {
+        with(TestApplicationEngine()) {
+            start()
+
+            application.setupAuth(
+                VaultSecrets(
+                    serviceuserUsername = "username",
+                    serviceuserPassword = "password",
+                    oidcWellKnownUri = "https://sts.issuer.net/myid",
+                    smregistreringBackendClientId = "clientId",
+                    mqUsername = "username",
+                    mqPassword = "password",
+                    smregistreringBackendClientSecret = "secret",
+                    syfosmpapirregelClientId = "clientid"
+                ), jwkProvider, "https://sts.issuer.net/myid"
+            )
+            application.routing {
+                sendPapirSykmeldingManuellOppgave(
+                    manuellOppgaveService,
+                    kafkaRecievedSykmeldingProducer,
+                    session,
+                    syfoserviceProducer,
+                    oppgaveClient,
+                    kuhrsarClient,
+                    aktoerIdClient,
+                    serviceuserUsername,
+                    dokArkivClient,
+                    regelClient,
+                    syfoTilgangsKontrollClient
+                )
+            }
+
+            application.install(ContentNegotiation) {
+                jackson {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                }
+            }
+            application.install(StatusPages) {
+                exception<Throwable> { cause ->
+                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    log.error("Caught exception", cause)
+                    throw cause
+                }
+            }
+
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+                true,
+                null
+            )
+
+            val oppgaveid = 308076319
+
+            val manuellOppgave = PapirSmRegistering(
+                journalpostId = "134",
+                fnr = "41424",
+                aktorId = "1314",
+                dokumentInfoId = "131313",
+                datoOpprettet = LocalDateTime.now(),
+                sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false
+            )
+
+
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+
+            val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(String(Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")), StandardCharsets.UTF_8))
+
+            coEvery { textMessage.text = any() } returns Unit
+            coEvery { session.createTextMessage() } returns textMessage
+            coEvery { syfoserviceProducer.send(any()) } returns Unit
+            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
+            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
+                Pair(
+                    "143242345", IdentInfoResult(
+                        identer = listOf(IdentInfo("645514141444", "asd", true)),
+                        feilmelding = null
+                    )
+                ), Pair(
+                    "18459123134", IdentInfoResult(
+                        identer = listOf(IdentInfo("6455142134", "asd", true)),
+                        feilmelding = null
+                    )
+                )
+            )
+            coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
+                Samhandler(
+                    samh_id = "12341",
+                    navn = "Perhansen",
+                    samh_type_kode = "fALE",
+                    behandling_utfall_kode = "auto",
+                    unntatt_veiledning = "1",
+                    godkjent_manuell_krav = "0",
+                    ikke_godkjent_for_refusjon = "0",
+                    godkjent_egenandel_refusjon = "0",
+                    godkjent_for_fil = "0",
+                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
+                    samh_praksis = listOf(),
+                    samh_ident = listOf()
+                )
+            )
+            coEvery { dokArkivClient.ferdigStillJournalpost(any(), any(), any()) } returns ""
+            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
+            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
+            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
+            coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
+                status = Status.OK,
+                ruleHits = emptyList()
+            )
+
+            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+                addHeader("Accept", "application/json")
+                addHeader("Content-Type", "application/json")
+                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+            }) {
+                response.status() shouldEqual HttpStatusCode.NoContent
+            }
+        }
+    }
+
 
 }
