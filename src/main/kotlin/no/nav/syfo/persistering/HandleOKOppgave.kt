@@ -57,7 +57,7 @@ suspend fun handleOKOppgave(
 
     val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(
-        "Ferdigstilter oppgave med {}, {}",
+        "Ferdigstiller oppgave med {}, {}",
         keyValue("oppgaveId", oppgaveResponse.id),
         fields(loggingMeta)
     )
