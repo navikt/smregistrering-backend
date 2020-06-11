@@ -229,8 +229,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
 suspend fun hasAccess(syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient, accessToken: String, pasientFnr: String, cluster: String): Boolean {
 
-    if (cluster == "dev-fss") {
-        return true
+    return if (cluster == "dev-fss") {
+        true
     } else {
         val harTilgangTilOppgave =
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
@@ -238,6 +238,6 @@ suspend fun hasAccess(syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient, ac
                 pasientFnr
             )?.harTilgang
 
-        return harTilgangTilOppgave != null && harTilgangTilOppgave
+        harTilgangTilOppgave != null && harTilgangTilOppgave
     }
 }
