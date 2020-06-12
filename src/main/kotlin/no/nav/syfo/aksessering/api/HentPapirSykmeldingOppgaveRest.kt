@@ -42,7 +42,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
                     call.respond(
-                        HttpStatusCode.NoContent,
+                        HttpStatusCode.NotFound,
                         "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
                     )
                 }
