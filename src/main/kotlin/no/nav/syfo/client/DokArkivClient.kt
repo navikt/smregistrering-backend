@@ -51,7 +51,7 @@ class DokArkivClient(
             header("Nav-Callid", msgId)
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                    id = hprnummerMedRiktigLengde(behandler.hpr!!),
+                    id = hprnummerMedRiktigLengde(behandler?.hpr),
                     navn = finnNavn(behandler)
                 ),
                 bruker = Bruker(id = fnr),
@@ -130,8 +130,8 @@ class DokArkivClient(
         }
     }
 
-    fun hprnummerMedRiktigLengde(hprnummer: String): String {
-        if (hprnummer.length < 9) {
+    fun hprnummerMedRiktigLengde(hprnummer: String?): String? {
+        if (hprnummer?.length != null && hprnummer.length < 9) {
             return hprnummer.padStart(9, '0')
         }
         return hprnummer
@@ -153,7 +153,7 @@ class DokArkivClient(
     )
 
     data class AvsenderMottaker(
-        val id: String,
+        val id: String?,
         val idType: String = "HPRNR",
         val navn: String
     )
