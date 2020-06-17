@@ -115,7 +115,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 pasientFnr = smRegisteringManuell.pasientFnr,
                                 sykmelderFnr = smRegisteringManuell.sykmelderFnr,
                                 sykmeldingId = sykmeldingId,
-                                datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
+                                datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )
 
                             val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
@@ -140,7 +140,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 legekontorOrgName = "",
                                 legekontorHerId = null,
                                 legekontorReshId = null,
-                                mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
+                                mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                                     ?: msgHead.msgInfo.genDate,
                                 rulesetVersion = healthInformation.regelSettVersjon,
                                 fellesformat = fellesformatMarshaller.toString(fellesformat),

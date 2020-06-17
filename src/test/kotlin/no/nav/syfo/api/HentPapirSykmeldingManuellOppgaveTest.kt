@@ -51,6 +51,7 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
 import java.sql.Connection
 import java.sql.Timestamp
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class HentPapirSykmeldingManuellOppgaveTest {
@@ -92,7 +93,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
@@ -245,7 +246,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = LocalDateTime.now(),
+            datoOpprettet = OffsetDateTime.now(),
             sykmeldingId = "1344444",
             syketilfelleStartDato = LocalDate.now(),
             behandler = Behandler(
@@ -317,7 +318,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
 
         hentManuellOppgaver.size shouldEqual 1
-        hentManuellOppgaver.get(0).papirSmRegistering shouldEqual null
+        hentManuellOppgaver[0].papirSmRegistering shouldEqual null
     }
 
     private fun opprettManuellOppgaveNullPapirsm(
@@ -347,7 +348,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 it.setString(3, papirSmRegistering.fnr)
                 it.setString(4, papirSmRegistering.aktorId)
                 it.setString(5, papirSmRegistering.dokumentInfoId)
-                it.setTimestamp(6, Timestamp.valueOf(papirSmRegistering.datoOpprettet))
+                it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
                 it.setInt(7, oppgaveId)
                 it.setBoolean(8, false)
                 it.setObject(9, null) // Store it all so frontend can present whatever is present

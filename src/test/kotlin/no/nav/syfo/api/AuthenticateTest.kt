@@ -46,6 +46,7 @@ import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class AuthenticateTest {
@@ -72,7 +73,7 @@ internal class AuthenticateTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
@@ -181,7 +182,7 @@ internal class AuthenticateTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(

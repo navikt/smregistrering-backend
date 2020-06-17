@@ -4,13 +4,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.syfo.objectMapper
 import org.postgresql.util.PGobject
+import java.time.OffsetDateTime
 
 data class PapirSmRegistering(
     val journalpostId: String,
     val fnr: String?,
     val aktorId: String?,
     val dokumentInfoId: String?,
-    val datoOpprettet: LocalDateTime?,
+    val datoOpprettet: OffsetDateTime?,
     val sykmeldingId: String,
     val syketilfelleStartDato: LocalDate?,
     val arbeidsgiver: Arbeidsgiver?,

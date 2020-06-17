@@ -7,6 +7,9 @@ import no.nav.syfo.db.toList
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.objectMapper
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
     connection.use { connection ->
@@ -30,7 +33,7 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         fnr = getString("fnr")?.trim(),
         aktorId = getString("aktor_id")?.trim(),
         dokumentInfoId = getString("dokument_info_id")?.trim(),
-        datoOpprettet = getTimestamp("dato_opprettet").toLocalDateTime(),
+        datoOpprettet = OffsetDateTime.ofInstant(Instant.ofEpochMilli(getTimestamp("dato_opprettet").time), ZoneId.systemDefault()),
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),

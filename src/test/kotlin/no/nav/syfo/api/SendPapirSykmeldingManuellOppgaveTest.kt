@@ -54,6 +54,7 @@ import org.junit.Ignore
 import org.junit.Test
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -140,7 +141,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
@@ -366,7 +367,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
