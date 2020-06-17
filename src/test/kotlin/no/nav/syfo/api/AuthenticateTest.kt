@@ -134,7 +134,12 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        syfoTilgangsKontrollClient,
+                        "cluts!"
+                    )
                 }
             }
 
@@ -238,7 +243,12 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        syfoTilgangsKontrollClient,
+                        "cluts!"
+                    )
                 }
             }
 

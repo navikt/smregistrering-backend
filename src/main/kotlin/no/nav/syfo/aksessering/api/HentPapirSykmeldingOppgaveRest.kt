@@ -14,12 +14,14 @@ import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.hasAccess
 
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
+    cluster: String
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
@@ -68,8 +70,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 manuellOppgaveDTOList.firstOrNull()?.fnr ?: ""
                             )?.harTilgang
 
-                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
-                        if (true) {
+                        if (hasAccess(syfoTilgangsKontrollClient, accessToken, manuellOppgaveDTOList.first().fnr!!, cluster)) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {

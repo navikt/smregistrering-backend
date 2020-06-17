@@ -29,12 +29,7 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
-import no.nav.syfo.util.fellesformatMarshaller
-import no.nav.syfo.util.get
-import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.toString
+import no.nav.syfo.util.*
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -227,17 +222,3 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
 }
 
-suspend fun hasAccess(syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient, accessToken: String, pasientFnr: String, cluster: String): Boolean {
-
-    return if (cluster == "dev-fss") {
-        true
-    } else {
-        val harTilgangTilOppgave =
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-                accessToken,
-                pasientFnr
-            )?.harTilgang
-
-        harTilgangTilOppgave != null && harTilgangTilOppgave
-    }
-}

@@ -1,11 +1,8 @@
 package no.nav.syfo.api
 
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.call
 import io.ktor.application.install
@@ -159,7 +156,8 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     safDokumentClient,
-                    syfoTilgangsKontrollClient
+                    syfoTilgangsKontrollClient,
+                    "cluts!"
                 )
             }
 
