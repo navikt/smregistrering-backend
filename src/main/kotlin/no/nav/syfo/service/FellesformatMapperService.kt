@@ -138,18 +138,29 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
                                 periode.addAll(tilPeriodeListe(smRegisteringManuell.perioder))
                             }
-                            prognose = null
+                            prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
+                                isArbeidsforEtterEndtPeriode = smRegisteringManuell.prognose?.arbeidsforEtterPeriode
+                                beskrivHensynArbeidsplassen = smRegisteringManuell.prognose?.hensynArbeidsplassen
+                                erIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
+                                    isAnnetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.annetArbeidPaSikt
+                                    isEgetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.egetArbeidPaSikt
+                                    arbeidFraDato = smRegisteringManuell.prognose?.erIArbeid?.arbeidFOM
+                                    vurderingDato = smRegisteringManuell.prognose?.erIArbeid?.vurderingsdato
+                                }
+                            }
                             utdypendeOpplysninger = tilUtdypendeOpplysninger()
                             tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
-                                tiltakArbeidsplassen = null
-                                tiltakNAV = null
-                                andreTiltak = null
+                                tiltakNAV = smRegisteringManuell.tiltakNAV
+                                andreTiltak = smRegisteringManuell.andreTiltak
                             }
-                            meldingTilNav = null
-                            meldingTilArbeidsgiver = null
+                            meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
+                                isBistandNAVUmiddelbart = smRegisteringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
+                                beskrivBistandNAV = smRegisteringManuell.meldingTilNAV?.beskrivBistand ?: ""
+                            }
+                            meldingTilArbeidsgiver = smRegisteringManuell.meldingTilArbeidsgiver
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = null
-                                begrunnIkkeKontakt = null
+                                kontaktDato = smRegisteringManuell.kontaktMedPasient?.kontaktDato
+                                begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient?.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
                             behandler = tilBehandler(sykmelderFnr)
@@ -168,7 +179,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
 
 fun tilBehandler(sykmelderFnr: String): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
-        navn = NavnType().apply {
+        navn = NavnType().apply { // TODO: Skal denne implementeres?
             fornavn = ""
             mellomnavn = null
             etternavn = ""
@@ -231,9 +242,9 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
                 null
             }
         }
-        avventendeSykmelding = null
-        gradertSykmelding = null
-        behandlingsdager = null
+        avventendeSykmelding = null // TODO: ??
+        gradertSykmelding = null // TODO: ??
+        behandlingsdager = null // TODO: Lar dette seg gjøre?
         isReisetilskudd = periode.reisetilskudd
     }
 
