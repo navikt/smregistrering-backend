@@ -63,7 +63,7 @@ internal class FellesformatMapperServiceTest {
                 yrkesskadeDato = null,
                 annenFraversArsak = null
             ),
-            prognose = null,
+            prognose = Prognose(arbeidsforEtterPeriode=false, hensynArbeidsplassen=null, erIArbeid=ErIArbeid(egetArbeidPaSikt=false, annetArbeidPaSikt=false, arbeidFOM=null, vurderingsdato=null), erIkkeIArbeid=null),
             utdypendeOpplysninger = null,
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
@@ -278,7 +278,7 @@ internal class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
         receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
-        receivedSykmelding.sykmelding.prognose shouldEqual null
+        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode=false, hensynArbeidsplassen=null, erIArbeid=ErIArbeid(egetArbeidPaSikt=false, annetArbeidPaSikt=false, arbeidFOM=null, vurderingsdato=null), erIkkeIArbeid=null)
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual null

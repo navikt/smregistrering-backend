@@ -115,7 +115,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
                             syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
-                                navn = NavnType().apply {
+                                navn = NavnType().apply {// TODO: Denne må fylles ut. Hentes fra PLD?
                                     fornavn = ""
                                     mellomnavn = ""
                                     etternavn = ""
@@ -242,9 +242,33 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
                 null
             }
         }
-        avventendeSykmelding = null // TODO: ??
-        gradertSykmelding = null // TODO: ??
-        behandlingsdager = null // TODO: Lar dette seg gjøre?
+        avventendeSykmelding = if (periode.avventendeInnspillTilArbeidsgiver != null) {
+                HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AvventendeSykmelding().apply {
+                    innspillTilArbeidsgiver = periode.avventendeInnspillTilArbeidsgiver
+                }
+            } else {
+                null
+            }
+
+        gradertSykmelding = if (periode.gradert != null) {
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding().apply {
+                sykmeldingsgrad = periode.gradert!!.grad
+                isReisetilskudd = periode.gradert!!.reisetilskudd
+            }
+        } else {
+            null
+        }
+
+        behandlingsdager = if (periode.behandlingsdager != null) {
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
+                behandlingsdager = HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
+                    periode
+                }
+                antallBehandlingsdagerUke = behandlingsdager.antallBehandlingsdagerUke
+            }
+        } else {
+            null
+        }
         isReisetilskudd = periode.reisetilskudd
     }
 
