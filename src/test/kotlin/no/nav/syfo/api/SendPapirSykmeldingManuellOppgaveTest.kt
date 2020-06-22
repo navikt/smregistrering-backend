@@ -50,11 +50,11 @@ import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.junit.Ignore
 import org.junit.Test
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -141,7 +141,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(ZoneOffset.UTC),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler = Behandler(
