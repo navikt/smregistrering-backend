@@ -198,8 +198,8 @@ internal class FellesformatMapperServiceTest {
                 ErIArbeid(
                     true,
                     false,
-                    LocalDate.now(),
-                    LocalDate.now()
+                    arbeidFOM=LocalDate.of(2020,6,23),
+                    vurderingsdato=LocalDate.of(2020,6,23)
                 ),
                 null
             ),
