@@ -30,11 +30,13 @@ import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.pdl.model.PdlPerson
 
 fun mapsmRegisteringManuelltTilFellesformat(
     smRegisteringManuell: SmRegisteringManuell,
     pasientFnr: String,
     sykmelderFnr: String,
+    pdlSykmelder: PdlPerson,
     sykmeldingId: String,
     datoOpprettet: LocalDateTime?
 ): XMLEIFellesformat {
@@ -163,7 +165,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                 begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient?.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
-                            behandler = tilBehandler(sykmelderFnr)
+                            behandler = tilBehandler(sykmelderFnr, pdlSykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"
@@ -177,12 +179,12 @@ fun mapsmRegisteringManuelltTilFellesformat(
     }
 }
 
-fun tilBehandler(sykmelderFnr: String): HelseOpplysningerArbeidsuforhet.Behandler =
+fun tilBehandler(sykmelderFnr: String, pdlPerson: PdlPerson): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
         navn = NavnType().apply { // TODO: Skal denne implementeres?
-            fornavn = ""
-            mellomnavn = null
-            etternavn = ""
+            fornavn = pdlPerson.navn.fornavn
+            mellomnavn = pdlPerson.navn.mellomnavn
+            etternavn = pdlPerson.navn.etternavn
         }
         id.addAll(
             listOf(

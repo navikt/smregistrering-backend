@@ -38,6 +38,7 @@ import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 
@@ -60,6 +61,7 @@ fun createApplicationEngine(
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
+    pdlService: PdlPersonService,
     kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
     kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
     syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
@@ -109,6 +111,7 @@ fun createApplicationEngine(
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
+                    pdlService,
                     syfoTilgangsKontrollClient,
                     env.cluster
                 )

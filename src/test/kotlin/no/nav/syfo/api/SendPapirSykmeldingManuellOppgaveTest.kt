@@ -23,7 +23,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
 import javax.jms.MessageProducer
@@ -43,6 +42,10 @@ import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
+import no.nav.syfo.pdl.model.PdlPerson
+import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.pdl.service.getPdlResponse
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -78,6 +81,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val pdlPersonService = mockk<PdlPersonService>()
 
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
@@ -108,6 +112,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
+                    pdlPersonService,
                     syfoTilgangsKontrollClient,
                     "edbmaskin"
                 )
@@ -133,7 +138,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -293,6 +297,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
+            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345")
+
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
@@ -334,6 +340,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
+                    pdlPersonService,
                     syfoTilgangsKontrollClient,
                     "edbmaskin"
                 )
@@ -463,6 +470,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 status = Status.OK,
                 ruleHits = emptyList()
             )
+
+            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345")
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")

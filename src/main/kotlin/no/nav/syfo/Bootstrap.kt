@@ -102,6 +102,7 @@ fun main() {
         vaultSecrets.serviceuserUsername,
         httpClients.dokArkivClient,
         httpClients.regelClient,
+        httpClients.pdlService,
         kafkaProducers.kafkaValidationResultProducer,
         kafkaProducers.kafkaManuelTaskProducer,
         httpClients.syfoTilgangsKontrollClient

@@ -1,6 +1,7 @@
 package no.nav.syfo.persistering.api
 
 import io.ktor.application.call
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -25,11 +26,13 @@ import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.util.*
+import java.util.*
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -43,6 +46,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
+    pdlService: PdlPersonService,
     syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
     cluster: String
 ) {
@@ -56,6 +60,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             )
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
+            val userToken = call.request.headers[HttpHeaders.Authorization]!!
+            val callId = UUID.randomUUID().toString()
 
             val smRegisteringManuell: SmRegisteringManuell = call.receive()
 
@@ -109,11 +115,13 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 loggingMeta
                             )
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
+                            val pdlSykmelder = pdlService.getPdlPerson(fnr = doctorIdents!!.identer!!.first().ident, userToken = userToken, callId = callId)
 
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
                                 smRegisteringManuell = smRegisteringManuell,
-                                pasientFnr = smRegisteringManuell.pasientFnr,
-                                sykmelderFnr = smRegisteringManuell.sykmelderFnr,
+                                pasientFnr = patientIdents!!.identer!!.first().ident,
+                                sykmelderFnr = doctorIdents!!.identer!!.first().ident,
+                                pdlSykmelder = pdlSykmelder,
                                 sykmeldingId = sykmeldingId,
                                 datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )

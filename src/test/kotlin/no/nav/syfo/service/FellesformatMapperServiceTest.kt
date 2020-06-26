@@ -8,6 +8,8 @@ import java.util.UUID
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
+import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import org.amshove.kluent.shouldEqual
@@ -83,6 +85,7 @@ internal class FellesformatMapperServiceTest {
             smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345"),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )
@@ -217,6 +220,7 @@ internal class FellesformatMapperServiceTest {
             smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345"),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )
@@ -291,9 +295,9 @@ internal class FellesformatMapperServiceTest {
             LocalTime.NOON
         )
         receivedSykmelding.sykmelding.behandler shouldEqual Behandler(
-            fornavn = "",
-            mellomnavn = null,
-            etternavn = "",
+            fornavn = "Billy",
+            mellomnavn = "Bob",
+            etternavn = "Thornton",
             aktoerId = aktorIdLege,
             fnr = fnrLege,
             hpr = null,
