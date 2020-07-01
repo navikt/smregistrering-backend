@@ -15,6 +15,12 @@ class PdlPersonService(private val pdlClient: PdlClient, private val stsOidcClie
     suspend fun getPdlPerson(fnr: String, userToken: String, callId: String): PdlPerson {
         val stsToken = stsOidcClient.oidcToken().access_token
         val pdlResponse = pdlClient.getPerson(fnr, userToken, stsToken)
+
+        if (pdlResponse.errors != null) {
+            pdlResponse.errors.forEach {
+                log.error("PDL kastet error: {} ", it)
+            }
+        }
         if (pdlResponse.data.hentPerson == null) {
             log.error("Fant ikke person i PDL {}", callId)
             throw PersonNotFoundInPdl("Fant ikke person i PDL")
