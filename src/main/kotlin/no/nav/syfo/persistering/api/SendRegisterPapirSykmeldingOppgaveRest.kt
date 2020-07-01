@@ -116,8 +116,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
 
-                             log.debug("Doctoridents", doctorIdents) // TODO: FJERNE FØR PRODUKSJONSSETTING
-                             log.debug("Slår opp sykmelder i PDL med ident: {}", doctorIdents!!.identer!!.first().ident) // TODO: FJERNE FØR PRODUKSJONSSETTING
+                             log.info("Doctoridents", doctorIdents) // TODO: FJERNE FØR PRODUKSJONSSETTING
+                             log.info("Slår opp sykmelder i PDL med ident: {}", doctorIdents!!.identer!!.first().ident) // TODO: FJERNE FØR PRODUKSJONSSETTING
 
                             val pdlSykmelder = pdlService.getPdlPerson(fnr = doctorIdents!!.identer!!.first().ident, userToken = userToken, callId = callId)
 
