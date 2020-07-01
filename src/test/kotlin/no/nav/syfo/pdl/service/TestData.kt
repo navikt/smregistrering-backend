@@ -11,5 +11,5 @@ fun getPdlResponse(): GetPersonResponse {
     return GetPersonResponse(ResponseData(
             hentPerson = HentPerson(listOf(Navn("fornavn", null, "etternavn"))),
             hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321")))
-    ))
+    ), errors = null)
 }

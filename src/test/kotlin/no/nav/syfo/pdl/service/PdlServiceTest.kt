@@ -37,7 +37,7 @@ class PdlServiceTest : Spek({
         }
 
         it("Skal feile når person ikke finnes") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(null, null))
+            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(null, null), errors = null)
             val exception = assertFailsWith<PersonNotFoundInPdl> {
                 runBlocking {
                     pdlService.getPdlPerson("123", "Bearer token", "callId")
@@ -51,7 +51,7 @@ class PdlServiceTest : Spek({
                 navn = emptyList()
             ),
                 hentIdenter = Identliste(emptyList())
-            ))
+            ), errors = null)
             val exception = assertFailsWith<PersonNotFoundInPdl> {
                 runBlocking {
                     pdlService.getPdlPerson("123", "Bearer token", "callId")
@@ -64,7 +64,7 @@ class PdlServiceTest : Spek({
                 navn = null
             ),
                 hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321")))
-            ))
+            ), errors = null)
             val exception = assertFailsWith<PersonNotFoundInPdl> {
                 runBlocking {
                     pdlService.getPdlPerson("123", "Bearer token", "callId")
@@ -79,7 +79,7 @@ class PdlServiceTest : Spek({
                 navn = listOf(Navn("fornavn", "mellomnavn", "etternavn"))
             ),
                 hentIdenter = Identliste(emptyList())
-            ))
+            ), errors = null)
             val exception = assertFailsWith<AktoerNotFoundException> {
                 runBlocking {
                     pdlService.getPdlPerson("123", "Bearer token", "callId")
