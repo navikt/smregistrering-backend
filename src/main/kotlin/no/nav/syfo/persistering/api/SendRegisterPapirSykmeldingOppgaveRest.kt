@@ -115,6 +115,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 loggingMeta
                             )
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
+
+                             log.debug("Doctoridents", doctorIdents) // TODO: FJERNE FØR PRODUKSJONSSETTING
+                             log.debug("Slår opp sykmelder i PDL med ident: {}", doctorIdents!!.identer!!.first().ident) // TODO: FJERNE FØR PRODUKSJONSSETTING
+
                             val pdlSykmelder = pdlService.getPdlPerson(fnr = doctorIdents!!.identer!!.first().ident, userToken = userToken, callId = callId)
 
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
