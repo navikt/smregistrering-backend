@@ -39,7 +39,7 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
         papirSmRegistering = getString("papir_sm_registrering")?.let {
-            objectMapper.readValue<PapirSmRegistering?>(it)
+            objectMapper.readValue<PapirSmRegistering>(it)
         },
         pdfPapirSykmelding = null
     )
