@@ -181,7 +181,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
 
 fun tilBehandler(sykmelderFnr: String, pdlPerson: PdlPerson): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
-        navn = NavnType().apply { // TODO: Skal denne implementeres?
+        navn = NavnType().apply {
             fornavn = pdlPerson.navn.fornavn
             mellomnavn = pdlPerson.navn.mellomnavn
             etternavn = pdlPerson.navn.etternavn
