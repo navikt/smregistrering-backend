@@ -161,8 +161,8 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             }
                             meldingTilArbeidsgiver = smRegisteringManuell.meldingTilArbeidsgiver
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = smRegisteringManuell.kontaktMedPasient?.kontaktDato
-                                begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient?.begrunnelseIkkeKontakt
+                                kontaktDato = smRegisteringManuell.kontaktMedPasient.kontaktDato
+                                begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
                             behandler = tilBehandler(sykmelderFnr, pdlSykmelder)

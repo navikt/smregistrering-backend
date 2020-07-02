@@ -31,8 +31,15 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.*
-import java.util.*
+import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
+import no.nav.syfo.util.fellesformatMarshaller
+import no.nav.syfo.util.toString
+import no.nav.syfo.util.get
+import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.hasAccess
+import java.util.UUID
+
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -132,8 +139,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
-                                pasientAktoerId = patientIdents!!.identer!!.first().ident,
-                                legeAktoerId = doctorIdents!!.identer!!.first().ident,
+                                pasientAktoerId = patientIdents.identer!!.first().ident,
+                                legeAktoerId = doctorIdents.identer!!.first().ident,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )
