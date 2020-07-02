@@ -30,7 +30,7 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
             it.setString(3, papirSmRegistering.fnr)
             it.setString(4, papirSmRegistering.aktorId)
             it.setString(5, papirSmRegistering.dokumentInfoId)
-            it.setTimestamp(6, Timestamp.valueOf(papirSmRegistering.datoOpprettet?.atZoneSameInstant(ZoneId.of("UTC"))?.toLocalDateTime()))
+            it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
             it.setInt(7, oppgaveId)
             it.setBoolean(8, false)
             it.setObject(9, papirSmRegistering.toPGObject()) // Store it all so frontend can present whatever is present
