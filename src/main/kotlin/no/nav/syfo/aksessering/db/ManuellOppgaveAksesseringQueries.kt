@@ -10,6 +10,7 @@ import no.nav.syfo.objectMapper
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
     connection.use { connection ->
@@ -33,7 +34,7 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         fnr = getString("fnr")?.trim(),
         aktorId = getString("aktor_id")?.trim(),
         dokumentInfoId = getString("dokument_info_id")?.trim(),
-        datoOpprettet = OffsetDateTime.ofInstant(Instant.ofEpochMilli(getTimestamp("dato_opprettet").time), ZoneId.systemDefault()),
+        datoOpprettet = getTimestamp("dato_opprettet").toInstant().atOffset(ZoneOffset.UTC),
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
