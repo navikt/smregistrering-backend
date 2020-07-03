@@ -10,6 +10,6 @@ import no.nav.syfo.pdl.client.model.ResponseData
 fun getPdlResponse(): GetPersonResponse {
     return GetPersonResponse(ResponseData(
             hentPerson = HentPerson(listOf(Navn("fornavn", null, "etternavn"))),
-            hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321")))
+            hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "foo", historisk = false)))
     ), errors = null)
 }

@@ -63,7 +63,7 @@ class PdlServiceTest : Spek({
             coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
                 navn = null
             ),
-                hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321")))
+                hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "foo", historisk = false)))
             ), errors = null)
             val exception = assertFailsWith<PersonNotFoundInPdl> {
                 runBlocking {

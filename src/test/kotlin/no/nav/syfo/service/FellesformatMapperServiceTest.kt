@@ -24,6 +24,7 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.objectMapper
+import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
@@ -101,7 +102,9 @@ internal class FellesformatMapperServiceTest {
             smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
-            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345"),
+            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
+                IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")
+            )),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )
@@ -236,7 +239,9 @@ internal class FellesformatMapperServiceTest {
             smRegisteringManuell = smRegisteringManuellt,
             pasientFnr = smRegisteringManuellt.pasientFnr,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
-            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345"),
+            pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
+                IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")
+            )),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )

@@ -71,9 +71,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
 
     @KtorExperimentalAPI
-    val aktoerIdClient = AktoerIdClient(env.aktoerregisterV1Url, oidcClient, httpClient)
-
-    @KtorExperimentalAPI
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
 
     @KtorExperimentalAPI

@@ -25,7 +25,9 @@ data class Identliste(
 )
 
 data class IdentInformasjon(
-    val ident: String
+    val ident: String,
+    val historisk: Boolean,
+    val gruppe: String
 )
 
 data class ResponseError (

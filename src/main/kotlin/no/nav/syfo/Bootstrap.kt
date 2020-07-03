@@ -98,7 +98,6 @@ fun main() {
         syfoserviceProducer,
         httpClients.oppgaveClient,
         httpClients.sarClient,
-        httpClients.aktoerIdClient,
         vaultSecrets.serviceuserUsername,
         httpClients.dokArkivClient,
         httpClients.regelClient,

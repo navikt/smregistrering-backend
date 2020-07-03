@@ -33,7 +33,7 @@ class PdlPersonService(private val pdlClient: PdlClient, private val stsOidcClie
             log.error("Fant ikke aktørid i PDL {}", callId)
             throw AktoerNotFoundException("Fant ikke aktørId i PDL")
         }
-        return PdlPerson(getNavn(pdlResponse.data.hentPerson.navn[0]), pdlResponse.data.hentIdenter.identer.first().ident)
+        return PdlPerson(getNavn(pdlResponse.data.hentPerson.navn[0]), pdlResponse.data.hentIdenter.identer)
     }
 
     private fun getNavn(navn: no.nav.syfo.pdl.client.model.Navn): Navn {

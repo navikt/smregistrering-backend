@@ -42,6 +42,7 @@ import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.*
 import no.nav.syfo.objectMapper
+import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.service.PdlPersonService
@@ -73,7 +74,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val syfoserviceProducer = mockk<MessageProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val kuhrsarClient = mockk<SarClient>()
-    private val aktoerIdClient = mockk<AktoerIdClient>()
     private val serviceuserUsername = "serviceuser"
     private val dokArkivClient = mockk<DokArkivClient>()
     private val textMessage = mockk<TextMessage>()
@@ -108,7 +108,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    aktoerIdClient,
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
@@ -258,19 +257,19 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
-            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-                Pair(
-                    "143242345", IdentInfoResult(
-                        identer = listOf(IdentInfo("645514141444", "asd", true)),
-                        feilmelding = null
-                    )
-                ), Pair(
-                    "18459123134", IdentInfoResult(
-                        identer = listOf(IdentInfo("6455142134", "asd", true)),
-                        feilmelding = null
-                    )
-                )
-            )
+//            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
+//                Pair(
+//                    "143242345", IdentInfoResult(
+//                        identer = listOf(IdentInfo("645514141444", "asd", true)),
+//                        feilmelding = null
+//                    )
+//                ), Pair(
+//                    "18459123134", IdentInfoResult(
+//                        identer = listOf(IdentInfo("6455142134", "asd", true)),
+//                        feilmelding = null
+//                    )
+//                )
+//            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
@@ -297,7 +296,14 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345")
+            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+                Navn(
+                    "Billy",
+                    "Bob",
+                    "Thornton"
+                ), listOf(IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                        IdentInformasjon("12345", false, "AKTORID"))
+            )
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
@@ -336,7 +342,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    aktoerIdClient,
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
@@ -432,19 +437,19 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
-            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-                Pair(
-                    "143242345", IdentInfoResult(
-                        identer = listOf(IdentInfo("645514141444", "asd", true)),
-                        feilmelding = null
-                    )
-                ), Pair(
-                    "18459123134", IdentInfoResult(
-                        identer = listOf(IdentInfo("6455142134", "asd", true)),
-                        feilmelding = null
-                    )
-                )
-            )
+//            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
+//                Pair(
+//                    "143242345", IdentInfoResult(
+//                        identer = listOf(IdentInfo("645514141444", "asd", true)),
+//                        feilmelding = null
+//                    )
+//                ), Pair(
+//                    "18459123134", IdentInfoResult(
+//                        identer = listOf(IdentInfo("6455142134", "asd", true)),
+//                        feilmelding = null
+//                    )
+//                )
+//            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
@@ -471,7 +476,11 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(Navn("Billy", "Bob", "Thornton"), "12345")
+            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+                Navn("Billy", "Bob", "Thornton"), listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID"))
+            )
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")

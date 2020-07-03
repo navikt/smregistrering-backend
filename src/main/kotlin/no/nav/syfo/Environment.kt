@@ -20,7 +20,6 @@ data class Environment(
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL", "http://oppgave/api/v1/oppgaver"),
     val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
-    val aktoerregisterV1Url: String = getEnvVar("AKTOR_REGISTER_V1_URL"),
     override val mqHostname: String = getEnvVar("MQ_HOST_NAME"),
     override val mqPort: Int = getEnvVar("MQ_PORT").toInt(),
     override val mqGatewayName: String = getEnvVar("MQ_GATEWAY_NAME"),

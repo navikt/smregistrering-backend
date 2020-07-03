@@ -49,7 +49,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    aktoerIdClient: AktoerIdClient,
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
@@ -96,23 +95,17 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                         if (hasAccess(syfoTilgangsKontrollClient, accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+                        if (hasAccess(syfoTilgangsKontrollClient, accessToken, smRegisteringManuell.pasientFnr, cluster)) {
 
-                            val aktoerIds = aktoerIdClient.getAktoerIds(
-                                listOf(smRegisteringManuell.sykmelderFnr, smRegisteringManuell.pasientFnr),
-                                serviceuserUsername,
-                                loggingMeta
-                            )
+                            val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
+                            val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
 
-                            val patientIdents = aktoerIds[smRegisteringManuell.pasientFnr]
-                            val doctorIdents = aktoerIds[smRegisteringManuell.sykmelderFnr]
-
-                            if (patientIdents == null || patientIdents.feilmelding != null) {
-                                log.error("Pasienten finnes ikkje i aktorregistert")
+                            if (pasient.fnr == null) {
+                                log.error("Pasientens fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
-                            if (doctorIdents == null || doctorIdents.feilmelding != null) {
-                                log.error("Sykmelder finnes ikkje i aktorregistert")
+                            if (sykmelder.aktorId == null || sykmelder.fnr == null) {
+                                log.error("Sykmelders aktørId eller fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
 
@@ -123,13 +116,11 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
 
-                            val pdlSykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
-
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
                                 smRegisteringManuell = smRegisteringManuell,
-                                pasientFnr = patientIdents!!.identer!!.first().ident,
-                                sykmelderFnr = doctorIdents!!.identer!!.first().ident,
-                                pdlSykmelder = pdlSykmelder,
+                                pasientFnr = pasient.fnr!!,
+                                sykmelderFnr = sykmelder.fnr!!,
+                                pdlSykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,
                                 datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )
@@ -139,8 +130,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
-                                pasientAktoerId = patientIdents.identer!!.first().ident,
-                                legeAktoerId = doctorIdents.identer!!.first().ident,
+                                pasientAktoerId = pasient.fnr,
+                                legeAktoerId = sykmelder.fnr,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )
