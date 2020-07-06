@@ -30,7 +30,6 @@ import javax.jms.Session
 import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -40,13 +39,31 @@ import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.model.*
+import no.nav.syfo.model.Adresse
+import no.nav.syfo.model.AktivitetIkkeMulig
+import no.nav.syfo.model.Arbeidsgiver
+import no.nav.syfo.model.Behandler
+import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.HarArbeidsgiver
+import no.nav.syfo.model.KontaktMedPasient
+import no.nav.syfo.model.MedisinskArsak
+import no.nav.syfo.model.MedisinskArsakType
+import no.nav.syfo.model.MedisinskVurdering
+import no.nav.syfo.model.MeldingTilNAV
+import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.Periode
+import no.nav.syfo.model.Prognose
+import no.nav.syfo.model.Samhandler
+import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.Status
+import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.pdl.service.getPdlResponse
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -257,19 +274,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
-//            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-//                Pair(
-//                    "143242345", IdentInfoResult(
-//                        identer = listOf(IdentInfo("645514141444", "asd", true)),
-//                        feilmelding = null
-//                    )
-//                ), Pair(
-//                    "18459123134", IdentInfoResult(
-//                        identer = listOf(IdentInfo("6455142134", "asd", true)),
-//                        feilmelding = null
-//                    )
-//                )
-//            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
@@ -437,19 +441,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
-//            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-//                Pair(
-//                    "143242345", IdentInfoResult(
-//                        identer = listOf(IdentInfo("645514141444", "asd", true)),
-//                        feilmelding = null
-//                    )
-//                ), Pair(
-//                    "18459123134", IdentInfoResult(
-//                        identer = listOf(IdentInfo("6455142134", "asd", true)),
-//                        feilmelding = null
-//                    )
-//                )
-//            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",

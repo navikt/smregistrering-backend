@@ -14,7 +14,6 @@ import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
