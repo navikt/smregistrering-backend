@@ -46,11 +46,11 @@
   },
   "kontaktMedPasient": {
     "kontaktDato": "2020-06-04",
-    "begrunnelseIkkeKontakt": "Jeg er stum og døvblind."
+    "begrunnelseIkkeKontakt": "Test begrunnelse ikke kontakt."
   },
   "prognose": {
     "arbeidsforEtterPeriode": true,
-    "hensynArbeidsplassen": "Han må nesten få cellekontor i sentrum, i alle fall ikke Helsfyr.",
+    "hensynArbeidsplassen": "Test hensyn arbeidsplassen.",
     "erIArbeid": {
       "egetArbeidPaSikt": true,
       "annetArbeidPaSikt": false,
@@ -67,10 +67,10 @@
     "bistandUmiddelbart": false,
     "beskrivBistand": null
   },
-  "meldingTilArbeidsgiver": "Pasienten trenger mer lønn og ferie. MASSSE MER!",
+  "meldingTilArbeidsgiver": "Test melding til arbeidsgiver",
   "tiltakNAV": null,
-  "tiltakArbeidsplassen": "Arbeidsplassen må bistå med mer lønn og ferie.",
-  "andreTiltak": "Mer flesk og duppe i kantina!",
+  "tiltakArbeidsplassen": "Test tiltak arbeidsplassen",
+  "andreTiltak": "Test andre tiltak: mer flesk og duppe i kantina!",
   "utdypendeOpplysninger": {
     "6.1": {
       "6.1.1": "Kanskje?"
