@@ -33,6 +33,7 @@ import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.util.Authorization
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
@@ -104,7 +105,7 @@ fun main() {
         httpClients.pdlService,
         kafkaProducers.kafkaValidationResultProducer,
         kafkaProducers.kafkaManuelTaskProducer,
-        httpClients.syfoTilgangsKontrollClient
+        Authorization(httpClients.syfoTilgangsKontrollClient)
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

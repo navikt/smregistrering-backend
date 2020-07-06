@@ -69,6 +69,7 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
+import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
@@ -98,6 +99,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val authorization = mockk<Authorization>()
     private val pdlPersonService = mockk<PdlPersonService>()
 
     @Test
@@ -129,7 +131,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    syfoTilgangsKontrollClient,
+                    authorization,
                     "edbmaskin"
                 )
             }
@@ -154,6 +156,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
+            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -350,7 +353,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    syfoTilgangsKontrollClient,
+                    authorization,
                     "edbmaskin"
                 )
             }
@@ -375,6 +378,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
+            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
 
             val oppgaveid = 308076319
 

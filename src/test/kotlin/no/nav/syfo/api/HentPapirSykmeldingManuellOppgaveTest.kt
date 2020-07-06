@@ -46,6 +46,7 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
+import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
@@ -74,6 +75,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val authorization = mockk<Authorization>()
 
     @Test
     internal fun `Hent papirsykmelding`() {
@@ -85,6 +87,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
+            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
 
             val oppgaveid = 308076319
 
@@ -157,7 +160,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     safDokumentClient,
-                    syfoTilgangsKontrollClient,
+                    authorization,
                     "cluts!"
                 )
             }

@@ -9,18 +9,17 @@ import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.util.Authorization
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.hasAccess
 
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
+    authorization: Authorization,
     cluster: String
 ) {
     route("/api/v1") {
@@ -64,13 +63,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
-                        val harTilgangTilOppgave =
-                            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-                                accessToken,
-                                manuellOppgaveDTOList.firstOrNull()?.fnr ?: ""
-                            )?.harTilgang
-
-                        if (hasAccess(syfoTilgangsKontrollClient, accessToken, manuellOppgaveDTOList.first().fnr!!, cluster)) {
+                        if (authorization.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!, cluster)) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {

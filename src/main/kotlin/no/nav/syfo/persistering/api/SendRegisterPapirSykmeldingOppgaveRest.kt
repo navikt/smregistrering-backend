@@ -18,7 +18,6 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
@@ -30,13 +29,7 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
-import no.nav.syfo.util.fellesformatMarshaller
-import no.nav.syfo.util.toString
-import no.nav.syfo.util.get
-import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.hasAccess
+import no.nav.syfo.util.*
 import java.util.UUID
 
 
@@ -52,7 +45,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
+    authorization: Authorization,
     cluster: String
 ) {
     route("/api/v1") {
@@ -94,7 +87,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (hasAccess(syfoTilgangsKontrollClient, accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
 
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)

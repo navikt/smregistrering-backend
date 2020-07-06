@@ -43,6 +43,7 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
+import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import java.time.LocalDate
@@ -58,6 +59,7 @@ internal class AuthenticateTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val authorization = mockk<Authorization>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
@@ -66,6 +68,7 @@ internal class AuthenticateTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
+            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -138,7 +141,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
-                        syfoTilgangsKontrollClient,
+                        authorization,
                         "cluts!"
                     )
                 }
@@ -247,7 +250,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
-                        syfoTilgangsKontrollClient,
+                        authorization,
                         "cluts!"
                     )
                 }
