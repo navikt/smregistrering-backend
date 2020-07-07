@@ -1,0 +1,80 @@
+{
+  "pasientFnr": "143242345",
+  "sykmelderFnr": "18459123134",
+  "perioder": [],
+  "medisinskVurdering": {
+    "hovedDiagnose": {
+      "system": "2.16.578.1.12.4.1.1.7110",
+      "kode": "S525",
+      "tekst": "Brudd i distal ende av radius"
+    },
+    "biDiagnoser": [],
+    "svangerskap": false,
+    "yrkesskade": false,
+    "yrkesskadeDato": null,
+    "annenFraversArsak": null
+  },
+  "syketilfelleStartDato": "2020-06-04",
+  "arbeidsgiver": {
+    "harArbeidsgiver": "EN_ARBEIDSGIVER",
+    "navn": null,
+    "yrkesbetegnelse": null,
+    "stillingsprosent": null
+  },
+  "behandletDato": "2020-06-04",
+  "skjermesForPasient": false,
+  "kontaktMedPasient": {
+    "kontaktDato": null,
+    "begrunnelseIkkeKontakt": null
+  },
+  "behandler": {
+    "fornavn": "Per",
+    "mellomnavn": null,
+    "etternavn": "Person",
+    "aktoerId": "143242345",
+    "fnr": "123",
+    "hpr": null,
+    "her": null,
+    "tlf": "12345",
+    "adresse": {
+      "gate": "",
+      "postnummer": 0,
+      "kommune": "",
+      "postboks": "",
+      "land": ""
+    }
+  },
+  "kontaktMedPasient": {
+    "kontaktDato": "2020-06-04",
+    "begrunnelseIkkeKontakt": "Test begrunnelse ikke kontakt."
+  },
+  "prognose": {
+    "arbeidsforEtterPeriode": true,
+    "hensynArbeidsplassen": "Test hensyn arbeidsplassen.",
+    "erIArbeid": {
+      "egetArbeidPaSikt": true,
+      "annetArbeidPaSikt": false,
+      "arbeidFOM": null,
+      "vurderingsdato": null
+    },
+    "erIkkeIArbeid": {
+      "arbeidsforPaSikt": true,
+      "arbeidsforFOM": "2020-06-04",
+      "vurderingsdato": "2020-06-04"
+    }
+  },
+  "meldingTilNAV": {
+    "bistandUmiddelbart": false,
+    "beskrivBistand": null
+  },
+  "meldingTilArbeidsgiver": "Test melding til arbeidsgiver",
+  "tiltakNAV": null,
+  "tiltakArbeidsplassen": "Test tiltak arbeidsplassen",
+  "andreTiltak": "Test andre tiltak: mer flesk og duppe i kantina!",
+  "utdypendeOpplysninger": {
+    "6.1": {
+      "6.1.1": "Kanskje?"
+    }
+  },
+  "navnFastlege": "Skrue McDuck"
+}

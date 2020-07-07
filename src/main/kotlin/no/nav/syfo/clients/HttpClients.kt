@@ -24,6 +24,8 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.pdl.client.PdlClient
+import no.nav.syfo.pdl.service.PdlPersonService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
@@ -69,9 +71,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
 
     @KtorExperimentalAPI
-    val aktoerIdClient = AktoerIdClient(env.aktoerregisterV1Url, oidcClient, httpClient)
-
-    @KtorExperimentalAPI
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
 
     @KtorExperimentalAPI
@@ -91,4 +90,11 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     @KtorExperimentalAPI
     val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, httpClient)
+
+    val pdlClient = PdlClient(httpClient,
+        env.pdlGraphqlPath,
+        PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
+
+    @KtorExperimentalAPI
+    val pdlService = PdlPersonService(pdlClient, oidcClient)
 }

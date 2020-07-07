@@ -31,7 +31,7 @@ suspend fun handleOKOppgave(
     healthInformation: HelseOpplysningerArbeidsuforhet,
     oppgaveId: Int
 ) {
-    dokArkivClient.ferdigStillJournalpost(journalpostId, sykmeldingId, loggingMeta)
+    dokArkivClient.oppdaterOgFerdigstillJournalpost(journalpostId, receivedSykmelding.personNrPasient, sykmeldingId, receivedSykmelding.sykmelding.behandler, loggingMeta)
     kafkaRecievedSykmeldingProducer.producer.send(
         ProducerRecord(
             kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic,
@@ -57,7 +57,7 @@ suspend fun handleOKOppgave(
 
     val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(
-        "Ferdigstilter oppgave med {}, {}",
+        "Ferdigstiller oppgave med {}, {}",
         keyValue("oppgaveId", oppgaveResponse.id),
         fields(loggingMeta)
     )

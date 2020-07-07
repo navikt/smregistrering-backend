@@ -1,6 +1,7 @@
 package no.nav.syfo.persistering.api
 
 import io.ktor.application.call
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -13,29 +14,24 @@ import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
-import no.nav.syfo.persistering.handleManuellOppgave
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
-import no.nav.syfo.util.fellesformatMarshaller
-import no.nav.syfo.util.get
-import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.toString
+import no.nav.syfo.util.*
+import java.util.UUID
+
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -45,13 +41,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    aktoerIdClient: AktoerIdClient,
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
-    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
-    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+    pdlService: PdlPersonService,
+    authorization: Authorization,
+    cluster: String
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -63,8 +58,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             )
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
+            val userToken = call.request.headers[HttpHeaders.Authorization]!!
+            val callId = UUID.randomUUID().toString()
 
-            val smRegisteringManuellt: SmRegisteringManuellt = call.receive()
+            val smRegisteringManuell: SmRegisteringManuell = call.receive()
 
             when {
                 oppgaveId == null -> {
@@ -89,34 +86,22 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             sykmeldingId = sykmeldingId,
                             journalpostId = journalpostId
                         )
-                        val harTilgangTilOppgave =
-                            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-                                accessToken,
-                                smRegisteringManuellt.pasientFnr
-                            )?.harTilgang
 
-                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
-                        if (true) {
+                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
 
-                            val aktoerIds = aktoerIdClient.getAktoerIds(
-                                listOf(smRegisteringManuellt.sykmelderFnr, smRegisteringManuellt.pasientFnr),
-                                serviceuserUsername,
-                                loggingMeta
-                            )
+                            val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
+                            val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
 
-                            val patientIdents = aktoerIds[smRegisteringManuellt.pasientFnr]
-                            val doctorIdents = aktoerIds[smRegisteringManuellt.sykmelderFnr]
-
-                            if (patientIdents == null || patientIdents.feilmelding != null) {
-                                log.error("Pasienten finnes ikkje i aktorregistert")
+                            if (pasient.fnr == null) {
+                                log.error("Pasientens fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
-                            if (doctorIdents == null || doctorIdents.feilmelding != null) {
-                                log.error("Sykmelder finnes ikkje i aktorregistert")
+                            if (sykmelder.aktorId == null || sykmelder.fnr == null) {
+                                log.error("Sykmelders aktørId eller fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
 
-                            val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuellt.sykmelderFnr)
+                            val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuell.sykmelderFnr)
                             val samhandlerPraksisMatch = findBestSamhandlerPraksis(
                                 samhandlerInfo,
                                 loggingMeta
@@ -124,11 +109,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
 
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-                                smRegisteringManuellt = smRegisteringManuellt,
-                                pasientFnr = smRegisteringManuellt.pasientFnr,
-                                sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+                                smRegisteringManuell = smRegisteringManuell,
+                                pasientFnr = pasient.fnr!!,
+                                sykmelderFnr = sykmelder.fnr!!,
+                                pdlSykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,
-                                datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
+                                datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )
 
                             val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
@@ -136,24 +122,24 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
-                                pasientAktoerId = patientIdents!!.identer!!.first().ident,
-                                legeAktoerId = doctorIdents!!.identer!!.first().ident,
+                                pasientAktoerId = pasient.fnr,
+                                legeAktoerId = sykmelder.fnr,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )
 
                             val receivedSykmelding = ReceivedSykmelding(
                                 sykmelding = sykmelding,
-                                personNrPasient = smRegisteringManuellt.sykmelderFnr,
+                                personNrPasient = smRegisteringManuell.sykmelderFnr,
                                 tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-                                personNrLege = smRegisteringManuellt.sykmelderFnr,
+                                personNrLege = smRegisteringManuell.sykmelderFnr,
                                 navLogId = sykmeldingId,
                                 msgId = sykmeldingId,
                                 legekontorOrgNr = null,
                                 legekontorOrgName = "",
                                 legekontorHerId = null,
                                 legekontorReshId = null,
-                                mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet
+                                mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                                     ?: msgHead.msgInfo.genDate,
                                 rulesetVersion = healthInformation.regelSettVersjon,
                                 fellesformat = fellesformatMarshaller.toString(fellesformat),
@@ -201,31 +187,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     }
                                 }
                                 Status.MANUAL_PROCESSING -> {
-                                    if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
-                                        handleManuellOppgave(
-                                            receivedSykmelding = receivedSykmelding,
-                                            kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
-                                            loggingMeta = loggingMeta,
-                                            session = session,
-                                            syfoserviceProducer = syfoserviceProducer,
-                                            oppgaveClient = oppgaveClient,
-                                            dokArkivClient = dokArkivClient,
-                                            sykmeldingId = sykmeldingId,
-                                            journalpostId = journalpostId,
-                                            healthInformation = healthInformation,
-                                            oppgaveId = oppgaveId,
-                                            validationResult = validationResult,
-                                            kafkaManuelTaskProducer = kafkaManuelTaskProducer,
-                                            kafkaValidationResultProducer = kafkaValidationResultProducer
-                                        )
-                                        call.respond(HttpStatusCode.NoContent)
-                                    } else {
-                                        log.error(
-                                            "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                        )
-                                        call.respond(HttpStatusCode.InternalServerError)
-                                    }
+                                    log.info(
+                                        "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                    call.respond(HttpStatusCode.BadRequest, validationResult)
+
                                 }
                                 else -> {
                                     log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
@@ -250,4 +217,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             }
         }
     }
+
+
 }
+

@@ -28,18 +28,18 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.util.Authorization
 
 @KtorExperimentalAPI
 @InternalAPI
@@ -56,13 +56,13 @@ fun createApplicationEngine(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    aktoerIdClient: AktoerIdClient,
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
+    pdlService: PdlPersonService,
     kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
     kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+    authorization: Authorization
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
         // Increase timeout of Netty to handle large content bodies
@@ -97,7 +97,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, authorization, env.cluster)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
@@ -105,13 +105,12 @@ fun createApplicationEngine(
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    aktoerIdClient,
                     serviceuserUsername,
                     dokArkivClient,
                     regelClient,
-                    kafkaValidationResultProducer,
-                    kafkaManuelTaskProducer,
-                    syfoTilgangsKontrollClient
+                    pdlService,
+                    authorization,
+                    env.cluster
                 )
             }
         }

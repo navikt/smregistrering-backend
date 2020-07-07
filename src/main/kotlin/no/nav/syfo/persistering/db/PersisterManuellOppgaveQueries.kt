@@ -3,6 +3,9 @@ package no.nav.syfo.persistering.db
 import java.sql.Timestamp
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.toPGObject
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
     connection.use { connection ->
@@ -16,9 +19,10 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
                 dokument_info_id,
                 dato_opprettet,
                 oppgave_id,
-                ferdigstilt
+                ferdigstilt,
+                papir_sm_registrering
                 )
-            VALUES  (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
         ).use {
             it.setString(1, papirSmRegistering.sykmeldingId)
@@ -26,9 +30,10 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
             it.setString(3, papirSmRegistering.fnr)
             it.setString(4, papirSmRegistering.aktorId)
             it.setString(5, papirSmRegistering.dokumentInfoId)
-            it.setTimestamp(6, Timestamp.valueOf(papirSmRegistering.datoOpprettet))
+            it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
             it.setInt(7, oppgaveId)
             it.setBoolean(8, false)
+            it.setObject(9, papirSmRegistering.toPGObject()) // Store it all so frontend can present whatever is present
             it.executeUpdate()
         }
 

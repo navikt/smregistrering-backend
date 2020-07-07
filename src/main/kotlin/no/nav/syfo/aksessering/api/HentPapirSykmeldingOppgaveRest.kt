@@ -9,17 +9,18 @@ import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.util.Authorization
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+    authorization: Authorization,
+    cluster: String
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
@@ -42,7 +43,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
                     call.respond(
-                        HttpStatusCode.NoContent,
+                        HttpStatusCode.NotFound,
                         "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
                     )
                 }
@@ -62,14 +63,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
-                        val harTilgangTilOppgave =
-                            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-                                accessToken,
-                                manuellOppgaveDTOList.firstOrNull()?.fnr ?: ""
-                            )?.harTilgang
-
-                        // if (harTilgangTilOppgave != null && harTilgangTilOppgave) {
-                        if (true) {
+                        if (authorization.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!, cluster)) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {
@@ -78,7 +72,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     fnr = manuellOppgaveDTOList.first().fnr,
                                     sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                     oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                                    pdfPapirSykmelding = pdfPapirSykmelding
+                                    pdfPapirSykmelding = pdfPapirSykmelding,
+                                    papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                                 )
 
                                 call.respond(papirManuellOppgave)
@@ -99,7 +94,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 fnr = manuellOppgaveDTOList.first().fnr,
                                 sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                 oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                                pdfPapirSykmelding = pdfPapirSykmelding
+                                pdfPapirSykmelding = pdfPapirSykmelding,
+                                papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                             )
 
                             call.respond(papirManuellOppgave)

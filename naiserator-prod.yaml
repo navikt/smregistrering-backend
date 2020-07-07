@@ -90,3 +90,5 @@ spec:
       value: /secrets/azuread/syfosmpapirregler/client_id
     - name: SMREGISTERING_BACKEND_CLIENT_SECRET_PATH
       value: /secrets/azuread/smregistrering-backend/client_secret
+    - name: PDL_GRAPHQL_PATH
+      value: https://pdl-api.nais.adeo.no/graphql

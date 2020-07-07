@@ -30,15 +30,24 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.log
+import no.nav.syfo.model.Adresse
+import no.nav.syfo.model.Behandler
+import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.Prognose
+import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
+import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class AuthenticateTest {
@@ -50,6 +59,7 @@ internal class AuthenticateTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val authorization = mockk<Authorization>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
@@ -58,6 +68,7 @@ internal class AuthenticateTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
+            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -65,9 +76,51 @@ internal class AuthenticateTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
-                sykmeldingId = "1344444"
-            )
+                datoOpprettet = OffsetDateTime.now(),
+                sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false)
+
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -85,7 +138,12 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        authorization,
+                        "cluts!"
+                    )
                 }
             }
 
@@ -127,8 +185,50 @@ internal class AuthenticateTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
-                sykmeldingId = "1344444"
+                datoOpprettet = OffsetDateTime.now(),
+                sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
@@ -147,7 +247,12 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollClient)
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        authorization,
+                        "cluts!"
+                    )
                 }
             }
 

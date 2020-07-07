@@ -29,12 +29,14 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.SmRegisteringManuellt
+import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.pdl.model.PdlPerson
 
 fun mapsmRegisteringManuelltTilFellesformat(
-    smRegisteringManuellt: SmRegisteringManuellt,
+    smRegisteringManuell: SmRegisteringManuell,
     pasientFnr: String,
     sykmelderFnr: String,
+    pdlSykmelder: PdlPerson,
     sykmeldingId: String,
     datoOpprettet: LocalDateTime?
 ): XMLEIFellesformat {
@@ -46,7 +48,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     v = "SYKMELD"
                 }
                 miGversion = "v1.2 2006-05-24"
-                genDate = datoOpprettet ?: LocalDateTime.of(smRegisteringManuellt.perioder.first().fom, LocalTime.NOON)
+                genDate = datoOpprettet ?: LocalDateTime.of(smRegisteringManuell.perioder.first().fom, LocalTime.NOON)
                 msgId = sykmeldingId
                 ack = XMLCS().apply {
                     dn = "Ja"
@@ -113,9 +115,9 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     content = XMLRefDoc.Content().apply {
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = smRegisteringManuellt.syketilfelleStartDato
+                            syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
-                                navn = NavnType().apply {
+                                navn = NavnType().apply {// TODO: Denne må fylles ut. Hentes fra PLD?
                                     fornavn = ""
                                     mellomnavn = ""
                                     etternavn = ""
@@ -129,30 +131,41 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                     }
                                 }
                             }
-                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuellt.arbeidsgiver)
+                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuell.arbeidsgiver)
                             medisinskVurdering =
                                 tilMedisinskVurdering(
-                                    smRegisteringManuellt.medisinskVurdering,
-                                    smRegisteringManuellt.skjermesForPasient
+                                    smRegisteringManuell.medisinskVurdering,
+                                    smRegisteringManuell.skjermesForPasient
                                 )
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
-                                periode.addAll(tilPeriodeListe(smRegisteringManuellt.perioder))
+                                periode.addAll(tilPeriodeListe(smRegisteringManuell.perioder))
                             }
-                            prognose = null
+                            prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
+                                isArbeidsforEtterEndtPeriode = smRegisteringManuell.prognose?.arbeidsforEtterPeriode
+                                beskrivHensynArbeidsplassen = smRegisteringManuell.prognose?.hensynArbeidsplassen
+                                erIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
+                                    isAnnetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.annetArbeidPaSikt
+                                    isEgetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.egetArbeidPaSikt
+                                    arbeidFraDato = smRegisteringManuell.prognose?.erIArbeid?.arbeidFOM
+                                    vurderingDato = smRegisteringManuell.prognose?.erIArbeid?.vurderingsdato
+                                }
+                            }
                             utdypendeOpplysninger = tilUtdypendeOpplysninger()
                             tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
-                                tiltakArbeidsplassen = null
-                                tiltakNAV = null
-                                andreTiltak = null
+                                tiltakNAV = smRegisteringManuell.tiltakNAV
+                                andreTiltak = smRegisteringManuell.andreTiltak
                             }
-                            meldingTilNav = null
-                            meldingTilArbeidsgiver = null
+                            meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
+                                isBistandNAVUmiddelbart = smRegisteringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
+                                beskrivBistandNAV = smRegisteringManuell.meldingTilNAV?.beskrivBistand ?: ""
+                            }
+                            meldingTilArbeidsgiver = smRegisteringManuell.meldingTilArbeidsgiver
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = null
-                                begrunnIkkeKontakt = null
-                                behandletDato = smRegisteringManuellt.behandletDato
+                                kontaktDato = smRegisteringManuell.kontaktMedPasient.kontaktDato
+                                begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
+                                behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
-                            behandler = tilBehandler(sykmelderFnr)
+                            behandler = tilBehandler(sykmelderFnr, pdlSykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"
@@ -166,12 +179,12 @@ fun mapsmRegisteringManuelltTilFellesformat(
     }
 }
 
-fun tilBehandler(sykmelderFnr: String): HelseOpplysningerArbeidsuforhet.Behandler =
+fun tilBehandler(sykmelderFnr: String, pdlPerson: PdlPerson): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
         navn = NavnType().apply {
-            fornavn = ""
-            mellomnavn = null
-            etternavn = ""
+            fornavn = pdlPerson.navn.fornavn
+            mellomnavn = pdlPerson.navn.mellomnavn
+            etternavn = pdlPerson.navn.etternavn
         }
         id.addAll(
             listOf(
@@ -231,9 +244,33 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
                 null
             }
         }
-        avventendeSykmelding = null
-        gradertSykmelding = null
-        behandlingsdager = null
+        avventendeSykmelding = if (periode.avventendeInnspillTilArbeidsgiver != null) {
+                HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AvventendeSykmelding().apply {
+                    innspillTilArbeidsgiver = periode.avventendeInnspillTilArbeidsgiver
+                }
+            } else {
+                null
+            }
+
+        gradertSykmelding = if (periode.gradert != null) {
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding().apply {
+                sykmeldingsgrad = periode.gradert!!.grad
+                isReisetilskudd = periode.gradert!!.reisetilskudd
+            }
+        } else {
+            null
+        }
+
+        behandlingsdager = if (periode.behandlingsdager != null) {
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
+                behandlingsdager = HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
+                    periode
+                }
+                antallBehandlingsdagerUke = behandlingsdager.antallBehandlingsdagerUke
+            }
+        } else {
+            null
+        }
         isReisetilskudd = periode.reisetilskudd
     }
 

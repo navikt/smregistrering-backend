@@ -68,7 +68,6 @@ repositories {
     mavenCentral()
     jcenter()
     maven(url = "https://dl.bintray.com/kotlin/ktor")
-    maven(url = "https://dl.bintray.com/spekframework/spek-dev")
     maven(url = "https://kotlin.bintray.com/kotlinx")
     maven(url = "https://packages.confluent.io/maven/")
     maven {
