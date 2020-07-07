@@ -16,76 +16,88 @@ import no.nav.syfo.pdl.client.model.ResponseData
 import no.nav.syfo.pdl.error.AktoerNotFoundException
 import no.nav.syfo.pdl.error.PersonNotFoundInPdl
 import org.amshove.kluent.shouldEqual
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.Test
 
-class PdlServiceTest : Spek({
+internal class PdlServiceTest {
+
     val pdlClient = mockkClass(PdlClient::class)
     val stsOidcClient = mockkClass(StsOidcClient::class)
     val pdlService = PdlPersonService(pdlClient, stsOidcClient)
-    coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
-    describe("PdlService") {
-        it("hente person fra pdl uten fortrolig dresse") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns getPdlResponse()
-            runBlocking {
-                val person = pdlService.getPdlPerson("01245678901", "Bearer token", "callId")
-                person.navn.fornavn shouldEqual "fornavn"
-                person.navn.mellomnavn shouldEqual null
-                person.navn.etternavn shouldEqual "etternavn"
-                person.aktorId shouldEqual "987654321"
-            }
-        }
 
-        it("Skal feile når person ikke finnes") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(null, null), errors = null)
-            val exception = assertFailsWith<PersonNotFoundInPdl> {
-                runBlocking {
-                    pdlService.getPdlPerson("123", "Bearer token", "callId")
-                }
-            }
-            exception.message shouldEqual "Fant ikke person i PDL"
-        }
+    @Test
+    internal fun `Hent person fra pdl uten fortrolig adresse`() {
+        coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
+        coEvery { pdlClient.getPerson(any(), any(), any()) } returns getPdlResponse()
 
-        it("Skal feile når navn er tom liste") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
-                navn = emptyList()
-            ),
-                hentIdenter = Identliste(emptyList())
-            ), errors = null)
-            val exception = assertFailsWith<PersonNotFoundInPdl> {
-                runBlocking {
-                    pdlService.getPdlPerson("123", "Bearer token", "callId")
-                }
-            }
-            exception.message shouldEqual "Fant ikke navn på person i PDL"
-        }
-        it("Skal feile når navn ikke finnes") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
-                navn = null
-            ),
-                hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "foo", historisk = false)))
-            ), errors = null)
-            val exception = assertFailsWith<PersonNotFoundInPdl> {
-                runBlocking {
-                    pdlService.getPdlPerson("123", "Bearer token", "callId")
-                }
-            }
-            exception.message shouldEqual "Fant ikke navn på person i PDL"
-        }
-
-
-        it("Skal feile når aktørid ikke finnes") {
-            coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
-                navn = listOf(Navn("fornavn", "mellomnavn", "etternavn"))
-            ),
-                hentIdenter = Identliste(emptyList())
-            ), errors = null)
-            val exception = assertFailsWith<AktoerNotFoundException> {
-                runBlocking {
-                    pdlService.getPdlPerson("123", "Bearer token", "callId")
-                }
-            }
-            exception.message shouldEqual "Fant ikke aktørId i PDL"
+        runBlocking {
+            val person = pdlService.getPdlPerson("01245678901", "Bearer token", "callId")
+            person.navn.fornavn shouldEqual "fornavn"
+            person.navn.mellomnavn shouldEqual null
+            person.navn.etternavn shouldEqual "etternavn"
+            person.aktorId shouldEqual "987654321"
         }
     }
-})
+
+    @Test
+    internal fun `Skal feile når person ikke finnes`() {
+        coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
+        coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(null, null), errors = null)
+
+        val exception = assertFailsWith<PersonNotFoundInPdl> {
+            runBlocking {
+                pdlService.getPdlPerson("123", "Bearer token", "callId")
+            }
+        }
+        exception.message shouldEqual "Fant ikke person i PDL"
+    }
+
+    @Test
+    internal fun `Skal feile når navn er tom liste`() {
+        coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
+        coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
+            navn = emptyList()
+        ),
+            hentIdenter = Identliste(emptyList())
+        ), errors = null)
+        val exception = assertFailsWith<PersonNotFoundInPdl> {
+            runBlocking {
+                pdlService.getPdlPerson("123", "Bearer token", "callId")
+            }
+        }
+        exception.message shouldEqual "Fant ikke navn på person i PDL"
+    }
+
+    @Test
+    internal fun `Skal feile når navn ikke finnes`() {
+        coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
+        coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
+            navn = null
+        ),
+            hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "foo", historisk = false)))
+        ), errors = null)
+        val exception = assertFailsWith<PersonNotFoundInPdl> {
+            runBlocking {
+                pdlService.getPdlPerson("123", "Bearer token", "callId")
+            }
+        }
+        exception.message shouldEqual "Fant ikke navn på person i PDL"
+    }
+
+    @Test
+    internal fun `Skal feile når aktørid ikke finnes`() {
+        coEvery { stsOidcClient.oidcToken() } returns OidcToken("Token", "JWT", 1L)
+        coEvery { pdlClient.getPerson(any(), any(), any()) } returns GetPersonResponse(ResponseData(hentPerson = HentPerson(
+            navn = listOf(Navn("fornavn", "mellomnavn", "etternavn"))
+        ),
+            hentIdenter = Identliste(emptyList())
+        ), errors = null)
+        val exception = assertFailsWith<AktoerNotFoundException> {
+            runBlocking {
+                pdlService.getPdlPerson("123", "Bearer token", "callId")
+            }
+        }
+        exception.message shouldEqual "Fant ikke aktørId i PDL"
+    }
+
+
+}
