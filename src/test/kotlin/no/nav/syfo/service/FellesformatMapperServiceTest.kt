@@ -100,7 +100,9 @@ internal class FellesformatMapperServiceTest {
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
             smRegisteringManuell = smRegisteringManuellt,
-            pasientFnr = smRegisteringManuellt.pasientFnr,
+            pdlPasient =  PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
+                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
+            )),
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")
@@ -237,7 +239,9 @@ internal class FellesformatMapperServiceTest {
 
         val fellesformat = mapsmRegisteringManuelltTilFellesformat(
             smRegisteringManuell = smRegisteringManuellt,
-            pasientFnr = smRegisteringManuellt.pasientFnr,
+            pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
+                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
+            )),
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             pdlSykmelder =  PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")

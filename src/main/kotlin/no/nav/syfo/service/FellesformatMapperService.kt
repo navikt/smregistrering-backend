@@ -34,7 +34,7 @@ import no.nav.syfo.pdl.model.PdlPerson
 
 fun mapsmRegisteringManuelltTilFellesformat(
     smRegisteringManuell: SmRegisteringManuell,
-    pasientFnr: String,
+    pdlPasient: PdlPerson,
     sykmelderFnr: String,
     pdlSykmelder: PdlPerson,
     sykmeldingId: String,
@@ -118,12 +118,12 @@ fun mapsmRegisteringManuelltTilFellesformat(
                             syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
                                 navn = NavnType().apply {// TODO: Denne må fylles ut. Hentes fra PLD?
-                                    fornavn = ""
-                                    mellomnavn = ""
-                                    etternavn = ""
+                                    fornavn = pdlPasient.navn.fornavn
+                                    mellomnavn =  pdlPasient.navn.mellomnavn
+                                    etternavn = pdlPasient.navn.etternavn
                                 }
                                 fodselsnummer = Ident().apply {
-                                    id = pasientFnr
+                                    id = pdlPasient.fnr
                                     typeId = CV().apply {
                                         dn = "Fødselsnummer"
                                         s = "2.16.578.1.12.4.1.1.8116"
