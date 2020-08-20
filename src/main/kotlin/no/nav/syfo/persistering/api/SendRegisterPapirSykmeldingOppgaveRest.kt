@@ -110,7 +110,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
                                 smRegisteringManuell = smRegisteringManuell,
-                                pasientFnr = pasient.fnr!!,
+                                pdlPasient = pasient,
                                 sykmelderFnr = sykmelder.fnr!!,
                                 pdlSykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,
@@ -122,7 +122,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
-                                pasientAktoerId = pasient.fnr,
+                                pasientAktoerId = pasient.fnr!!,
                                 legeAktoerId = sykmelder.fnr,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
