@@ -308,6 +308,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                         IdentInformasjon("12345", false, "AKTORID"))
             )
 
+            coEvery { azureGraphService.getNavident(any(), any()) } returns "Skrue McDuck"
+
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
