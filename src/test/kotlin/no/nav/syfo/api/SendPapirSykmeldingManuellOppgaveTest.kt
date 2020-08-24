@@ -30,13 +30,7 @@ import javax.jms.Session
 import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
-import no.nav.syfo.client.Tilgang
+import no.nav.syfo.client.*
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -101,6 +95,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorization = mockk<Authorization>()
     private val pdlPersonService = mockk<PdlPersonService>()
+    private val azureGraphService = mockk<AzureGraphService>()
 
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
@@ -131,6 +126,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
+                    azureGraphService,
                     authorization,
                     "edbmaskin"
                 )
@@ -353,6 +349,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
+                    azureGraphService,
                     authorization,
                     "edbmaskin"
                 )
