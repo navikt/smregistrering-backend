@@ -103,6 +103,7 @@ fun main() {
         httpClients.dokArkivClient,
         httpClients.regelClient,
         httpClients.pdlService,
+        httpClients.azureGraphService,
         kafkaProducers.kafkaValidationResultProducer,
         kafkaProducers.kafkaManuelTaskProducer,
         Authorization(httpClients.syfoTilgangsKontrollClient)

@@ -14,11 +14,7 @@ import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.findBestSamhandlerPraksis
+import no.nav.syfo.client.*
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
@@ -45,6 +41,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
+    azureGraphService: AzureGraphService,
     authorization: Authorization,
     cluster: String
 ) {
@@ -88,6 +85,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         )
 
                         if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+
+                            val navident = azureGraphService.getNavident(accessToken, loggingMeta)
+                            log.debug("Hentet navident for bruker {} {} ", navident, loggingMeta)
 
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)

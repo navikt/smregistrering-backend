@@ -15,8 +15,8 @@ import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
+import no.nav.syfo.client.AzureGraphService
 import no.nav.syfo.client.AccessTokenClient
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -97,4 +97,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     @KtorExperimentalAPI
     val pdlService = PdlPersonService(pdlClient, oidcClient)
+
+    @KtorExperimentalAPI
+    val azureGraphService = AzureGraphService(httpClient)
 }

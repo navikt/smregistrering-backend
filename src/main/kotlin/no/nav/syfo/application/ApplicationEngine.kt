@@ -28,11 +28,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
-import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.*
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
@@ -60,6 +56,7 @@ fun createApplicationEngine(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
+    azureGraphService: AzureGraphService,
     kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
     kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
     authorization: Authorization
@@ -109,6 +106,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     regelClient,
                     pdlService,
+                    azureGraphService,
                     authorization,
                     env.cluster
                 )
