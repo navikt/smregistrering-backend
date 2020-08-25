@@ -470,6 +470,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
+            coEvery { azureGraphService.getNavident(any(), any()) } returns "Skrue McDuck"
+
             coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
