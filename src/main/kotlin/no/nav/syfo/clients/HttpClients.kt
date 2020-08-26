@@ -46,7 +46,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         expectSuccess = false
     }
 
-    val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+    private val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         config()
         engine {
             customizeClient {
@@ -99,5 +99,5 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val pdlService = PdlPersonService(pdlClient, oidcClient)
 
     @KtorExperimentalAPI
-    val azureGraphService = AzureGraphService(httpClient)
+    val azureGraphService = AzureGraphService(httpClientWithProxy)
 }
