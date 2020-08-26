@@ -48,10 +48,10 @@ class AccessTokenClient(
         }
     }
 
-    suspend fun hentAccessTokenOnBehalfOf(accessToken: String): String {
+    suspend fun hentAccessTokenOnBehalfOf(resource: String, accessToken: String): String {
         return mutex.withLock {
             run {
-                    log.info("Henter nytt token fra Azure AD")
+                    log.info("Henter nytt on_behalf_of token fra Azure AD")
                     val response: AadAccessToken = httpClient.post(aadAccessTokenUrl) {
                         accept(ContentType.Application.Json)
                         method = HttpMethod.Post
@@ -61,6 +61,7 @@ class AccessTokenClient(
                             append("scope", "https://graph.microsoft.com/.default")
                             append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                             append("requested_token_use", "on_behalf_of")
+                            append("resource", resource)
                             append("assertion", accessToken)
                             append("assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                         })

@@ -99,5 +99,5 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     val pdlService = PdlPersonService(pdlClient, oidcClient)
 
     @KtorExperimentalAPI
-    val azureGraphService = AzureGraphService(httpClientWithProxy, accessTokenClient)
+    val azureGraphService = AzureGraphService(httpClientWithProxy, accessTokenClient, vaultSecrets.smregistreringBackendClientId)
 }
