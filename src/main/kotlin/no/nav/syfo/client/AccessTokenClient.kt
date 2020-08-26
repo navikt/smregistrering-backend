@@ -60,6 +60,7 @@ class AccessTokenClient(
                             append("client_secret", clientSecret)
                             append("scope", "https://graph.microsoft.com/.default")
                             append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                            append("requested_token_use", "on_behalf_of")
                             append("assertion", accessToken)
                             append("assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                         })
