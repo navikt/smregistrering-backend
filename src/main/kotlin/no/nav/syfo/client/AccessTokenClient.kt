@@ -47,4 +47,26 @@ class AccessTokenClient(
                 }).access_token
         }
     }
+
+    suspend fun hentAccessTokenOnBehalfOf(accessToken: String): String {
+        return mutex.withLock {
+            run {
+                    log.info("Henter nytt token fra Azure AD")
+                    val response: AadAccessToken = httpClient.post(aadAccessTokenUrl) {
+                        accept(ContentType.Application.Json)
+                        method = HttpMethod.Post
+                        body = FormDataContent(Parameters.build {
+                            append("client_id", clientId)
+                            append("client_secret", clientSecret)
+                            append("scope", "https://graph.microsoft.com/.default")
+                            append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                            append("assertion", accessToken)
+                            append("assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        })
+                    }
+                    log.debug("Har hentet accesstoken")
+                    return@run response
+                }.access_token
+        }
+    }
 }

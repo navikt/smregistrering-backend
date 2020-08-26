@@ -14,7 +14,8 @@ import no.nav.syfo.log
 import no.nav.syfo.util.LoggingMeta
 
 class AzureGraphService @KtorExperimentalAPI constructor(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val accessTokenClient: AccessTokenClient
 ) {
     suspend fun getNavident(
         accessToken: String,
@@ -23,13 +24,14 @@ class AzureGraphService @KtorExperimentalAPI constructor(
         retry("get_navident") {
 
             log.debug("Forsøker å hente navident for bruker fra ms graph {}", fields(loggingMeta))
+            val accessTokenOnBehalfOf = accessTokenClient.hentAccessTokenOnBehalfOf(accessToken)
 
             val receive =
                 httpClient.get<HttpStatement>("https://graph.microsoft.com/v1.0/me?\$select=onPremisesSamAccountName") {
 
                     accept(ContentType.Application.Json)
                     headers {
-                        append("Authorization", "Bearer ${accessToken}")
+                        append("Authorization", "Bearer $accessTokenOnBehalfOf")
                     }
                 }.execute().call.response.receive<Map<String, String>>()
 
