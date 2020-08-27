@@ -172,6 +172,7 @@ tasks {
     }
 
     withType<Test> {
+        dependsOn("lintKotlin")
         useJUnit()
         testLogging {
             showStandardStreams = true
