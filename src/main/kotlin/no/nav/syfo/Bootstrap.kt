@@ -22,6 +22,7 @@ import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.application.getWellKnown
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
@@ -33,7 +34,6 @@ import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString

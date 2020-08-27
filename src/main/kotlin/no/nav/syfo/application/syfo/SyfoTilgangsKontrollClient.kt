@@ -80,11 +80,11 @@ class SyfoTilgangsKontrollClient(
 
                 HttpStatusCode.BadRequest -> {
                     log.error("syfo-tilgangskontroll svarer med BadRequest")
-                    return@retry null                }
+                    return@retry null }
 
                 HttpStatusCode.NotFound -> {
                     log.warn("syfo-tilgangskontroll svarer med NotFound")
-                    return@retry null                }
+                    return@retry null }
 
                 HttpStatusCode.Unauthorized -> {
                     log.warn("syfo-tilgangskontroll svarer med Unauthorized")

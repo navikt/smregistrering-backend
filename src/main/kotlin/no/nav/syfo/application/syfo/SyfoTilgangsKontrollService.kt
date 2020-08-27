@@ -2,7 +2,6 @@ package no.nav.syfo.application.syfo
 
 import no.nav.syfo.application.syfo.error.IdentNotFoundException
 import no.nav.syfo.log
-import java.lang.RuntimeException
 
 class SyfoTilgangsKontrollService(
     private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
