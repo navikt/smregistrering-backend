@@ -22,7 +22,7 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.service.PdlPersonService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner

@@ -28,8 +28,8 @@ import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.SafDokumentClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
-import no.nav.syfo.client.Tilgang
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
+import no.nav.syfo.application.syfo.Tilgang
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -44,7 +44,7 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import no.nav.syfo.util.Authorization
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
@@ -58,7 +58,7 @@ internal class AuthenticateTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val authorization = mockk<Authorization>()
+    private val authorization = mockk<SyfoTilgangsKontrollService>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {

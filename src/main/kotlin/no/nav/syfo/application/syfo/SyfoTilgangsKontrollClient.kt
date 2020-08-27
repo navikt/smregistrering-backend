@@ -1,4 +1,4 @@
-package no.nav.syfo.client
+package no.nav.syfo.application.syfo
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
@@ -63,9 +63,48 @@ class SyfoTilgangsKontrollClient(
                 }
             }
     }
+
+    suspend fun hentVeilderIdentViaAzure(accessToken: String): Veilder? =
+        retry("tilgang_til_person_via_azure") {
+            val httpResponse = httpClient.get<HttpStatement>("$url/api/veilederinfo/ident") {
+                accept(ContentType.Application.Json)
+                headers {
+                    append("Authorization", "Bearer $accessToken")
+                }
+            }.execute()
+            when (httpResponse.status) {
+                HttpStatusCode.InternalServerError -> {
+                    log.error("syfo-tilgangskontroll svarte med InternalServerError")
+                    return@retry null
+                }
+
+                HttpStatusCode.BadRequest -> {
+                    log.error("syfo-tilgangskontroll svarer med BadRequest")
+                    return@retry null                }
+
+                HttpStatusCode.NotFound -> {
+                    log.warn("syfo-tilgangskontroll svarer med NotFound")
+                    return@retry null                }
+
+                HttpStatusCode.Unauthorized -> {
+                    log.warn("syfo-tilgangskontroll svarer med Unauthorized")
+                    return@retry null
+                }
+
+                else -> {
+                    log.info("syfo-tilgangskontroll svarer med httpResponse status kode: {}", httpResponse.status.value)
+                    log.info("Sjekker tilgang for veileder på person")
+                    httpResponse.call.response.receive<Veilder>()
+                }
+            }
+        }
 }
 
 data class Tilgang(
     val harTilgang: Boolean,
     val begrunnelse: String?
+)
+
+data class Veilder(
+    val ident: String
 )

@@ -21,6 +21,8 @@ import io.ktor.server.netty.Netty
 import java.net.ServerSocket
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
+import no.nav.syfo.application.syfo.Tilgang
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 

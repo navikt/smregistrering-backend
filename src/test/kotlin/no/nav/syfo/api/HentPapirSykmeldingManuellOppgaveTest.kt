@@ -39,8 +39,8 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
-import no.nav.syfo.client.Tilgang
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
+import no.nav.syfo.application.syfo.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -60,7 +60,7 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import no.nav.syfo.util.Authorization
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
@@ -86,7 +86,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val authorization = mockk<Authorization>()
+    private val authorization = mockk<SyfoTilgangsKontrollService>()
 
     @Test
     internal fun `Hent papirsykmelding`() {
@@ -227,7 +227,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), veileder, any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()

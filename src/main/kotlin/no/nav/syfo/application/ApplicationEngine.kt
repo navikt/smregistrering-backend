@@ -39,7 +39,7 @@ import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.util.Authorization
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 
 @KtorExperimentalAPI
 @InternalAPI
@@ -56,13 +56,10 @@ fun createApplicationEngine(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
-    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
-    authorization: Authorization
+    syfoTilgangsKontrollService: SyfoTilgangsKontrollService
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
         // Increase timeout of Netty to handle large content bodies
@@ -97,7 +94,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, authorization, env.cluster)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollService, env.cluster)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
@@ -105,11 +102,10 @@ fun createApplicationEngine(
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    serviceuserUsername,
                     dokArkivClient,
                     regelClient,
                     pdlService,
-                    authorization,
+                    syfoTilgangsKontrollService,
                     env.cluster
                 )
             }

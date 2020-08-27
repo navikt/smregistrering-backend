@@ -15,6 +15,7 @@ import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
+import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -30,13 +31,7 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.Authorization
-import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
-import no.nav.syfo.util.fellesformatMarshaller
-import no.nav.syfo.util.get
-import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.toString
+import no.nav.syfo.util.*
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -46,11 +41,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    authorization: Authorization,
+    syfoTilgangsKontrollService: SyfoTilgangsKontrollService,
     cluster: String
 ) {
     route("/api/v1") {
@@ -92,7 +86,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+                        if (syfoTilgangsKontrollService.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
 
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
@@ -168,6 +162,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             when (validationResult.status) {
                                 Status.OK -> {
+
+                                    val veileder = syfoTilgangsKontrollService.hentVeileder(accessToken)
+
                                     if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                                         handleOKOppgave(
                                             receivedSykmelding = receivedSykmelding,
@@ -180,7 +177,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                             sykmeldingId = sykmeldingId,
                                             journalpostId = journalpostId,
                                             healthInformation = healthInformation,
-                                            oppgaveId = oppgaveId
+                                            oppgaveId = oppgaveId,
+                                            veileder = veileder
                                         )
                                         call.respond(HttpStatusCode.NoContent)
                                     } else {
