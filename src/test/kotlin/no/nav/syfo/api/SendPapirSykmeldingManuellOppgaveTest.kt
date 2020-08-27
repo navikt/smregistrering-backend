@@ -127,12 +127,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    serviceuserUsername,
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    authorization,
-                    "edbmaskin"
+                    authorization
                 )
             }
 
@@ -156,7 +154,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
+            coEvery { authorization.hasAccess(any(), any()) } returns true
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -348,12 +346,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     syfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
-                    serviceuserUsername,
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    authorization,
-                    "edbmaskin"
+                    authorization
                 )
             }
 
@@ -377,7 +373,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
+            coEvery { authorization.hasAccess(any(), any()) } returns true
 
             val oppgaveid = 308076319
 
