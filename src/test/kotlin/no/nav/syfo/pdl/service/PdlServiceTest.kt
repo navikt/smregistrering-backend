@@ -98,6 +98,4 @@ internal class PdlServiceTest {
         }
         exception.message shouldEqual "Fant ikke aktørId i PDL"
     }
-
-
 }

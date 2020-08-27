@@ -2,15 +2,12 @@ package no.nav.syfo.aksessering.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
+import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.objectMapper
-import java.time.Instant
-import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
     connection.use { connection ->

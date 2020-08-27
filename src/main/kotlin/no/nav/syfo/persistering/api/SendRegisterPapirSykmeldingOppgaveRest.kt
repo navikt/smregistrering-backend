@@ -9,6 +9,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.put
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
+import java.util.UUID
 import javax.jms.MessageProducer
 import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
@@ -29,9 +30,13 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.*
-import java.util.UUID
-
+import no.nav.syfo.util.Authorization
+import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
+import no.nav.syfo.util.fellesformatMarshaller
+import no.nav.syfo.util.get
+import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.toString
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
@@ -192,7 +197,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                     )
                                     call.respond(HttpStatusCode.BadRequest, validationResult)
-
                                 }
                                 else -> {
                                     log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
@@ -217,7 +221,4 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             }
         }
     }
-
-
 }
-

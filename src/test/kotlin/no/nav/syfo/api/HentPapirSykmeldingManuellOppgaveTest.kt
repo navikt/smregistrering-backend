@@ -20,8 +20,10 @@ import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
+import java.sql.Connection
+import java.sql.Timestamp
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
 import javax.jms.MessageProducer
@@ -41,7 +43,19 @@ import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.model.*
+import no.nav.syfo.model.Adresse
+import no.nav.syfo.model.Behandler
+import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.IdentInfo
+import no.nav.syfo.model.IdentInfoResult
+import no.nav.syfo.model.MedisinskVurdering
+import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.Prognose
+import no.nav.syfo.model.Samhandler
+import no.nav.syfo.model.Status
+import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
@@ -50,9 +64,6 @@ import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
-import java.sql.Connection
-import java.sql.Timestamp
-import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class HentPapirSykmeldingManuellOppgaveTest {
@@ -216,7 +227,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(),  any(),  any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -234,7 +245,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldEqual HttpStatusCode.OK
                 response.content?.contains("\"aktorId\":\"1314\"") shouldEqual true
                 response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldEqual true
-
             }
         }
     }
@@ -361,6 +371,4 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             connection.commit()
         }
     }
-
 }
-

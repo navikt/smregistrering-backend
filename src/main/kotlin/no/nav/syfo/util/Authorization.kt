@@ -3,8 +3,8 @@ package no.nav.syfo.util
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 
 class Authorization(
-    private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient)
-{
+    private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
+) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String, cluster: String): Boolean {
 
         return if (cluster == "dev-fss") {
@@ -20,4 +20,3 @@ class Authorization(
         }
     }
 }
-
