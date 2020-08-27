@@ -4,8 +4,6 @@ import java.sql.Timestamp
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.toPGObject
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
     connection.use { connection ->

@@ -22,7 +22,8 @@ import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
-import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
@@ -34,10 +35,10 @@ import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
-import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.objectMapper
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
@@ -46,8 +47,6 @@ import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
-import java.time.LocalDate
-import java.time.OffsetDateTime
 
 @KtorExperimentalAPI
 internal class AuthenticateTest {
@@ -120,7 +119,6 @@ internal class AuthenticateTest {
                 behandletTidspunkt = null,
                 perioder = null,
                 skjermesForPasient = false)
-
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 

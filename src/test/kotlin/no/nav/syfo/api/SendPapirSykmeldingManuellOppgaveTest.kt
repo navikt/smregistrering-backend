@@ -21,8 +21,12 @@ import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.concurrent.Future
 import javax.jms.MessageProducer
@@ -43,8 +47,8 @@ import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
 import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.Behandler
-import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.Diagnose
+import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
 import no.nav.syfo.model.MedisinskArsak
@@ -61,8 +65,8 @@ import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
-import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -73,10 +77,6 @@ import no.nav.syfo.util.Authorization
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @KtorExperimentalAPI
 internal class SendPapirSykmeldingManuellOppgaveTest {
@@ -293,7 +293,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(),  any(),  any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -322,7 +322,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             }
         }
     }
-
 
     @Test
     internal fun `Regsitering av papirsykmelding fra JSON`() {
@@ -433,7 +432,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 skjermesForPasient = false
             )
 
-
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(String(Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")), StandardCharsets.UTF_8))
@@ -461,7 +459,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(),  any(),  any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -487,6 +485,4 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             }
         }
     }
-
-
 }

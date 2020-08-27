@@ -30,19 +30,19 @@ data class IdentInformasjon(
     val gruppe: String
 )
 
-data class ResponseError (
+data class ResponseError(
     val message: String?,
     val locations: List<ErrorLocation>?,
     val path: List<String>?,
     val extensions: ErrorExtension?
 )
 
-data class ErrorLocation (
+data class ErrorLocation(
     val line: String?,
     val column: String?
 )
 
-data class ErrorExtension (
+data class ErrorExtension(
     val code: String?,
     val classification: String?
 )
