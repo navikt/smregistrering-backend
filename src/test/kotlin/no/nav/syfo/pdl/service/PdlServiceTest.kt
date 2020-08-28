@@ -1,5 +1,6 @@
 package no.nav.syfo.pdl.service
 
+import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockkClass
 import kotlin.test.assertFailsWith
@@ -18,6 +19,7 @@ import no.nav.syfo.pdl.error.PersonNotFoundInPdl
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
+@KtorExperimentalAPI
 internal class PdlServiceTest {
 
     val pdlClient = mockkClass(PdlClient::class)
