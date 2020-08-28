@@ -56,7 +56,7 @@ class AccessTokenClient(
             body = FormDataContent(Parameters.build {
                 append("client_id", clientId)
                 append("client_secret", clientSecret)
-                append("scope", scope)
+                append("resource", scope)
                 append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("requested_token_use", "on_behalf_of")
                 append("assertion", accessToken)
