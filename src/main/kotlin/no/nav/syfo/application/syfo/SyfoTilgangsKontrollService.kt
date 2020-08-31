@@ -6,21 +6,15 @@ import no.nav.syfo.log
 class SyfoTilgangsKontrollService(
     private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ) {
-    suspend fun hasAccess(accessToken: String, pasientFnr: String, cluster: String): Boolean {
+    suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
+        val harTilgangTilOppgave =
+            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                accessToken,
+                pasientFnr
+            )?.harTilgang
 
-        return if (cluster == "dev-fss") {
-            true
-        } else {
-            val harTilgangTilOppgave =
-                syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
-                    accessToken,
-                    pasientFnr
-                )?.harTilgang
-
-            harTilgangTilOppgave != null && harTilgangTilOppgave
-        }
+        return harTilgangTilOppgave != null && harTilgangTilOppgave
     }
-
     suspend fun hentVeileder(accessToken: String): Veilder {
         val veilder = syfoTilgangsKontrollClient.hentVeilderIdentViaAzure(accessToken)
         if (veilder == null) {

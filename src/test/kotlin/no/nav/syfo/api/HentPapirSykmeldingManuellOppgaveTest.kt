@@ -99,7 +99,8 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any(), any()) } returns true
+
+            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.hentVeileder(any()) } returns Veilder("U1337")
 
             val oppgaveid = 308076319
@@ -173,8 +174,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     safDokumentClient,
-                    syfoTilgangsKontrollService,
-                    "cluts!"
+                    syfoTilgangsKontrollService
                 )
             }
 

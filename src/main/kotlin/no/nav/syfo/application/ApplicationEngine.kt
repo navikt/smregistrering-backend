@@ -94,7 +94,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollService, env.cluster)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollService)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
@@ -105,8 +105,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     regelClient,
                     pdlService,
-                    syfoTilgangsKontrollService,
-                    env.cluster
+                    syfoTilgangsKontrollService
                 )
             }
         }

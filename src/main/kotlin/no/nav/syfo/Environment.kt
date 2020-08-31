@@ -40,7 +40,8 @@ data class Environment(
     val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL", "http://syfo-tilgangskontroll/syfo-tilgangskontroll"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
     val developmentMode: Boolean = getEnvVar("DEVELOPMENT_MODE", "false").toBoolean(),
-    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
+    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
+    val scopeSyfotilgangskontroll: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE")
 
 ) : MqConfig, KafkaConfig
 

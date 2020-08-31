@@ -130,8 +130,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    syfoTilgangsKontrollService,
-                    "edbmaskin"
+                    syfoTilgangsKontrollService
                 )
             }
 
@@ -155,8 +154,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any(), any()) } returns true
+
+            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.hentVeileder(any()) } returns Veilder("U1337")
+
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -351,8 +352,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
-                    syfoTilgangsKontrollService,
-                    "edbmaskin"
+                    syfoTilgangsKontrollService
                 )
             }
 
@@ -376,7 +376,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any(), any()) } returns true
+            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.hentVeileder(any()) } returns Veilder("U1337")
 
             val oppgaveid = 308076319

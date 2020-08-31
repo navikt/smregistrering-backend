@@ -39,7 +39,7 @@ suspend fun handleRecivedMessage(
                 aktoerId = papirSmRegistering.aktorId,
                 opprettetAvEnhetsnr = "9999",
                 behandlesAvApplikasjon = "SMR",
-                beskrivelse = "Manuell papir sykmeldingoppgave, gjelder for journalpostid: ${papirSmRegistering.journalpostId}",
+                beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
                 tema = "SYM",
                 oppgavetype = "JFR",
                 aktivDato = LocalDate.now(),

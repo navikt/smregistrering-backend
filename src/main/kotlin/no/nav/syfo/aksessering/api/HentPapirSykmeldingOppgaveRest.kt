@@ -19,8 +19,7 @@ import no.nav.syfo.util.getAccessTokenFromAuthHeader
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    syfoTilgangsKontrollService: SyfoTilgangsKontrollService,
-    cluster: String
+    syfoTilgangsKontrollService: SyfoTilgangsKontrollService
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
@@ -63,7 +62,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
-                        if (syfoTilgangsKontrollService.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!, cluster)) {
+
+                        if (syfoTilgangsKontrollService.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!)) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {

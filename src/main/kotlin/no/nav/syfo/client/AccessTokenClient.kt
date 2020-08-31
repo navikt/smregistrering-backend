@@ -47,4 +47,23 @@ class AccessTokenClient(
                 }).access_token
         }
     }
+
+    suspend fun hentOnBehalfOfTokenForInnloggetBruker(accessToken: String, scope: String): String {
+        log.info("Henter OBO-token fra Azure AD") // juster til debug, legg til caching
+        val response: AadAccessToken = httpClient.post(aadAccessTokenUrl) {
+            accept(ContentType.Application.Json)
+            method = HttpMethod.Post
+            body = FormDataContent(Parameters.build {
+                append("client_id", clientId)
+                append("client_secret", clientSecret)
+                append("resource", scope)
+                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                append("requested_token_use", "on_behalf_of")
+                append("assertion", accessToken)
+                append("assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+            })
+        }
+        log.info("Har hentet OBO-accesstoken")
+        return response.access_token
+    }
 }

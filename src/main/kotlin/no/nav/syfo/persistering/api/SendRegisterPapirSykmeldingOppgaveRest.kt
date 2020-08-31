@@ -49,8 +49,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    syfoTilgangsKontrollService: SyfoTilgangsKontrollService,
-    cluster: String
+    syfoTilgangsKontrollService: SyfoTilgangsKontrollService
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -91,7 +90,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (syfoTilgangsKontrollService.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+                        if (syfoTilgangsKontrollService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
