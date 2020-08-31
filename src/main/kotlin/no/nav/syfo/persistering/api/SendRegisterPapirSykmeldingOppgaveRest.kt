@@ -46,12 +46,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     syfoserviceProducer: MessageProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
-    serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    authorization: Authorization,
-    cluster: String
+    authorization: Authorization
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -92,7 +90,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr, cluster)) {
+                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)

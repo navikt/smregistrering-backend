@@ -98,7 +98,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
+            coEvery { authorization.hasAccess(any(), any()) } returns true
 
             val oppgaveid = 308076319
 
@@ -171,8 +171,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     safDokumentClient,
-                    authorization,
-                    "cluts!"
+                    authorization
                 )
             }
 

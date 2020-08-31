@@ -88,7 +88,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
 
     @KtorExperimentalAPI
-    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, httpClient)
+    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, accessTokenClient, env.scopeSyfotilgangskontroll, httpClient)
 
     val pdlClient = PdlClient(httpClient,
         env.pdlGraphqlPath,

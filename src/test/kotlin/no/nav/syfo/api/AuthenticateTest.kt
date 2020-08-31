@@ -67,7 +67,7 @@ internal class AuthenticateTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
-            coEvery { authorization.hasAccess(any(), any(), any()) } returns true
+            coEvery { authorization.hasAccess(any(), any()) } returns true
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -139,8 +139,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
-                        authorization,
-                        "cluts!"
+                        authorization
                     )
                 }
             }
@@ -248,8 +247,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
-                        authorization,
-                        "cluts!"
+                        authorization
                     )
                 }
             }

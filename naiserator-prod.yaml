@@ -92,3 +92,5 @@ spec:
       value: /secrets/azuread/smregistrering-backend/client_secret
     - name: PDL_GRAPHQL_PATH
       value: https://pdl-api.nais.adeo.no/graphql
+    - name: SYFOTILGANGSKONTROLL_SCOPE
+      value: dfaa2699-7390-4459-9cfc-2e8de64dfaf9
