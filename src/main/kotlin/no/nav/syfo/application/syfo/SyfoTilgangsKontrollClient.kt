@@ -63,10 +63,11 @@ class SyfoTilgangsKontrollClient(
 
     suspend fun hentVeilderIdentViaAzure(accessToken: String): Veilder? =
         retry("tilgang_til_person_via_azure") {
+            val oboToken = accessTokenClient.hentOnBehalfOfTokenForInnloggetBruker(accessToken = accessToken, scope = scopeSyfotilgangskontroll)
             val httpResponse = httpClient.get<HttpStatement>("$url/api/veilederinfo/ident") {
                 accept(ContentType.Application.Json)
                 headers {
-                    append("Authorization", "Bearer $accessToken")
+                    append("Authorization", "Bearer $oboToken")
                 }
             }.execute()
             when (httpResponse.status) {
