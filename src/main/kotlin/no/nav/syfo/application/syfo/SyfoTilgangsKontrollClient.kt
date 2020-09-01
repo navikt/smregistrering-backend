@@ -56,8 +56,8 @@ class SyfoTilgangsKontrollClient(
                 )
             }
         }
-        log.info("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
         log.info("Sjekker tilgang for veileder på person")
+        log.info("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
         return httpResponse.call.response.receive<Tilgang>()
     }
 
@@ -90,8 +90,8 @@ class SyfoTilgangsKontrollClient(
                 }
 
                 else -> {
+                    log.info("Henter veileder ident fra syfo-tilgangskontroll")
                     log.info("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
-                    log.info("Sjekker tilgang for veileder på person")
                     httpResponse.call.response.receive<Veilder>()
                 }
             }
