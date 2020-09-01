@@ -9,7 +9,6 @@ import io.ktor.client.request.post
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.syfo.application.syfo.Tilgang
 import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.log
