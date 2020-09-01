@@ -8,8 +8,10 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
+import java.lang.RuntimeException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.log
@@ -27,6 +29,8 @@ class OppgaveClient(
     suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
             OpprettOppgaveResponse = retry("create_oppgave") {
 
+        log.info("Forsøker å opprette oppgave for {} ", opprettOppgave)
+
         val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
@@ -35,9 +39,16 @@ class OppgaveClient(
             body = opprettOppgave
         }.execute()
 
-        log.info("Forsøker å opprette oppgave for {}.  Kall til Oppgave-tjeneste svarte {} {} ", opprettOppgave, httpResponse.status, httpResponse.call.response)
-
-        httpResponse.call.response.receive<OpprettOppgaveResponse>()
+        when (httpResponse.status) {
+            HttpStatusCode.OK -> {
+                log.info("OppgaveClient opprettOppgave svarte med InternalServerError")
+                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+            }
+            else -> {
+                log.error("OppgaveClient opprettOppgave kastet feil $httpResponse.status $httpResponse.call.response for $opprettOppgave")
+                throw RuntimeException("OppgaveClient opprettOppgave kastet feil $httpResponse.status $httpResponse.call.response for $opprettOppgave")
+            }
+        }
     }
 
     suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
