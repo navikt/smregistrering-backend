@@ -8,6 +8,7 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
+import no.nav.syfo.helpers.log
 import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.retry
@@ -23,13 +24,18 @@ class OppgaveClient(
 ) {
     suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
             OpprettOppgaveResponse = retry("create_oppgave") {
-        httpClient.post<OpprettOppgaveResponse>(url) {
+
+        val opprettOppgaveResponse = httpClient.post<OpprettOppgaveResponse>(url) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
             body = opprettOppgave
         }
+
+        log.info("Opprettet oppgave {} ", opprettOppgaveResponse)
+
+        opprettOppgaveResponse
     }
 
     suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
