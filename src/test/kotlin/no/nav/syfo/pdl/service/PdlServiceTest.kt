@@ -50,7 +50,7 @@ internal class PdlServiceTest {
                 pdlService.getPdlPerson("123", "Bearer token", "callId")
             }
         }
-        exception.message shouldEqual "Fant ikke person i PDL"
+        exception.message shouldEqual "Klarte ikke hente ut person fra PDL"
     }
 
     @Test
