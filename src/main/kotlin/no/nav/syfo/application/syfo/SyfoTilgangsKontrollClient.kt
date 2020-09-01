@@ -28,35 +28,35 @@ class SyfoTilgangsKontrollClient(
         }.execute()
         when (httpResponse.status) {
             HttpStatusCode.InternalServerError -> {
-                log.error("syfo-tilgangskontroll svarte med InternalServerError")
+                log.error("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarte med InternalServerError")
                 Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarte med InternalServerError"
                 )
             }
             HttpStatusCode.BadRequest -> {
-                log.error("syfo-tilgangskontroll svarer med BadRequest")
+                log.error("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med BadRequest")
                 return Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarer med BadRequest"
                 )
             }
             HttpStatusCode.NotFound -> {
-                log.warn("syfo-tilgangskontroll svarer med NotFound")
+                log.warn("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med NotFound")
                 return Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarer med NotFound"
                 )
             }
             HttpStatusCode.Unauthorized -> {
-                log.warn("syfo-tilgangskontroll svarer med Unauthorized")
+                log.warn("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med Unauthorized")
                 return Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarer med Unauthorized"
                 )
             }
         }
-        log.info("syfo-tilgangskontroll svarer med httpResponse status kode: {}", httpResponse.status.value)
+        log.info("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
         log.info("Sjekker tilgang for veileder på person")
         return httpResponse.call.response.receive<Tilgang>()
     }
@@ -72,25 +72,25 @@ class SyfoTilgangsKontrollClient(
             }.execute()
             when (httpResponse.status) {
                 HttpStatusCode.InternalServerError -> {
-                    log.error("syfo-tilgangskontroll svarte med InternalServerError")
+                    log.error("syfo-tilgangskontroll hentVeilderIdentViaAzure svarte med InternalServerError")
                     return@retry null
                 }
 
                 HttpStatusCode.BadRequest -> {
-                    log.error("syfo-tilgangskontroll svarer med BadRequest")
+                    log.error("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med BadRequest")
                     return@retry null }
 
                 HttpStatusCode.NotFound -> {
-                    log.warn("syfo-tilgangskontroll svarer med NotFound")
+                    log.warn("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med NotFound")
                     return@retry null }
 
                 HttpStatusCode.Unauthorized -> {
-                    log.warn("syfo-tilgangskontroll svarer med Unauthorized")
+                    log.warn("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med Unauthorized")
                     return@retry null
                 }
 
                 else -> {
-                    log.info("syfo-tilgangskontroll svarer med httpResponse status kode: {}", httpResponse.status.value)
+                    log.info("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
                     log.info("Sjekker tilgang for veileder på person")
                     httpResponse.call.response.receive<Veilder>()
                 }

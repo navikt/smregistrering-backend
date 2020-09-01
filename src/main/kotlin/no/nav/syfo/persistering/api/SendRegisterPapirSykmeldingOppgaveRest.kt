@@ -92,7 +92,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         if (syfoTilgangsKontrollService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
+                            log.info("Henter sykmelder fra PDL {} ", loggingMeta)
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
+
+                            log.info("Henter pasient fra PDL {} ", loggingMeta)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
 
                             if (pasient.fnr == null) {
