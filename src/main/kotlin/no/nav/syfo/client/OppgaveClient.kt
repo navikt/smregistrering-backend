@@ -8,9 +8,9 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.syfo.helpers.log
 import java.time.DayOfWeek
 import java.time.LocalDate
+import no.nav.syfo.helpers.log
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.model.FerdigStillOppgave
 import no.nav.syfo.model.OpprettOppgave
