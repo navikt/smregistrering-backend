@@ -1,13 +1,15 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.*
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
+import no.nav.syfo.application.syfo.Tilgang
 import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.log
@@ -25,17 +27,17 @@ class OppgaveClient(
     suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
             OpprettOppgaveResponse = retry("create_oppgave") {
 
-        val opprettOppgaveResponse = httpClient.post<OpprettOppgaveResponse>(url) {
+        val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
             body = opprettOppgave
-        }
+        }.execute()
 
-        log.info("Opprettet oppgave {} ", opprettOppgaveResponse)
+        log.info("Forsøker å opprette oppgave for {}.  Kall til Oppgave-tjeneste svarte {} {} ", opprettOppgave, httpResponse.status, httpResponse.call.response)
 
-        opprettOppgaveResponse
+        httpResponse.call.response.receive<OpprettOppgaveResponse>()
     }
 
     suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
