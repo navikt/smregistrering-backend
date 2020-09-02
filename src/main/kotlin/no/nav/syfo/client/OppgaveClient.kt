@@ -40,7 +40,7 @@ class OppgaveClient(
         }.execute()
 
         when (httpResponse.status) {
-            HttpStatusCode.OK -> {
+            HttpStatusCode.Created -> {
                 log.info("OppgaveClient opprettOppgave svarte med InternalServerError")
                 httpResponse.call.response.receive<OpprettOppgaveResponse>()
             }
