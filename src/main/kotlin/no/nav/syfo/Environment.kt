@@ -27,7 +27,7 @@ data class Environment(
     val mqUsernamePath: String = getEnvVar("MQ_USERNAME"),
     val mqPasswordPath: String = getEnvVar("MQ_PASSWORD"),
     val syfoserviceQueueName: String = getEnvVar("MQ_SYFOSERVICE_QUEUE_NAME"),
-    val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api"),
+    val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "https://kuhr-sar-api.nais.adeo.no"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val aadAccessTokenUrl: String = getEnvVar("AADACCESSTOKEN_URL"),
     val regelEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfosmpapirregler"),
