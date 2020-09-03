@@ -99,7 +99,7 @@ class DokArkivClient(
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
-            body = FerdigstillJournal(veileder.ident) // TODO: journalfoerendeEnhet er vel ikke det samme som en ident?
+            body = FerdigstillJournal(veileder.veilederIdent) // TODO: journalfoerendeEnhet er vel ikke det samme som en ident?
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
             log.error("Dokakriv svarte med feilmelding ved ferdigstilling av journalpost for msgId {}, {}", msgId, fields(loggingMeta))
