@@ -104,5 +104,5 @@ data class Tilgang(
 )
 
 data class Veilder(
-    val ident: String
+    val veilederIdent: String
 )
