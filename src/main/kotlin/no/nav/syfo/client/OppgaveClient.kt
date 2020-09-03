@@ -41,7 +41,7 @@ class OppgaveClient(
 
         when (httpResponse.status) {
             HttpStatusCode.Created -> {
-                log.info("OppgaveClient opprettOppgave svarte med InternalServerError")
+                log.info("OppgaveClient opprettOppgave svarte 201 CREATED" )
                 httpResponse.call.response.receive<OpprettOppgaveResponse>()
             }
             else -> {
