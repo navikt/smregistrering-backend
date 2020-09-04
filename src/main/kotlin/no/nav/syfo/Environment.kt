@@ -19,7 +19,6 @@ data class Environment(
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL", "http://oppgave/api/v1/oppgaver"),
     val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
-    val syfoserviceQueueName: String = getEnvVar("MQ_SYFOSERVICE_QUEUE_NAME"),
     val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val aadAccessTokenUrl: String = getEnvVar("AADACCESSTOKEN_URL"),
