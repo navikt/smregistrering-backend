@@ -22,8 +22,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
-import javax.jms.MessageProducer
-import javax.jms.Session
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
@@ -51,17 +49,13 @@ fun createApplicationEngine(
     issuer: String,
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
-    session: Session,
-    syfoserviceProducer: MessageProducer,
+    kafkaProducers: KafkaProducers,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     serviceuserUsername: String,
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    kafkaValidationResultProducer: KafkaProducers.KafkaValidationResultProducer,
-    kafkaManuelTaskProducer: KafkaProducers.KafkaManuelTaskProducer,
     authorization: Authorization
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
@@ -100,9 +94,8 @@ fun createApplicationEngine(
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, authorization)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
-                    kafkaRecievedSykmeldingProducer,
-                    session,
-                    syfoserviceProducer,
+                    kafkaProducers.kafkaRecievedSykmeldingProducer,
+                    kafkaProducers.kafkaSyfoserviceProducers,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
