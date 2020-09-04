@@ -19,7 +19,7 @@ data class Environment(
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL", "http://oppgave/api/v1/oppgaver"),
     val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
-    val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api"),
+    val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "https://kuhr-sar-api.nais.adeo.no"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val aadAccessTokenUrl: String = getEnvVar("AADACCESSTOKEN_URL"),
     val regelEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfosmpapirregler"),
