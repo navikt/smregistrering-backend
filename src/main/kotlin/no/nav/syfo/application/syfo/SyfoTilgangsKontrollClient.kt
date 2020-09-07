@@ -61,8 +61,7 @@ class SyfoTilgangsKontrollClient(
         return httpResponse.call.response.receive<Tilgang>()
     }
 
-    suspend fun hentVeilderIdentViaAzure(accessToken: String): Veilder? =
-        retry("hent_veileder_via_azure") {
+    suspend fun hentVeilderIdentViaAzure(accessToken: String): Veilder? {
             val oboToken = accessTokenClient.hentOnBehalfOfTokenForInnloggetBruker(accessToken = accessToken, scope = scopeSyfotilgangskontroll)
             val httpResponse = httpClient.get<HttpStatement>("$url/api/veilederinfo/ident") {
                 accept(ContentType.Application.Json)
@@ -73,29 +72,29 @@ class SyfoTilgangsKontrollClient(
             when (httpResponse.status) {
                 HttpStatusCode.InternalServerError -> {
                     log.error("syfo-tilgangskontroll hentVeilderIdentViaAzure svarte med InternalServerError")
-                    return@retry null
+                    return null
                 }
 
                 HttpStatusCode.BadRequest -> {
                     log.error("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med BadRequest")
-                    return@retry null }
+                    return null }
 
                 HttpStatusCode.NotFound -> {
                     log.warn("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med NotFound")
-                    return@retry null }
+                    return null }
 
                 HttpStatusCode.Unauthorized -> {
                     log.warn("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med Unauthorized")
-                    return@retry null
+                    return null
                 }
 
                 else -> {
                     log.info("Henter veileder ident fra syfo-tilgangskontroll")
                     log.info("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med httpResponse status kode: {}", httpResponse.status.value)
-                    httpResponse.call.response.receive<Veilder>()
+                    return httpResponse.call.response.receive<Veilder>()
                 }
             }
-        }
+    }
 }
 
 data class Tilgang(
