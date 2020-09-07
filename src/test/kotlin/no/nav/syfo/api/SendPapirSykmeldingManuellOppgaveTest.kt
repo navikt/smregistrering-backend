@@ -34,8 +34,8 @@ import javax.jms.Session
 import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import no.nav.syfo.application.syfo.Tilgang
 import no.nav.syfo.application.syfo.Veilder
 import no.nav.syfo.client.DokArkivClient
@@ -99,7 +99,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val syfoTilgangsKontrollService = mockk<SyfoTilgangsKontrollService>()
+    private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
 
     @Test
@@ -156,7 +156,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             )
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.hentVeileder(any()) } returns Veilder("U1337")
+            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veilder("U1337")
 
             val oppgaveid = 308076319
 
@@ -377,7 +377,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 null
             )
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.hentVeileder(any()) } returns Veilder("U1337")
+            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veilder("U1337")
 
             val oppgaveid = 308076319
 

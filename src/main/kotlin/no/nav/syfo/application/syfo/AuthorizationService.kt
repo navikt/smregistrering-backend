@@ -3,7 +3,7 @@ package no.nav.syfo.application.syfo
 import no.nav.syfo.application.syfo.error.IdentNotFoundException
 import no.nav.syfo.log
 
-class SyfoTilgangsKontrollService(
+class AuthorizationService(
     private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient
 ) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
@@ -15,7 +15,7 @@ class SyfoTilgangsKontrollService(
 
         return harTilgangTilOppgave != null && harTilgangTilOppgave
     }
-    suspend fun hentVeileder(accessToken: String): Veilder {
+    suspend fun getVeileder(accessToken: String): Veilder {
         val veilder = syfoTilgangsKontrollClient.hentVeilderIdentViaAzure(accessToken)
         if (veilder == null) {
             log.error("Klarte ikke hente ut veilederident fra syfo-tilgangskontroll")

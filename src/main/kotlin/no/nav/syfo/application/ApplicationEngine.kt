@@ -28,7 +28,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -59,7 +59,7 @@ fun createApplicationEngine(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    syfoTilgangsKontrollService: SyfoTilgangsKontrollService
+    authorizationService: AuthorizationService
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
         // Increase timeout of Netty to handle large content bodies
@@ -94,7 +94,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, syfoTilgangsKontrollService)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, authorizationService)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
@@ -105,7 +105,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     regelClient,
                     pdlService,
-                    syfoTilgangsKontrollService
+                    authorizationService
                 )
             }
         }

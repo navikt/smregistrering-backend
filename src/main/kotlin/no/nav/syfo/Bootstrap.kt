@@ -22,7 +22,7 @@ import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.application.getWellKnown
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
@@ -102,7 +102,7 @@ fun main() {
         httpClients.dokArkivClient,
         httpClients.regelClient,
         httpClients.pdlService,
-        SyfoTilgangsKontrollService(httpClients.syfoTilgangsKontrollClient)
+        AuthorizationService(httpClients.syfoTilgangsKontrollClient)
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

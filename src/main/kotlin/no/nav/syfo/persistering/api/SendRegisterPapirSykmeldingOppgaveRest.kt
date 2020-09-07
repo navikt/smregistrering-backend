@@ -15,7 +15,7 @@ import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -49,7 +49,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    syfoTilgangsKontrollService: SyfoTilgangsKontrollService
+    authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -90,7 +90,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (syfoTilgangsKontrollService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
+                        if (authorizationService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
                             log.info("Henter sykmelder fra PDL {} ", loggingMeta)
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
@@ -170,7 +170,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             when (validationResult.status) {
                                 Status.OK -> {
 
-                                    val veileder = syfoTilgangsKontrollService.hentVeileder(accessToken)
+                                    val veileder = authorizationService.getVeileder(accessToken)
 
                                     if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                                         handleOKOppgave(

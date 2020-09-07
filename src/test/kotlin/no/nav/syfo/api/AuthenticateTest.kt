@@ -27,8 +27,8 @@ import java.time.OffsetDateTime
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollService
 import no.nav.syfo.application.syfo.Tilgang
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
@@ -58,7 +58,7 @@ internal class AuthenticateTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val authorization = mockk<SyfoTilgangsKontrollService>()
+    private val authorization = mockk<AuthorizationService>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
