@@ -9,7 +9,6 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import no.nav.syfo.client.AccessTokenClient
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
 class SyfoTilgangsKontrollClient(
