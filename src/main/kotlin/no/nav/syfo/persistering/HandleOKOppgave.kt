@@ -55,7 +55,7 @@ suspend fun handleOKOppgave(
 
     val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
 
-    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon)
+    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, "9999") // TODO: tildeltEnhetsnr må settes til riktig verdig
 
     val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(
@@ -65,8 +65,10 @@ suspend fun handleOKOppgave(
     )
 }
 
-fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int) = FerdigStillOppgave(
+fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int, tilordnetRessurs: String, tildeltEnhetsnr: String) = FerdigStillOppgave(
     versjon = oppgaveVersjon,
     id = oppgaveid,
-    status = OppgaveStatus.FERDIGSTILT
+    status = OppgaveStatus.FERDIGSTILT,
+    tildeltEnhetsnr = tildeltEnhetsnr,
+    tilordnetRessurs = tilordnetRessurs
 )
