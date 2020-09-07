@@ -45,8 +45,8 @@ class OppgaveClient(
                 httpResponse.call.response.receive<OpprettOppgaveResponse>()
             }
             else -> {
-                log.error("OppgaveClient opprettOppgave kastet feil $httpResponse.status $httpResponse.call.response for $opprettOppgave")
-                throw RuntimeException("OppgaveClient opprettOppgave kastet feil $httpResponse.status $httpResponse.call.response for $opprettOppgave")
+                log.error("OppgaveClient opprettOppgave kastet feil {} ved opprettelse av oppgave", httpResponse.status)
+                throw RuntimeException("OppgaveClient opprettOppgave kastet feil $httpResponse.status")
             }
         }
     }
