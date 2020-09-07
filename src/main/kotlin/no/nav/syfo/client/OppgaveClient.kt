@@ -29,7 +29,7 @@ class OppgaveClient(
     suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
             OpprettOppgaveResponse = retry("create_oppgave") {
 
-        log.info("Forsøker å opprette oppgave for {} ", opprettOppgave)
+        log.info("Oppretter oppgave {} ", opprettOppgave)
 
         val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
@@ -53,22 +53,48 @@ class OppgaveClient(
 
     suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
             OpprettOppgaveResponse = retry("ferdigstill_oppgave") {
-        httpClient.patch<OpprettOppgaveResponse>(url + "/" + ferdigstilloppgave.id) {
+
+        log.info("Ferdigstiller oppgave {} ", ferdigstilloppgave)
+
+        val httpResponse = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
             body = ferdigstilloppgave
+        }.execute()
+
+        when (httpResponse.status) {
+            HttpStatusCode.OK -> {
+                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+            }
+            else -> {
+                log.error("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave", httpResponse.status)
+                throw RuntimeException("OppgaveClient ferdigStillOppgave kastet feil $httpResponse.status")
+            }
         }
     }
 
     suspend fun hentOppgave(oppgaveId: Int, msgId: String):
             OpprettOppgaveResponse = retry("hent_oppgave") {
-        httpClient.get<OpprettOppgaveResponse>("$url/$oppgaveId") {
+
+        log.info("Henter oppgave med oppgaveId {} msgId {}", oppgaveId, msgId)
+
+        val httpResponse = httpClient.get<HttpStatement>("$url/$oppgaveId") {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
+        }.execute()
+
+        when (httpResponse.status) {
+            HttpStatusCode.OK -> {
+                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+            }
+            else -> {
+                log.error("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave", httpResponse.status)
+                throw RuntimeException("OppgaveClient hentOppgave kastet feil $httpResponse.status")
+            }
         }
     }
 }
