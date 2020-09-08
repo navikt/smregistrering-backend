@@ -69,8 +69,9 @@ class OppgaveClient(
                 httpResponse.call.response.receive<OpprettOppgaveResponse>()
             }
             else -> {
-                log.error("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave", httpResponse.status)
-                throw RuntimeException("OppgaveClient ferdigStillOppgave kastet feil $httpResponse.status")
+                val msg = String.format("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
+                log.error(msg)
+                throw RuntimeException(msg)
             }
         }
     }
@@ -92,8 +93,9 @@ class OppgaveClient(
                 httpResponse.call.response.receive<OpprettOppgaveResponse>()
             }
             else -> {
-                log.error("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave", httpResponse.status)
-                throw RuntimeException("OppgaveClient hentOppgave kastet feil $httpResponse.status")
+                val msg = String.format("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave med id {} ", httpResponse.status, oppgaveId)
+                log.error(msg)
+                throw RuntimeException(msg)
             }
         }
     }
