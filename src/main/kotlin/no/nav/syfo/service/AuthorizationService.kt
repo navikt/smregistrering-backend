@@ -1,6 +1,8 @@
-package no.nav.syfo.application.syfo
+package no.nav.syfo.service
 
 import no.nav.syfo.application.syfo.error.IdentNotFoundException
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.client.Veilder
 import no.nav.syfo.log
 
 class AuthorizationService(

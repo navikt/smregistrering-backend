@@ -1,4 +1,4 @@
-package no.nav.syfo.application.syfo
+package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
@@ -8,7 +8,6 @@ import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import no.nav.syfo.client.AccessTokenClient
 import no.nav.syfo.log
 
 class SyfoTilgangsKontrollClient(

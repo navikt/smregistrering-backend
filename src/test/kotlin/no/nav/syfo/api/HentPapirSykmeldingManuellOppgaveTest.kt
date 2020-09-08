@@ -30,16 +30,15 @@ import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.application.syfo.AuthorizationService
-import no.nav.syfo.application.syfo.SyfoTilgangsKontrollClient
-import no.nav.syfo.application.syfo.Tilgang
-import no.nav.syfo.application.syfo.Veilder
 import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.client.Tilgang
+import no.nav.syfo.client.Veilder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -56,6 +55,7 @@ import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.persistering.db.opprettManuellOppgave
+import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
