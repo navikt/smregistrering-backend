@@ -1,41 +1,46 @@
 package no.nav.syfo.service
 
-import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.Base64
-import javax.jms.MessageProducer
-import javax.jms.Session
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
-import no.nav.syfo.model.Syfo
+import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.log
+import no.nav.syfo.model.KafkaMessageMetadata
+import no.nav.syfo.model.SyfoserviceKafkaMessage
 import no.nav.syfo.model.Tilleggsdata
-import no.nav.syfo.util.sykmeldingMarshaller
-import no.nav.syfo.util.xmlObjectWriter
+import org.apache.kafka.clients.producer.ProducerRecord
 
 fun notifySyfoService(
-    session: Session,
-    receiptProducer: MessageProducer,
+    syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
     ediLoggId: String,
     sykmeldingId: String,
     msgId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet
 ) {
-    receiptProducer.send(session.createTextMessage().apply {
+    val syfoserviceKafkaMessage = SyfoserviceKafkaMessage(
+        metadata = KafkaMessageMetadata(sykmeldingId, source = "smregistrering-backend"),
+        tilleggsdata = Tilleggsdata(
+            ediLoggId = ediLoggId,
+            msgId = msgId,
+            syketilfelleStartDato = extractSyketilfelleStartDato(healthInformation),
+            sykmeldingId = sykmeldingId
+        ),
+        helseopplysninger = healthInformation
+    )
 
-        val syketilfelleStartDato = extractSyketilfelleStartDato(healthInformation)
-        val sykmelding = convertSykemeldingToBase64(healthInformation)
-        val syfo = Syfo(
-                tilleggsdata = Tilleggsdata(ediLoggId = ediLoggId, sykmeldingId = sykmeldingId, msgId = msgId, syketilfelleStartDato = syketilfelleStartDato),
-                sykmelding = Base64.getEncoder().encodeToString(sykmelding))
-        text = xmlObjectWriter.writeValueAsString(syfo)
-    })
+    try {
+        syfoserviceKafkaProducer.producer.send(
+            ProducerRecord(
+                syfoserviceKafkaProducer.syfoserviceKafkaTopic,
+                sykmeldingId,
+                syfoserviceKafkaMessage
+            )
+        ).get()
+    } catch (error: Exception) {
+        log.error("Error producing message to Kafka", error)
+        throw error
+    }
 }
-
-fun convertSykemeldingToBase64(helseOpplysningerArbeidsuforhet: HelseOpplysningerArbeidsuforhet): ByteArray =
-        ByteArrayOutputStream().use {
-            sykmeldingMarshaller.marshal(helseOpplysningerArbeidsuforhet, it)
-            it
-        }.toByteArray()
 
 fun extractSyketilfelleStartDato(helseOpplysningerArbeidsuforhet: HelseOpplysningerArbeidsuforhet): LocalDateTime =
     LocalDateTime.of(helseOpplysningerArbeidsuforhet.syketilfelleStartDato, LocalTime.NOON)

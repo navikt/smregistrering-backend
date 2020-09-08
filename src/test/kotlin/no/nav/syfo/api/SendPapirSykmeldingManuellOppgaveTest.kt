@@ -29,9 +29,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.concurrent.Future
-import javax.jms.MessageProducer
-import javax.jms.Session
-import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.application.syfo.AuthorizationService
@@ -89,12 +86,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
-    private val session = mockk<Session>()
-    private val syfoserviceProducer = mockk<MessageProducer>()
+    private val kafkaSyfoserviceProducer = mockk<KafkaProducers.KafkaSyfoserviceProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val kuhrsarClient = mockk<SarClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
-    private val textMessage = mockk<TextMessage>()
     private val regelClient = mockk<RegelClient>()
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
@@ -113,8 +108,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserPassword = "password",
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
                     smregistreringBackendClientId = "clientId",
-                    mqUsername = "username",
-                    mqPassword = "password",
                     smregistreringBackendClientSecret = "secret",
                     syfosmpapirregelClientId = "clientid"
                 ), jwkProvider, "https://sts.issuer.net/myid"
@@ -123,8 +116,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
-                    session,
-                    syfoserviceProducer,
+                    kafkaSyfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
@@ -271,9 +263,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 utdypendeOpplysninger = null
             )
 
-            coEvery { textMessage.text = any() } returns Unit
-            coEvery { session.createTextMessage() } returns textMessage
-            coEvery { syfoserviceProducer.send(any()) } returns Unit
+            val future = mockk<Future<RecordMetadata>>()
+            coEvery { future.get() } returns mockk<RecordMetadata>()
+            coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns future
+            coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
@@ -309,8 +302,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     "Billy",
                     "Bob",
                     "Thornton"
-                ), listOf(IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                        IdentInformasjon("12345", false, "AKTORID"))
+                ), listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
             )
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
@@ -335,8 +330,6 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     serviceuserPassword = "password",
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
                     smregistreringBackendClientId = "clientId",
-                    mqUsername = "username",
-                    mqPassword = "password",
                     smregistreringBackendClientSecret = "secret",
                     syfosmpapirregelClientId = "clientid"
                 ), jwkProvider, "https://sts.issuer.net/myid"
@@ -345,8 +338,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaRecievedSykmeldingProducer,
-                    session,
-                    syfoserviceProducer,
+                    kafkaSyfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
@@ -434,11 +426,15 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
-            val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(String(Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")), StandardCharsets.UTF_8))
+            val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(
+                String(
+                    Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")),
+                    StandardCharsets.UTF_8
+                )
+            )
 
-            coEvery { textMessage.text = any() } returns Unit
-            coEvery { session.createTextMessage() } returns textMessage
-            coEvery { syfoserviceProducer.send(any()) } returns Unit
+            coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>(relaxed = true)
+            coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
@@ -472,7 +468,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID"))
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
             )
 
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {

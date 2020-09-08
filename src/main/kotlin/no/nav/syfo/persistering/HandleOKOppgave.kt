@@ -1,8 +1,6 @@
 package no.nav.syfo.persistering
 
 import io.ktor.util.KtorExperimentalAPI
-import javax.jms.MessageProducer
-import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
@@ -23,8 +21,7 @@ suspend fun handleOKOppgave(
     receivedSykmelding: ReceivedSykmelding,
     kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
     loggingMeta: LoggingMeta,
-    session: Session,
-    syfoserviceProducer: MessageProducer,
+    syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
     oppgaveClient: OppgaveClient,
     dokArkivClient: DokArkivClient,
     sykmeldingId: String,
@@ -33,7 +30,16 @@ suspend fun handleOKOppgave(
     oppgaveId: Int,
     veileder: Veilder
 ) {
-    dokArkivClient.oppdaterOgFerdigstillJournalpost(journalpostId, receivedSykmelding.personNrPasient, sykmeldingId, receivedSykmelding.sykmelding.behandler, veileder, loggingMeta)
+
+    dokArkivClient.oppdaterOgFerdigstillJournalpost(
+        journalpostId,
+        receivedSykmelding.personNrPasient,
+        sykmeldingId,
+        receivedSykmelding.sykmelding.behandler,
+        veileder,
+        loggingMeta
+    )
+
     kafkaRecievedSykmeldingProducer.producer.send(
         ProducerRecord(
             kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic,
@@ -48,8 +54,11 @@ suspend fun handleOKOppgave(
     )
 
     notifySyfoService(
-        session = session, receiptProducer = syfoserviceProducer, ediLoggId = sykmeldingId,
-        sykmeldingId = receivedSykmelding.sykmelding.id, msgId = sykmeldingId, healthInformation = healthInformation
+        syfoserviceKafkaProducer = syfoserviceKafkaProducer,
+        ediLoggId = sykmeldingId,
+        sykmeldingId = receivedSykmelding.sykmelding.id,
+        msgId = sykmeldingId,
+        healthInformation = healthInformation
     )
     log.info("Message send to syfoService, {}", fields(loggingMeta))
 

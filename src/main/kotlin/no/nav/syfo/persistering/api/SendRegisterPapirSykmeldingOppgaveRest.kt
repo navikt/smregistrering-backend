@@ -10,8 +10,6 @@ import io.ktor.routing.put
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import java.util.UUID
-import javax.jms.MessageProducer
-import javax.jms.Session
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
@@ -42,8 +40,7 @@ import no.nav.syfo.util.toString
 fun Route.sendPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
-    session: Session,
-    syfoserviceProducer: MessageProducer,
+    syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
@@ -177,8 +174,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                             receivedSykmelding = receivedSykmelding,
                                             kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
                                             loggingMeta = loggingMeta,
-                                            session = session,
-                                            syfoserviceProducer = syfoserviceProducer,
+                                            syfoserviceKafkaProducer = syfoserviceKafkaProducer,
                                             oppgaveClient = oppgaveClient,
                                             dokArkivClient = dokArkivClient,
                                             sykmeldingId = sykmeldingId,

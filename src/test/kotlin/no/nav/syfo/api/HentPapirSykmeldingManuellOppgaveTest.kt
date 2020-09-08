@@ -26,9 +26,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
-import javax.jms.MessageProducer
-import javax.jms.Session
-import javax.jms.TextMessage
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -76,13 +73,10 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
-    private val session = mockk<Session>()
-    private val syfoserviceProducer = mockk<MessageProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val kuhrsarClient = mockk<SarClient>()
     private val aktoerIdClient = mockk<AktoerIdClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
-    private val textMessage = mockk<TextMessage>()
     private val regelClient = mockk<RegelClient>()
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
@@ -164,8 +158,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     serviceuserPassword = "password",
                     oidcWellKnownUri = "https://sts.issuer.net/myid",
                     smregistreringBackendClientId = "clientId",
-                    mqUsername = "username",
-                    mqPassword = "password",
                     smregistreringBackendClientSecret = "secret",
                     syfosmpapirregelClientId = "clientid"
                 ), jwkProvider, "https://sts.issuer.net/myid"
@@ -193,9 +185,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 }
             }
 
-            coEvery { textMessage.text = any() } returns Unit
-            coEvery { session.createTextMessage() } returns textMessage
-            coEvery { syfoserviceProducer.send(any()) } returns Unit
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
@@ -309,9 +298,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
         opprettManuellOppgaveNullPapirsm(database.connection, manuellOppgave, oppgaveid)
 
-        coEvery { textMessage.text = any() } returns Unit
-        coEvery { session.createTextMessage() } returns textMessage
-        coEvery { syfoserviceProducer.send(any()) } returns Unit
         coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
         coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
         coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
