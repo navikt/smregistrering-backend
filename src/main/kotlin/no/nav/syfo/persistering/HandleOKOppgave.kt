@@ -4,6 +4,7 @@ import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
+import no.nav.syfo.application.syfo.Veilder
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.KafkaProducers
@@ -26,15 +27,19 @@ suspend fun handleOKOppgave(
     sykmeldingId: String,
     journalpostId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet,
-    oppgaveId: Int
+    oppgaveId: Int,
+    veileder: Veilder
 ) {
+
     dokArkivClient.oppdaterOgFerdigstillJournalpost(
         journalpostId,
         receivedSykmelding.personNrPasient,
         sykmeldingId,
         receivedSykmelding.sykmelding.behandler,
+        veileder,
         loggingMeta
     )
+
     kafkaRecievedSykmeldingProducer.producer.send(
         ProducerRecord(
             kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic,
@@ -59,7 +64,7 @@ suspend fun handleOKOppgave(
 
     val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
 
-    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon)
+    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, "9999") // TODO: tildeltEnhetsnr må settes til riktig verdig
 
     val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(
@@ -69,8 +74,10 @@ suspend fun handleOKOppgave(
     )
 }
 
-fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int) = FerdigStillOppgave(
+fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int, tilordnetRessurs: String, tildeltEnhetsnr: String) = FerdigStillOppgave(
     versjon = oppgaveVersjon,
     id = oppgaveid,
-    status = OppgaveStatus.FERDIGSTILT
+    status = OppgaveStatus.FERDIGSTILT,
+    tildeltEnhetsnr = tildeltEnhetsnr,
+    tilordnetRessurs = tilordnetRessurs
 )

@@ -13,6 +13,7 @@ import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -28,7 +29,6 @@ import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
-import no.nav.syfo.util.Authorization
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
@@ -46,7 +46,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
-    authorization: Authorization
+    authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
         put("/sendPapirSykmeldingManuellOppgave") {
@@ -87,9 +87,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (authorization.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
+                        if (authorizationService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
+                            log.info("Henter sykmelder fra PDL {} ", loggingMeta)
                             val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
+
+                            log.info("Henter pasient fra PDL {} ", loggingMeta)
                             val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
 
                             if (pasient.fnr == null) {
@@ -163,6 +166,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             when (validationResult.status) {
                                 Status.OK -> {
+
+                                    val veileder = authorizationService.getVeileder(accessToken)
+
                                     if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                                         handleOKOppgave(
                                             receivedSykmelding = receivedSykmelding,
@@ -174,7 +180,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                             sykmeldingId = sykmeldingId,
                                             journalpostId = journalpostId,
                                             healthInformation = healthInformation,
-                                            oppgaveId = oppgaveId
+                                            oppgaveId = oppgaveId,
+                                            veileder = veileder
                                         )
                                         call.respond(HttpStatusCode.NoContent)
                                     } else {

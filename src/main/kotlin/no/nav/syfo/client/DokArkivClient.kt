@@ -13,6 +13,7 @@ import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import net.logstash.logback.argument.StructuredArguments.fields
+import no.nav.syfo.application.syfo.Veilder
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 import no.nav.syfo.model.Behandler
@@ -30,10 +31,11 @@ class DokArkivClient(
         fnr: String,
         sykmeldingId: String,
         behandler: Behandler,
+        veileder: Veilder,
         loggingMeta: LoggingMeta
     ): String? {
         oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, behandler = behandler, msgId = sykmeldingId, loggingMeta = loggingMeta)
-        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, veileder = veileder, loggingMeta = loggingMeta)
     }
 
     suspend fun oppdaterJournalpost(
@@ -88,6 +90,7 @@ class DokArkivClient(
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         msgId: String,
+        veileder: Veilder,
         loggingMeta: LoggingMeta
     ): String? = retry("ferdigstill_journalpost") {
         val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
@@ -96,7 +99,7 @@ class DokArkivClient(
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
-            body = FerdigstillJournal("9999")
+            body = FerdigstillJournal("9999") // TODO: journalfoerendeEnhet må fylles ut når vi har den
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
             log.error("Dokakriv svarte med feilmelding ved ferdigstilling av journalpost for msgId {}, {}", msgId, fields(loggingMeta))

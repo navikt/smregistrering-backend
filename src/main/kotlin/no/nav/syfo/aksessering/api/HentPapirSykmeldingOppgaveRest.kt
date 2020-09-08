@@ -8,18 +8,18 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.util.Authorization
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 @KtorExperimentalAPI
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    authorization: Authorization
+    authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
         get("/hentPapirSykmeldingManuellOppgave") {
@@ -62,7 +62,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
-                        if (authorization.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!)) {
+
+                        if (authorizationService.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!)) {
                             if (pdfPapirSykmelding == null) {
                                 call.respond(HttpStatusCode.InternalServerError)
                             } else {

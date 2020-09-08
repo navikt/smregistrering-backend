@@ -22,8 +22,8 @@ class PdlPersonService(private val pdlClient: PdlClient, private val stsOidcClie
             }
         }
         if (pdlResponse.data.hentPerson == null) {
-            log.error("Fant ikke person i PDL {}", callId)
-            throw PersonNotFoundInPdl("Fant ikke person i PDL")
+            log.error("Klarte ikke hente ut person fra PDL {}", callId)
+            throw PersonNotFoundInPdl("Klarte ikke hente ut person fra PDL")
         }
         if (pdlResponse.data.hentPerson.navn.isNullOrEmpty()) {
             log.error("Fant ikke navn på person i PDL {}", callId)

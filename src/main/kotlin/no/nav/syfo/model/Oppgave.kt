@@ -22,7 +22,10 @@ data class OpprettOppgave(
 data class FerdigStillOppgave(
     val versjon: Int,
     val id: Int,
-    val status: OppgaveStatus
+    val status: OppgaveStatus,
+    val tilordnetRessurs: String,
+    val tildeltEnhetsnr: String
+
 )
 
 data class OpprettOppgaveResponse(
