@@ -2,7 +2,7 @@ package no.nav.syfo.service
 
 import no.nav.syfo.application.syfo.error.IdentNotFoundException
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
-import no.nav.syfo.client.Veilder
+import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 
 class AuthorizationService(
@@ -17,7 +17,7 @@ class AuthorizationService(
 
         return harTilgangTilOppgave != null && harTilgangTilOppgave
     }
-    suspend fun getVeileder(accessToken: String): Veilder {
+    suspend fun getVeileder(accessToken: String): Veileder {
         val veilder = syfoTilgangsKontrollClient.hentVeilderIdentViaAzure(accessToken)
         if (veilder == null) {
             log.error("Klarte ikke hente ut veilederident fra syfo-tilgangskontroll")

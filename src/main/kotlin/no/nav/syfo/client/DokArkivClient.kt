@@ -30,7 +30,7 @@ class DokArkivClient(
         fnr: String,
         sykmeldingId: String,
         behandler: Behandler,
-        veileder: Veilder,
+        veileder: Veileder,
         loggingMeta: LoggingMeta
     ): String? {
         oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, behandler = behandler, msgId = sykmeldingId, loggingMeta = loggingMeta)
@@ -89,7 +89,7 @@ class DokArkivClient(
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         msgId: String,
-        veileder: Veilder,
+        veileder: Veileder,
         loggingMeta: LoggingMeta
     ): String? = retry("ferdigstill_journalpost") {
         val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {

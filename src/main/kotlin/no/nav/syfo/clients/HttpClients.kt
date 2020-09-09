@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.apache.Apache
@@ -13,6 +15,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
+import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.client.AccessTokenClient
@@ -23,6 +26,8 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.client.Tilgang
+import no.nav.syfo.client.Veileder
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.service.PdlPersonService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
@@ -45,7 +50,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         expectSuccess = false
     }
 
-    val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+    private val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         config()
         engine {
             customizeClient {
@@ -75,22 +80,35 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     @KtorExperimentalAPI
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
 
+    private val aadCache: Cache<Map<String, String>, String> = Caffeine.newBuilder()
+        .expireAfterWrite(50, TimeUnit.MINUTES)
+        .maximumSize(100)
+        .build<Map<String, String>, String>()
     @KtorExperimentalAPI
     val accessTokenClient = AccessTokenClient(
         env.aadAccessTokenUrl,
         vaultSecrets.smregistreringBackendClientId,
         vaultSecrets.smregistreringBackendClientSecret,
-        httpClientWithProxy
+        httpClientWithProxy,
+        aadCache
     )
 
     @KtorExperimentalAPI
     val regelClient =
         RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
 
+    private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(100)
+        .build<Map<String, String>, Tilgang>()
+    private val veilederCache: Cache<String, Veileder> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(100)
+        .build<String, Veileder>()
     @KtorExperimentalAPI
-    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, accessTokenClient, env.scopeSyfotilgangskontroll, httpClient)
+    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, accessTokenClient, env.scopeSyfotilgangskontroll, httpClient, syfoTilgangskontrollCache, veilederCache)
 
-    val pdlClient = PdlClient(httpClient,
+    private val pdlClient = PdlClient(httpClient,
         env.pdlGraphqlPath,
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
 

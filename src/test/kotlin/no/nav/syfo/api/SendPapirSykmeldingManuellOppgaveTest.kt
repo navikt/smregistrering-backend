@@ -38,7 +38,7 @@ import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veilder
+import no.nav.syfo.client.Veileder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -148,7 +148,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             )
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veilder("U1337")
+            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -369,7 +369,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 null
             )
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veilder("U1337")
+            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
