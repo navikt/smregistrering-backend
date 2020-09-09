@@ -28,7 +28,8 @@ suspend fun handleOKOppgave(
     journalpostId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet,
     oppgaveId: Int,
-    veileder: Veilder
+    veileder: Veilder,
+    navEnhet: String
 ) {
 
     dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -37,7 +38,8 @@ suspend fun handleOKOppgave(
         sykmeldingId,
         receivedSykmelding.sykmelding.behandler,
         veileder,
-        loggingMeta
+        loggingMeta,
+        navEnhet
     )
 
     kafkaRecievedSykmeldingProducer.producer.send(
@@ -64,7 +66,7 @@ suspend fun handleOKOppgave(
 
     val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
 
-    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, "9999") // TODO: tildeltEnhetsnr må settes til riktig verdig
+    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
 
     val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
     log.info(

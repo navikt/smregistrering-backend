@@ -287,7 +287,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -311,6 +311,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
+                addHeader("X-Nav-Enhet", "1234")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 setBody(objectMapper.writeValueAsString(smRegisteringManuell))
             }) {
@@ -455,7 +456,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -475,10 +476,20 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
+                addHeader("X-Nav-Enhet", "1234")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 setBody(objectMapper.writeValueAsString(smRegisteringManuell))
             }) {
                 response.status() shouldEqual HttpStatusCode.NoContent
+            }
+
+            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+                addHeader("Accept", "application/json")
+                addHeader("Content-Type", "application/json")
+                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+            }) {
+                response.status() shouldEqual HttpStatusCode.BadRequest
             }
         }
     }

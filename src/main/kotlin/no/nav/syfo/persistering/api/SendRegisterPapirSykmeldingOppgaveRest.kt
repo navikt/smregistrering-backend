@@ -60,17 +60,22 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val userToken = call.request.headers[HttpHeaders.Authorization]!!
             val callId = UUID.randomUUID().toString()
+            val navEnhet = call.request.headers["X-Nav-Enhet"]
 
             val smRegisteringManuell: SmRegisteringManuell = call.receive()
 
             when {
                 oppgaveId == null -> {
-                    log.warn("Mangler oppgaveid queryParameters")
-                    call.respond(HttpStatusCode.BadRequest)
+                    log.error("Mangler oppgaveid queryParameters")
+                    call.respond(HttpStatusCode.BadRequest, "Mangler oppgaveid queryParameters")
                 }
                 accessToken == null -> {
-                    log.warn("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.BadRequest)
+                    log.error("Mangler JWT Bearer token i HTTP header")
+                    call.respond(HttpStatusCode.BadRequest, "Mangler JWT Bearer token i HTTP header")
+                }
+                navEnhet == null -> {
+                    log.error("Mangler X-Nav-Enhet i http header")
+                    call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
@@ -181,7 +186,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                             journalpostId = journalpostId,
                                             healthInformation = healthInformation,
                                             oppgaveId = oppgaveId,
-                                            veileder = veileder
+                                            veileder = veileder,
+                                            navEnhet = navEnhet
                                         )
                                         call.respond(HttpStatusCode.NoContent)
                                     } else {
