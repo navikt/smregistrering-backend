@@ -31,10 +31,11 @@ class DokArkivClient(
         sykmeldingId: String,
         behandler: Behandler,
         veileder: Veileder,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
+        navEnhet: String
     ): String? {
         oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, behandler = behandler, msgId = sykmeldingId, loggingMeta = loggingMeta)
-        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, veileder = veileder, loggingMeta = loggingMeta)
+        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, veileder = veileder, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
     suspend fun oppdaterJournalpost(
@@ -90,7 +91,8 @@ class DokArkivClient(
         journalpostId: String,
         msgId: String,
         veileder: Veileder,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
+        navEnhet: String
     ): String? = retry("ferdigstill_journalpost") {
         val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
             contentType(ContentType.Application.Json)
@@ -98,7 +100,7 @@ class DokArkivClient(
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
-            body = FerdigstillJournal("9999") // TODO: journalfoerendeEnhet må fylles ut når vi har den
+            body = FerdigstillJournal(navEnhet)
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
             log.error("Dokakriv svarte med feilmelding ved ferdigstilling av journalpost for msgId {}, {}", msgId, fields(loggingMeta))
