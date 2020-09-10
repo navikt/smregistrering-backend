@@ -26,7 +26,6 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
-import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -37,6 +36,7 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 
 @KtorExperimentalAPI

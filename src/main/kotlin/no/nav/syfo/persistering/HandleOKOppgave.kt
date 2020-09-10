@@ -4,9 +4,9 @@ import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
-import no.nav.syfo.application.syfo.Veilder
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.client.Veileder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigStillOppgave
@@ -28,7 +28,7 @@ suspend fun handleOKOppgave(
     journalpostId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet,
     oppgaveId: Int,
-    veileder: Veilder
+    veileder: Veileder
 ) {
 
     dokArkivClient.oppdaterOgFerdigstillJournalpost(

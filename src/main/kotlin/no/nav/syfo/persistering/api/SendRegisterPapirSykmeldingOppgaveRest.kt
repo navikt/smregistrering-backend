@@ -13,7 +13,6 @@ import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.application.syfo.AuthorizationService
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -26,6 +25,7 @@ import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
+import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
