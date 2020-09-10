@@ -1,5 +1,6 @@
 package no.nav.syfo.client
 
+import com.github.benmanes.caffeine.cache.Cache
 import io.ktor.client.HttpClient
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.FormDataContent
@@ -17,7 +18,8 @@ class AccessTokenClient(
     private val aadAccessTokenUrl: String,
     private val clientId: String,
     private val clientSecret: String,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val aadCache: Cache<Map<String, String>, String>
 ) {
     private val mutex = Mutex()
 
@@ -49,7 +51,11 @@ class AccessTokenClient(
     }
 
     suspend fun hentOnBehalfOfTokenForInnloggetBruker(accessToken: String, scope: String): String {
-        log.info("Henter OBO-token fra Azure AD") // juster til debug, legg til caching
+        aadCache.getIfPresent(mapOf(Pair(accessToken, scope)))?.let {
+            log.debug("traff cache for AAD")
+            return it
+        }
+        log.info("Henter OBO-token fra Azure AD")
         val response: AadAccessToken = httpClient.post(aadAccessTokenUrl) {
             accept(ContentType.Application.Json)
             method = HttpMethod.Post
@@ -64,6 +70,8 @@ class AccessTokenClient(
             })
         }
         log.info("Har hentet OBO-accesstoken")
-        return response.access_token
+        val oboToken = response.access_token
+        aadCache.put(mapOf(Pair(accessToken, scope)), oboToken)
+        return oboToken
     }
 }
