@@ -21,7 +21,7 @@ class SyfoTilgangsKontrollClient(
 ) {
     suspend fun sjekkVeiledersTilgangTilPersonViaAzure(accessToken: String, personFnr: String): Tilgang? {
         syfoTilgangskontrollCache.getIfPresent(mapOf(Pair(accessToken, personFnr)))?.let {
-            log.info("Traff cache for syfotilgangskontroll")
+            log.debug("Traff cache for syfotilgangskontroll")
             return it
         }
         val oboToken = accessTokenClient.hentOnBehalfOfTokenForInnloggetBruker(accessToken = accessToken, scope = scopeSyfotilgangskontroll)
@@ -61,7 +61,7 @@ class SyfoTilgangsKontrollClient(
                 )
             }
             HttpStatusCode.OK -> {
-                log.info("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med ok")
+                log.debug("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med ok")
                 log.info("Sjekker tilgang for veileder på person")
                 val tilgang = httpResponse.call.response.receive<Tilgang>()
                 syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
@@ -74,7 +74,7 @@ class SyfoTilgangsKontrollClient(
 
     suspend fun hentVeilderIdentViaAzure(accessToken: String): Veileder? {
         veilederCache.getIfPresent(accessToken)?.let {
-            log.info("Traff cache for syfotilgangskontroll")
+            log.debug("Traff cache for syfotilgangskontroll")
             return it
         }
         val oboToken = accessTokenClient.hentOnBehalfOfTokenForInnloggetBruker(accessToken = accessToken, scope = scopeSyfotilgangskontroll)
@@ -102,7 +102,7 @@ class SyfoTilgangsKontrollClient(
                 return null
             }
             HttpStatusCode.OK -> {
-                log.info("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med ok")
+                log.debug("syfo-tilgangskontroll hentVeilderIdentViaAzure svarer med ok")
                 log.info("Henter veilederident")
                 val veileder = httpResponse.call.response.receive<Veileder>()
                 veilederCache.put(accessToken, veileder)

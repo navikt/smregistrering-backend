@@ -52,7 +52,7 @@ class AccessTokenClient(
 
     suspend fun hentOnBehalfOfTokenForInnloggetBruker(accessToken: String, scope: String): String {
         aadCache.getIfPresent(mapOf(Pair(accessToken, scope)))?.let {
-            log.info("traff cache for AAD")
+            log.debug("traff cache for AAD")
             return it
         }
         log.info("Henter OBO-token fra Azure AD")
