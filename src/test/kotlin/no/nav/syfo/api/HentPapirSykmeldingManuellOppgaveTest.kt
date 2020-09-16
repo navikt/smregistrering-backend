@@ -228,7 +228,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")

@@ -22,9 +22,9 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
-        get("/hentPapirSykmeldingManuellOppgave") {
+        get("/hentPapirSykmeldingManuellOppgave/{oppgaveid}") {
             log.info("Mottok kall til /api/v1/hentPapirSykmeldingManuellOppgave")
-            val oppgaveId = call.request.queryParameters["oppgaveid"]?.toIntOrNull()
+            val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
             val accessToken = getAccessTokenFromAuthHeader(call.request)
 
             when {
@@ -33,7 +33,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 oppgaveId == null -> {
-                    log.info("Ugyldig query parameters: oppgaveid")
+                    log.info("Ugyldig path parameter: oppgaveid")
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {
