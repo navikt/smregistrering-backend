@@ -49,8 +49,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
-        put("/sendPapirSykmeldingManuellOppgave") {
-            val oppgaveId = call.request.queryParameters["oppgaveid"]?.toInt()
+        put("/sendPapirSykmeldingManuellOppgave/{oppgaveid}") {
+            val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
 
             log.info(
                 "Mottok eit kall til /api/v1/sendPapirSykmeldingManuellOppgave med {}",
@@ -66,8 +66,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
             when {
                 oppgaveId == null -> {
-                    log.error("Mangler oppgaveid queryParameters")
-                    call.respond(HttpStatusCode.BadRequest, "Mangler oppgaveid queryParameters")
+                    log.error("Path parameter mangler eller er feil formattert: oppgaveid")
+                    call.respond(HttpStatusCode.BadRequest, "Path parameter mangler eller er feil formattert: oppgaveid")
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
