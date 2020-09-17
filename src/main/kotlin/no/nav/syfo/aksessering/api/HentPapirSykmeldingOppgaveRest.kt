@@ -22,18 +22,20 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
-        get("/hentPapirSykmeldingManuellOppgave") {
-            log.info("Mottok kall til /api/v1/hentPapirSykmeldingManuellOppgave")
-            val oppgaveId = call.request.queryParameters["oppgaveid"]?.toIntOrNull()
+        get("/oppgave/{oppgaveid}") {
+            val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
+
+            log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
+
             val accessToken = getAccessTokenFromAuthHeader(call.request)
 
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.BadRequest)
+                    call.respond(HttpStatusCode.Unauthorized)
                 }
                 oppgaveId == null -> {
-                    log.info("Ugyldig query parameters: oppgaveid")
+                    log.info("Ugyldig path parameter: oppgaveid")
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {

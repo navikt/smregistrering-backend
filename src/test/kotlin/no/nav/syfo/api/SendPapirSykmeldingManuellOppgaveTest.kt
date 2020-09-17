@@ -308,7 +308,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
-            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader("X-Nav-Enhet", "1234")
@@ -473,7 +473,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
-            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader("X-Nav-Enhet", "1234")
@@ -483,7 +483,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldEqual HttpStatusCode.NoContent
             }
 
-            with(handleRequest(HttpMethod.Put, "/api/v1/sendPapirSykmeldingManuellOppgave/?oppgaveid=$oppgaveid") {
+            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
