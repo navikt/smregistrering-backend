@@ -84,7 +84,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
 
     @Test
-    internal fun `Hent papirsykmelding`() {
+    internal fun `Hent oppgave`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -236,6 +236,13 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldEqual HttpStatusCode.OK
                 response.content?.contains("\"aktorId\":\"1314\"") shouldEqual true
                 response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldEqual true
+            }
+
+            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
+                addHeader("Accept", "application/json")
+                addHeader("Content-Type", "application/json")
+            }) {
+                response.status() shouldEqual HttpStatusCode.Unauthorized
             }
         }
     }
