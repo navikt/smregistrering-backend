@@ -22,9 +22,11 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
-        get("/hentPapirSykmeldingManuellOppgave/{oppgaveid}") {
-            log.info("Mottok kall til /api/v1/hentPapirSykmeldingManuellOppgave")
+        get("/oppgave/{oppgaveid}") {
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
+
+            log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
+
             val accessToken = getAccessTokenFromAuthHeader(call.request)
 
             when {

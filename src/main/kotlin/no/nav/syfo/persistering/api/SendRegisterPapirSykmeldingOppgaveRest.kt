@@ -6,7 +6,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.put
+import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import java.util.UUID
@@ -49,13 +49,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
-        put("/sendPapirSykmeldingManuellOppgave/{oppgaveid}") {
+        post("/oppgave/{oppgaveid}/send") {
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
 
-            log.info(
-                "Mottok eit kall til /api/v1/sendPapirSykmeldingManuellOppgave med {}",
-                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-            )
+            log.info("Mottok kall til POST /api/v1/oppgave/$oppgaveId/send")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val userToken = call.request.headers[HttpHeaders.Authorization]!!
@@ -67,11 +64,14 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             when {
                 oppgaveId == null -> {
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
-                    call.respond(HttpStatusCode.BadRequest, "Path parameter mangler eller er feil formattert: oppgaveid")
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                    )
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.BadRequest, "Mangler JWT Bearer token i HTTP header")
+                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
                 }
                 navEnhet == null -> {
                     log.error("Mangler X-Nav-Enhet i http header")
@@ -95,10 +95,18 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         if (authorizationService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
                             log.info("Henter sykmelder fra PDL {} ", loggingMeta)
-                            val sykmelder = pdlService.getPdlPerson(fnr = smRegisteringManuell.sykmelderFnr, userToken = userToken, callId = callId)
+                            val sykmelder = pdlService.getPdlPerson(
+                                fnr = smRegisteringManuell.sykmelderFnr,
+                                userToken = userToken,
+                                callId = callId
+                            )
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)
-                            val pasient = pdlService.getPdlPerson(fnr = smRegisteringManuell.pasientFnr, userToken = userToken, callId = callId)
+                            val pasient = pdlService.getPdlPerson(
+                                fnr = smRegisteringManuell.pasientFnr,
+                                userToken = userToken,
+                                callId = callId
+                            )
 
                             if (pasient.fnr == null) {
                                 log.error("Pasientens fnr finnes ikke i PDL")

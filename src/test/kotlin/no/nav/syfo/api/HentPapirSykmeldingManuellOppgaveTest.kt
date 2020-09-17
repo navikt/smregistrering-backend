@@ -228,7 +228,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
+            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
@@ -238,7 +238,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldEqual true
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
+            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
             }) {

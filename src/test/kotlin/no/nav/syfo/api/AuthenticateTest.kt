@@ -157,7 +157,7 @@ internal class AuthenticateTest {
                 }
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
+            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
             }) {
                 response.status() shouldEqual HttpStatusCode.OK
@@ -263,7 +263,7 @@ internal class AuthenticateTest {
                 }
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/hentPapirSykmeldingManuellOppgave/$oppgaveid") {
+            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
             }) {
                 response.status() shouldEqual HttpStatusCode.Unauthorized
