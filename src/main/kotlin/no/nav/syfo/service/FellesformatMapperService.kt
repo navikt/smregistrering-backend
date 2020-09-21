@@ -117,7 +117,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
                             syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
-                                navn = NavnType().apply { // TODO: Denne må fylles ut. Hentes fra PLD?
+                                navn = NavnType().apply {
                                     fornavn = pdlPasient.navn.fornavn
                                     mellomnavn = pdlPasient.navn.mellomnavn
                                     etternavn = pdlPasient.navn.etternavn
