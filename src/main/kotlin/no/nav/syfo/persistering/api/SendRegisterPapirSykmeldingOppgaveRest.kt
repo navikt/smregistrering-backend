@@ -23,6 +23,7 @@ import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
+import no.nav.syfo.model.WhitelistedRuleHits
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.AuthorizationService
@@ -207,11 +208,47 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     }
                                 }
                                 Status.MANUAL_PROCESSING -> {
-                                    log.info(
-                                        "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
-                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                    )
-                                    call.respond(HttpStatusCode.BadRequest, validationResult)
+
+                                    // Sjekk om reglene som slo til er hvitelistet i WhitelistedRuleHits
+                                    val allRulesWhitelisted = validationResult.ruleHits.all { (ruleName) ->
+                                        val isWhiteListed = enumValues<WhitelistedRuleHits>().any { enumValue ->
+                                            enumValue.name == ruleName
+                                        }
+                                        isWhiteListed
+                                    }
+
+                                    if (allRulesWhitelisted) {
+                                        val veileder = authorizationService.getVeileder(accessToken)
+
+                                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                                            handleOKOppgave(
+                                                receivedSykmelding = receivedSykmelding,
+                                                kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                                loggingMeta = loggingMeta,
+                                                syfoserviceKafkaProducer = syfoserviceKafkaProducer,
+                                                oppgaveClient = oppgaveClient,
+                                                dokArkivClient = dokArkivClient,
+                                                sykmeldingId = sykmeldingId,
+                                                journalpostId = journalpostId,
+                                                healthInformation = healthInformation,
+                                                oppgaveId = oppgaveId,
+                                                veileder = veileder,
+                                                navEnhet = navEnhet
+                                            )
+                                            call.respond(HttpStatusCode.NoContent)
+                                        } else {
+                                            log.error(
+                                                "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                            )
+                                            call.respond(HttpStatusCode.InternalServerError)
+                                        }
+                                    } else {
+                                        log.info(
+                                            "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                        )
+                                        call.respond(HttpStatusCode.BadRequest, validationResult) }
                                 }
                                 else -> {
                                     log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
