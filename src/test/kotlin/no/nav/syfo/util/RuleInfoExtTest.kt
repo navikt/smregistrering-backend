@@ -2,35 +2,35 @@ package no.nav.syfo.util
 
 import no.nav.syfo.model.RuleInfo
 import no.nav.syfo.model.Status
-import no.nav.syfo.model.WhitelistedRuleHits
+import no.nav.syfo.model.WhitelistedRuleHit
 import org.amshove.kluent.shouldBe
 import org.junit.Test
 
-internal class WhitelistUtilsTest {
+internal class RuleInfoExtTest {
     @Test
     internal fun `Returnerer true hvis alle regler finnes i WhitelistedRuleHits`() {
         val ruleHits: List<RuleInfo> = listOf(
             RuleInfo(
                 messageForSender = "",
                 messageForUser = "",
-                ruleName = WhitelistedRuleHits.TILBAKEDATERT_INNTIL_8_DAGER_UTEN_KONTAKTDATO_OG_BEGRUNNELSE.toString(),
+                ruleName = WhitelistedRuleHit.TILBAKEDATERT_INNTIL_8_DAGER_UTEN_KONTAKTDATO_OG_BEGRUNNELSE.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
             ),
             RuleInfo(
                 messageForSender = "",
                 messageForUser = "",
-                ruleName = WhitelistedRuleHits.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING.toString(),
+                ruleName = WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
             ),
             RuleInfo(
                 messageForSender = "",
                 messageForUser = "",
-                ruleName = WhitelistedRuleHits.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
+                ruleName = WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
             )
         )
 
-        allRulesWhitelisted(ruleHits) shouldBe true
+        ruleHits.isAllRulesWhitelisted() shouldBe true
     }
 
     @Test
@@ -45,17 +45,17 @@ internal class WhitelistUtilsTest {
             RuleInfo(
                 messageForSender = "",
                 messageForUser = "",
-                ruleName = WhitelistedRuleHits.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING.toString(),
+                ruleName = WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
             ),
             RuleInfo(
                 messageForSender = "",
                 messageForUser = "",
-                ruleName = WhitelistedRuleHits.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
+                ruleName = WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
             )
         )
 
-        allRulesWhitelisted(ruleHits) shouldBe false
+        ruleHits.isAllRulesWhitelisted() shouldBe false
     }
 }

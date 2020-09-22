@@ -30,11 +30,11 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.allRulesWhitelisted
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.isAllRulesWhitelisted
 import no.nav.syfo.util.toString
 
 @KtorExperimentalAPI
@@ -210,7 +210,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 Status.MANUAL_PROCESSING -> {
 
                                     // Sjekk om reglene som slo til er hvitelistet i WhitelistedRuleHits
-                                    if (allRulesWhitelisted(validationResult.ruleHits)) {
+                                    if (validationResult.ruleHits.isAllRulesWhitelisted()) {
                                         val veileder = authorizationService.getVeileder(accessToken)
 
                                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
