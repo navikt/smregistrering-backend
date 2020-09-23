@@ -261,16 +261,12 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
             null
         }
 
-        behandlingsdager = if (periode.behandlingsdager != null) {
+        behandlingsdager = periode.behandlingsdager?.let { behandlingsdager ->
             HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
-                behandlingsdager = HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.Behandlingsdager().apply {
-                    periode
-                }
-                antallBehandlingsdagerUke = behandlingsdager.antallBehandlingsdagerUke
+                antallBehandlingsdagerUke = behandlingsdager
             }
-        } else {
-            null
         }
+
         isReisetilskudd = periode.reisetilskudd
     }
 
