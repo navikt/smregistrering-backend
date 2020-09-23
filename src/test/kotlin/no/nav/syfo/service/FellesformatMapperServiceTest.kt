@@ -58,7 +58,7 @@ internal class FellesformatMapperServiceTest {
                         arbeidsrelatertArsak = null
                     ),
                     avventendeInnspillTilArbeidsgiver = null,
-                    behandlingsdager = null,
+                    behandlingsdager = 10,
                     gradert = null,
                     reisetilskudd = false
                 )
@@ -137,6 +137,8 @@ internal class FellesformatMapperServiceTest {
             fellesformat = objectMapper.writeValueAsString(fellesformat),
             tssid = null
         )
+
+        receivedSykmelding.sykmelding.perioder.first().behandlingsdager shouldEqual 10
 
         receivedSykmelding.personNrPasient shouldEqual fnrPasient
         receivedSykmelding.personNrLege shouldEqual fnrLege
