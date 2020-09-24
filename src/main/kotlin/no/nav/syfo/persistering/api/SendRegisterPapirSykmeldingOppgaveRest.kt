@@ -128,7 +128,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
                                 smRegisteringManuell = smRegisteringManuell,
                                 pdlPasient = pasient,
-                                sykmelderFnr = sykmelder.fnr!!,
                                 pdlSykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,
                                 datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
@@ -140,7 +139,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
                                 pasientAktoerId = pasient.fnr!!,
-                                legeAktoerId = sykmelder.fnr,
+                                legeAktoerId = sykmelder.fnr!!,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )
