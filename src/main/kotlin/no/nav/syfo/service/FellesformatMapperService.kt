@@ -35,7 +35,6 @@ import no.nav.syfo.pdl.model.PdlPerson
 fun mapsmRegisteringManuelltTilFellesformat(
     smRegisteringManuell: SmRegisteringManuell,
     pdlPasient: PdlPerson,
-    sykmelderFnr: String,
     pdlSykmelder: PdlPerson,
     sykmeldingId: String,
     datoOpprettet: LocalDateTime?
@@ -61,13 +60,14 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     organisation = XMLOrganisation().apply {
                         healthcareProfessional = XMLHealthcareProfessional().apply {
-                            givenName = ""
-                            middleName = ""
-                            familyName = ""
+                            // Jeg er usikker på om disse brukes.
+                            givenName = pdlSykmelder.navn.fornavn
+                            middleName = pdlSykmelder.navn.mellomnavn
+                            familyName = pdlSykmelder.navn.etternavn
                             ident.addAll(
                                 listOf(
                                     XMLIdent().apply {
-                                        id = sykmelderFnr
+                                        id = pdlSykmelder.fnr
                                         typeId = XMLCV().apply {
                                             dn = "Fødselsnummer"
                                             s = "2.16.578.1.12.4.1.1.8327"
@@ -165,7 +165,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                 begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
-                            behandler = tilBehandler(sykmelderFnr, pdlSykmelder)
+                            behandler = tilBehandler(pdlSykmelder.fnr!!, pdlSykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"

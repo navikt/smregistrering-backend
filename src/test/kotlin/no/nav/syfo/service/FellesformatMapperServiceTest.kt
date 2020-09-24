@@ -102,9 +102,8 @@ internal class FellesformatMapperServiceTest {
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
-            sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             pdlSykmelder = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")
+                IdentInformasjon(smRegisteringManuellt.sykmelderFnr, false, "FOLKEREGISTERIDENT")
             )),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
@@ -243,9 +242,8 @@ internal class FellesformatMapperServiceTest {
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
-            sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
             pdlSykmelder = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon("12345", false, "FOLKEREGISTERIDENT")
+                IdentInformasjon(smRegisteringManuellt.sykmelderFnr, false, "FOLKEREGISTERIDENT")
             )),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
