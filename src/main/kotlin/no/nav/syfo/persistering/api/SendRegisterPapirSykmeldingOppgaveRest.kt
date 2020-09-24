@@ -109,8 +109,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 callId = callId
                             )
 
-                            if (pasient.fnr == null) {
-                                log.error("Pasientens fnr finnes ikke i PDL")
+                            if (pasient.fnr == null || pasient.aktorId == null) {
+                                log.error("Pasientens altørId eller fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
                             if (sykmelder.aktorId == null || sykmelder.fnr == null) {
@@ -138,8 +138,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
-                                pasientAktoerId = pasient.fnr!!,
-                                legeAktoerId = sykmelder.fnr!!,
+                                pasientAktoerId = pasient.aktorId!!,
+                                legeAktoerId = sykmelder.aktorId!!,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )
