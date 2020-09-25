@@ -20,6 +20,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.client.AccessTokenClient
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SafDokumentClient
@@ -114,4 +115,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     @KtorExperimentalAPI
     val pdlService = PdlPersonService(pdlClient, oidcClient)
+
+    @KtorExperimentalAPI
+    val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
 }

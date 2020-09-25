@@ -27,6 +27,7 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.SykmelderService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.util.LoggingMeta
@@ -47,6 +48,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
+    sykmelderService: SykmelderService,
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
@@ -95,11 +97,20 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         if (authorizationService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
 
-                            log.info("Henter sykmelder fra PDL {} ", loggingMeta)
-                            val sykmelder = pdlService.getPdlPerson(
-                                fnr = smRegisteringManuell.sykmelderFnr,
-                                userToken = userToken,
-                                callId = callId
+                            val sykmelderHpr = smRegisteringManuell.behandler.hpr
+
+                            if (sykmelderHpr.isNullOrEmpty()) {
+                                log.error("HPR-nummer mangler {}", loggingMeta)
+                                call.respond(HttpStatusCode.BadRequest, "Mangler HPR-nummer for behandler")
+                            }
+
+                            log.info("Henter sykmelder fra HPR og PDL")
+                            val sykmelder = sykmelderService.hentSykmelder(
+                                sykmelderHpr!!,
+                                sykmeldingId,
+                                userToken,
+                                callId,
+                                loggingMeta
                             )
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)
@@ -113,10 +124,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 log.error("Pasientens altørId eller fnr finnes ikke i PDL")
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
-                            if (sykmelder.aktorId == null || sykmelder.fnr == null) {
-                                log.error("Sykmelders aktørId eller fnr finnes ikke i PDL")
-                                call.respond(HttpStatusCode.InternalServerError)
-                            }
 
                             val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuell.sykmelderFnr)
                             val samhandlerPraksisMatch = findBestSamhandlerPraksis(
@@ -128,7 +135,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val fellesformat = mapsmRegisteringManuelltTilFellesformat(
                                 smRegisteringManuell = smRegisteringManuell,
                                 pdlPasient = pasient,
-                                pdlSykmelder = sykmelder,
+                                sykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,
                                 datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )
@@ -139,7 +146,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val sykmelding = healthInformation.toSykmelding(
                                 sykmeldingId = sykmeldingId,
                                 pasientAktoerId = pasient.aktorId!!,
-                                legeAktoerId = sykmelder.aktorId!!,
+                                legeAktoerId = sykmelder.aktorId,
                                 msgId = sykmeldingId,
                                 signaturDato = msgHead.msgInfo.genDate
                             )

@@ -53,7 +53,7 @@ class DokArkivClient(
             header("Nav-Callid", msgId)
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                    id = hprnummerMedRiktigLengde(behandler?.hpr),
+                    id = hprnummerMedRiktigLengde(behandler.hpr),
                     navn = finnNavn(behandler)
                 ),
                 bruker = Bruker(id = fnr),
@@ -90,7 +90,7 @@ class DokArkivClient(
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         msgId: String,
-        veileder: Veileder,
+        veileder: Veileder, // TODO: Denne bør brukes? Hvor gjør vi det?
         loggingMeta: LoggingMeta,
         navEnhet: String
     ): String? = retry("ferdigstill_journalpost") {

@@ -80,3 +80,5 @@ spec:
       value: https://pdl-api.nais.preprod.local/graphql
     - name: SYFOTILGANGSKONTROLL_SCOPE
       value: 32e36aa5-1d12-452a-9b1e-9f3f557cbb4d
+    - name: HELSENETTPROXY_ID
+      value: c18eba24-f676-47db-9a97-3c66e9304aee
