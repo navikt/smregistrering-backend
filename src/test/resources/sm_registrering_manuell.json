@@ -33,7 +33,7 @@
     "etternavn": "Person",
     "aktoerId": "143242345",
     "fnr": "123",
-    "hpr": null,
+    "hpr": "hpr",
     "her": null,
     "tlf": "12345",
     "adresse": {

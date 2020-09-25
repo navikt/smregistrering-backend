@@ -30,12 +30,13 @@ import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.model.PdlPerson
 
 fun mapsmRegisteringManuelltTilFellesformat(
     smRegisteringManuell: SmRegisteringManuell,
     pdlPasient: PdlPerson,
-    pdlSykmelder: PdlPerson,
+    sykmelder: Sykmelder,
     sykmeldingId: String,
     datoOpprettet: LocalDateTime?
 ): XMLEIFellesformat {
@@ -61,13 +62,13 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     organisation = XMLOrganisation().apply {
                         healthcareProfessional = XMLHealthcareProfessional().apply {
                             // Jeg er usikker på om disse brukes.
-                            givenName = pdlSykmelder.navn.fornavn
-                            middleName = pdlSykmelder.navn.mellomnavn
-                            familyName = pdlSykmelder.navn.etternavn
+                            givenName = sykmelder.fornavn
+                            middleName = sykmelder.mellomnavn
+                            familyName = sykmelder.etternavn
                             ident.addAll(
                                 listOf(
                                     XMLIdent().apply {
-                                        id = pdlSykmelder.fnr
+                                        id = sykmelder.fnr
                                         typeId = XMLCV().apply {
                                             dn = "Fødselsnummer"
                                             s = "2.16.578.1.12.4.1.1.8327"
@@ -165,7 +166,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                 begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
-                            behandler = tilBehandler(pdlSykmelder.fnr!!, pdlSykmelder)
+                            behandler = tilBehandler(sykmelder.fnr, sykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"
@@ -179,12 +180,12 @@ fun mapsmRegisteringManuelltTilFellesformat(
     }
 }
 
-fun tilBehandler(sykmelderFnr: String, pdlPerson: PdlPerson): HelseOpplysningerArbeidsuforhet.Behandler =
+fun tilBehandler(sykmelderFnr: String, sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
         navn = NavnType().apply {
-            fornavn = pdlPerson.navn.fornavn
-            mellomnavn = pdlPerson.navn.mellomnavn
-            etternavn = pdlPerson.navn.etternavn
+            fornavn = sykmelder.fornavn
+            mellomnavn = sykmelder.mellomnavn
+            etternavn = sykmelder.etternavn
         }
         id.addAll(
             listOf(

@@ -38,6 +38,7 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.SykmelderService
 
 @KtorExperimentalAPI
 @InternalAPI
@@ -55,6 +56,7 @@ fun createApplicationEngine(
     dokArkivClient: DokArkivClient,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
+    sykmelderService: SykmelderService,
     authorizationService: AuthorizationService
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
@@ -100,6 +102,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     regelClient,
                     pdlService,
+                    sykmelderService,
                     authorizationService
                 )
             }

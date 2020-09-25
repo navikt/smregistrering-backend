@@ -23,6 +23,7 @@ import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
@@ -102,9 +103,8 @@ internal class FellesformatMapperServiceTest {
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
-            pdlSykmelder = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon(smRegisteringManuellt.sykmelderFnr, false, "FOLKEREGISTERIDENT")
-            )),
+            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )
@@ -242,9 +242,8 @@ internal class FellesformatMapperServiceTest {
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
-            pdlSykmelder = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon(smRegisteringManuellt.sykmelderFnr, false, "FOLKEREGISTERIDENT")
-            )),
+            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
         )

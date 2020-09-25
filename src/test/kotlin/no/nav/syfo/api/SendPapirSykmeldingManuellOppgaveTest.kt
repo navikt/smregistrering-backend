@@ -60,6 +60,7 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SmRegisteringManuell
 import no.nav.syfo.model.Status
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
@@ -70,6 +71,7 @@ import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.SykmelderService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
@@ -96,6 +98,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
+    private val sykmelderService = mockk<SykmelderService>()
 
     @Test
     internal fun `Regsitering av papirsykmelding happycase`() {
@@ -122,6 +125,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
+                    sykmelderService,
                     syfoTilgangsKontrollService
                 )
             }
@@ -166,7 +170,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     "Doe",
                     "123",
                     "12345678912",
-                    null,
+                    "hpr",
                     null,
                     Adresse(null, null, null, null, null),
                     "12345"
@@ -248,7 +252,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     "Person",
                     "123",
                     "",
-                    "",
+                    "hpr",
                     "",
                     Adresse(null, null, null, null, null),
                     ""
@@ -308,6 +312,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
+            coEvery { sykmelderService.hentSykmelder(any(), any(), any(), any(), any()) } returns
+                    Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                        fnr = "12345", hprNummer = "hpr")
+
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
@@ -345,6 +353,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     dokArkivClient,
                     regelClient,
                     pdlPersonService,
+                    sykmelderService,
                     syfoTilgangsKontrollService
                 )
             }
@@ -388,7 +397,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     "Doe",
                     "123",
                     "12345678912",
-                    null,
+                    "hpr",
                     null,
                     Adresse(null, null, null, null, null),
                     "12345"
@@ -472,6 +481,10 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
+
+            coEvery { sykmelderService.hentSykmelder(any(), any(), any(), any(), any()) } returns
+                    Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                fnr = "12345", hprNummer = "hpr")
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
