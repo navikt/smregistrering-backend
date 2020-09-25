@@ -71,7 +71,7 @@ import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.service.SykmelderService
+import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
@@ -312,7 +312,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                         fnr = "12345", hprNummer = "hpr")
 
@@ -482,7 +482,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                 fnr = "12345", hprNummer = "hpr")
 
