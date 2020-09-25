@@ -38,7 +38,8 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.service.SykmelderService
+import no.nav.syfo.sykmelder.api.sykmelderApi
+import no.nav.syfo.sykmelder.service.SykmelderService
 
 @KtorExperimentalAPI
 @InternalAPI
@@ -105,6 +106,7 @@ fun createApplicationEngine(
                     sykmelderService,
                     authorizationService
                 )
+                sykmelderApi(sykmelderService)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

@@ -27,9 +27,9 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.service.SykmelderService
 import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
+import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
@@ -107,10 +107,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             log.info("Henter sykmelder fra HPR og PDL")
                             val sykmelder = sykmelderService.hentSykmelder(
                                 sykmelderHpr!!,
-                                sykmeldingId,
                                 userToken,
-                                callId,
-                                loggingMeta
+                                callId
                             )
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)

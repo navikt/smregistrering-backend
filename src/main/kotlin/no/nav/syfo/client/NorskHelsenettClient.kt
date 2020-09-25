@@ -22,30 +22,30 @@ class NorskHelsenettClient(
 ) {
 
     @KtorExperimentalAPI
-    suspend fun finnBehandler(hprNummer: String, sykmeldingId: String): Behandler? = retry(
+    suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? = retry(
         callName = "finnbehandler",
         retryIntervals = arrayOf(500L, 1000L, 3000L, 5000L)) {
-        log.info("Henter behandler fra syfohelsenettproxy for sykmeldingId {}", sykmeldingId)
+        log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
         val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/behandlerMedHprNummer") {
             accept(ContentType.Application.Json)
             val accessToken = accessTokenClient.hentAccessToken(resourceId)
             headers {
                 append("Authorization", "Bearer $accessToken")
-                append("Nav-CallId", sykmeldingId)
+                append("Nav-CallId", callId)
                 append("hprNummer", hprNummer)
             }
         }.execute()
         if (httpResponse.status == InternalServerError) {
-            log.error("Syfohelsenettproxy svarte med feilmelding for sykmeldingId {}", sykmeldingId)
-            throw IOException("Syfohelsenettproxy svarte med feilmelding for $sykmeldingId")
+            log.error("Syfohelsenettproxy svarte med feilmelding for callId {}", callId)
+            throw IOException("Syfohelsenettproxy svarte med feilmelding for $callId")
         }
         when (NotFound) {
             httpResponse.status -> {
-                log.warn("Fant ikke behandler for HprNummer $hprNummer for sykmeldingId $sykmeldingId")
+                log.warn("Fant ikke behandler for HprNummer $hprNummer for callId $callId")
                 null
             }
             else -> {
-                log.info("Hentet behandler for sykmeldingId {}", sykmeldingId)
+                log.info("Hentet behandler for callId {}", callId)
                 httpResponse.call.response.receive<Behandler>()
             }
         }
