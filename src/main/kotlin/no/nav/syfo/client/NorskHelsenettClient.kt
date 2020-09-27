@@ -9,6 +9,8 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import no.nav.syfo.helpers.retry
@@ -23,12 +25,12 @@ class NorskHelsenettClient(
 
     @KtorExperimentalAPI
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? = retry(
-        callName = "finnbehandler",
-        retryIntervals = arrayOf(500L, 1000L, 3000L, 5000L)) {
+            callName = "finnbehandler",
+            retryIntervals = arrayOf(500L, 1000L, 3000L, 5000L)) {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
+        val accessToken = accessTokenClient.hentAccessToken(resourceId)
         val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/behandlerMedHprNummer") {
             accept(ContentType.Application.Json)
-            val accessToken = accessTokenClient.hentAccessToken(resourceId)
             headers {
                 append("Authorization", "Bearer $accessToken")
                 append("Nav-CallId", callId)
@@ -39,14 +41,22 @@ class NorskHelsenettClient(
             log.error("Syfohelsenettproxy svarte med feilmelding for callId {}", callId)
             throw IOException("Syfohelsenettproxy svarte med feilmelding for $callId")
         }
-        when (NotFound) {
-            httpResponse.status -> {
+        when (httpResponse.status) {
+            NotFound -> {
                 log.warn("Fant ikke behandler for HprNummer $hprNummer for callId $callId")
                 null
             }
-            else -> {
+            Unauthorized -> {
+                log.warn("Norsk helsenett returnerte Unauthorized for henting av behandler: $hprNummer")
+                null
+            }
+            OK -> {
                 log.info("Hentet behandler for callId {}", callId)
                 httpResponse.call.response.receive<Behandler>()
+            }
+            else -> {
+                log.error("Feil ved henting av behandler. Statuskode: ${httpResponse.status}")
+                null
             }
         }
     }
