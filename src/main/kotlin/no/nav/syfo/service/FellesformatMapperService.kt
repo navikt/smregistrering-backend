@@ -61,7 +61,6 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     organisation = XMLOrganisation().apply {
                         healthcareProfessional = XMLHealthcareProfessional().apply {
-                            // Jeg er usikker på om disse brukes.
                             givenName = sykmelder.fornavn
                             middleName = sykmelder.mellomnavn
                             familyName = sykmelder.etternavn
