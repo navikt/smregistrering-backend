@@ -121,7 +121,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
 
-                            val samhandlerInfo = kuhrsarClient.getSamhandler(smRegisteringManuell.sykmelderFnr)
+                            val samhandlerInfo = kuhrsarClient.getSamhandler(sykmelder.fnr)
                             val samhandlerPraksisMatch = findBestSamhandlerPraksis(
                                 samhandlerInfo,
                                 loggingMeta
@@ -149,9 +149,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             val receivedSykmelding = ReceivedSykmelding(
                                 sykmelding = sykmelding,
-                                personNrPasient = smRegisteringManuell.sykmelderFnr,
+                                personNrPasient = pasient.fnr!!,
                                 tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-                                personNrLege = smRegisteringManuell.sykmelderFnr,
+                                personNrLege = sykmelder.fnr,
                                 navLogId = sykmeldingId,
                                 msgId = sykmeldingId,
                                 legekontorOrgNr = null,
