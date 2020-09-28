@@ -9,7 +9,6 @@ import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.util.LoggingMeta
 
@@ -23,9 +22,8 @@ class AktoerIdClient(
         personNumbers: List<String>,
         username: String,
         loggingMeta: LoggingMeta
-    ): Map<String, IdentInfoResult> =
-        retry("get_aktoerids") {
-            httpClient.get<HttpStatement>("$endpointUrl/identer") {
+    ): Map<String, IdentInfoResult> {
+            return httpClient.get<HttpStatement>("$endpointUrl/identer") {
                 accept(ContentType.Application.Json)
                 val oidcToken = stsClient.oidcToken()
                 headers {
@@ -36,6 +34,6 @@ class AktoerIdClient(
                 }
                 parameter("gjeldende", "true")
                 parameter("identgruppe", "AktoerId")
-            }.execute().call.response.receive<Map<String, IdentInfoResult>>()
+            }.execute().call.response.receive()
         }
 }

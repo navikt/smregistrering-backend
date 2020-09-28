@@ -13,7 +13,6 @@ import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import net.logstash.logback.argument.StructuredArguments.fields
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.util.LoggingMeta
@@ -43,7 +42,7 @@ class DokArkivClient(
         behandler: Behandler,
         msgId: String,
         loggingMeta: LoggingMeta
-    ) = retry("oppdater_journalpost") {
+    ) {
         val httpResponse = httpClient.put<HttpStatement>("$url/$journalpostId") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
@@ -91,7 +90,7 @@ class DokArkivClient(
         msgId: String,
         loggingMeta: LoggingMeta,
         navEnhet: String
-    ): String? = retry("ferdigstill_journalpost") {
+    ): String? {
         val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
@@ -104,7 +103,7 @@ class DokArkivClient(
             log.error("Dokakriv svarte med feilmelding ved ferdigstilling av journalpost for msgId {}, {}", msgId, fields(loggingMeta))
             throw IOException("Saf svarte med feilmelding ved ferdigstilling av journalpost for $journalpostId msgid $msgId")
         }
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             HttpStatusCode.NotFound -> {
                 log.error("Journalposten finnes ikke for journalpostid {}, msgId {}, {}", journalpostId, msgId, fields(loggingMeta))
                 null

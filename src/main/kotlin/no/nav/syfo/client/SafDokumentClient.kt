@@ -9,7 +9,6 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
 @KtorExperimentalAPI
@@ -23,7 +22,7 @@ class SafDokumentClient constructor(
         dokumentInfoId: String,
         msgId: String,
         accessToken: String
-    ): ByteArray? = retry("hent_dokument") {
+    ): ByteArray? {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
                 accept(ContentType.Application.Pdf)
@@ -32,7 +31,7 @@ class SafDokumentClient constructor(
                 header("Nav-Consumer-Id", "smregistrering-backend")
             }.execute()
 
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             HttpStatusCode.NotFound -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Dokumentet finnes ikke for journalpostId {}", journalpostId)

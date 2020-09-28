@@ -13,7 +13,6 @@ import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 
 class NorskHelsenettClient(
@@ -24,9 +23,7 @@ class NorskHelsenettClient(
 ) {
 
     @KtorExperimentalAPI
-    suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? = retry(
-            callName = "finnbehandler",
-            retryIntervals = arrayOf(500L, 1000L, 3000L, 5000L)) {
+    suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
         val accessToken = accessTokenClient.hentAccessToken(resourceId)
         val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/behandlerMedHprNummer") {
@@ -41,7 +38,7 @@ class NorskHelsenettClient(
             log.error("Syfohelsenettproxy svarte med feilmelding for callId {}", callId)
             throw IOException("Syfohelsenettproxy svarte med feilmelding for $callId")
         }
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             NotFound -> {
                 log.warn("Fant ikke behandler for HprNummer $hprNummer for callId $callId")
                 null

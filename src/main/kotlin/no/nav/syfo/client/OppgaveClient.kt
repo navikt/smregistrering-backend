@@ -15,7 +15,6 @@ import java.lang.RuntimeException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import no.nav.syfo.helpers.log
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.model.FerdigStillOppgave
 import no.nav.syfo.model.OpprettOppgave
 import no.nav.syfo.model.OpprettOppgaveResponse
@@ -27,7 +26,7 @@ class OppgaveClient(
     private val httpClient: HttpClient
 ) {
     suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
-            OpprettOppgaveResponse = retry("create_oppgave") {
+            OpprettOppgaveResponse {
 
         log.info("Oppretter oppgave {} ", opprettOppgave)
 
@@ -39,10 +38,10 @@ class OppgaveClient(
             body = opprettOppgave
         }.execute()
 
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             HttpStatusCode.Created -> {
                 log.info("OppgaveClient opprettOppgave svarte 201 CREATED")
-                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+                httpResponse.call.response.receive()
             }
             else -> {
                 log.error("OppgaveClient opprettOppgave kastet feil {} ved opprettelse av oppgave", httpResponse.status)
@@ -52,7 +51,7 @@ class OppgaveClient(
     }
 
     suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
-            OpprettOppgaveResponse = retry("ferdigstill_oppgave") {
+            OpprettOppgaveResponse {
 
         log.info("Ferdigstiller oppgave {} ", ferdigstilloppgave)
 
@@ -64,9 +63,9 @@ class OppgaveClient(
             body = ferdigstilloppgave
         }.execute()
 
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             HttpStatusCode.OK -> {
-                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+                httpResponse.call.response.receive()
             }
             else -> {
                 val msg = String.format("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
@@ -77,7 +76,7 @@ class OppgaveClient(
     }
 
     suspend fun hentOppgave(oppgaveId: Int, msgId: String):
-            OpprettOppgaveResponse = retry("hent_oppgave") {
+            OpprettOppgaveResponse {
 
         log.info("Henter oppgave med oppgaveId {} msgId {}", oppgaveId, msgId)
 
@@ -88,9 +87,9 @@ class OppgaveClient(
             header("X-Correlation-ID", msgId)
         }.execute()
 
-        when (httpResponse.status) {
+        return when (httpResponse.status) {
             HttpStatusCode.OK -> {
-                httpResponse.call.response.receive<OpprettOppgaveResponse>()
+                httpResponse.call.response.receive()
             }
             else -> {
                 val msg = String.format("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave med id {} ", httpResponse.status, oppgaveId)
