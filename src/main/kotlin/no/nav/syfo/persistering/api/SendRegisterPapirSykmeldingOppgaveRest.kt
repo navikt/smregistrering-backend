@@ -1,7 +1,6 @@
 package no.nav.syfo.persistering.api
 
 import io.ktor.application.call
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -58,7 +57,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             log.info("Mottok kall til POST /api/v1/oppgave/$oppgaveId/send")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-            val userToken = call.request.headers[HttpHeaders.Authorization]!!
             val callId = UUID.randomUUID().toString()
             val navEnhet = call.request.headers["X-Nav-Enhet"]
 
@@ -107,14 +105,14 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             log.info("Henter sykmelder fra HPR og PDL")
                             val sykmelder = sykmelderService.hentSykmelder(
                                 sykmelderHpr!!,
-                                userToken,
+                                accessToken,
                                 callId
                             )
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)
                             val pasient = pdlService.getPdlPerson(
                                 fnr = smRegisteringManuell.pasientFnr,
-                                userToken = userToken,
+                                userToken = accessToken,
                                 callId = callId
                             )
 
