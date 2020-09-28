@@ -100,7 +100,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val sykmelderHpr = smRegisteringManuell.behandler.hpr
 
                             if (sykmelderHpr.isNullOrEmpty()) {
-                                log.error("HPR-nummer mangler {}", loggingMeta)
+                                log.error("HPR-nummer mangler {}", fields(loggingMeta))
                                 call.respond(HttpStatusCode.BadRequest, "Mangler HPR-nummer for behandler")
                             }
 
