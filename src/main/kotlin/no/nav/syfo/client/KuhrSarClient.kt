@@ -9,7 +9,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlin.math.max
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
-import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SamhandlerPeriode
@@ -23,8 +22,8 @@ class SarClient(
     private val endpointUrl: String,
     private val httpClient: HttpClient
 ) {
-    suspend fun getSamhandler(ident: String): List<Samhandler> = retry("get_samhandler") {
-        httpClient.get<List<Samhandler>>("$endpointUrl/rest/sar/samh") {
+    suspend fun getSamhandler(ident: String): List<Samhandler> {
+        return httpClient.get("$endpointUrl/rest/sar/samh") {
             accept(ContentType.Application.Json)
             parameter("ident", ident)
         }
