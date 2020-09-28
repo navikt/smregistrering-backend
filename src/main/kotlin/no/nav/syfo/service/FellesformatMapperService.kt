@@ -165,7 +165,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                 begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
                                 behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
                             }
-                            behandler = tilBehandler(sykmelder.fnr, sykmelder)
+                            behandler = tilBehandler(sykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
                                 systemVersjon = "1"
@@ -179,7 +179,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
     }
 }
 
-fun tilBehandler(sykmelderFnr: String, sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandler =
+fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandler =
     HelseOpplysningerArbeidsuforhet.Behandler().apply {
         navn = NavnType().apply {
             fornavn = sykmelder.fornavn
@@ -189,7 +189,7 @@ fun tilBehandler(sykmelderFnr: String, sykmelder: Sykmelder): HelseOpplysningerA
         id.addAll(
             listOf(
                 Ident().apply {
-                    id = sykmelderFnr
+                    id = sykmelder.fnr
                     typeId = CV().apply {
                         dn = "Fødselsnummer"
                         s = "2.16.578.1.12.4.1.1.8327"
