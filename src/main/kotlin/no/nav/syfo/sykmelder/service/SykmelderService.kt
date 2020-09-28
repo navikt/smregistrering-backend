@@ -26,8 +26,7 @@ class SykmelderService(
         val behandler = pdlPersonService.getPdlPerson(behandlerFraHpr.fnr, userToken, callId)
 
         if (behandler.aktorId == null) {
-            log.warn("Fant ikke aktorId til behandler for HPR {}", hprNummer
-            )
+            log.warn("Fant ikke aktorId til behandler for HPR {}", hprNummer)
             throw IllegalStateException("Kunne ikke hente aktorId for hpr $hprNummer")
         }
 
