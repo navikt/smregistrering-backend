@@ -30,12 +30,11 @@ class DokArkivClient(
         fnr: String,
         sykmeldingId: String,
         behandler: Behandler,
-        veileder: Veileder,
         loggingMeta: LoggingMeta,
         navEnhet: String
     ): String? {
         oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, behandler = behandler, msgId = sykmeldingId, loggingMeta = loggingMeta)
-        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, veileder = veileder, loggingMeta = loggingMeta, navEnhet = navEnhet)
+        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
     suspend fun oppdaterJournalpost(
@@ -90,7 +89,6 @@ class DokArkivClient(
     suspend fun ferdigstillJournalpost(
         journalpostId: String,
         msgId: String,
-        veileder: Veileder, // TODO: Denne bør brukes? Hvor gjør vi det?
         loggingMeta: LoggingMeta,
         navEnhet: String
     ): String? = retry("ferdigstill_journalpost") {

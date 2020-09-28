@@ -37,7 +37,6 @@ suspend fun handleOKOppgave(
         receivedSykmelding.personNrPasient,
         sykmeldingId,
         receivedSykmelding.sykmelding.behandler,
-        veileder,
         loggingMeta,
         navEnhet
     )
