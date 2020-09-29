@@ -195,7 +195,16 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
                         s = "2.16.578.1.12.4.1.1.8327"
                         v = "FNR"
                     }
-                })
+                },
+                Ident().apply {
+                    id = sykmelder.hprNummer
+                    typeId = CV().apply {
+                        dn = "HPR-nummer"
+                        s = "2.16.578.1.12.4.1.1.8116"
+                        v = "HPR"
+                    }
+                }
+            )
         )
         adresse = Address()
         kontaktInfo.add(TeleCom().apply {
