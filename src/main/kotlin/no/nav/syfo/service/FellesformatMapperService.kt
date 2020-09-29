@@ -2,6 +2,7 @@ package no.nav.syfo.service
 
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.stream.Collectors
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLCS
 import no.nav.helse.msgHead.XMLCV
@@ -18,6 +19,7 @@ import no.nav.helse.sm2013.Address
 import no.nav.helse.sm2013.ArsakType
 import no.nav.helse.sm2013.CS
 import no.nav.helse.sm2013.CV
+import no.nav.helse.sm2013.DynaSvarType
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.helse.sm2013.Ident
 import no.nav.helse.sm2013.NavnType
@@ -29,12 +31,14 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.QuestionId
+import no.nav.syfo.model.RestrictionCode
+import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.model.PdlPerson
 
-fun mapsmRegisteringManuelltTilFellesformat(
-    smRegisteringManuell: SmRegisteringManuell,
+fun mapsmRegistreringManuelltTilFellesformat(
+    smRegistreringManuell: SmRegistreringManuell,
     pdlPasient: PdlPerson,
     sykmelder: Sykmelder,
     sykmeldingId: String,
@@ -48,7 +52,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     v = "SYKMELD"
                 }
                 miGversion = "v1.2 2006-05-24"
-                genDate = datoOpprettet ?: LocalDateTime.of(smRegisteringManuell.perioder.first().fom, LocalTime.NOON)
+                genDate = datoOpprettet ?: LocalDateTime.of(smRegistreringManuell.perioder.first().fom, LocalTime.NOON)
                 msgId = sykmeldingId
                 ack = XMLCS().apply {
                     dn = "Ja"
@@ -115,7 +119,7 @@ fun mapsmRegisteringManuelltTilFellesformat(
                     }
                     content = XMLRefDoc.Content().apply {
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = smRegisteringManuell.syketilfelleStartDato
+                            syketilfelleStartDato = smRegistreringManuell.syketilfelleStartDato
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
                                 navn = NavnType().apply {
                                     fornavn = pdlPasient.navn.fornavn
@@ -131,39 +135,44 @@ fun mapsmRegisteringManuelltTilFellesformat(
                                     }
                                 }
                             }
-                            arbeidsgiver = tilArbeidsgiver(smRegisteringManuell.arbeidsgiver)
+                            arbeidsgiver = tilArbeidsgiver(smRegistreringManuell.arbeidsgiver)
                             medisinskVurdering =
                                 tilMedisinskVurdering(
-                                    smRegisteringManuell.medisinskVurdering,
-                                    smRegisteringManuell.skjermesForPasient
+                                    smRegistreringManuell.medisinskVurdering,
+                                    smRegistreringManuell.skjermesForPasient
                                 )
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
-                                periode.addAll(tilPeriodeListe(smRegisteringManuell.perioder))
+                                periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
                             }
                             prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
-                                isArbeidsforEtterEndtPeriode = smRegisteringManuell.prognose?.arbeidsforEtterPeriode
-                                beskrivHensynArbeidsplassen = smRegisteringManuell.prognose?.hensynArbeidsplassen
+                                isArbeidsforEtterEndtPeriode = smRegistreringManuell.prognose?.arbeidsforEtterPeriode
+                                beskrivHensynArbeidsplassen = smRegistreringManuell.prognose?.hensynArbeidsplassen
                                 erIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
-                                    isAnnetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.annetArbeidPaSikt
-                                    isEgetArbeidPaSikt = smRegisteringManuell.prognose?.erIArbeid?.egetArbeidPaSikt
-                                    arbeidFraDato = smRegisteringManuell.prognose?.erIArbeid?.arbeidFOM
-                                    vurderingDato = smRegisteringManuell.prognose?.erIArbeid?.vurderingsdato
+                                    isAnnetArbeidPaSikt = smRegistreringManuell.prognose?.erIArbeid?.annetArbeidPaSikt
+                                    isEgetArbeidPaSikt = smRegistreringManuell.prognose?.erIArbeid?.egetArbeidPaSikt
+                                    arbeidFraDato = smRegistreringManuell.prognose?.erIArbeid?.arbeidFOM
+                                    vurderingDato = smRegistreringManuell.prognose?.erIArbeid?.vurderingsdato
+                                }
+                                erIkkeIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIkkeIArbeid().apply {
+                                    isArbeidsforPaSikt = smRegistreringManuell.prognose?.erIkkeIArbeid?.arbeidsforPaSikt
+                                    arbeidsforFraDato = smRegistreringManuell.prognose?.erIkkeIArbeid?.arbeidsforFOM
+                                    vurderingDato = smRegistreringManuell.prognose?.erIkkeIArbeid?.vurderingsdato
                                 }
                             }
-                            utdypendeOpplysninger = tilUtdypendeOpplysninger()
+                            utdypendeOpplysninger = tilUtdypendeOpplysninger(smRegistreringManuell.utdypendeOpplysninger)
                             tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
-                                tiltakNAV = smRegisteringManuell.tiltakNAV
-                                andreTiltak = smRegisteringManuell.andreTiltak
+                                tiltakNAV = smRegistreringManuell.tiltakNAV
+                                andreTiltak = smRegistreringManuell.andreTiltak
                             }
                             meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
-                                isBistandNAVUmiddelbart = smRegisteringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
-                                beskrivBistandNAV = smRegisteringManuell.meldingTilNAV?.beskrivBistand ?: ""
+                                isBistandNAVUmiddelbart = smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
+                                beskrivBistandNAV = smRegistreringManuell.meldingTilNAV?.beskrivBistand ?: ""
                             }
-                            meldingTilArbeidsgiver = smRegisteringManuell.meldingTilArbeidsgiver
+                            meldingTilArbeidsgiver = smRegistreringManuell.meldingTilArbeidsgiver
                             kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = smRegisteringManuell.kontaktMedPasient.kontaktDato
-                                begrunnIkkeKontakt = smRegisteringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
-                                behandletDato = LocalDateTime.of(smRegisteringManuell.behandletDato, LocalTime.NOON)
+                                kontaktDato = smRegistreringManuell.kontaktMedPasient.kontaktDato
+                                begrunnIkkeKontakt = smRegistreringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
+                                behandletDato = LocalDateTime.of(smRegistreringManuell.behandletDato, LocalTime.NOON)
                             }
                             behandler = tilBehandler(sykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
@@ -218,9 +227,30 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
         })
     }
 
-fun tilUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
-    return HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger().apply {
+fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
+    val utdypendeOpplysninger = HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger()
+
+    from?.entries?.stream()?.map {
+        HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
+            spmGruppeId = it.key
+            spmGruppeTekst = "" // TODO
+            spmSvar.addAll(it.value.entries.stream().map {
+                DynaSvarType().apply {
+                    spmTekst = QuestionId.valueOf(it.key).spmTekst
+                    restriksjon = DynaSvarType.Restriksjon().apply {
+                        restriksjonskode.add(CS().apply {
+                            dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
+                            v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
+                        })
+                    }
+                    spmId = it.key
+                }
+            }.collect(Collectors.toList()))
+        }
+    }?.forEach {
+        utdypendeOpplysninger.spmGruppe.add(it)
     }
+    return utdypendeOpplysninger
 }
 
 fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode> {

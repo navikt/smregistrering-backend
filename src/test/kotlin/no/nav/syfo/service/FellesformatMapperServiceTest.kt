@@ -22,7 +22,7 @@ import no.nav.syfo.model.MeldingTilNAV
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
@@ -44,7 +44,7 @@ class FellesformatMapperServiceTest {
 
     @Test
     fun `Realistisk case ende-til-ende`() {
-        val smRegisteringManuellt = SmRegisteringManuell(
+        val smRegisteringManuellt = SmRegistreringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
             perioder = listOf(
@@ -98,8 +98,8 @@ class FellesformatMapperServiceTest {
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
         )
 
-        val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-            smRegisteringManuell = smRegisteringManuellt,
+        val fellesformat = mapsmRegistreringManuelltTilFellesformat(
+            smRegistreringManuell = smRegisteringManuellt,
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
@@ -182,7 +182,7 @@ class FellesformatMapperServiceTest {
 
     @Test
     fun `Minimal input fra frontend`() {
-        val smRegisteringManuellt = SmRegisteringManuell(
+        val smRegisteringManuellt = SmRegistreringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
             perioder = listOf(
@@ -237,8 +237,8 @@ class FellesformatMapperServiceTest {
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
         )
 
-        val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-            smRegisteringManuell = smRegisteringManuellt,
+        val fellesformat = mapsmRegistreringManuelltTilFellesformat(
+            smRegistreringManuell = smRegisteringManuellt,
             pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
                 IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),

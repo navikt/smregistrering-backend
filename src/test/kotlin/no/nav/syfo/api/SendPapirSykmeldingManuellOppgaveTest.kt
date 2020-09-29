@@ -58,7 +58,7 @@ import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Samhandler
-import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
@@ -209,7 +209,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
-            val smRegisteringManuell = SmRegisteringManuell(
+            val smRegisteringManuell = SmRegistreringManuell(
                 pasientFnr = "143242345",
                 sykmelderFnr = "18459123134",
                 perioder = listOf(
@@ -436,7 +436,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
-            val smRegisteringManuell = objectMapper.readValue<SmRegisteringManuell>(
+            val smRegisteringManuell = objectMapper.readValue<SmRegistreringManuell>(
                 String(
                     Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")),
                     StandardCharsets.UTF_8

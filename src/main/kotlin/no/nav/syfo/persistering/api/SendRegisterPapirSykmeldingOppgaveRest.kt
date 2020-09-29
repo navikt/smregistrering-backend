@@ -20,13 +20,13 @@ import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.model.SmRegisteringManuell
+import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.service.mapsmRegisteringManuelltTilFellesformat
+import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
@@ -60,7 +60,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             val callId = UUID.randomUUID().toString()
             val navEnhet = call.request.headers["X-Nav-Enhet"]
 
-            val smRegisteringManuell: SmRegisteringManuell = call.receive()
+            val smRegistreringManuell: SmRegistreringManuell = call.receive()
 
             when {
                 oppgaveId == null -> {
@@ -93,9 +93,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             journalpostId = journalpostId
                         )
 
-                        if (authorizationService.hasAccess(accessToken, smRegisteringManuell.pasientFnr)) {
+                        if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
 
-                            val sykmelderHpr = smRegisteringManuell.behandler.hpr
+                            val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                             if (sykmelderHpr.isNullOrEmpty()) {
                                 log.error("HPR-nummer mangler {}", fields(loggingMeta))
@@ -111,7 +111,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)
                             val pasient = pdlService.getPdlPerson(
-                                fnr = smRegisteringManuell.pasientFnr,
+                                fnr = smRegistreringManuell.pasientFnr,
                                 userToken = accessToken,
                                 callId = callId
                             )
@@ -128,8 +128,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                             val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
 
-                            val fellesformat = mapsmRegisteringManuelltTilFellesformat(
-                                smRegisteringManuell = smRegisteringManuell,
+                            val fellesformat = mapsmRegistreringManuelltTilFellesformat(
+                                smRegistreringManuell = smRegistreringManuell,
                                 pdlPasient = pasient,
                                 sykmelder = sykmelder,
                                 sykmeldingId = sykmeldingId,

@@ -2,7 +2,7 @@ package no.nav.syfo.model
 
 import java.time.LocalDate
 
-data class SmRegisteringManuell(
+data class SmRegistreringManuell(
     val pasientFnr: String,
     val sykmelderFnr: String,
     val perioder: List<Periode>,
