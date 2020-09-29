@@ -34,7 +34,7 @@ import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.junit.Test
 
-internal class FellesformatMapperServiceTest {
+class FellesformatMapperServiceTest {
     val sykmeldingId = "1234"
     val fnrPasient = "12345678910"
     val aktorId = "aktorId"
@@ -43,7 +43,7 @@ internal class FellesformatMapperServiceTest {
     val datoOpprettet = LocalDateTime.now()
 
     @Test
-    internal fun `Realistisk case ende-til-ende`() {
+    fun `Realistisk case ende-til-ende`() {
         val smRegisteringManuellt = SmRegisteringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
@@ -181,7 +181,7 @@ internal class FellesformatMapperServiceTest {
     }
 
     @Test
-    internal fun `Minimal input fra frontend`() {
+    fun `Minimal input fra frontend`() {
         val smRegisteringManuellt = SmRegisteringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
@@ -323,7 +323,7 @@ internal class FellesformatMapperServiceTest {
             etternavn = "Thornton",
             aktoerId = aktorIdLege,
             fnr = fnrLege,
-            hpr = null,
+            hpr = "hpr",
             her = null,
             adresse = Adresse(null, null, null, null, null),
             tlf = "tel:55553336"
