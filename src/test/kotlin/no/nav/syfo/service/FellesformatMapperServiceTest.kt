@@ -13,6 +13,7 @@ import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.ErIkkeIArbeid
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
 import no.nav.syfo.model.MedisinskArsak
@@ -161,7 +162,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
         receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null)
+        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
@@ -305,7 +306,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
         receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = null)
+        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
