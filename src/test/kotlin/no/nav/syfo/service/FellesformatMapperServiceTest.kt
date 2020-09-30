@@ -164,7 +164,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
         receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
         receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
         receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual false
@@ -308,7 +308,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
         receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
         receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
         receivedSykmelding.sykmelding.meldingTilNAV shouldEqual MeldingTilNAV(bistandUmiddelbart = false, beskrivBistand = "")
