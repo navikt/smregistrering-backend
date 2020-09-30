@@ -21,7 +21,13 @@ enum class QuestionId(val spmId: String, val spmTekst: String) {
     ID_6_5_4("6.5.4", "Kan arbeidsevnen bedres gjennom medisinsk behandling og/eller arbeidsrelatert aktivitet? I så fall hvordan? Angi tidsperspektiv"),
     ID_6_6_1("6.6.1", "Hva antar du at pasienten kan utføre av eget arbeid/arbeidsoppgaver i dag eller i nær framtid?"),
     ID_6_6_2("6.6.2", "Hvis pasienten ikke kan gå tilbake til eget arbeid, hva antar du at pasienten kan utføre av annet arbeid/arbeidsoppgaver?"),
-    ID_6_6_3("6.6.3", "Hvilken betydning har denne sykdommen for den nedsatte arbeidsevnen?"),
+    ID_6_6_3("6.6.3", "Hvilken betydning har denne sykdommen for den nedsatte arbeidsevnen?");
+
+    companion object {
+        fun fromSpmId(spmId: String): QuestionId {
+            return values().first { questionId -> questionId.spmId == spmId }
+        }
+    }
 }
 
 enum class RestrictionCode(override val codeValue: String, override val text: String, override val oid: String = "2.16.578.1.12.4.1.1.8134") : Kodeverk {

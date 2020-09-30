@@ -159,13 +159,16 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                     vurderingDato = smRegistreringManuell.prognose?.erIkkeIArbeid?.vurderingsdato
                                 }
                             }
-                            utdypendeOpplysninger = tilUtdypendeOpplysninger(smRegistreringManuell.utdypendeOpplysninger)
+                            utdypendeOpplysninger =
+                                tilUtdypendeOpplysninger(smRegistreringManuell.utdypendeOpplysninger)
                             tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
+                                tiltakArbeidsplassen = smRegistreringManuell.tiltakArbeidsplassen
                                 tiltakNAV = smRegistreringManuell.tiltakNAV
                                 andreTiltak = smRegistreringManuell.andreTiltak
                             }
                             meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
-                                isBistandNAVUmiddelbart = smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
+                                isBistandNAVUmiddelbart =
+                                    smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
                                 beskrivBistandNAV = smRegistreringManuell.meldingTilNAV?.beskrivBistand ?: ""
                             }
                             meldingTilArbeidsgiver = smRegistreringManuell.meldingTilArbeidsgiver
@@ -233,10 +236,9 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
     from?.entries?.stream()?.map {
         HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
             spmGruppeId = it.key
-            spmGruppeTekst = "" // TODO
             spmSvar.addAll(it.value.entries.stream().map {
                 DynaSvarType().apply {
-                    spmTekst = QuestionId.valueOf(it.key).spmTekst
+                    spmTekst = QuestionId.fromSpmId(it.key).spmTekst
                     restriksjon = DynaSvarType.Restriksjon().apply {
                         restriksjonskode.add(CS().apply {
                             dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
@@ -244,6 +246,7 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
                         })
                     }
                     spmId = it.key
+                    svarTekst = it.value
                 }
             }.collect(Collectors.toList()))
         }
@@ -269,7 +272,14 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
             medisinskeArsaker = if (periode.aktivitetIkkeMulig?.medisinskArsak != null) {
                 ArsakType().apply {
                     beskriv = periode.aktivitetIkkeMulig?.medisinskArsak?.beskrivelse
-                    arsakskode.add(CS())
+                    arsakskode.addAll(
+                        periode.aktivitetIkkeMulig!!.medisinskArsak!!.arsak.stream().map {
+                            CS().apply {
+                                v = it.codeValue
+                                dn = it.text
+                            }
+                        }.collect(Collectors.toList())
+                    )
                 }
             } else {
                 null
@@ -277,19 +287,26 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
             arbeidsplassen = if (periode.aktivitetIkkeMulig?.arbeidsrelatertArsak != null) {
                 ArsakType().apply {
                     beskriv = periode.aktivitetIkkeMulig?.arbeidsrelatertArsak?.beskrivelse
-                    arsakskode.add(CS())
+                    arsakskode.addAll(
+                        periode.aktivitetIkkeMulig!!.arbeidsrelatertArsak!!.arsak.stream().map {
+                            CS().apply {
+                                v = it.codeValue
+                                dn = it.text
+                            }
+                        }.collect(Collectors.toList())
+                    )
                 }
             } else {
                 null
             }
         }
         avventendeSykmelding = if (periode.avventendeInnspillTilArbeidsgiver != null) {
-                HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AvventendeSykmelding().apply {
-                    innspillTilArbeidsgiver = periode.avventendeInnspillTilArbeidsgiver
-                }
-            } else {
-                null
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AvventendeSykmelding().apply {
+                innspillTilArbeidsgiver = periode.avventendeInnspillTilArbeidsgiver
             }
+        } else {
+            null
+        }
 
         gradertSykmelding = if (periode.gradert != null) {
             HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding().apply {
