@@ -62,7 +62,6 @@ fun findBestSamhandlerPraksis(
     }
 
     val aktiveSamhandlereMedNavn = samhandlere.flatMap { it.samh_praksis }
-        .filter { praksis -> praksis.samh_praksis_status_kode == "aktiv" }
         .filter { !it.navn.isNullOrEmpty() }
 
     if (aktiveSamhandlereMedNavn.isNullOrEmpty() && !aktiveSamhandlere.isNullOrEmpty()) {
