@@ -157,7 +157,6 @@ suspend fun blockingApplicationLogic(
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
-            consumerRecord.topic()
             val receivedPapirSmRegistering: PapirSmRegistering = objectMapper.readValue(consumerRecord.value())
             val loggingMeta = LoggingMeta(
                 mottakId = receivedPapirSmRegistering.sykmeldingId,
