@@ -66,8 +66,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 oppgaveId == null -> {
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
                     call.respond(
-                        HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                            HttpStatusCode.BadRequest,
+                            "Path parameter mangler eller er feil formattert: oppgaveid"
                     )
                 }
                 accessToken == null -> {
@@ -86,11 +86,11 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
 
                         val loggingMeta = LoggingMeta(
-                            mottakId = sykmeldingId,
-                            dokumentInfoId = dokumentInfoId,
-                            msgId = sykmeldingId,
-                            sykmeldingId = sykmeldingId,
-                            journalpostId = journalpostId
+                                mottakId = sykmeldingId,
+                                dokumentInfoId = dokumentInfoId,
+                                msgId = sykmeldingId,
+                                sykmeldingId = sykmeldingId,
+                                journalpostId = journalpostId
                         )
 
                         if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
@@ -104,16 +104,16 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                             log.info("Henter sykmelder fra HPR og PDL")
                             val sykmelder = sykmelderService.hentSykmelder(
-                                sykmelderHpr!!,
-                                accessToken,
-                                callId
+                                    sykmelderHpr!!,
+                                    accessToken,
+                                    callId
                             )
 
                             log.info("Henter pasient fra PDL {} ", loggingMeta)
                             val pasient = pdlService.getPdlPerson(
-                                fnr = smRegistreringManuell.pasientFnr,
-                                userToken = accessToken,
-                                callId = callId
+                                    fnr = smRegistreringManuell.pasientFnr,
+                                    userToken = accessToken,
+                                    callId = callId
                             )
 
                             if (pasient.fnr == null || pasient.aktorId == null) {
@@ -121,63 +121,63 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 call.respond(HttpStatusCode.InternalServerError)
                             }
 
-                            val samhandlerInfo = kuhrsarClient.getSamhandler(sykmelder.fnr)
-                            val samhandlerPraksisMatch = findBestSamhandlerPraksis(
-                                samhandlerInfo,
-                                loggingMeta
+                            val samhandlerPraksis = findBestSamhandlerPraksis(
+                                    kuhrsarClient.getSamhandler(sykmelder.fnr)
                             )
-                            val samhandlerPraksis = samhandlerPraksisMatch?.samhandlerPraksis
+                            if (samhandlerPraksis == null) {
+                                log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
+                            }
 
                             val fellesformat = mapsmRegistreringManuelltTilFellesformat(
-                                smRegistreringManuell = smRegistreringManuell,
-                                pdlPasient = pasient,
-                                sykmelder = sykmelder,
-                                sykmeldingId = sykmeldingId,
-                                datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
+                                    smRegistreringManuell = smRegistreringManuell,
+                                    pdlPasient = pasient,
+                                    sykmelder = sykmelder,
+                                    sykmeldingId = sykmeldingId,
+                                    datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
                             )
 
                             val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
                             val msgHead = fellesformat.get<XMLMsgHead>()
 
                             val sykmelding = healthInformation.toSykmelding(
-                                sykmeldingId = sykmeldingId,
-                                pasientAktoerId = pasient.aktorId!!,
-                                legeAktoerId = sykmelder.aktorId,
-                                msgId = sykmeldingId,
-                                signaturDato = msgHead.msgInfo.genDate
+                                    sykmeldingId = sykmeldingId,
+                                    pasientAktoerId = pasient.aktorId!!,
+                                    legeAktoerId = sykmelder.aktorId,
+                                    msgId = sykmeldingId,
+                                    signaturDato = msgHead.msgInfo.genDate
                             )
 
                             val receivedSykmelding = ReceivedSykmelding(
-                                sykmelding = sykmelding,
-                                personNrPasient = pasient.fnr!!,
-                                tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-                                personNrLege = sykmelder.fnr,
-                                navLogId = sykmeldingId,
-                                msgId = sykmeldingId,
-                                legekontorOrgNr = null,
-                                legekontorOrgName = "",
-                                legekontorHerId = null,
-                                legekontorReshId = null,
-                                mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
-                                    ?: msgHead.msgInfo.genDate,
-                                rulesetVersion = healthInformation.regelSettVersjon,
-                                fellesformat = fellesformatMarshaller.toString(fellesformat),
-                                tssid = samhandlerPraksis?.tss_ident ?: ""
+                                    sykmelding = sykmelding,
+                                    personNrPasient = pasient.fnr!!,
+                                    tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
+                                    personNrLege = sykmelder.fnr,
+                                    navLogId = sykmeldingId,
+                                    msgId = sykmeldingId,
+                                    legekontorOrgNr = null,
+                                    legekontorOrgName = "",
+                                    legekontorHerId = null,
+                                    legekontorReshId = null,
+                                    mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
+                                            ?: msgHead.msgInfo.genDate,
+                                    rulesetVersion = healthInformation.regelSettVersjon,
+                                    fellesformat = fellesformatMarshaller.toString(fellesformat),
+                                    tssid = samhandlerPraksis?.tss_ident ?: ""
                             )
 
                             log.info(
-                                "Papirsykmelding manuell registering mappet til internt format uten feil {}",
-                                fields(loggingMeta)
+                                    "Papirsykmelding manuell registering mappet til internt format uten feil {}",
+                                    fields(loggingMeta)
                             )
 
                             val validationResult = regelClient.valider(receivedSykmelding, sykmeldingId)
                             log.info(
-                                "Resultat: {}, {}, {}",
-                                StructuredArguments.keyValue("ruleStatus", validationResult.status.name),
-                                StructuredArguments.keyValue(
-                                    "ruleHits",
-                                    validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
-                                fields(loggingMeta)
+                                    "Resultat: {}, {}, {}",
+                                    StructuredArguments.keyValue("ruleStatus", validationResult.status.name),
+                                    StructuredArguments.keyValue(
+                                            "ruleHits",
+                                            validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
+                                    fields(loggingMeta)
                             )
 
                             if (validationResult.ruleHits.isAllRulesWhitelisted()) {
@@ -187,24 +187,24 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                                             handleOKOppgave(
-                                                receivedSykmelding = receivedSykmelding,
-                                                kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
-                                                loggingMeta = loggingMeta,
-                                                syfoserviceKafkaProducer = syfoserviceKafkaProducer,
-                                                oppgaveClient = oppgaveClient,
-                                                dokArkivClient = dokArkivClient,
-                                                sykmeldingId = sykmeldingId,
-                                                journalpostId = journalpostId,
-                                                healthInformation = healthInformation,
-                                                oppgaveId = oppgaveId,
-                                                veileder = veileder,
-                                                navEnhet = navEnhet
+                                                    receivedSykmelding = receivedSykmelding,
+                                                    kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
+                                                    loggingMeta = loggingMeta,
+                                                    syfoserviceKafkaProducer = syfoserviceKafkaProducer,
+                                                    oppgaveClient = oppgaveClient,
+                                                    dokArkivClient = dokArkivClient,
+                                                    sykmeldingId = sykmeldingId,
+                                                    journalpostId = journalpostId,
+                                                    healthInformation = healthInformation,
+                                                    oppgaveId = oppgaveId,
+                                                    veileder = veileder,
+                                                    navEnhet = navEnhet
                                             )
                                             call.respond(HttpStatusCode.NoContent)
                                         } else {
                                             log.error(
-                                                "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                                    "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
+                                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                             )
                                             call.respond(HttpStatusCode.InternalServerError)
                                         }
@@ -218,14 +218,14 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 when (validationResult.status) {
                                     Status.MANUAL_PROCESSING -> {
                                         log.info(
-                                            "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
-                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                                "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                         )
                                         call.respond(HttpStatusCode.BadRequest, validationResult)
                                     }
                                     Status.OK -> {
                                         log.error("ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet",
-                                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                         )
                                         call.respond(HttpStatusCode.InternalServerError)
                                     }
@@ -237,15 +237,15 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             }
                         } else {
                             log.warn(
-                                "Veileder har ikkje tilgang, {}, {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId), fields(loggingMeta)
+                                    "Veileder har ikkje tilgang, {}, {}",
+                                    StructuredArguments.keyValue("oppgaveId", oppgaveId), fields(loggingMeta)
                             )
                             call.respond(HttpStatusCode.Unauthorized)
                         }
                     } else {
                         log.warn(
-                            "Henting av papirsykmeldinger manuell registering returente null {}",
-                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                "Henting av papirsykmeldinger manuell registering returente null {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
                         )
                         call.respond(HttpStatusCode.InternalServerError)
                     }
