@@ -16,6 +16,7 @@ import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.log
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.padHpr
 
 @KtorExperimentalAPI
 class DokArkivClient(
@@ -51,7 +52,7 @@ class DokArkivClient(
             header("Nav-Callid", msgId)
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                    id = hprnummerMedRiktigLengde(behandler.hpr),
+                    id = padHpr(behandler.hpr),
                     navn = finnNavn(behandler)
                 ),
                 bruker = Bruker(id = fnr),
@@ -129,13 +130,6 @@ class DokArkivClient(
                 httpResponse.call.response.receive<String>()
             }
         }
-    }
-
-    fun hprnummerMedRiktigLengde(hprnummer: String?): String? {
-        if (hprnummer?.length != null && hprnummer.length < 9) {
-            return hprnummer.padStart(9, '0')
-        }
-        return hprnummer
     }
 
     fun finnNavn(behandler: Behandler): String {

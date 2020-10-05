@@ -14,6 +14,7 @@ import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import no.nav.syfo.log
+import no.nav.syfo.util.padHpr
 
 class NorskHelsenettClient(
     private val endpointUrl: String,
@@ -31,7 +32,7 @@ class NorskHelsenettClient(
             headers {
                 append("Authorization", "Bearer $accessToken")
                 append("Nav-CallId", callId)
-                append("hprNummer", hprNummer)
+                append("hprNummer", padHpr(hprNummer)!!)
             }
         }.execute()
         if (httpResponse.status == InternalServerError) {
