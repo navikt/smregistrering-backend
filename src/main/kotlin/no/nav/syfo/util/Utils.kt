@@ -24,3 +24,10 @@ fun getAccessTokenFromAuthHeader(request: ApplicationRequest): String? {
     }
     return accessToken
 }
+
+fun padHpr(hprnummer: String?): String? {
+    if (hprnummer?.length != null && hprnummer.length < 9) {
+        return hprnummer.padStart(9, '0')
+    }
+    return hprnummer
+}
