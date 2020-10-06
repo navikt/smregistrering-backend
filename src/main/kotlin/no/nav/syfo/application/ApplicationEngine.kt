@@ -35,6 +35,7 @@ import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -74,6 +75,11 @@ fun createApplicationEngine(
             }
         }
         install(StatusPages) {
+            exception<ValidationException> { cause ->
+                call.respond(HttpStatusCode.BadRequest, cause.message)
+                log.error("Caught ValidationException", cause)
+            }
+
             exception<Throwable> { cause ->
                 call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
 

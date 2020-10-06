@@ -51,6 +51,12 @@
   "prognose": {
     "arbeidsforEtterPeriode": true,
     "hensynArbeidsplassen": "Test hensyn arbeidsplassen.",
+    "erIArbeid": {
+      "egetArbeidPaSikt": true,
+      "annetArbeidPaSikt": false,
+      "arbeidFOM": null,
+      "vurderingsdato": null
+    },
     "erIkkeIArbeid": {
       "arbeidsforPaSikt": true,
       "arbeidsforFOM": "2020-06-04",

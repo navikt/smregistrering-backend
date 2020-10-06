@@ -147,16 +147,20 @@ fun mapsmRegistreringManuelltTilFellesformat(
                             prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
                                 isArbeidsforEtterEndtPeriode = smRegistreringManuell.prognose?.arbeidsforEtterPeriode
                                 beskrivHensynArbeidsplassen = smRegistreringManuell.prognose?.hensynArbeidsplassen
-                                erIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
-                                    isAnnetArbeidPaSikt = smRegistreringManuell.prognose?.erIArbeid?.annetArbeidPaSikt
-                                    isEgetArbeidPaSikt = smRegistreringManuell.prognose?.erIArbeid?.egetArbeidPaSikt
-                                    arbeidFraDato = smRegistreringManuell.prognose?.erIArbeid?.arbeidFOM
-                                    vurderingDato = smRegistreringManuell.prognose?.erIArbeid?.vurderingsdato
+                                erIArbeid = smRegistreringManuell.prognose?.erIArbeid?.let {
+                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
+                                        isAnnetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.annetArbeidPaSikt
+                                        isEgetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.egetArbeidPaSikt
+                                        arbeidFraDato = smRegistreringManuell.prognose.erIArbeid?.arbeidFOM
+                                        vurderingDato = smRegistreringManuell.prognose.erIArbeid?.vurderingsdato
+                                    }
                                 }
-                                erIkkeIArbeid = HelseOpplysningerArbeidsuforhet.Prognose.ErIkkeIArbeid().apply {
-                                    isArbeidsforPaSikt = smRegistreringManuell.prognose?.erIkkeIArbeid?.arbeidsforPaSikt
-                                    arbeidsforFraDato = smRegistreringManuell.prognose?.erIkkeIArbeid?.arbeidsforFOM
-                                    vurderingDato = smRegistreringManuell.prognose?.erIkkeIArbeid?.vurderingsdato
+                                erIkkeIArbeid = smRegistreringManuell.prognose?.erIkkeIArbeid?.let {
+                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIkkeIArbeid().apply {
+                                        isArbeidsforPaSikt = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforPaSikt
+                                        arbeidsforFraDato = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforFOM
+                                        vurderingDato = smRegistreringManuell.prognose.erIkkeIArbeid?.vurderingsdato
+                                    }
                                 }
                             }
                             utdypendeOpplysninger =
@@ -251,7 +255,9 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
             }.collect(Collectors.toList()))
         }
     }?.forEach {
-        utdypendeOpplysninger.spmGruppe.add(it)
+        if (it.spmSvar.size != 0) {
+            utdypendeOpplysninger.spmGruppe.add(it)
+        }
     }
     return utdypendeOpplysninger
 }

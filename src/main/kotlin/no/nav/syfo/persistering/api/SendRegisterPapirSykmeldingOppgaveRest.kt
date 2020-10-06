@@ -95,6 +95,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
 
+                            validate(smRegistreringManuell)
+
                             val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                             if (sykmelderHpr.isNullOrEmpty()) {

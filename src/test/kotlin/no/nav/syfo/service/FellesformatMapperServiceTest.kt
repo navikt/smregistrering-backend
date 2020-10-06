@@ -1,5 +1,6 @@
 package no.nav.syfo.service
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -13,7 +14,6 @@ import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
-import no.nav.syfo.model.ErIkkeIArbeid
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
 import no.nav.syfo.model.MedisinskArsak
@@ -162,7 +162,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
         receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
+        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null)
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
@@ -306,7 +306,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
         receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = ErIkkeIArbeid(arbeidsforPaSikt = false, arbeidsforFOM = null, vurderingsdato = null))
+        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = null)
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
@@ -333,5 +333,39 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
         receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
         receivedSykmelding.sykmelding.navnFastlege shouldEqual null
+    }
+
+    @Test
+    fun `Utdypende opplysninger skal håndtere tomme maps`() {
+
+        val stringMap = "{\n" +
+                "  \"6.1\": {},\n" +
+                "  \"6.2\": {},\n" +
+                "  \"6.3\": {},\n" +
+                "  \"6.4\": {},\n" +
+                "  \"6.5\": {},\n" +
+                "  \"6.6\": {}\n" +
+                "}"
+        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
+
+        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
+        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 0
+    }
+
+    @Test
+    fun `Utdypende opplysninger skal håndtere maps med innhold`() {
+
+        val stringMap = "{\n " +
+                "  \"6.1\": {\"6.1.1\":\"bar\"},\n" +
+                "  \"6.2\": {},\n" +
+                "  \"6.3\": {},\n" +
+                "  \"6.4\": {},\n" +
+                "  \"6.5\": {},\n" +
+                "  \"6.6\": {}\n" +
+                "}"
+        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
+
+        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
+        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 1
     }
 }
