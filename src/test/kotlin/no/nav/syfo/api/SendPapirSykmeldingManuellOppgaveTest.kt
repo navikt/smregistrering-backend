@@ -9,13 +9,16 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
 import io.ktor.jackson.jackson
 import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.contentType
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
@@ -76,6 +79,7 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotBe
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
 
@@ -102,7 +106,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val sykmelderService = mockk<SykmelderService>()
 
     @Test
-    fun `Regsitering av papirsykmelding happycase`() {
+    fun `Registrering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -330,7 +334,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     }
 
     @Test
-    fun `Regsitering av papirsykmelding fra JSON`() {
+    fun `Registrering av papirsykmelding fra JSON`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -509,7 +513,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     }
 
     @Test
-    fun `Regsitering av papirsykmelding med ugyldig JSON`() {
+    fun `Registrering av papirsykmelding med ugyldig JSON`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -547,7 +551,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             }
             application.install(StatusPages) {
                 exception<ValidationException> { cause ->
-                    call.respond(HttpStatusCode.BadRequest, cause.message)
+                    call.respond(HttpStatusCode.BadRequest, cause.validationResult)
                     log.error("Caught ValidationException", cause)
                 }
 
@@ -681,6 +685,9 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 setBody(objectMapper.writeValueAsString(smRegisteringManuell))
             }) {
                 response.status() shouldEqual HttpStatusCode.BadRequest
+                response.contentType() shouldEqual ContentType.Application.Json.withCharset(Charsets.UTF_8)
+                response.content shouldNotBe null
+                response.content!!.lines() shouldEqual listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"erIArbeidValidation\",\"messageForSender\":\"Sykmeldingen kan ikke ha både 5.2 og 5.3 fylt ut samtidig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
             }
         }
     }
