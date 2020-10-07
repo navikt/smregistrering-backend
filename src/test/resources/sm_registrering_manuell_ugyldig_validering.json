@@ -1,7 +1,15 @@
 {
   "pasientFnr": "143242345",
   "sykmelderFnr": "18459123134",
-  "perioder": [],
+  "perioder": [{
+    "aktivitetIkkeMulig": null,
+    "avventendeInnspillTilArbeidsgiver": "Avventer",
+    "behandlingsdager": 0,
+    "gradert": null,
+    "reisetilskudd": false,
+    "fom": "2020-06-04",
+    "tom": "2020-06-06"
+  }],
   "medisinskVurdering": {
     "hovedDiagnose": {
       "system": "2.16.578.1.12.4.1.1.7110",

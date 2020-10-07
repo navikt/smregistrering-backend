@@ -7,7 +7,7 @@ data class SmRegistreringManuell(
     val sykmelderFnr: String,
     val perioder: List<Periode>,
     val medisinskVurdering: MedisinskVurdering,
-    val syketilfelleStartDato: LocalDate,
+    val syketilfelleStartDato: LocalDate?,
     val arbeidsgiver: Arbeidsgiver,
     val behandletDato: LocalDate,
     val skjermesForPasient: Boolean,
