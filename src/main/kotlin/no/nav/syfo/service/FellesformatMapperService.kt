@@ -1,5 +1,6 @@
 package no.nav.syfo.service
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.stream.Collectors
@@ -119,7 +120,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                     }
                     content = XMLRefDoc.Content().apply {
                         any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = smRegistreringManuell.syketilfelleStartDato
+                            syketilfelleStartDato = tilSyketilfelleStartDato(smRegistreringManuell)
                             pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
                                 navn = NavnType().apply {
                                     fornavn = pdlPasient.navn.fornavn
@@ -193,6 +194,13 @@ fun mapsmRegistreringManuelltTilFellesformat(
             })
         })
     }
+}
+
+fun tilSyketilfelleStartDato(smRegistreringManuell: SmRegistreringManuell): LocalDate? {
+    // Bruk innsendt syketilfelleStartDato, eller fall tilbake til dato fra perioder hvis ikke satt
+    return smRegistreringManuell.syketilfelleStartDato
+        ?: smRegistreringManuell.perioder
+            .stream().map(Periode::fom).min(LocalDate::compareTo).get()
 }
 
 fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandler =

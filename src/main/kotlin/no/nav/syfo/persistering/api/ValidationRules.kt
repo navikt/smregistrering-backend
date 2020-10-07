@@ -20,5 +20,18 @@ fun validate(smRegistreringManuell: SmRegistreringManuell) {
                 )
         )
         throw ValidationException(validationResult)
+    } else if (smRegistreringManuell.perioder.isEmpty()) {
+        val validationResult = ValidationResult(
+            status = Status.MANUAL_PROCESSING,
+            ruleHits = listOf(
+                RuleInfo(
+                    ruleName = "periodeValidation",
+                    messageForSender = "Sykmeldingen må ha minst én periode oppgitt for å være gyldig",
+                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                    ruleStatus = Status.MANUAL_PROCESSING
+                )
+            )
+        )
+        throw ValidationException(validationResult)
     }
 }

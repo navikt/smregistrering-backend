@@ -336,6 +336,128 @@ class FellesformatMapperServiceTest {
     }
 
     @Test
+    fun `Test av tilSyketilfelleStartDato dato er satt`() {
+        val smRegisteringManuell = SmRegistreringManuell(
+            pasientFnr = fnrPasient,
+            sykmelderFnr = fnrLege,
+            perioder = listOf(
+                Periode(
+                    fom = LocalDate.of(2019, Month.AUGUST, 15),
+                    tom = LocalDate.of(2019, Month.SEPTEMBER, 30),
+                    aktivitetIkkeMulig = AktivitetIkkeMulig(
+                        medisinskArsak = null,
+                        arbeidsrelatertArsak = null
+                    ),
+                    avventendeInnspillTilArbeidsgiver = null,
+                    behandlingsdager = null,
+                    gradert = null,
+                    reisetilskudd = false
+                )
+            ),
+            medisinskVurdering = MedisinskVurdering(
+                hovedDiagnose = Diagnose(
+                    system = "2.16.578.1.12.4.1.1.7170",
+                    kode = "A070",
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                ),
+                biDiagnoser = listOf(),
+                svangerskap = false,
+                yrkesskade = false,
+                yrkesskadeDato = null,
+                annenFraversArsak = null
+            ),
+            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+            skjermesForPasient = false,
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            behandletDato = LocalDate.of(2020, 4, 1),
+            utdypendeOpplysninger = null,
+            prognose = Prognose(
+                true,
+                "Nei",
+                ErIArbeid(
+                    true,
+                    false,
+                    arbeidFOM = LocalDate.of(2020, 6, 23),
+                    vurderingsdato = LocalDate.of(2020, 6, 23)
+                ),
+                null
+            ),
+            kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            navnFastlege = "Per Person",
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+        )
+
+        val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
+        tilSyketilfelleStartDato shouldEqual smRegisteringManuell.syketilfelleStartDato
+    }
+
+    @Test
+    fun `Test av tilSyketilfelleStartDato dato ikke satt`() {
+        val smRegisteringManuell = SmRegistreringManuell(
+            pasientFnr = fnrPasient,
+            sykmelderFnr = fnrLege,
+            perioder = listOf(
+                Periode(
+                    fom = LocalDate.of(2019, Month.AUGUST, 15),
+                    tom = LocalDate.of(2019, Month.SEPTEMBER, 30),
+                    aktivitetIkkeMulig = AktivitetIkkeMulig(
+                        medisinskArsak = null,
+                        arbeidsrelatertArsak = null
+                    ),
+                    avventendeInnspillTilArbeidsgiver = null,
+                    behandlingsdager = null,
+                    gradert = null,
+                    reisetilskudd = false
+                )
+            ),
+            medisinskVurdering = MedisinskVurdering(
+                hovedDiagnose = Diagnose(
+                    system = "2.16.578.1.12.4.1.1.7170",
+                    kode = "A070",
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                ),
+                biDiagnoser = listOf(),
+                svangerskap = false,
+                yrkesskade = false,
+                yrkesskadeDato = null,
+                annenFraversArsak = null
+            ),
+            syketilfelleStartDato = null,
+            skjermesForPasient = false,
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            behandletDato = LocalDate.of(2020, 4, 1),
+            utdypendeOpplysninger = null,
+            prognose = Prognose(
+                true,
+                "Nei",
+                ErIArbeid(
+                    true,
+                    false,
+                    arbeidFOM = LocalDate.of(2020, 6, 23),
+                    vurderingsdato = LocalDate.of(2020, 6, 23)
+                ),
+                null
+            ),
+            kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            navnFastlege = "Per Person",
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+        )
+
+        val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
+        tilSyketilfelleStartDato shouldEqual smRegisteringManuell.perioder.first().fom
+    }
+
+    @Test
     fun `Utdypende opplysninger skal håndtere tomme maps`() {
 
         val stringMap = "{\n" +
