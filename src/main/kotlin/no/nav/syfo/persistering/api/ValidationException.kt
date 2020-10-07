@@ -1,3 +1,5 @@
 package no.nav.syfo.persistering.api
 
-class ValidationException(override val message: String) : Exception(message)
+import no.nav.syfo.model.ValidationResult
+
+class ValidationException(val validationResult: ValidationResult) : Exception()
