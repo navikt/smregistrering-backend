@@ -105,8 +105,6 @@ fun Route.avvisOppgave(
                         log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
                         call.respond(HttpStatusCode.Unauthorized)
                     }
-
-                    call.respond(HttpStatusCode.OK)
                 }
             }
         }
