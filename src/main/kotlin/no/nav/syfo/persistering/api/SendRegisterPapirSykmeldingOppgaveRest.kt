@@ -200,6 +200,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                                     healthInformation = healthInformation,
                                                     oppgaveId = oppgaveId,
                                                     veileder = veileder,
+                                                    sykmelder = sykmelder,
                                                     navEnhet = navEnhet
                                             )
                                             call.respond(HttpStatusCode.NoContent)
