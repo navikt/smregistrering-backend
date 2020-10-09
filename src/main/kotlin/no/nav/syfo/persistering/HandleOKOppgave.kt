@@ -12,6 +12,7 @@ import no.nav.syfo.log
 import no.nav.syfo.model.FerdigStillOppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.service.notifySyfoService
 import no.nav.syfo.util.LoggingMeta
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -29,6 +30,7 @@ suspend fun handleOKOppgave(
     healthInformation: HelseOpplysningerArbeidsuforhet,
     oppgaveId: Int,
     veileder: Veileder,
+    sykmelder: Sykmelder,
     navEnhet: String
 ) {
 
@@ -36,7 +38,7 @@ suspend fun handleOKOppgave(
         journalpostId,
         receivedSykmelding.personNrPasient,
         sykmeldingId,
-        receivedSykmelding.sykmelding.behandler,
+        sykmelder,
         loggingMeta,
         navEnhet
     )

@@ -14,7 +14,7 @@ import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.log
-import no.nav.syfo.model.Behandler
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.padHpr
 
@@ -29,18 +29,18 @@ class DokArkivClient(
         journalpostId: String,
         fnr: String,
         sykmeldingId: String,
-        behandler: Behandler,
+        sykmelder: Sykmelder,
         loggingMeta: LoggingMeta,
         navEnhet: String
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, behandler = behandler, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, sykmelder = sykmelder, msgId = sykmeldingId, loggingMeta = loggingMeta)
         return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
     suspend fun oppdaterJournalpost(
         journalpostId: String,
         fnr: String,
-        behandler: Behandler,
+        sykmelder: Sykmelder,
         msgId: String,
         loggingMeta: LoggingMeta
     ) {
@@ -52,8 +52,8 @@ class DokArkivClient(
             header("Nav-Callid", msgId)
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                    id = padHpr(behandler.hpr),
-                    navn = finnNavn(behandler)
+                    id = padHpr(sykmelder.hprNummer),
+                    navn = finnNavn(sykmelder)
                 ),
                 bruker = Bruker(id = fnr),
                 sak = Sak()
@@ -132,8 +132,8 @@ class DokArkivClient(
         }
     }
 
-    fun finnNavn(behandler: Behandler): String {
-        return "${behandler.fornavn} ${behandler.etternavn}"
+    fun finnNavn(sykmelder: Sykmelder): String {
+        return "${sykmelder.fornavn} ${sykmelder.etternavn}"
     }
 
     data class FerdigstillJournal(
