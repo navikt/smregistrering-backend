@@ -101,7 +101,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
+    private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
 
@@ -131,7 +131,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     regelClient,
                     pdlPersonService,
                     sykmelderService,
-                    syfoTilgangsKontrollService
+                    authorizationService
                 )
             }
 
@@ -156,8 +156,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 null
             )
 
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -359,7 +359,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     regelClient,
                     pdlPersonService,
                     sykmelderService,
-                    syfoTilgangsKontrollService
+                    authorizationService
                 )
             }
 
@@ -383,8 +383,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -538,7 +538,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     regelClient,
                     pdlPersonService,
                     sykmelderService,
-                    syfoTilgangsKontrollService
+                    authorizationService
                 )
             }
 
@@ -567,8 +567,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 true,
                 null
             )
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
