@@ -85,7 +85,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            call.respond(HttpStatusCode.Unauthorized)
+                            call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
                         }
                     } else {
                         if (pdfPapirSykmelding == null) {
