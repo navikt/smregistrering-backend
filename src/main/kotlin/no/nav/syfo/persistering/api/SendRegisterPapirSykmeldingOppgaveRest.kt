@@ -230,11 +230,11 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                         log.error("ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet",
                                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                         )
-                                        call.respond(HttpStatusCode.InternalServerError)
+                                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved innsending av oppgave")
                                     }
                                     else -> {
                                         log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
-                                        call.respond(HttpStatusCode.InternalServerError)
+                                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved innsending av oppgave")
                                     }
                                 }
                             }
@@ -243,14 +243,13 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     "Veileder har ikkje tilgang, {}, {}",
                                     StructuredArguments.keyValue("oppgaveId", oppgaveId), fields(loggingMeta)
                             )
-                            call.respond(HttpStatusCode.Unauthorized)
+                            call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
                         }
                     } else {
                         log.warn(
                                 "Henting av papirsykmeldinger manuell registering returente null {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                        )
-                        call.respond(HttpStatusCode.InternalServerError)
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId))
+                        call.respond(HttpStatusCode.InternalServerError, "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId")
                     }
                 }
             }
