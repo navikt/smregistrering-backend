@@ -248,6 +248,7 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
     from?.entries?.stream()?.map {
         HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
             spmGruppeId = it.key
+            spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
             spmSvar.addAll(it.value.entries.stream().map {
                 DynaSvarType().apply {
                     spmTekst = QuestionId.fromSpmId(it.key).spmTekst
