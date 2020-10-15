@@ -271,8 +271,6 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
     return utdypendeOpplysninger
 }
 
-
-
 fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode> {
     return ArrayList<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode>().apply {
         addAll(perioder.map {
