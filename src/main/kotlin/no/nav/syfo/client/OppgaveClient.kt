@@ -6,17 +6,18 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
-import java.lang.RuntimeException
 import java.time.DayOfWeek
 import java.time.LocalDate
+import kotlin.RuntimeException
 import no.nav.syfo.helpers.log
-import no.nav.syfo.model.FerdigStillOppgave
-import no.nav.syfo.model.OpprettOppgave
+import no.nav.syfo.model.FerdigstillOppgave
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OpprettOppgaveResponse
 
 @KtorExperimentalAPI
@@ -25,17 +26,17 @@ class OppgaveClient(
     private val oidcClient: StsOidcClient,
     private val httpClient: HttpClient
 ) {
-    suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun opprettOppgave(oppgave: Oppgave, msgId: String):
+            Oppgave {
 
-        log.info("Oppretter oppgave {} ", opprettOppgave)
+        log.info("Oppretter oppgave {} ", oppgave)
 
         val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
-            body = opprettOppgave
+            body = oppgave
         }.execute()
 
         return when (httpResponse.status) {
@@ -50,8 +51,7 @@ class OppgaveClient(
         }
     }
 
-    suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigstillOppgave, msgId: String): OpprettOppgaveResponse {
 
         log.info("Ferdigstiller oppgave {} ", ferdigstilloppgave)
 
@@ -75,8 +75,7 @@ class OppgaveClient(
         }
     }
 
-    suspend fun hentOppgave(oppgaveId: Int, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun hentOppgave(oppgaveId: Int, msgId: String): Oppgave {
 
         log.info("Henter oppgave med oppgaveId {} msgId {}", oppgaveId, msgId)
 
@@ -97,6 +96,44 @@ class OppgaveClient(
                 throw RuntimeException(msg)
             }
         }
+    }
+
+    suspend fun hentOppgaveVersjon(oppgaveId: Int, msgId: String): Int {
+        return hentOppgave(oppgaveId, msgId).versjon
+            ?: throw RuntimeException("Fant ikke versjon for oppgave $oppgaveId, msgId $msgId")
+    }
+
+    private suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
+
+        log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
+
+        val httpResponse = httpClient.put<HttpStatement>(url + "/" + oppgave.id) {
+            contentType(ContentType.Application.Json)
+            val oidcToken = oidcClient.oidcToken()
+            header("Authorization", "Bearer ${oidcToken.access_token}")
+            header("X-Correlation-ID", msgId)
+            body = oppgave
+        }.execute()
+
+        return when (httpResponse.status) {
+            HttpStatusCode.OK -> {
+                httpResponse.call.response.receive()
+            }
+            else -> {
+                val msg = String.format("OppgaveClient oppdaterOppgave kastet feil {} ved oppdatering av oppgave med id {} ", httpResponse.status, oppgave.id)
+                log.error(msg)
+                throw RuntimeException(msg)
+            }
+        }
+    }
+
+    suspend fun setOppgaveTilGosysOppgave(oppgaveId: Int, msgId: String, tildeltEnhetsnr: String, tilordnetRessurs: String) {
+        val oppgave = hentOppgave(oppgaveId, msgId)
+        val oppdatertOppgave = oppgave.copy(
+            behandlesAvApplikasjon = "FS22",
+            tildeltEnhetsnr = tildeltEnhetsnr,
+            tilordnetRessurs = tilordnetRessurs)
+        oppdaterOppgave(oppdatertOppgave, msgId)
     }
 }
 

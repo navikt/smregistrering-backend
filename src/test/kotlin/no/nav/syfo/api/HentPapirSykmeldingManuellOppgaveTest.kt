@@ -187,7 +187,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
             coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
                 Pair(
@@ -307,7 +307,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
         coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
         coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-        coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+        coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
         coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
         coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
             Pair(

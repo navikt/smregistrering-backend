@@ -196,7 +196,7 @@ class AvvisOppgaveRestTest {
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
 
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {

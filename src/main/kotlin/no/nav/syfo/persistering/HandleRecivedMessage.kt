@@ -11,7 +11,7 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.INCOMING_MESSAGE_COUNTER
 import no.nav.syfo.metrics.MESSAGE_STORED_IN_DB_COUNTER
 import no.nav.syfo.metrics.OPPRETT_OPPGAVE_COUNTER
-import no.nav.syfo.model.OpprettOppgave
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.db.erOpprettManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -35,7 +35,7 @@ suspend fun handleRecivedMessage(
                 papirSmRegistering.sykmeldingId, fields(loggingMeta)
             )
         } else {
-            val opprettOppgave = OpprettOppgave(
+            val opprettOppgave = Oppgave(
                 aktoerId = papirSmRegistering.aktorId,
                 opprettetAvEnhetsnr = "9999",
                 behandlesAvApplikasjon = "SMR",
@@ -50,18 +50,18 @@ suspend fun handleRecivedMessage(
                 journalpostId = papirSmRegistering.journalpostId
             )
 
-            val oppgaveResponse = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
+            val oppgave = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
             OPPRETT_OPPGAVE_COUNTER.inc()
             log.info(
                 "Opprettet manuell papir sykmeldingoppgave med {}, {}",
-                StructuredArguments.keyValue("oppgaveId", oppgaveResponse.id),
+                StructuredArguments.keyValue("oppgaveId", oppgave.id),
                 fields(loggingMeta)
             )
 
-            database.opprettManuellOppgave(papirSmRegistering, oppgaveResponse.id)
+            database.opprettManuellOppgave(papirSmRegistering, oppgave.id!!)
             log.info(
                 "Manuell papir sykmeldingoppgave lagret i databasen, for {}, {}",
-                StructuredArguments.keyValue("oppgaveId", oppgaveResponse.id),
+                StructuredArguments.keyValue("oppgaveId", oppgave.id),
                 fields(loggingMeta)
             )
             MESSAGE_STORED_IN_DB_COUNTER.inc()

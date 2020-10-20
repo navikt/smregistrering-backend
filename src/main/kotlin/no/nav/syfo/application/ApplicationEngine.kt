@@ -37,6 +37,7 @@ import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -121,6 +122,7 @@ fun createApplicationEngine(
                     oppgaveClient
                 )
                 sykmelderApi(sykmelderService)
+                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

@@ -278,7 +278,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
@@ -452,7 +452,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
@@ -636,7 +636,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(

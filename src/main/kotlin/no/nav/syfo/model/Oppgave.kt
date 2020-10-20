@@ -2,7 +2,9 @@ package no.nav.syfo.model
 
 import java.time.LocalDate
 
-data class OpprettOppgave(
+data class Oppgave(
+    val id: Int? = null,
+    val versjon: Int? = null,
     val tildeltEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
     val aktoerId: String? = null,
@@ -19,7 +21,7 @@ data class OpprettOppgave(
     val prioritet: String
 )
 
-data class FerdigStillOppgave(
+data class FerdigstillOppgave(
     val versjon: Int,
     val id: Int,
     val status: OppgaveStatus,
