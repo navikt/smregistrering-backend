@@ -102,7 +102,7 @@ class OppgaveClient(
             ?: throw RuntimeException("Fant ikke versjon for oppgave $oppgaveId, msgId $msgId")
     }
 
-    private suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
+    protected suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
 
@@ -126,13 +126,13 @@ class OppgaveClient(
         }
     }
 
-    suspend fun setOppgaveTilGosysOppgave(oppgaveId: Int, msgId: String, tildeltEnhetsnr: String, tilordnetRessurs: String) {
+    suspend fun sendOppgaveTilGosys(oppgaveId: Int, msgId: String, tildeltEnhetsnr: String, tilordnetRessurs: String): Oppgave {
         val oppgave = hentOppgave(oppgaveId, msgId)
         val oppdatertOppgave = oppgave.copy(
             behandlesAvApplikasjon = "FS22",
             tildeltEnhetsnr = tildeltEnhetsnr,
             tilordnetRessurs = tilordnetRessurs)
-        oppdaterOppgave(oppdatertOppgave, msgId)
+        return oppdaterOppgave(oppdatertOppgave, msgId)
     }
 }
 

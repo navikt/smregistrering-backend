@@ -70,7 +70,7 @@ fun Route.sendOppgaveTilGosys(
 
                         log.info("Sender oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
 
-                        oppgaveClient.setOppgaveTilGosysOppgave(
+                        oppgaveClient.sendOppgaveTilGosys(
                             oppgaveId = oppgaveId,
                             msgId = callId,
                             tildeltEnhetsnr = navEnhet,
@@ -79,6 +79,8 @@ fun Route.sendOppgaveTilGosys(
                         manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
 
                         log.info("Ferdig å sende oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
+
+                        call.respond(HttpStatusCode.NoContent)
                     } else {
                         log.warn("Veileder har ikke tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
                         call.respond(HttpStatusCode.Unauthorized)
