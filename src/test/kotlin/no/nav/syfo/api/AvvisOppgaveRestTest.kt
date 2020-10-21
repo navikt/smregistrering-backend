@@ -35,7 +35,7 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.MedisinskVurdering
-import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Sykmelder
@@ -197,7 +197,24 @@ class AvvisOppgaveRestTest {
 
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
-            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
+                    Oppgave(
+                        id = 123, versjon = 1,
+                        tilordnetRessurs = "",
+                        tildeltEnhetsnr = "",
+                        journalpostId = "",
+                        aktivDato = LocalDate.MAX,
+                        aktoerId = "",
+                        behandlesAvApplikasjon = "",
+                        behandlingstype = "",
+                        beskrivelse = "",
+                        fristFerdigstillelse = null,
+                        oppgavetype = "",
+                        opprettetAvEnhetsnr = "",
+                        prioritet = "",
+                        saksreferanse = "",
+                        tema = ""
+                    )
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
                 addHeader("Accept", "application/json")

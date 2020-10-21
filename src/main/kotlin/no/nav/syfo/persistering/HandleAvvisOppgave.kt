@@ -35,10 +35,10 @@ suspend fun handleAvvisOppgave(
 
     val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
 
-    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigstillOppgave, sykmeldingId)
+    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(
         "Ferdigstiller oppgave med {}, {}",
-        StructuredArguments.keyValue("oppgaveId", oppgaveResponse.id),
+        StructuredArguments.keyValue("oppgaveId", oppgave.id),
         StructuredArguments.fields(loggingMeta)
     )
 }

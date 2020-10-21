@@ -69,10 +69,10 @@ suspend fun handleOKOppgave(
 
     val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
 
-    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigstillOppgave, sykmeldingId)
+    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(
         "Ferdigstiller oppgave med {}, {}",
-        keyValue("oppgaveId", oppgaveResponse.id),
+        keyValue("oppgaveId", oppgave.id),
         fields(loggingMeta)
     )
 }

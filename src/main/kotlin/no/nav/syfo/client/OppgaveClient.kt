@@ -18,7 +18,6 @@ import kotlin.RuntimeException
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
-import no.nav.syfo.model.OpprettOppgaveResponse
 
 @KtorExperimentalAPI
 class OppgaveClient(
@@ -29,7 +28,7 @@ class OppgaveClient(
     suspend fun opprettOppgave(oppgave: Oppgave, msgId: String):
             Oppgave {
 
-        log.info("Oppretter oppgave {} ", oppgave)
+        log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)
 
         val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
@@ -51,9 +50,9 @@ class OppgaveClient(
         }
     }
 
-    suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigstillOppgave, msgId: String): OpprettOppgaveResponse {
+    suspend fun ferdigstillOppgave(ferdigstilloppgave: FerdigstillOppgave, msgId: String): Oppgave {
 
-        log.info("Ferdigstiller oppgave {} ", ferdigstilloppgave)
+        log.info("Ferdigstiller oppgave med msgId {}, oppgaveId {} ", msgId, ferdigstilloppgave.id)
 
         val httpResponse = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
             contentType(ContentType.Application.Json)
@@ -68,7 +67,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
+                val msg = String.format("OppgaveClient ferdigstillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
                 log.error(msg)
                 throw RuntimeException(msg)
             }

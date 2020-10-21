@@ -33,13 +33,13 @@ fun Route.sendOppgaveTilGosys(
 
             when {
                 oppgaveId == null -> {
-                    log.error("Path parameter mangler eller er feil formattert: oppgaveid")
+                    log.error("Path parameter er feilformattert: oppgaveid")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                        "Path er feilformattert: oppgaveid"
                     )
                 }
-                accessToken == null -> {
+                accessToken.isNullOrEmpty() -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
                     call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
                 }
@@ -66,7 +66,7 @@ fun Route.sendOppgaveTilGosys(
 
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
 
-                        val veileder = authorizationService.getVeileder(accessToken) // Trenger kanskje
+                        val veileder = authorizationService.getVeileder(accessToken)
 
                         log.info("Sender oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
 

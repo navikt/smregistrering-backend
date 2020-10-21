@@ -56,7 +56,7 @@ import no.nav.syfo.model.MedisinskArsak
 import no.nav.syfo.model.MedisinskArsakType
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.MeldingTilNAV
-import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
@@ -279,7 +279,23 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
-            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 1,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = ""
+            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
@@ -453,7 +469,23 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
-            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 1,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = ""
+            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
@@ -637,7 +669,23 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
-            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 1,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = ""
+            )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",

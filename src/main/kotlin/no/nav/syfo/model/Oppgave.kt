@@ -22,17 +22,11 @@ data class Oppgave(
 )
 
 data class FerdigstillOppgave(
-    val versjon: Int,
     val id: Int,
+    val versjon: Int,
     val status: OppgaveStatus,
     val tilordnetRessurs: String,
     val tildeltEnhetsnr: String
-
-)
-
-data class OpprettOppgaveResponse(
-    val id: Int,
-    val versjon: Int
 )
 
 enum class OppgaveStatus(val status: String) {
