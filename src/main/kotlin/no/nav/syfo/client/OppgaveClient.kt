@@ -15,6 +15,7 @@ import io.ktor.util.KtorExperimentalAPI
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlin.RuntimeException
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
@@ -106,6 +107,8 @@ class OppgaveClient(
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
 
+        log.info("Sender oppdatert oppgave til Oppgave: {}", StructuredArguments.fields(oppgave))
+
         val httpResponse = httpClient.put<HttpStatement>(url + "/" + oppgave.id) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
@@ -119,7 +122,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}"
+                val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}, response: ${httpResponse.call.response.receive<String>()}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
