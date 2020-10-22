@@ -213,7 +213,8 @@ class AvvisOppgaveRestTest {
                         opprettetAvEnhetsnr = "",
                         prioritet = "",
                         saksreferanse = "",
-                        tema = ""
+                        tema = "",
+                        status = "OPPRETTET"
                     )
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {

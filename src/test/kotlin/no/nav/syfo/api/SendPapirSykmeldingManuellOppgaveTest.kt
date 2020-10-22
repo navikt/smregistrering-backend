@@ -294,7 +294,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 opprettetAvEnhetsnr = "",
                 prioritet = "",
                 saksreferanse = "",
-                tema = ""
+                tema = "",
+                status = "OPPRETTET"
             )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
@@ -484,7 +485,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 opprettetAvEnhetsnr = "",
                 prioritet = "",
                 saksreferanse = "",
-                tema = ""
+                tema = "",
+                status = "OPPRETTET"
             )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
@@ -684,7 +686,8 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                 opprettetAvEnhetsnr = "",
                 prioritet = "",
                 saksreferanse = "",
-                tema = ""
+                tema = "",
+                status = "OPPRETTET"
             )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(

@@ -203,7 +203,8 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 opprettetAvEnhetsnr = "",
                 prioritet = "",
                 saksreferanse = "",
-                tema = ""
+                tema = "",
+                status = "OPPRETTET"
             )
             coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
                 Pair(
@@ -339,7 +340,8 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             opprettetAvEnhetsnr = "",
             prioritet = "",
             saksreferanse = "",
-            tema = ""
+            tema = "",
+            status = "OPPRETTET"
         )
         coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
             Pair(
