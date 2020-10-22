@@ -19,7 +19,7 @@ data class Oppgave(
     val aktivDato: LocalDate,
     val fristFerdigstillelse: LocalDate? = null,
     val prioritet: String,
-    val status: String
+    val status: String? = null
 )
 
 data class FerdigstillOppgave(

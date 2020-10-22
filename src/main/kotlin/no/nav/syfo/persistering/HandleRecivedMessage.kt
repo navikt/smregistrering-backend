@@ -47,8 +47,7 @@ suspend fun handleRecivedMessage(
                     LocalDate.now().plusDays(4)
                 ),
                 prioritet = "HOY",
-                journalpostId = papirSmRegistering.journalpostId,
-                status = "OPPRETTET"
+                journalpostId = papirSmRegistering.journalpostId
             )
 
             val oppgave = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
