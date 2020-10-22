@@ -107,8 +107,6 @@ class OppgaveClient(
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
 
-        log.info("Sender oppdatert oppgave til Oppgave: {}", StructuredArguments.fields(oppgave))
-
         val httpResponse = httpClient.put<HttpStatement>(url + "/" + oppgave.id) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
