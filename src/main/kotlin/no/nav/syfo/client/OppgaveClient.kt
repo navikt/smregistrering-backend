@@ -15,7 +15,6 @@ import io.ktor.util.KtorExperimentalAPI
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlin.RuntimeException
-import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
