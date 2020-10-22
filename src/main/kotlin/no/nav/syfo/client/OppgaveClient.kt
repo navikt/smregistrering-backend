@@ -119,7 +119,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient oppdaterOppgave kastet feil %s ved oppdatering av oppgave med id %s", httpResponse.status, oppgave.id)
+                val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
