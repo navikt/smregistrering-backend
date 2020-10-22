@@ -45,7 +45,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                log.error("OppgaveClient opprettOppgave kastet feil {} ved opprettelse av oppgave", httpResponse.status)
+                log.error("OppgaveClient opprettOppgave kastet feil ${httpResponse.status} ved opprettOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}")
                 throw RuntimeException("OppgaveClient opprettOppgave kastet feil $httpResponse.status")
             }
         }
@@ -68,7 +68,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient ferdigstillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
+                val msg = "OppgaveClient ferdigstillOppgave kastet feil ${httpResponse.status} ved ferdigstillOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
@@ -91,7 +91,7 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave med id {} ", httpResponse.status, oppgaveId)
+                val msg = "OppgaveClient hentOppgave kastet feil ${httpResponse.status} ved hentOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
