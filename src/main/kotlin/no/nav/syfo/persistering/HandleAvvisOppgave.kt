@@ -31,14 +31,14 @@ suspend fun handleAvvisOppgave(
         navEnhet
     )
 
-    val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
+    val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)
 
-    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
+    val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
 
-    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
+    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(
         "Ferdigstiller oppgave med {}, {}",
-        StructuredArguments.keyValue("oppgaveId", oppgaveResponse.id),
+        StructuredArguments.keyValue("oppgaveId", oppgave.id),
         StructuredArguments.fields(loggingMeta)
     )
 }

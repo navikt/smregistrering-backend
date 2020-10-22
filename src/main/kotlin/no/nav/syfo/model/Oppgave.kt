@@ -2,7 +2,9 @@ package no.nav.syfo.model
 
 import java.time.LocalDate
 
-data class OpprettOppgave(
+data class Oppgave(
+    val id: Int? = null,
+    val versjon: Int? = null,
     val tildeltEnhetsnr: String? = null,
     val opprettetAvEnhetsnr: String? = null,
     val aktoerId: String? = null,
@@ -16,21 +18,16 @@ data class OpprettOppgave(
     val behandlingstype: String? = null,
     val aktivDato: LocalDate,
     val fristFerdigstillelse: LocalDate? = null,
-    val prioritet: String
+    val prioritet: String,
+    val status: String? = null
 )
 
-data class FerdigStillOppgave(
-    val versjon: Int,
+data class FerdigstillOppgave(
     val id: Int,
+    val versjon: Int,
     val status: OppgaveStatus,
     val tilordnetRessurs: String,
     val tildeltEnhetsnr: String
-
-)
-
-data class OpprettOppgaveResponse(
-    val id: Int,
-    val versjon: Int
 )
 
 enum class OppgaveStatus(val status: String) {

@@ -48,7 +48,7 @@ import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.IdentInfo
 import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.model.MedisinskVurdering
-import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Samhandler
@@ -187,8 +187,25 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
-            coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 2,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
             coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
                 Pair(
                     "143242345", IdentInfoResult(
@@ -307,8 +324,25 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
         coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
         coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-        coEvery { oppgaveClient.hentOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 1)
-        coEvery { oppgaveClient.ferdigStillOppgave(any(), any()) } returns OpprettOppgaveResponse(123, 2)
+        coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
+        coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
+            id = 123, versjon = 2,
+            tilordnetRessurs = "",
+            tildeltEnhetsnr = "",
+            journalpostId = "",
+            aktivDato = LocalDate.MAX,
+            aktoerId = "",
+            behandlesAvApplikasjon = "",
+            behandlingstype = "",
+            beskrivelse = "",
+            fristFerdigstillelse = null,
+            oppgavetype = "",
+            opprettetAvEnhetsnr = "",
+            prioritet = "",
+            saksreferanse = "",
+            tema = "",
+            status = "OPPRETTET"
+        )
         coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
             Pair(
                 "143242345", IdentInfoResult(

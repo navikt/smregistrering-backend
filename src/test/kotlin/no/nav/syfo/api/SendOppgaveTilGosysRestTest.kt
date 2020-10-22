@@ -23,7 +23,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
@@ -38,32 +37,23 @@ import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
-import no.nav.syfo.model.Sykmelder
-import no.nav.syfo.pdl.client.model.IdentInformasjon
-import no.nav.syfo.pdl.model.Navn
-import no.nav.syfo.pdl.model.PdlPerson
-import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
-class AvvisOppgaveRestTest {
+class SendOppgaveTilGosysRestTest {
 
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveService = mockk<ManuellOppgaveService>()
     private val oppgaveClient = mockk<OppgaveClient>()
-    private val dokArkivClient = mockk<DokArkivClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
-    private val pdlPersonService = mockk<PdlPersonService>()
-    private val sykmelderService = mockk<SykmelderService>()
 
     @Test
     fun avvisOppgaveOK() {
@@ -81,13 +71,7 @@ class AvvisOppgaveRestTest {
                 ), jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                avvisOppgave(
-                    oppgaveClient = oppgaveClient,
-                    dokArkivClient = dokArkivClient,
-                    authorizationService = authorizationService,
-                    manuellOppgaveService = manuellOppgaveService,
-                    sykmelderService = sykmelderService
-                )
+                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
             }
 
             application.install(ContentNegotiation) {
@@ -111,19 +95,6 @@ class AvvisOppgaveRestTest {
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
-
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"), listOf(
-                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
-            )
-
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
-                    Sykmelder(
-                        aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr"
-                    )
 
             coEvery { manuellOppgaveService.ferdigstillSmRegistering(any()) } returns 1
 
@@ -195,29 +166,27 @@ class AvvisOppgaveRestTest {
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
-            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
-            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
-                    Oppgave(
-                        id = 123, versjon = 1,
-                        tilordnetRessurs = "",
-                        tildeltEnhetsnr = "",
-                        journalpostId = "",
-                        aktivDato = LocalDate.MAX,
-                        aktoerId = "",
-                        behandlesAvApplikasjon = "",
-                        behandlingstype = "",
-                        beskrivelse = "",
-                        fristFerdigstillelse = null,
-                        oppgavetype = "",
-                        opprettetAvEnhetsnr = "",
-                        prioritet = "",
-                        saksreferanse = "",
-                        tema = "",
-                        status = "OPPRETTET"
-                    )
+            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any(), any()) } returns Oppgave(
+                id = oppgaveid,
+                versjon = 1,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
+            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
                 addHeader("Accept", "application/json")
                 addHeader("Content-Type", "application/json")
                 addHeader("X-Nav-Enhet", "1234")

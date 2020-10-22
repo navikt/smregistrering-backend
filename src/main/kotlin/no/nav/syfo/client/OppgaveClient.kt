@@ -6,18 +6,18 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.util.KtorExperimentalAPI
-import java.lang.RuntimeException
 import java.time.DayOfWeek
 import java.time.LocalDate
+import kotlin.RuntimeException
 import no.nav.syfo.helpers.log
-import no.nav.syfo.model.FerdigStillOppgave
-import no.nav.syfo.model.OpprettOppgave
-import no.nav.syfo.model.OpprettOppgaveResponse
+import no.nav.syfo.model.FerdigstillOppgave
+import no.nav.syfo.model.Oppgave
 
 @KtorExperimentalAPI
 class OppgaveClient(
@@ -25,17 +25,17 @@ class OppgaveClient(
     private val oidcClient: StsOidcClient,
     private val httpClient: HttpClient
 ) {
-    suspend fun opprettOppgave(opprettOppgave: OpprettOppgave, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun opprettOppgave(oppgave: Oppgave, msgId: String):
+            Oppgave {
 
-        log.info("Oppretter oppgave {} ", opprettOppgave)
+        log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)
 
         val httpResponse = httpClient.post<HttpStatement>(url) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
-            body = opprettOppgave
+            body = oppgave
         }.execute()
 
         return when (httpResponse.status) {
@@ -44,16 +44,15 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                log.error("OppgaveClient opprettOppgave kastet feil {} ved opprettelse av oppgave", httpResponse.status)
+                log.error("OppgaveClient opprettOppgave kastet feil ${httpResponse.status} ved opprettOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}")
                 throw RuntimeException("OppgaveClient opprettOppgave kastet feil $httpResponse.status")
             }
         }
     }
 
-    suspend fun ferdigStillOppgave(ferdigstilloppgave: FerdigStillOppgave, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun ferdigstillOppgave(ferdigstilloppgave: FerdigstillOppgave, msgId: String): Oppgave {
 
-        log.info("Ferdigstiller oppgave {} ", ferdigstilloppgave)
+        log.info("Ferdigstiller oppgave med msgId {}, oppgaveId {} ", msgId, ferdigstilloppgave.id)
 
         val httpResponse = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
             contentType(ContentType.Application.Json)
@@ -68,15 +67,14 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient ferdigStillOppgave kastet feil {} ved ferdigstilling av oppgave med id {} ", httpResponse.status, ferdigstilloppgave.id)
+                val msg = "OppgaveClient ferdigstillOppgave kastet feil ${httpResponse.status} ved ferdigstillOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
         }
     }
 
-    suspend fun hentOppgave(oppgaveId: Int, msgId: String):
-            OpprettOppgaveResponse {
+    suspend fun hentOppgave(oppgaveId: Int, msgId: String): Oppgave {
 
         log.info("Henter oppgave med oppgaveId {} msgId {}", oppgaveId, msgId)
 
@@ -92,11 +90,50 @@ class OppgaveClient(
                 httpResponse.call.response.receive()
             }
             else -> {
-                val msg = String.format("OppgaveClient hentOppgave kastet feil {} ved henting av oppgave med id {} ", httpResponse.status, oppgaveId)
+                val msg = "OppgaveClient hentOppgave kastet feil ${httpResponse.status} ved hentOppgave av oppgave, response: ${httpResponse.call.response.receive<String>()}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
         }
+    }
+
+    suspend fun hentOppgaveVersjon(oppgaveId: Int, msgId: String): Int {
+        return hentOppgave(oppgaveId, msgId).versjon
+            ?: throw RuntimeException("Fant ikke versjon for oppgave $oppgaveId, msgId $msgId")
+    }
+
+    protected suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
+
+        log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
+
+        val httpResponse = httpClient.put<HttpStatement>(url + "/" + oppgave.id) {
+            contentType(ContentType.Application.Json)
+            val oidcToken = oidcClient.oidcToken()
+            header("Authorization", "Bearer ${oidcToken.access_token}")
+            header("X-Correlation-ID", msgId)
+            body = oppgave
+        }.execute()
+
+        return when (httpResponse.status) {
+            HttpStatusCode.OK -> {
+                httpResponse.call.response.receive()
+            }
+            else -> {
+                val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}, response: ${httpResponse.call.response.receive<String>()}"
+                log.error(msg)
+                throw RuntimeException(msg)
+            }
+        }
+    }
+
+    suspend fun sendOppgaveTilGosys(oppgaveId: Int, msgId: String, tildeltEnhetsnr: String, tilordnetRessurs: String): Oppgave {
+        val oppgave = hentOppgave(oppgaveId, msgId)
+        val oppdatertOppgave = oppgave.copy(
+            behandlesAvApplikasjon = "FS22",
+            tildeltEnhetsnr = tildeltEnhetsnr,
+            tilordnetRessurs = tilordnetRessurs
+        )
+        return oppdaterOppgave(oppdatertOppgave, msgId)
     }
 }
 

@@ -9,7 +9,7 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.model.FerdigStillOppgave
+import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
@@ -65,19 +65,19 @@ suspend fun handleOKOppgave(
     )
     log.info("Message send to syfoService, {}", fields(loggingMeta))
 
-    val oppgaveVersjon = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId).versjon
+    val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)
 
-    val ferdigStillOppgave = ferdigStillOppgave(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
+    val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
 
-    val oppgaveResponse = oppgaveClient.ferdigStillOppgave(ferdigStillOppgave, sykmeldingId)
+    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(
         "Ferdigstiller oppgave med {}, {}",
-        keyValue("oppgaveId", oppgaveResponse.id),
+        keyValue("oppgaveId", oppgave.id),
         fields(loggingMeta)
     )
 }
 
-fun ferdigStillOppgave(oppgaveid: Int, oppgaveVersjon: Int, tilordnetRessurs: String, tildeltEnhetsnr: String) = FerdigStillOppgave(
+fun createFerdigstillOppgaveRequest(oppgaveid: Int, oppgaveVersjon: Int, tilordnetRessurs: String, tildeltEnhetsnr: String) = FerdigstillOppgave(
     versjon = oppgaveVersjon,
     id = oppgaveid,
     status = OppgaveStatus.FERDIGSTILT,
