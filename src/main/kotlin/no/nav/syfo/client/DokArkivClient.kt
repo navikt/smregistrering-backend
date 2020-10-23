@@ -27,19 +27,19 @@ class DokArkivClient(
 
     suspend fun oppdaterOgFerdigstillJournalpost(
         journalpostId: String,
-        fnr: String,
+        pasientFnr: String,
         sykmeldingId: String,
         sykmelder: Sykmelder,
         loggingMeta: LoggingMeta,
         navEnhet: String
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, fnr = fnr, sykmelder = sykmelder, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        oppdaterJournalpost(journalpostId = journalpostId, pasientFnr = pasientFnr, sykmelder = sykmelder, msgId = sykmeldingId, loggingMeta = loggingMeta)
         return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
     suspend fun oppdaterJournalpost(
         journalpostId: String,
-        fnr: String,
+        pasientFnr: String,
         sykmelder: Sykmelder,
         msgId: String,
         loggingMeta: LoggingMeta
@@ -50,12 +50,13 @@ class DokArkivClient(
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
+
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                    id = padHpr(sykmelder.hprNummer),
-                    navn = finnNavn(sykmelder)
-                ),
-                bruker = Bruker(id = fnr),
+                        id = padHpr(sykmelder.hprNummer),
+                        navn = finnNavn(sykmelder)
+                    ),
+                bruker = Bruker(id = pasientFnr),
                 sak = Sak()
             )
         }.execute()
