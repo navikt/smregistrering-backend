@@ -6,12 +6,12 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
-import java.lang.RuntimeException
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.persistering.handleAvvisOppgave
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -78,12 +78,18 @@ fun Route.avvisOppgave(
                         val veileder = authorizationService.getVeileder(accessToken)
 
                         val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
-                        val sykmelder = if (hpr != null) {
+                        val sykmelder = if (!hpr.isNullOrEmpty()) {
                             log.info("Henter sykmelder fra HPR og PDL")
                             sykmelderService.hentSykmelder(hpr, accessToken, callId)
                         } else {
-                            // TODO Avklar med Camilla om vi skal lage dummy-verdi eller eller kaste feil
-                            throw RuntimeException("Fant ikke sykmelder, kan ikke avvise")
+                            Sykmelder(
+                                fornavn = "Helseforetak",
+                                mellomnavn = null,
+                                etternavn = "",
+                                aktorId = null,
+                                hprNummer = null,
+                                fnr = null
+                            )
                         }
 
                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {

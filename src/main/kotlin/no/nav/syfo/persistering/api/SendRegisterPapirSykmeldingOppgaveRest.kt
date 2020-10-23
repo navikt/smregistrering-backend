@@ -124,7 +124,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             }
 
                             val samhandlerPraksis = findBestSamhandlerPraksis(
-                                    kuhrsarClient.getSamhandler(sykmelder.fnr)
+                                    kuhrsarClient.getSamhandler(sykmelder.fnr!!)
                             )
                             if (samhandlerPraksis == null) {
                                 log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
@@ -144,7 +144,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             val sykmelding = healthInformation.toSykmelding(
                                     sykmeldingId = sykmeldingId,
                                     pasientAktoerId = pasient.aktorId!!,
-                                    legeAktoerId = sykmelder.aktorId,
+                                    legeAktoerId = sykmelder.aktorId!!,
                                     msgId = sykmeldingId,
                                     signaturDato = msgHead.msgInfo.genDate
                             )
