@@ -37,7 +37,7 @@ suspend fun handleOKOppgave(
     navEnhet: String
 ) {
 
-    if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)){
+    if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)) {
         dokArkivClient.oppdaterOgFerdigstillJournalpost(
             journalpostId,
             receivedSykmelding.personNrPasient,

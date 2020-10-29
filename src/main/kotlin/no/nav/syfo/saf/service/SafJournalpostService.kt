@@ -1,8 +1,8 @@
 package no.nav.syfo.saf.service
 
+import java.lang.RuntimeException
 import no.nav.syfo.saf.SafJournalpostClient
 import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
 
 class SafJournalpostService(
     val safJournalpostClient: SafJournalpostClient
