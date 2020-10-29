@@ -13,8 +13,6 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
 import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
@@ -24,7 +22,6 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
@@ -32,6 +29,10 @@ import no.nav.syfo.client.Tilgang
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.SafJournalpostClient
+import no.nav.syfo.saf.service.SafJournalpostService
+import no.nav.syfo.sykmelder.service.SykmelderService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
@@ -66,28 +67,22 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     private val httpClient = HttpClient(Apache, config)
 
-    @KtorExperimentalAPI
     val oidcClient =
         StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
 
-    @KtorExperimentalAPI
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
 
-    @InternalAPI
-    @KtorExperimentalAPI
     val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
 
-    @KtorExperimentalAPI
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
 
-    @KtorExperimentalAPI
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
 
     private val aadCache: Cache<Map<String, String>, String> = Caffeine.newBuilder()
         .expireAfterWrite(50, TimeUnit.MINUTES)
         .maximumSize(100)
         .build<Map<String, String>, String>()
-    @KtorExperimentalAPI
+
     val accessTokenClient = AccessTokenClient(
         env.aadAccessTokenUrl,
         vaultSecrets.smregistreringBackendClientId,
@@ -96,7 +91,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         aadCache
     )
 
-    @KtorExperimentalAPI
     val regelClient =
         RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
 
@@ -108,16 +102,24 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(100)
         .build<String, Veileder>()
-    @KtorExperimentalAPI
+
     val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, accessTokenClient, env.scopeSyfotilgangskontroll, httpClient, syfoTilgangskontrollCache, veilederCache)
 
     private val pdlClient = PdlClient(httpClient,
         env.pdlGraphqlPath,
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
 
-    @KtorExperimentalAPI
     val pdlService = PdlPersonService(pdlClient, oidcClient)
 
-    @KtorExperimentalAPI
-    val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
+    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
+
+    val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
+
+    private val safJournalpostClient = SafJournalpostClient(
+        httpClient,
+        env.safJournalpostGraphqlPath,
+        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
+    )
+
+    val safJournalpostService = SafJournalpostService(safJournalpostClient)
 }

@@ -82,3 +82,5 @@ spec:
       value: dfaa2699-7390-4459-9cfc-2e8de64dfaf9
     - name: HELSENETTPROXY_ID
       value: b813133d-82b8-46ef-be96-3b903ea6c048
+    - name: SAFJOURNALPOST_GRAPHQL_PATH
+      value: https://saf.nais.adeo.no/graphql

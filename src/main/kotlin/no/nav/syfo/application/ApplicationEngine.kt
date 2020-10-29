@@ -29,7 +29,6 @@ import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
@@ -39,6 +38,8 @@ import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
@@ -58,6 +59,7 @@ fun createApplicationEngine(
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
+    safJournalpostService: SafJournalpostService,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
@@ -109,6 +111,7 @@ fun createApplicationEngine(
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
+                    safJournalpostService,
                     regelClient,
                     pdlService,
                     sykmelderService,

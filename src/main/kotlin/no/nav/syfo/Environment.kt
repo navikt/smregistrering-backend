@@ -36,7 +36,8 @@ data class Environment(
     val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
     val scopeSyfotilgangskontroll: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfohelsenettproxy"),
-    val helsenettproxyId: String = getEnvVar("HELSENETTPROXY_ID")
+    val helsenettproxyId: String = getEnvVar("HELSENETTPROXY_ID"),
+    val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH")
 
 ) : KafkaConfig
 

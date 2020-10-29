@@ -1,4 +1,4 @@
-package no.nav.syfo.client
+package no.nav.syfo.saf
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive

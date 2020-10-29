@@ -37,7 +37,6 @@ import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SafDokumentClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
@@ -73,6 +72,8 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
+import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.service.SykmelderService
@@ -97,6 +98,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
     private val oppgaveClient = mockk<OppgaveClient>()
     private val kuhrsarClient = mockk<SarClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
+    private val safJournalpostService = mockk<SafJournalpostService>()
     private val regelClient = mockk<RegelClient>()
     private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
@@ -128,6 +130,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
+                    safJournalpostService,
                     regelClient,
                     pdlPersonService,
                     sykmelderService,
@@ -313,6 +316,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
+            coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
@@ -373,6 +377,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
+                    safJournalpostService,
                     regelClient,
                     pdlPersonService,
                     sykmelderService,
@@ -504,6 +509,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
+            coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
@@ -569,6 +575,7 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
+                    safJournalpostService,
                     regelClient,
                     pdlPersonService,
                     sykmelderService,

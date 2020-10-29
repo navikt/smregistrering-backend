@@ -13,6 +13,7 @@ import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.notifySyfoService
 import no.nav.syfo.util.LoggingMeta
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -25,6 +26,8 @@ suspend fun handleOKOppgave(
     syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
     oppgaveClient: OppgaveClient,
     dokArkivClient: DokArkivClient,
+    safJournalpostService: SafJournalpostService,
+    accessToken: String,
     sykmeldingId: String,
     journalpostId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet,
@@ -34,14 +37,16 @@ suspend fun handleOKOppgave(
     navEnhet: String
 ) {
 
-    dokArkivClient.oppdaterOgFerdigstillJournalpost(
-        journalpostId,
-        receivedSykmelding.personNrPasient,
-        sykmeldingId,
-        sykmelder,
-        loggingMeta,
-        navEnhet
-    )
+    if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)){
+        dokArkivClient.oppdaterOgFerdigstillJournalpost(
+            journalpostId,
+            receivedSykmelding.personNrPasient,
+            sykmeldingId,
+            sykmelder,
+            loggingMeta,
+            navEnhet
+        )
+    }
 
     kafkaRecievedSykmeldingProducer.producer.send(
         ProducerRecord(

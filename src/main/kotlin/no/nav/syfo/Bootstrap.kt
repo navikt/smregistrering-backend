@@ -31,7 +31,6 @@ import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
@@ -89,9 +88,10 @@ fun main() {
         httpClients.oppgaveClient,
         httpClients.sarClient,
         httpClients.dokArkivClient,
+        httpClients.safJournalpostService,
         httpClients.regelClient,
         httpClients.pdlService,
-        SykmelderService(httpClients.norskHelsenettClient, httpClients.pdlService),
+        httpClients.sykmelderService,
         AuthorizationService(httpClients.syfoTilgangsKontrollClient)
     )
 
