@@ -21,7 +21,7 @@ class SafJournalpostClient(
 
     suspend fun getJournalpostMetadata(journalpostId: String, token: String): GraphQLResponse<Journalpost>? {
 
-        log.info("Henter journalpostmetadata for $journalpostId")
+        log.info("Henter journalpostmetadata for $journalpostId, basepath = $basePath")
 
         val getJournalpostRequest = GetJournalpostRequest(query = graphQlQuery, variables = GetJournalpostVariables(journalpostId))
         val httpResponse = httpClient.post<HttpStatement>(basePath) {
@@ -34,6 +34,7 @@ class SafJournalpostClient(
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
                 log.info("SAF svarte 200 OK")
+                log.error(httpResponse.toString())
                 httpResponse.call.response.receive()
             }
             else -> {
