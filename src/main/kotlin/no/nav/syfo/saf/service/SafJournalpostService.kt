@@ -16,6 +16,10 @@ class SafJournalpostService(
 
         log.error(graphQLResponse.toString())
 
+        if (graphQLResponse == null) {
+            log.error("Kall til SAF feilet for $journalpostId")
+            throw RuntimeException("Klarte ikke hente data fra SAF")
+        }
         if (graphQLResponse.errors != null) {
             graphQLResponse.errors.forEach {
                 log.error("Saf kastet error: {} ", it)
