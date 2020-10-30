@@ -14,8 +14,6 @@ class SafJournalpostService(
     suspend fun erJournalfoert(journalpostId: String, token: String): Boolean {
         val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, token)
 
-        log.error(graphQLResponse.toString())
-
         if (graphQLResponse == null) {
             log.error("Kall til SAF feilet for $journalpostId")
             throw RuntimeException("Klarte ikke hente data fra SAF")
