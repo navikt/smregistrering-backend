@@ -13,6 +13,9 @@ class SafJournalpostService(
 
     suspend fun erJournalfoert(journalpostId: String, token: String): Boolean {
         val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, token)
+
+        log.error(graphQLResponse.toString())
+
         if (graphQLResponse.errors != null) {
             graphQLResponse.errors.forEach {
                 log.error("Saf kastet error: {} ", it)
