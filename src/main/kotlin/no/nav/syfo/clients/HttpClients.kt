@@ -13,6 +13,7 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
 import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
@@ -35,6 +36,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 
+@KtorExperimentalAPI
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         engine {
