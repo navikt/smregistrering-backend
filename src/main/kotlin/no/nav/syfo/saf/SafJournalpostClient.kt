@@ -33,12 +33,10 @@ class SafJournalpostClient(
 
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
-                log.info("SAF svarte 200 OK")
-                log.error(httpResponse.toString())
                 httpResponse.call.response.receive()
             }
             else -> {
-                log.error("Kall til SAF feilet {}", httpResponse)
+                log.error("SAF svarte noe annet enn OK ${httpResponse.call.response.status} ${httpResponse.call.response.content}")
                 null
             }
         }
