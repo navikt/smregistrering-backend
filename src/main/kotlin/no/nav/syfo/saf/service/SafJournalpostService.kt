@@ -26,12 +26,12 @@ class SafJournalpostService(
             }
         }
 
-        if (graphQLResponse.data.journalstatus == null) {
+        if (graphQLResponse.data.journalpost.journalstatus == null) {
             log.error("Klarte ikke hente data fra SAF {}", journalpostId)
             throw RuntimeException("Klarte ikke hente data fra SAF")
         }
 
-        return erJournalfoert(graphQLResponse.data.journalstatus)
+        return erJournalfoert(graphQLResponse.data.journalpost.journalstatus)
     }
 
     private fun erJournalfoert(journalstatus: String?): Boolean {

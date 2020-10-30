@@ -11,7 +11,7 @@ import no.nav.syfo.graphql.model.GraphQLResponse
 import no.nav.syfo.log
 import no.nav.syfo.saf.model.GetJournalpostRequest
 import no.nav.syfo.saf.model.GetJournalpostVariables
-import no.nav.syfo.saf.model.Journalpost
+import no.nav.syfo.saf.model.JournalpostResponse
 
 class SafJournalpostClient(
     private val httpClient: HttpClient,
@@ -19,7 +19,7 @@ class SafJournalpostClient(
     private val graphQlQuery: String
 ) {
 
-    suspend fun getJournalpostMetadata(journalpostId: String, token: String): GraphQLResponse<Journalpost>? {
+    suspend fun getJournalpostMetadata(journalpostId: String, token: String): GraphQLResponse<JournalpostResponse>? {
 
         log.info("Henter journalpostmetadata for $journalpostId, basepath = $basePath")
 
