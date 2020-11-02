@@ -8,9 +8,9 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
-import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
+import no.nav.syfo.persistering.handleSendOppgaveTilGosys
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
@@ -66,19 +66,7 @@ fun Route.sendOppgaveTilGosys(
 
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
 
-                        val veileder = authorizationService.getVeileder(accessToken)
-
-                        log.info("Sender oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
-
-                        oppgaveClient.sendOppgaveTilGosys(
-                            oppgaveId = oppgaveId,
-                            msgId = callId,
-                            tildeltEnhetsnr = navEnhet,
-                            tilordnetRessurs = veileder.veilederIdent
-                        )
-                        manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
-
-                        log.info("Ferdig å sende oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
+                        handleSendOppgaveTilGosys(authorizationService, oppgaveClient, manuellOppgaveService, loggingMeta, oppgaveId, "9999", accessToken)
 
                         call.respond(HttpStatusCode.NoContent)
                     } else {

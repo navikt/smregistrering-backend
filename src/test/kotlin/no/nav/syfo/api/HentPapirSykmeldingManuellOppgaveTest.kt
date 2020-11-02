@@ -166,6 +166,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     safDokumentClient,
+                    oppgaveClient,
                     syfoTilgangsKontrollService
                 )
             }

@@ -10,6 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.log
+import no.nav.syfo.saf.exception.SafNotFoundException
 
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
@@ -35,7 +36,7 @@ class SafDokumentClient constructor(
             HttpStatusCode.NotFound -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
                 log.error("Dokumentet finnes ikke for journalpostId {}", journalpostId)
-                throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
+                throw SafNotFoundException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.InternalServerError -> {
                 log.error("Saf returnerte: httpstatus {}", httpResponse.status)
@@ -78,14 +79,12 @@ class SafDokumentClient constructor(
         accessToken: String,
         oppgaveId: Int
     ): ByteArray? {
-        return try {
-            log.info("Henter dokuemnt fra oppgaveId {}, journalpostId {}, og dokumentInfoId {}", oppgaveId, journalpostId, dokumentInfoId)
-            val dokument = hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
-            dokument
-        } catch (ex: Exception) {
-            log.warn("Klarte ikke å tolke dokument fra saf oppgaveId {}, journalpostId {}, og dokumentInfoId {}, {}",
-                oppgaveId, journalpostId, dokumentInfoId, ex.message)
-            null
-        }
+        log.info(
+            "Henter dokument fra oppgaveId {}, journalpostId {}, og dokumentInfoId {}",
+            oppgaveId,
+            journalpostId,
+            dokumentInfoId
+        )
+        return hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
     }
 }
