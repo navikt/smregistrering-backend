@@ -40,50 +40,43 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                 }
                 manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {
                     log.info(
-                        "Fant ingen uløste manuelloppgaver med oppgaveid {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            "Fant ingen uløste manuelloppgaver med oppgaveid {}",
+                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
                     call.respond(
-                        HttpStatusCode.NotFound,
-                        "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
+                            HttpStatusCode.NotFound,
+                            "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
                     )
                 }
                 else -> {
                     log.info(
-                        "Henter ut oppgave med {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            "Henter ut oppgave med {}",
+                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
                     val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                        journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
-                        dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
-                        msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
-                        accessToken = accessToken,
-                        oppgaveId = oppgaveId
+                            journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
+                            dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
+                            msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                            accessToken = accessToken,
+                            oppgaveId = oppgaveId
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
-
                         if (authorizationService.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!)) {
-                            if (pdfPapirSykmelding == null) {
-                                call.respond(HttpStatusCode.InternalServerError)
-                            } else {
-
-                                val papirManuellOppgave = PapirManuellOppgave(
+                            val papirManuellOppgave = PapirManuellOppgave(
                                     fnr = manuellOppgaveDTOList.first().fnr,
                                     sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                     oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
                                     pdfPapirSykmelding = pdfPapirSykmelding,
                                     papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
-                                )
-
-                                call.respond(papirManuellOppgave)
-                            }
+                            )
+                            call.respond(papirManuellOppgave)
                         } else {
                             log.warn(
-                                "Veileder har ikkje tilgang, {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    "Veileder har ikkje tilgang, {}",
+                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
                             call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
                         }
@@ -93,11 +86,11 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         } else {
 
                             val papirManuellOppgave = PapirManuellOppgave(
-                                fnr = manuellOppgaveDTOList.first().fnr,
-                                sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                                oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
-                                pdfPapirSykmelding = pdfPapirSykmelding,
-                                papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
+                                    fnr = manuellOppgaveDTOList.first().fnr,
+                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                                    oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                                    pdfPapirSykmelding = pdfPapirSykmelding,
+                                    papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                             )
 
                             call.respond(papirManuellOppgave)
