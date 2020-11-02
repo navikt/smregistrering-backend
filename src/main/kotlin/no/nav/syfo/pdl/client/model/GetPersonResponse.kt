@@ -1,11 +1,6 @@
 package no.nav.syfo.pdl.client.model
 
-data class GetPersonResponse(
-    val data: ResponseData,
-    val errors: List<ResponseError>?
-)
-
-data class ResponseData(
+data class PdlResponse(
     val hentIdenter: Identliste?,
     val hentPerson: HentPerson?
 )

@@ -24,6 +24,7 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleOKOppgave
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
@@ -45,6 +46,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
+    safJournalpostService: SafJournalpostService,
     regelClient: RegelClient,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
@@ -195,6 +197,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                                     syfoserviceKafkaProducer = syfoserviceKafkaProducer,
                                                     oppgaveClient = oppgaveClient,
                                                     dokArkivClient = dokArkivClient,
+                                                    safJournalpostService = safJournalpostService,
+                                                    accessToken = accessToken,
                                                     sykmeldingId = sykmeldingId,
                                                     journalpostId = journalpostId,
                                                     healthInformation = healthInformation,

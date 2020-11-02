@@ -4,9 +4,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.http.HttpHeaders
+import no.nav.syfo.graphql.model.GraphQLResponse
 import no.nav.syfo.pdl.client.model.GetPersonRequest
-import no.nav.syfo.pdl.client.model.GetPersonResponse
 import no.nav.syfo.pdl.client.model.GetPersonVeriables
+import no.nav.syfo.pdl.client.model.PdlResponse
 
 class PdlClient(
     private val httpClient: HttpClient,
@@ -18,7 +19,7 @@ class PdlClient(
     private val temaHeader = "TEMA"
     private val tema = "SYM"
 
-    suspend fun getPerson(fnr: String, token: String, stsToken: String): GetPersonResponse {
+    suspend fun getPerson(fnr: String, token: String, stsToken: String): GraphQLResponse<PdlResponse> {
         val getPersonRequest = GetPersonRequest(query = graphQlQuery, variables = GetPersonVeriables(ident = fnr))
         return httpClient.post(basePath) {
             body = getPersonRequest
