@@ -46,6 +46,8 @@ suspend fun handleOKOppgave(
             loggingMeta,
             navEnhet
         )
+    } else {
+        log.info("Hopper over oppdaterOgFerdigstillJournalpost, journalpostId $journalpostId er allerede journalført")
     }
 
     kafkaRecievedSykmeldingProducer.producer.send(
