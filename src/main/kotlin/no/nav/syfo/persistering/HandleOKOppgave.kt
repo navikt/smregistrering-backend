@@ -72,22 +72,24 @@ suspend fun handleOKOppgave(
     )
     log.info("Message send to syfoService, {}", fields(loggingMeta))
 
-    val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)
+    val oppgave = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId)
 
-    val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
+    if (OppgaveStatus.FERDIGSTILT.name != oppgave.status) {
+        val ferdigstillOppgave = FerdigstillOppgave(
+            versjon = oppgave.versjon!!,
+            id = oppgaveId,
+            status = OppgaveStatus.FERDIGSTILT,
+            tildeltEnhetsnr = navEnhet,
+            tilordnetRessurs = veileder.veilederIdent
+        )
 
-    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
-    log.info(
-        "Ferdigstiller oppgave med {}, {}",
-        keyValue("oppgaveId", oppgave.id),
-        fields(loggingMeta)
-    )
+        val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
+        log.info(
+            "Ferdigstiller oppgave med {}, {}",
+            keyValue("oppgaveId", ferdigstiltOppgave.id),
+            fields(loggingMeta)
+        )
+    } else {
+        log.info("Hopper over ferdigstillOppgave, oppgaveId $oppgaveId er allerede ${oppgave.status}")
+    }
 }
-
-fun createFerdigstillOppgaveRequest(oppgaveid: Int, oppgaveVersjon: Int, tilordnetRessurs: String, tildeltEnhetsnr: String) = FerdigstillOppgave(
-    versjon = oppgaveVersjon,
-    id = oppgaveid,
-    status = OppgaveStatus.FERDIGSTILT,
-    tildeltEnhetsnr = tildeltEnhetsnr,
-    tilordnetRessurs = tilordnetRessurs
-)

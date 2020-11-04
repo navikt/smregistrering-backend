@@ -6,6 +6,8 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
+import no.nav.syfo.model.FerdigstillOppgave
+import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.util.LoggingMeta
 
@@ -33,7 +35,13 @@ suspend fun handleAvvisOppgave(
 
     val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)
 
-    val ferdigstillOppgave = createFerdigstillOppgaveRequest(oppgaveId, oppgaveVersjon, veileder.veilederIdent, navEnhet)
+    val ferdigstillOppgave = FerdigstillOppgave(
+        versjon = oppgaveVersjon,
+        id = oppgaveId,
+        status = OppgaveStatus.FERDIGSTILT,
+        tildeltEnhetsnr = navEnhet,
+        tilordnetRessurs = veileder.veilederIdent
+    )
 
     val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(

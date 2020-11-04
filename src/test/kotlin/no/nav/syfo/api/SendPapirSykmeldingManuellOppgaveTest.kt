@@ -85,7 +85,7 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.Test
 
 @KtorExperimentalAPI
-internal class SendPapirSykmeldingManuellOppgaveTest {
+class SendPapirSykmeldingManuellOppgaveTest {
 
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
@@ -281,7 +281,25 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
+            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 2,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
+
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
                 id = 123, versjon = 1,
                 tilordnetRessurs = "",
@@ -474,7 +492,26 @@ internal class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
+
+            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns Oppgave(
+                id = 123, versjon = 2,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
+
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
                 id = 123, versjon = 1,
                 tilordnetRessurs = "",
