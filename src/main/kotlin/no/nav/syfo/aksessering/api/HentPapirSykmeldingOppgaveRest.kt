@@ -109,6 +109,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     navEnhet = "9999",
                                     accessToken = accessToken
                                 )
+
+                                call.respond(HttpStatusCode.Gone, "SENT_TO_GOSYS")
                             }
                         } else {
                             log.warn(
