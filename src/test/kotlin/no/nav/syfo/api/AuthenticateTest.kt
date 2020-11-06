@@ -27,6 +27,7 @@ import java.time.OffsetDateTime
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.log
@@ -59,6 +60,7 @@ internal class AuthenticateTest {
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorization = mockk<AuthorizationService>()
+    private val oppgaveClient = mockk<OppgaveClient>()
 
     @Test
     internal fun `Aksepterer gyldig JWT med riktig audience`() {
@@ -68,6 +70,7 @@ internal class AuthenticateTest {
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
             coEvery { authorization.hasAccess(any(), any()) } returns true
+
             val oppgaveid = 308076319
 
             val manuellOppgave = PapirSmRegistering(
@@ -137,6 +140,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
+                        oppgaveClient,
                         authorization
                     )
                 }
@@ -243,6 +247,7 @@ internal class AuthenticateTest {
                     hentPapirSykmeldingManuellOppgave(
                         manuellOppgaveService,
                         safDokumentClient,
+                        oppgaveClient,
                         authorization
                     )
                 }

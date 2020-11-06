@@ -103,7 +103,7 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, authorizationService)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
                 sendPapirSykmeldingManuellOppgave(
                     manuellOppgaveService,
                     kafkaProducers.kafkaRecievedSykmeldingProducer,
