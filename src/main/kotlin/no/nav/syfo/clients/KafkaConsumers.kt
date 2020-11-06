@@ -14,7 +14,7 @@ class KafkaConsumers(env: Environment, vaultSecrets: KafkaCredentials) {
     init {
         kafkaBaseConfig["auto.offset.reset"] = "none"
     }
-    
+
     private val properties = setSecurityProtocol(env, kafkaBaseConfig.toConsumerConfig(
         "${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
     )
