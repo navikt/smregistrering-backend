@@ -17,7 +17,6 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
-import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
@@ -30,6 +29,7 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
@@ -40,9 +40,8 @@ import no.nav.syfo.util.toString
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
+    sykmeldingJobService: SykmeldingJobService,
     manuellOppgaveService: ManuellOppgaveService,
-    kafkaRecievedSykmeldingProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
-    syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
@@ -191,17 +190,15 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                                             handleOKOppgave(
+                                                    sykmeldingJobService,
                                                     receivedSykmelding = receivedSykmelding,
-                                                    kafkaRecievedSykmeldingProducer = kafkaRecievedSykmeldingProducer,
                                                     loggingMeta = loggingMeta,
-                                                    syfoserviceKafkaProducer = syfoserviceKafkaProducer,
                                                     oppgaveClient = oppgaveClient,
                                                     dokArkivClient = dokArkivClient,
                                                     safJournalpostService = safJournalpostService,
                                                     accessToken = accessToken,
                                                     sykmeldingId = sykmeldingId,
                                                     journalpostId = journalpostId,
-                                                    healthInformation = healthInformation,
                                                     oppgaveId = oppgaveId,
                                                     veileder = veileder,
                                                     sykmelder = sykmelder,

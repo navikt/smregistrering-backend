@@ -12,16 +12,14 @@ import org.apache.kafka.clients.producer.ProducerRecord
 
 fun notifySyfoService(
     syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,
-    ediLoggId: String,
     sykmeldingId: String,
-    msgId: String,
     healthInformation: HelseOpplysningerArbeidsuforhet
 ) {
     val syfoserviceKafkaMessage = SyfoserviceKafkaMessage(
         metadata = KafkaMessageMetadata(sykmeldingId, source = "smregistrering-backend"),
         tilleggsdata = Tilleggsdata(
-            ediLoggId = ediLoggId,
-            msgId = msgId,
+            ediLoggId = sykmeldingId,
+            msgId = sykmeldingId,
             syketilfelleStartDato = extractSyketilfelleStartDato(healthInformation),
             sykmeldingId = sykmeldingId
         ),

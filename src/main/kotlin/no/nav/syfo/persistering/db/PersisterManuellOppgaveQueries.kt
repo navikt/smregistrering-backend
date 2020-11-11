@@ -3,7 +3,7 @@ package no.nav.syfo.persistering.db
 import java.sql.Timestamp
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
-import no.nav.syfo.model.toPGObject
+import no.nav.syfo.util.toPGObject
 
 fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
     connection.use { connection ->
@@ -31,7 +31,7 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
             it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
             it.setInt(7, oppgaveId)
             it.setBoolean(8, false)
-            it.setObject(9, papirSmRegistering.toPGObject()) // Store it all so frontend can present whatever is present
+            it.setObject(9, toPGObject(papirSmRegistering)) // Store it all so frontend can present whatever is present
             it.executeUpdate()
         }
 
