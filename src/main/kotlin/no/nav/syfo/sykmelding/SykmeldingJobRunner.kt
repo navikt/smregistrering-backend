@@ -43,7 +43,6 @@ class SykmeldingJobRunner(
             JOB_NAME.SENDT_SYKMELDING -> sendSykmelding(nextJob)
         }
         sykmeldingJobService.finishJob(nextJob.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
-        log.info("Job finished")
     }
 
     private fun sendSykmelding(job: Job) {
@@ -53,7 +52,7 @@ class SykmeldingJobRunner(
                     ProducerRecord(receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic, job.sykmeldingId,
                             receivedSykmelding)).get()
         } catch (ex: Exception) {
-            log.error("Error producing sykmelding to kafka")
+            log.error("Error producing sykmelding to kafka for job $job}")
             throw ex
         }
     }
@@ -73,7 +72,7 @@ class SykmeldingJobRunner(
                 throw Exception("Could not find sykmelding ${job.sykmeldingId} in database}")
             }
         } catch (ex: Exception) {
-            log.error("Error producing sykmelding to kafka")
+            log.error("Error producing sykmelding to kafka for job $job")
             throw ex
         }
     }
