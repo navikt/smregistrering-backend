@@ -32,8 +32,8 @@ class Database(private val env: Environment, private val vaultCredentialService:
             jdbcUrl = env.smregistreringbackendDBURL
             username = initialCredentials.username
             password = initialCredentials.password
-            maximumPoolSize = 3
-            minimumIdle = 1
+            maximumPoolSize = 10
+            minimumIdle = 3
             idleTimeout = 10001
             maxLifetime = 300000
             isAutoCommit = false

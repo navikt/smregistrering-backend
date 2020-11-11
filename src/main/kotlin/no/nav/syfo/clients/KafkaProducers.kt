@@ -19,15 +19,11 @@ class KafkaProducers(private val env: Environment, vaultSecrets: VaultSecrets) {
     private val manualValidationProducerProperties = setSecurityProtocol(env, kafkaBaseConfig.toProducerConfig(env.applicationName, valueSerializer = KafkaAvroSerializer::class))
 
     val kafkaRecievedSykmeldingProducer = KafkaRecievedSykmeldingProducer()
-    val kafkaManuelTaskProducer = KafkaManuelTaskProducer()
-    val kafkaValidationResultProducer = KafkaValidationResultProducer()
-    val kafkaSyfoserviceProducers = KafkaSyfoserviceProducer()
+    val kafkaSyfoserviceProducer = KafkaSyfoserviceProducer()
 
     inner class KafkaRecievedSykmeldingProducer {
         val producer = KafkaProducer<String, ReceivedSykmelding>(properties)
-
         val sm2013AutomaticHandlingTopic = env.sm2013AutomaticHandlingTopic
-        val sm2013ManuellHandlingTopic = env.sm2013ManualHandlingTopic
     }
 
     inner class KafkaManuelTaskProducer {

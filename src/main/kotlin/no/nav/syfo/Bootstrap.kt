@@ -31,6 +31,8 @@ import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.sykmelding.SykmeldingJobRunner
+import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.TrackableException
 import no.nav.syfo.util.getFileAsString
@@ -75,8 +77,10 @@ fun main() {
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
     val kafkaProducers = KafkaProducers(env, vaultSecrets)
     val httpClients = HttpClients(env, vaultSecrets)
+    val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
+    val sykmeldingJobRunner = SykmeldingJobRunner(applicationState, sykmeldingJobService, kafkaProducers.kafkaRecievedSykmeldingProducer, kafkaProducers.kafkaSyfoserviceProducer)
 
-    val applicationEngine = createApplicationEngine(
+    val applicationEngine = createApplicationEngine(sykmeldingJobService,
         env,
         applicationState,
         vaultSecrets,
@@ -84,7 +88,6 @@ fun main() {
         wellKnown.issuer,
         manuellOppgaveService,
         httpClients.safClient,
-        kafkaProducers,
         httpClients.oppgaveClient,
         httpClients.sarClient,
         httpClients.dokArkivClient,
@@ -99,6 +102,13 @@ fun main() {
 
     if (!env.developmentMode) {
         RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
+    }
+
+    applicationState.ready = true
+
+    GlobalScope.launch {
+        sykmeldingJobRunner.startJobRunner()
+        log.info("Started SykmeldingJobRunner")
     }
     launchListeners(
         applicationState,
@@ -121,6 +131,7 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
             )
         } finally {
             applicationState.alive = false
+            applicationState.ready = false
         }
     }
 
@@ -135,8 +146,6 @@ fun launchListeners(
 ) {
     createListener(applicationState) {
         val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
-
-        applicationState.ready = true
 
         kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
         blockingApplicationLogic(

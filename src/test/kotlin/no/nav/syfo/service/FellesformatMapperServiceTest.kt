@@ -6,7 +6,9 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Month
 import java.util.UUID
+import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLMsgHead
+import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
 import no.nav.syfo.model.Arbeidsgiver
@@ -25,12 +27,14 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.model.Sykmelding
 import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
+import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.junit.Test
@@ -45,97 +49,13 @@ class FellesformatMapperServiceTest {
 
     @Test
     fun `Realistisk case ende-til-ende`() {
-        val smRegisteringManuellt = SmRegistreringManuell(
-            pasientFnr = fnrPasient,
-            sykmelderFnr = fnrLege,
-            perioder = listOf(
-                Periode(
-                    fom = LocalDate.now(),
-                    tom = LocalDate.now(),
-                    aktivitetIkkeMulig = AktivitetIkkeMulig(
-                        medisinskArsak = MedisinskArsak(
-                            beskrivelse = "test data",
-                            arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
-                        ),
-                        arbeidsrelatertArsak = null
-                    ),
-                    avventendeInnspillTilArbeidsgiver = null,
-                    behandlingsdager = 10,
-                    gradert = null,
-                    reisetilskudd = false
-                )
-            ),
-            medisinskVurdering = MedisinskVurdering(
-                hovedDiagnose = Diagnose(
-                    system = "2.16.578.1.12.4.1.1.7170",
-                    kode = "A070",
-                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
-                ),
-                biDiagnoser = listOf(
-                    Diagnose(
-                        system = "2.16.578.1.12.4.1.1.7170",
-                        kode = "U070",
-                        tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
-                    )
-                ),
-                svangerskap = false,
-                yrkesskade = false,
-                yrkesskadeDato = null,
-                annenFraversArsak = null
-            ),
-            prognose = Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null),
-            utdypendeOpplysninger = null,
-            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
-            skjermesForPasient = false,
-            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-            behandletDato = LocalDate.of(2020, 4, 1),
-            kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
-            meldingTilArbeidsgiver = null,
-            meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-            navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
-        )
+        val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege)
 
-        val fellesformat = mapsmRegistreringManuelltTilFellesformat(
-            smRegistreringManuell = smRegisteringManuellt,
-            pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
-            )),
-            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
-            sykmeldingId = sykmeldingId,
-            datoOpprettet = datoOpprettet
-        )
-
-        val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
-        val msgHead = fellesformat.get<XMLMsgHead>()
-
-        val sykmelding = healthInformation.toSykmelding(
-            sykmeldingId = UUID.randomUUID().toString(),
-            pasientAktoerId = aktorId,
-            legeAktoerId = aktorIdLege,
-            msgId = sykmeldingId,
-            signaturDato = msgHead.msgInfo.genDate
-        )
-
-        val receivedSykmelding = ReceivedSykmelding(
-            sykmelding = sykmelding,
-            personNrPasient = fnrPasient,
-            tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-            personNrLege = smRegisteringManuellt.sykmelderFnr,
-            navLogId = sykmeldingId,
-            msgId = sykmeldingId,
-            legekontorOrgNr = null,
-            legekontorOrgName = "",
-            legekontorHerId = null,
-            legekontorReshId = null,
-            mottattDato = datoOpprettet,
-            rulesetVersion = healthInformation.regelSettVersjon,
-            fellesformat = objectMapper.writeValueAsString(fellesformat),
-            tssid = null
+        val receivedSykmelding = getReceivedSykmelding(
+                manuell = smRegisteringManuellt,
+                fnrPasient = fnrPasient,
+                sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+                datoOpprettet = datoOpprettet
         )
 
         receivedSykmelding.sykmelding.perioder.first().behandlingsdager shouldEqual 10
@@ -238,16 +158,7 @@ class FellesformatMapperServiceTest {
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
         )
 
-        val fellesformat = mapsmRegistreringManuelltTilFellesformat(
-            smRegistreringManuell = smRegisteringManuellt,
-            pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
-            )),
-            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
-            sykmeldingId = sykmeldingId,
-            datoOpprettet = datoOpprettet
-        )
+        val fellesformat = getXmleiFellesformat(smRegisteringManuellt, sykmeldingId, datoOpprettet)
 
         val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
         val msgHead = fellesformat.get<XMLMsgHead>()
@@ -500,4 +411,83 @@ class FellesformatMapperServiceTest {
         dynaSvarType.restriksjon.restriksjonskode.first().dn shouldEqual "Informasjonen skal ikke vises arbeidsgiver"
         dynaSvarType.restriksjon.restriksjonskode.first().v shouldEqual "A"
     }
+}
+
+fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistreringManuell {
+    return SmRegistreringManuell(
+            pasientFnr = fnrPasient,
+            sykmelderFnr = fnrLege,
+            perioder = listOf(
+                    Periode(
+                            fom = LocalDate.now(),
+                            tom = LocalDate.now(),
+
+                            aktivitetIkkeMulig = AktivitetIkkeMulig(medisinskArsak = MedisinskArsak(
+                                    beskrivelse = "test data",
+                                    arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                            ),
+                                    arbeidsrelatertArsak = null
+                            ),
+                            avventendeInnspillTilArbeidsgiver = null,
+                            behandlingsdager = 10,
+                            gradert = null,
+                            reisetilskudd = false
+                    )
+            ),
+            medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(
+                            system = "2.16.578.1.12.4.1.1.7170",
+                            kode = "A070",
+                            tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    ),
+                    biDiagnoser = listOf(
+                            Diagnose(
+                                    system = "2.16.578.1.12.4.1.1.7170",
+                                    kode = "U070",
+                                    tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
+                            )
+                    ),
+                    svangerskap = false,
+                    yrkesskade = false,
+                    yrkesskadeDato = null,
+                    annenFraversArsak = null
+            ),
+            prognose = Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null),
+            utdypendeOpplysninger = null,
+            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+            skjermesForPasient = false,
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            behandletDato = LocalDate.of(2020, 4, 1),
+            kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
+            meldingTilArbeidsgiver = null,
+            meldingTilNAV = null,
+            andreTiltak = "Nei",
+            tiltakNAV = "Nei",
+            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+            navnFastlege = "Per Person",
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+    )
+}
+
+fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
+    return mapsmRegistreringManuelltTilFellesformat(
+            smRegistreringManuell = smRegisteringManuellt,
+            pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
+                    IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
+            )),
+            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
+            sykmeldingId = sykmeldingId,
+            datoOpprettet = datoOpprettet
+    )
+}
+
+fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: XMLMsgHead, sykmeldingId: String = "1234", aktorId: String = "aktorId", aktorIdLege: String = "aktorIdLege"): Sykmelding {
+    return healthInformation.toSykmelding(
+            sykmeldingId = sykmeldingId,
+            pasientAktoerId = aktorId,
+            legeAktoerId = aktorIdLege,
+            msgId = sykmeldingId,
+            signaturDato = msgHead.msgInfo.genDate
+    )
 }

@@ -24,6 +24,7 @@ import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.verify
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -77,6 +78,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
@@ -106,6 +108,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
+    private val sykmeldingJobService = mockk<SykmeldingJobService>(relaxed = true)
 
     @Test
     fun `Registrering av papirsykmelding happycase`() {
@@ -124,9 +127,8 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
+                    sykmeldingJobService,
                     manuellOppgaveService,
-                    kafkaRecievedSykmeldingProducer,
-                    kafkaSyfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
@@ -369,6 +371,9 @@ class SendPapirSykmeldingManuellOppgaveTest {
             }) {
                 response.status() shouldEqual HttpStatusCode.NoContent
             }
+
+            verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
+            verify(exactly = 1) { sykmeldingJobService.createJobs(any()) }
         }
     }
 
@@ -389,9 +394,8 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
+                        sykmeldingJobService,
                     manuellOppgaveService,
-                    kafkaRecievedSykmeldingProducer,
-                    kafkaSyfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
@@ -586,6 +590,9 @@ class SendPapirSykmeldingManuellOppgaveTest {
             }) {
                 response.status() shouldEqual HttpStatusCode.BadRequest
             }
+
+            verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
+            verify(exactly = 1) { sykmeldingJobService.createJobs(any()) }
         }
     }
 
@@ -606,9 +613,8 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
+                    sykmeldingJobService,
                     manuellOppgaveService,
-                    kafkaRecievedSykmeldingProducer,
-                    kafkaSyfoserviceProducer,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,

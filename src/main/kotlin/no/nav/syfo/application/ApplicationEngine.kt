@@ -30,7 +30,6 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
-import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pdl.service.PdlPersonService
@@ -44,10 +43,12 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.SykmeldingJobService
 
 @KtorExperimentalAPI
 @InternalAPI
 fun createApplicationEngine(
+    sykmeldingJobService: SykmeldingJobService,
     env: Environment,
     applicationState: ApplicationState,
     vaultSecrets: VaultSecrets,
@@ -55,7 +56,6 @@ fun createApplicationEngine(
     issuer: String,
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
-    kafkaProducers: KafkaProducers,
     oppgaveClient: OppgaveClient,
     kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
@@ -100,14 +100,14 @@ fun createApplicationEngine(
             host(env.smregistreringUrl, schemes = listOf("https", "https"))
             allowCredentials = true
         }
+
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
                 sendPapirSykmeldingManuellOppgave(
+                sykmeldingJobService,
                     manuellOppgaveService,
-                    kafkaProducers.kafkaRecievedSykmeldingProducer,
-                    kafkaProducers.kafkaSyfoserviceProducers,
                     oppgaveClient,
                     kuhrsarClient,
                     dokArkivClient,
