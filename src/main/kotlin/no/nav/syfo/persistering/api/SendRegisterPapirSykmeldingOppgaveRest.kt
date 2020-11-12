@@ -188,27 +188,28 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     Status.OK, Status.MANUAL_PROCESSING -> {
                                         val veileder = authorizationService.getVeileder(accessToken)
 
+                                        handleOKOppgave(
+                                            sykmeldingJobService,
+                                            receivedSykmelding = receivedSykmelding,
+                                            loggingMeta = loggingMeta,
+                                            oppgaveClient = oppgaveClient,
+                                            dokArkivClient = dokArkivClient,
+                                            safJournalpostService = safJournalpostService,
+                                            accessToken = accessToken,
+                                            sykmeldingId = sykmeldingId,
+                                            journalpostId = journalpostId,
+                                            oppgaveId = oppgaveId,
+                                            veileder = veileder,
+                                            sykmelder = sykmelder,
+                                            navEnhet = navEnhet
+                                        )
+
                                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
-                                            handleOKOppgave(
-                                                    sykmeldingJobService,
-                                                    receivedSykmelding = receivedSykmelding,
-                                                    loggingMeta = loggingMeta,
-                                                    oppgaveClient = oppgaveClient,
-                                                    dokArkivClient = dokArkivClient,
-                                                    safJournalpostService = safJournalpostService,
-                                                    accessToken = accessToken,
-                                                    sykmeldingId = sykmeldingId,
-                                                    journalpostId = journalpostId,
-                                                    oppgaveId = oppgaveId,
-                                                    veileder = veileder,
-                                                    sykmelder = sykmelder,
-                                                    navEnhet = navEnhet
-                                            )
                                             call.respond(HttpStatusCode.NoContent)
                                         } else {
                                             log.error(
-                                                    "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                                "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                             )
                                             call.respond(HttpStatusCode.InternalServerError)
                                         }
