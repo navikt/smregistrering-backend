@@ -19,7 +19,6 @@ val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "7.5.1"
-val postgresEmbeddedVersion = "0.13.3"
 val mockkVersion = "1.10.0"
 val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
 val sykmelding2013Version = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
@@ -38,6 +37,7 @@ val syfooppgaveSchemasVersion = "c8be932543e7356a34690ce7979d494c5d8516d8"
 val kafkaVersion = "2.3.0"
 val confluentVersion = "5.0.2"
 val caffeineVersion = "2.8.5"
+val postgresContainerVersion = "1.15.0"
 
 plugins {
     kotlin("jvm") version "1.3.72"
@@ -139,6 +139,7 @@ dependencies {
 
     implementation ("org.apache.commons:commons-text:$commonsTextVersion")
 
+    testImplementation("org.testcontainers:postgresql:$postgresContainerVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
@@ -148,7 +149,6 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusdsVersion")
-    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
 }
 

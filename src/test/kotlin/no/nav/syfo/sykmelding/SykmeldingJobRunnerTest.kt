@@ -16,13 +16,15 @@ import no.nav.syfo.sykmelding.jobs.db.insertJobs
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
-import no.nav.syfo.testutil.TestDB
+import no.nav.syfo.testutil.PsqlContainerDatabase
+import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldEqual
+import org.junit.After
 import org.junit.Test
 
 class SykmeldingJobRunnerTest {
-    val testDB = TestDB()
+    private val testDB = PsqlContainerDatabase.database
     val applicationState = ApplicationState(true, true)
     val sykmeldingJobService = spyk(SykmeldingJobService(testDB))
     val kafkaReceivedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
@@ -32,6 +34,11 @@ class SykmeldingJobRunnerTest {
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
         coEvery { delay(any()) } returns Unit
+    }
+
+    @After
+    fun afterTest() {
+        testDB.connection.dropData()
     }
 
     @Test

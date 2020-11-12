@@ -79,20 +79,21 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
-import no.nav.syfo.testutil.TestDB
+import no.nav.syfo.testutil.PsqlContainerDatabase
+import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBe
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.junit.After
 import org.junit.Test
 
 @KtorExperimentalAPI
 class SendPapirSykmeldingManuellOppgaveTest {
-
+    private val database = PsqlContainerDatabase.database
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val database = TestDB()
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
@@ -109,7 +110,10 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val sykmeldingJobService = mockk<SykmeldingJobService>(relaxed = true)
-
+    @After
+    fun after() {
+        database.connection.dropData()
+    }
     @Test
     fun `Registrering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {

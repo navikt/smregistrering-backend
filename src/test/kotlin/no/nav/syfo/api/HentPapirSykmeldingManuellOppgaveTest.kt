@@ -59,19 +59,20 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.testutil.TestDB
+import no.nav.syfo.testutil.PsqlContainerDatabase
+import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldEqual
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.junit.After
 import org.junit.Test
 
 @KtorExperimentalAPI
 internal class HentPapirSykmeldingManuellOppgaveTest {
-
+    private val database = PsqlContainerDatabase.database
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val database = TestDB()
     private val manuellOppgaveService = ManuellOppgaveService(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
@@ -84,6 +85,11 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
+
+    @After
+    fun after() {
+        database.connection.dropData()
+    }
 
     @Test
     fun `Hent oppgave`() {

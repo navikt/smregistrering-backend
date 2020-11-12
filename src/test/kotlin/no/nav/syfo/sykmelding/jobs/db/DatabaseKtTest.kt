@@ -1,9 +1,12 @@
 package no.nav.syfo.sykmelding.jobs.db
 
+import io.mockk.coEvery
+import io.mockk.mockkStatic
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.db.DatabaseInterface
@@ -13,23 +16,28 @@ import no.nav.syfo.sykmelding.db.upsertSykmelding
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
-import no.nav.syfo.testutil.TestDB
+import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotEqual
+import org.junit.After
 import org.junit.Test
-import org.junit.jupiter.api.BeforeEach
 
 class DatabaseKtTest {
-
-    val testDb = TestDB()
+    private val testDb = PsqlContainerDatabase.database
     val sykmeldingId = UUID.randomUUID()
-    val newJob = Job(sykmeldingId.toString(), JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.NEW, OffsetDateTime.now(ZoneOffset.UTC))
+    val newJob =
+        Job(sykmeldingId.toString(), JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.NEW, OffsetDateTime.now(ZoneOffset.UTC))
 
-    @BeforeEach
+    init {
+        mockkStatic("kotlinx.coroutines.DelayKt")
+        coEvery { delay(any()) } returns Unit
+    }
+
+    @After
     fun beforeEach() {
         testDb.connection.dropData()
     }
@@ -37,7 +45,12 @@ class DatabaseKtTest {
     @Test
     fun doNotResetJobs() {
         insertSykmelding()
-        val inProgress = Job(sykmeldingId = sykmeldingId.toString(), status = JOB_STATUS.IN_PROGRESS, name = JOB_NAME.SENDT_SYKMELDING, updated = OffsetDateTime.now().minusMinutes(59))
+        val inProgress = Job(
+            sykmeldingId = sykmeldingId.toString(),
+            status = JOB_STATUS.IN_PROGRESS,
+            name = JOB_NAME.SENDT_SYKMELDING,
+            updated = OffsetDateTime.now().minusMinutes(59)
+        )
         testDb.insertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
@@ -53,7 +66,12 @@ class DatabaseKtTest {
     @Test
     fun resetJobs() {
         insertSykmelding()
-        val inProgress = Job(sykmeldingId = sykmeldingId.toString(), status = JOB_STATUS.IN_PROGRESS, name = JOB_NAME.SENDT_SYKMELDING, updated = OffsetDateTime.now().minusMinutes(61))
+        val inProgress = Job(
+            sykmeldingId = sykmeldingId.toString(),
+            status = JOB_STATUS.IN_PROGRESS,
+            name = JOB_NAME.SENDT_SYKMELDING,
+            updated = OffsetDateTime.now().minusMinutes(61)
+        )
         testDb.insertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
@@ -69,9 +87,16 @@ class DatabaseKtTest {
     @Test
     fun upsertSykmelding() {
         insertSykmelding()
-        val notUpdated = getReceivedSykmelding(fnrPasient = "4", sykmelderFnr = "2", sykmeldingId = UUID.randomUUID().toString())
+        val notUpdated =
+            getReceivedSykmelding(fnrPasient = "4", sykmelderFnr = "2", sykmeldingId = UUID.randomUUID().toString())
         testDb.upsertSykmelding(notUpdated)
-        testDb.upsertSykmelding(getReceivedSykmelding(fnrPasient = "3", sykmelderFnr = "2", sykmeldingId = sykmeldingId.toString()))
+        testDb.upsertSykmelding(
+            getReceivedSykmelding(
+                fnrPasient = "3",
+                sykmelderFnr = "2",
+                sykmeldingId = sykmeldingId.toString()
+            )
+        )
         val savedSykmelding = testDb.getSykmelding(sykmeldingId.toString())
         val savedNotUpdatedSykmelding = testDb.getSykmelding(notUpdated.sykmelding.id)
         savedSykmelding?.personNrPasient shouldEqual "3"
@@ -118,22 +143,6 @@ class DatabaseKtTest {
     }
 
     @Test
-    fun tesLocking() {
-        insertSykmelding()
-        testDb.insertJobs(listOf(newJob.copy(name = JOB_NAME.SENDT_TO_SYFOSERVICE), newJob))
-
-        val job = testDb.getJobStatus(JOB_STATUS.NEW)
-        val job2 = testDb.getJobStatus(JOB_STATUS.NEW)
-        val job3 = testDb.getJobStatus(JOB_STATUS.NEW)
-
-        job shouldNotBe null
-        job2 shouldNotBe null
-        job3 shouldBe null
-
-        job shouldNotEqual job2
-    }
-
-    @Test
     fun updateJobStatus() {
         insertSykmelding()
         testDb.insertJobs(listOf(newJob))
@@ -148,21 +157,31 @@ class DatabaseKtTest {
     }
 
     private fun insertSykmelding() {
-        testDb.upsertSykmelding(getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2", sykmeldingId = sykmeldingId.toString()))
+        testDb.upsertSykmelding(
+            getReceivedSykmelding(
+                fnrPasient = "1",
+                sykmelderFnr = "2",
+                sykmeldingId = sykmeldingId.toString()
+            )
+        )
     }
 }
 
 fun DatabaseInterface.getJobForSykmeldingId(sykmeldingId: String): List<Job?> {
     return connection.use {
-        it.prepareStatement("""
+        it.prepareStatement(
+            """
            select * from job where sykmelding_id = ? 
-        """).use {
+        """
+        ).use {
             it.setString(1, sykmeldingId)
             it.executeQuery().toList {
-                Job(sykmeldingId = getString("sykmelding_id"),
-                        updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
-                        name = JOB_NAME.valueOf(getString("name")),
-                        status = JOB_STATUS.valueOf(getString("status")))
+                Job(
+                    sykmeldingId = getString("sykmelding_id"),
+                    updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
+                    name = JOB_NAME.valueOf(getString("name")),
+                    status = JOB_STATUS.valueOf(getString("status"))
+                )
             }
         }
     }
@@ -170,15 +189,19 @@ fun DatabaseInterface.getJobForSykmeldingId(sykmeldingId: String): List<Job?> {
 
 fun DatabaseInterface.getJob(status: JOB_STATUS): List<Job?> {
     return connection.use {
-        it.prepareStatement("""
+        it.prepareStatement(
+            """
            select * from job where status = ? 
-        """).use {
+        """
+        ).use {
             it.setString(1, status.name)
             it.executeQuery().toList {
-                Job(sykmeldingId = getString("sykmelding_id"),
-                        updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
-                        name = JOB_NAME.valueOf(getString("name")),
-                        status = JOB_STATUS.valueOf(getString("status")))
+                Job(
+                    sykmeldingId = getString("sykmelding_id"),
+                    updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
+                    name = JOB_NAME.valueOf(getString("name")),
+                    status = JOB_STATUS.valueOf(getString("status"))
+                )
             }
         }
     }
