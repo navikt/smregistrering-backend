@@ -77,7 +77,9 @@ fun main() {
     val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
     val kafkaProducers = KafkaProducers(env, vaultSecrets)
     val httpClients = HttpClients(env, vaultSecrets)
-    val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
+
+    val databaseForJobs = Database(env, vaultCredentialService)
+    val sykmeldingJobService = SykmeldingJobService(databaseInterface = databaseForJobs)
     val sykmeldingJobRunner = SykmeldingJobRunner(applicationState, sykmeldingJobService, kafkaProducers.kafkaRecievedSykmeldingProducer, kafkaProducers.kafkaSyfoserviceProducer)
 
     val applicationEngine = createApplicationEngine(sykmeldingJobService,
