@@ -15,7 +15,6 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 private const val TRANSACTION_TIMEOUT = 60_000
 
 fun DatabaseInterface.insertJobs(jobs: List<Job>) {
-    connection.autoCommit = false
     connection.use { connection ->
         insertJobs(connection, jobs)
         connection.commit()
