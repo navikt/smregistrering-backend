@@ -42,7 +42,6 @@ private fun insertJobs(connection: Connection, jobs: List<Job>) {
 fun DatabaseInterface.getNextJob(): Job? {
     return connection.use { connection ->
         try {
-            connection.beginRequest()
             var job = getJob(connection, JOB_STATUS.NEW)
             if (job != null) {
                 job = job.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.IN_PROGRESS)
@@ -53,7 +52,6 @@ fun DatabaseInterface.getNextJob(): Job? {
                     return null
                 } else {
                     connection.commit()
-                    connection.endRequest()
                 }
             }
             job
