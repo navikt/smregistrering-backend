@@ -36,6 +36,8 @@ import java.util.concurrent.Future
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.Godkjenning
+import no.nav.syfo.client.Kode
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
@@ -364,7 +366,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
 
             coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr")
+                        fnr = "12345", hprNummer = "hpr", godkjenninger = null)
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
@@ -574,7 +576,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
 
             coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                fnr = "12345", hprNummer = "hpr")
+                fnr = "12345", hprNummer = "hpr", godkjenninger = null)
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
@@ -779,7 +781,11 @@ class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(
                         aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr"
+                        fnr = "12345", hprNummer = "hpr",
+                        godkjenninger = listOf(
+                            Godkjenning(
+                                Kode(aktiv = true, oid = 1, verdi = "FOO"),
+                                Kode(aktiv = true, oid = 1, verdi = "BAR")))
                     )
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {

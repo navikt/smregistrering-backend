@@ -23,6 +23,7 @@ class SykmelderService(
             throw IllegalStateException("Kunne ikke hente fnr for hpr $hprNummer")
         }
 
+        // TODO: Trenger vi egentlig dette kallet? Får vi ikke tilstrekkelig informasjon fra HPR?
         val behandler = pdlPersonService.getPdlPerson(behandlerFraHpr.fnr, userToken, callId)
 
         if (behandler.aktorId == null) {
@@ -36,7 +37,8 @@ class SykmelderService(
             aktorId = behandler.aktorId,
             fornavn = behandler.navn.fornavn,
             mellomnavn = behandler.navn.mellomnavn,
-            etternavn = behandler.navn.etternavn
+            etternavn = behandler.navn.etternavn,
+            godkjenninger = behandlerFraHpr.godkjenninger
         )
     }
 }
