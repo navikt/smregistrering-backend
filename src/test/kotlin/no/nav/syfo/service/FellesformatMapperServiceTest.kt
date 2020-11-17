@@ -476,7 +476,7 @@ fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldin
                     IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
             )),
             sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr"),
+                    fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null),
             sykmeldingId = sykmeldingId,
             datoOpprettet = datoOpprettet
     )

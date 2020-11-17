@@ -88,7 +88,8 @@ fun Route.avvisOppgave(
                                 etternavn = "",
                                 aktorId = null,
                                 hprNummer = null,
-                                fnr = null
+                                fnr = null,
+                                godkjenninger = null
                             )
                         }
 

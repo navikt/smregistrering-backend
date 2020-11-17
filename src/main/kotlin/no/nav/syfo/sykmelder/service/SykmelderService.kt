@@ -16,27 +16,28 @@ class SykmelderService(
             throw IllegalStateException("HPR-nummer mangler")
         }
 
-        val behandlerFraHpr = norskHelsenettClient.finnBehandler(hprNummer, callId)
+        val behandler = norskHelsenettClient.finnBehandler(hprNummer, callId)
 
-        if (behandlerFraHpr == null || behandlerFraHpr.fnr.isNullOrEmpty()) {
+        if (behandler == null || behandler.fnr.isNullOrEmpty()) {
             log.warn("Kunne ikke hente fnr for hpr {}", hprNummer)
             throw IllegalStateException("Kunne ikke hente fnr for hpr $hprNummer")
         }
 
-        val behandler = pdlPersonService.getPdlPerson(behandlerFraHpr.fnr, userToken, callId)
+        val pdlPerson = pdlPersonService.getPdlPerson(behandler.fnr, userToken, callId)
 
-        if (behandler.aktorId == null) {
+        if (pdlPerson.aktorId == null) {
             log.warn("Fant ikke aktorId til behandler for HPR {}", hprNummer)
             throw IllegalStateException("Kunne ikke hente aktorId for hpr $hprNummer")
         }
 
         return Sykmelder(
             hprNummer = hprNummer,
-            fnr = behandlerFraHpr.fnr,
-            aktorId = behandler.aktorId,
-            fornavn = behandler.navn.fornavn,
-            mellomnavn = behandler.navn.mellomnavn,
-            etternavn = behandler.navn.etternavn
+            fnr = behandler.fnr,
+            aktorId = pdlPerson.aktorId,
+            fornavn = pdlPerson.navn.fornavn,
+            mellomnavn = pdlPerson.navn.mellomnavn,
+            etternavn = pdlPerson.navn.etternavn,
+            godkjenninger = behandler.godkjenninger
         )
     }
 }

@@ -122,7 +122,7 @@ class AvvisOppgaveRestTest {
             coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
                     Sykmelder(
                         aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr"
+                        fnr = "12345", hprNummer = "hpr", godkjenninger = null
                     )
 
             coEvery { manuellOppgaveService.ferdigstillSmRegistering(any()) } returns 1
