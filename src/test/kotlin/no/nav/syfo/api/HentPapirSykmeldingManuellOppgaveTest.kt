@@ -54,6 +54,10 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
+import no.nav.syfo.pdl.client.model.IdentInformasjon
+import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.model.PdlPerson
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafNotFoundException
@@ -85,6 +89,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
+    private val pdlService = mockk<PdlPersonService>()
 
     @After
     fun after() {
@@ -104,6 +109,12 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+                Navn("Billy", "Bob", "Thornton"), listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
+            )
 
             val oppgaveid = 308076319
 
@@ -175,6 +186,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     manuellOppgaveService,
                     safDokumentClient,
                     oppgaveClient,
+                    pdlService,
                     syfoTilgangsKontrollService
                 )
             }
@@ -385,6 +397,12 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+                Navn("Billy", "Bob", "Thornton"), listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
+            )
 
             val oppgaveid = 308076319
 
@@ -456,6 +474,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     manuellOppgaveService,
                     safDokumentClient,
                     oppgaveClient,
+                    pdlService,
                     syfoTilgangsKontrollService
                 )
             }

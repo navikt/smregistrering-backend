@@ -104,9 +104,9 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
+                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, pdlService, authorizationService)
                 sendPapirSykmeldingManuellOppgave(
-                sykmeldingJobService,
+                    sykmeldingJobService,
                     manuellOppgaveService,
                     oppgaveClient,
                     kuhrsarClient,
