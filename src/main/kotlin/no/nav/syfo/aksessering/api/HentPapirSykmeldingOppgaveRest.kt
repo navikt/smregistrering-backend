@@ -7,7 +7,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
-import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
@@ -36,8 +35,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-            val callId = UUID.randomUUID().toString()
-
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -64,6 +61,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                    val callId = manuellOppgaveDTOList.first().sykmeldingId
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                     val fnr = manuellOppgaveDTOList.first().fnr!!
