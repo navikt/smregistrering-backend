@@ -11,6 +11,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleSendOppgaveTilGosys
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafNotFoundException
@@ -24,6 +25,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
     oppgaveClient: OppgaveClient,
+    pdlService: PdlPersonService,
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
@@ -33,7 +35,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -60,10 +61,14 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                    val callId = manuellOppgaveDTOList.first().sykmeldingId
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
+                    val fnr = manuellOppgaveDTOList.first().fnr!!
 
-                        if (authorizationService.hasAccess(accessToken, manuellOppgaveDTOList.first().fnr!!)) {
+                        if (authorizationService.hasAccess(accessToken, fnr)) {
+
+                            val pdlPerson = pdlService.getPdlPerson(fnr = fnr, userToken = accessToken, callId = callId)
 
                             try {
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
@@ -81,7 +86,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                         sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                         oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
                                         pdfPapirSykmelding = pdfPapirSykmelding,
-                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
+                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering,
+                                        navn = pdlPerson.navn
                                     )
 
                                     call.respond(papirManuellOppgave)

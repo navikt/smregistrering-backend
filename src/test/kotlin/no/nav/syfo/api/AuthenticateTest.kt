@@ -40,6 +40,10 @@ import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.objectMapper
+import no.nav.syfo.pdl.client.model.IdentInformasjon
+import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.model.PdlPerson
+import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
@@ -64,6 +68,7 @@ internal class AuthenticateTest {
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorization = mockk<AuthorizationService>()
     private val oppgaveClient = mockk<OppgaveClient>()
+    private val pdlService = mockk<PdlPersonService>()
 
     @After
     fun after() {
@@ -78,6 +83,12 @@ internal class AuthenticateTest {
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
             coEvery { authorization.hasAccess(any(), any()) } returns true
+            coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+                Navn("Billy", "Bob", "Thornton"), listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
+            )
 
             val oppgaveid = 308076319
 
@@ -149,6 +160,7 @@ internal class AuthenticateTest {
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
+                        pdlService,
                         authorization
                     )
                 }
@@ -256,6 +268,7 @@ internal class AuthenticateTest {
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
+                        pdlService,
                         authorization
                     )
                 }
