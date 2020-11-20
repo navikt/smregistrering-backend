@@ -4,7 +4,7 @@ import no.nav.syfo.pdl.model.Navn
 
 data class PapirManuellOppgave(
     val fnr: String?,
-    val navn: Navn,
+    val pasientNavn: Navn?,
     val sykmeldingId: String,
     val oppgaveid: Int,
     var pdfPapirSykmelding: ByteArray,

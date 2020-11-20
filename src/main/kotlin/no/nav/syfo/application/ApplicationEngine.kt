@@ -32,6 +32,7 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
+import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.avvisOppgave
@@ -124,6 +125,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     oppgaveClient
                 )
+                pasientApi(pdlService)
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
             }
