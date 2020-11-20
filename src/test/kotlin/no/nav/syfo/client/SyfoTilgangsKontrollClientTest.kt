@@ -28,72 +28,78 @@ import java.net.ServerSocket
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
-import org.junit.After
 import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
 
-internal class SyfoTilgangsKontrollClientTest {
-    private val httpClient = HttpClient(Apache) {
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+class SyfoTilgangsKontrollClientTest {
+
+    companion object {
+        private val mockHttpServerPort = ServerSocket(0).use { it.localPort }
+        private val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
+        private val pasientFnr = "123145"
+        private val veilederident = "Z990099"
+        private val mockServer = embeddedServer(Netty, mockHttpServerPort) {
+            install(ContentNegotiation) {
+                jackson {}
+            }
+            routing {
+                get("/api/tilgang/navident/bruker/$pasientFnr") {
+                    when {
+                        call.request.headers["Authorization"] == "Bearer token" -> call.respond(
+                            Tilgang(
+                                harTilgang = true,
+                                begrunnelse = null
+                            )
+                        )
+                        else -> call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt")
+                    }
+                }
+                get("/api/veilederinfo/ident") {
+                    when {
+                        call.request.headers["Authorization"] == "Bearer token" -> call.respond(Veileder(veilederident))
+                        else -> call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt")
+                    }
+                }
+            }
+        }.start()
+
+        private val httpClient = HttpClient(Apache) {
+            install(JsonFeature) {
+                serializer = JacksonSerializer {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                }
             }
         }
     }
+
     private val accessTokenClient = mockk<AccessTokenClient>()
-
-    private val mockHttpServerPort = ServerSocket(0).use { it.localPort }
-    private val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
-    private val pasientFnr = "123145"
-    private val veilederident = "Z990099"
-    private val mockServer = embeddedServer(Netty, mockHttpServerPort) {
-        install(ContentNegotiation) {
-            jackson {}
-        }
-        routing {
-            get("/api/tilgang/navident/bruker/$pasientFnr") {
-                when {
-                    call.request.headers["Authorization"] == "Bearer token" -> call.respond(
-                        Tilgang(
-                            harTilgang = true,
-                            begrunnelse = null
-                        )
-                    )
-                    else -> call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt")
-                }
-            }
-            get("/api/veilederinfo/ident") {
-                when {
-                    call.request.headers["Authorization"] == "Bearer token" -> call.respond(Veileder(veilederident))
-                    else -> call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt")
-                }
-            }
-        }
-    }.start()
-
     private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(100)
         .build<Map<String, String>, Tilgang>()
+
     private val veilederCache: Cache<String, Veileder> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(100)
         .build<String, Veileder>()
-    private val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(mockHttpServerUrl, accessTokenClient, "scope", httpClient, syfoTilgangskontrollCache, veilederCache)
+
+    private val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
+        mockHttpServerUrl,
+        accessTokenClient,
+        "scope",
+        httpClient,
+        syfoTilgangskontrollCache,
+        veilederCache
+    )
 
     @BeforeEach
     internal fun beforeEachTest() {
         clearAllMocks()
         syfoTilgangskontrollCache.invalidateAll()
         veilederCache.invalidateAll()
-    }
-
-    @After
-    internal fun afterGroup() {
-        mockServer.stop(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1))
     }
 
     @Test
