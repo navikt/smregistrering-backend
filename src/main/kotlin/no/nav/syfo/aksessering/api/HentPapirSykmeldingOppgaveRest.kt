@@ -61,14 +61,11 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     )
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
-                    val callId = manuellOppgaveDTOList.first().sykmeldingId
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                     val fnr = manuellOppgaveDTOList.first().fnr!!
 
                         if (authorizationService.hasAccess(accessToken, fnr)) {
-
-                            val pdlPerson = pdlService.getPdlPerson(fnr = fnr, userToken = accessToken, callId = callId)
 
                             try {
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
@@ -86,8 +83,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                         sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                         oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
                                         pdfPapirSykmelding = pdfPapirSykmelding,
-                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering,
-                                        navn = pdlPerson.navn
+                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                                     )
 
                                     call.respond(papirManuellOppgave)
