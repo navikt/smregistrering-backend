@@ -18,7 +18,7 @@ fun Route.pasientApi(
         get("/pasient/{pasientFnr}") {
             val pasientFnr = call.parameters["pasientFnr"]
 
-            log.info("Mottok kall til GET /api/v1/pasient/$pasientFnr")
+            log.info("Mottok kall til GET /api/v1/pasient/[fnr]")
 
             when {
                 pasientFnr == null -> {
