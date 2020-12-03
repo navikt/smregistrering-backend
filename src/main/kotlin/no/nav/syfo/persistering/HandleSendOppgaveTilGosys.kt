@@ -13,7 +13,7 @@ suspend fun handleSendOppgaveTilGosys(
     manuellOppgaveService: ManuellOppgaveService,
     loggingMeta: LoggingMeta,
     oppgaveId: Int,
-    navEnhet: String,
+    navEnhet: String?,
     accessToken: String
 ) {
     val veileder = authorizationService.getVeileder(accessToken)
