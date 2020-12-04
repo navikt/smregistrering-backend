@@ -494,7 +494,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 }
             }
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = 123, versjon = 2,
                 tilordnetRessurs = "",
                 tildeltEnhetsnr = "",
@@ -522,7 +522,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 response.content shouldEqual "SENT_TO_GOSYS"
             }
 
-            coVerify(exactly = 1) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any(), any()) }
+            coVerify(exactly = 1) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }
         }
     }
 

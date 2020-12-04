@@ -108,7 +108,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     manuellOppgaveService = manuellOppgaveService,
                                     loggingMeta = loggingMeta,
                                     oppgaveId = oppgaveId,
-                                    navEnhet = null,
                                     accessToken = accessToken
                                 )
 

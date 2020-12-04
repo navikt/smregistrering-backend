@@ -126,11 +126,10 @@ class OppgaveClient(
         }
     }
 
-    suspend fun sendOppgaveTilGosys(oppgaveId: Int, msgId: String, tildeltEnhetsnr: String?, tilordnetRessurs: String): Oppgave {
+    suspend fun sendOppgaveTilGosys(oppgaveId: Int, msgId: String, tilordnetRessurs: String): Oppgave {
         val oppgave = hentOppgave(oppgaveId, msgId)
-        val oppdatertOppgave = oppgave.copy(
+        var oppdatertOppgave = oppgave.copy(
             behandlesAvApplikasjon = "FS22",
-            tildeltEnhetsnr = tildeltEnhetsnr,
             tilordnetRessurs = tilordnetRessurs
         )
         return oppdaterOppgave(oppdatertOppgave, msgId)
