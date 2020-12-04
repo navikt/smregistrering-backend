@@ -43,10 +43,6 @@ fun Route.sendOppgaveTilGosys(
                     log.error("Mangler JWT Bearer token i HTTP header")
                     call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
                 }
-                navEnhet == null -> {
-                    log.error("Mangler X-Nav-Enhet i http header")
-                    call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
-                }
                 else -> {
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
@@ -66,7 +62,7 @@ fun Route.sendOppgaveTilGosys(
 
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
 
-                        handleSendOppgaveTilGosys(authorizationService, oppgaveClient, manuellOppgaveService, loggingMeta, oppgaveId, navEnhet, accessToken)
+                        handleSendOppgaveTilGosys(authorizationService, oppgaveClient, manuellOppgaveService, loggingMeta, oppgaveId, accessToken)
 
                         call.respond(HttpStatusCode.NoContent)
                     } else {

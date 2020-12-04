@@ -166,7 +166,7 @@ class SendOppgaveTilGosysRestTest {
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = oppgaveid,
                 versjon = 1,
                 tilordnetRessurs = "",

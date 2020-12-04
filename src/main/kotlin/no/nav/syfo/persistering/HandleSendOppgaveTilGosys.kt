@@ -13,7 +13,6 @@ suspend fun handleSendOppgaveTilGosys(
     manuellOppgaveService: ManuellOppgaveService,
     loggingMeta: LoggingMeta,
     oppgaveId: Int,
-    navEnhet: String,
     accessToken: String
 ) {
     val veileder = authorizationService.getVeileder(accessToken)
@@ -23,7 +22,6 @@ suspend fun handleSendOppgaveTilGosys(
     oppgaveClient.sendOppgaveTilGosys(
         oppgaveId = oppgaveId,
         msgId = loggingMeta.msgId,
-        tildeltEnhetsnr = navEnhet,
         tilordnetRessurs = veileder.veilederIdent
     )
     manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
