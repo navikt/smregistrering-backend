@@ -84,3 +84,5 @@ spec:
       value: b813133d-82b8-46ef-be96-3b903ea6c048
     - name: SAFJOURNALPOST_GRAPHQL_PATH
       value: https://saf.nais.adeo.no/graphql
+    - name: OPPGAVEBEHANDLING_URL
+      value: https://oppgave.nais.adeo.no/api/v1/oppgaver
