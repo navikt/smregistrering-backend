@@ -20,14 +20,14 @@ class SykmelderService(
 
         if (behandler == null || behandler.fnr.isNullOrEmpty()) {
             log.warn("Kunne ikke hente fnr for hpr {}", hprNummer)
-            throw IllegalStateException("Kunne ikke hente fnr for hpr $hprNummer")
+            throw SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
         }
 
         val pdlPerson = pdlPersonService.getPdlPerson(behandler.fnr, userToken, callId)
 
         if (pdlPerson.aktorId == null) {
             log.warn("Fant ikke aktorId til behandler for HPR {}", hprNummer)
-            throw IllegalStateException("Kunne ikke hente aktorId for hpr $hprNummer")
+            throw SykmelderNotFoundException("Kunne ikke hente aktorId for hpr $hprNummer")
         }
 
         return Sykmelder(
@@ -41,3 +41,5 @@ class SykmelderService(
         )
     }
 }
+
+class SykmelderNotFoundException(message: String?) : Exception(message)
