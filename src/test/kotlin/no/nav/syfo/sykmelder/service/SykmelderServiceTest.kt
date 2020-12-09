@@ -104,7 +104,7 @@ class SykmelderServiceTest {
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns null
 
         runBlocking {
-            val exception = assertFailsWith<IllegalStateException> {
+            val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
             }
             exception.message shouldEqual "Kunne ikke hente fnr for hpr $hprNummer"
@@ -135,7 +135,7 @@ class SykmelderServiceTest {
         )
 
         runBlocking {
-            val exception = assertFailsWith<IllegalStateException> {
+            val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
             }
             exception.message shouldEqual "Kunne ikke hente aktorId for hpr $hprNummer"
