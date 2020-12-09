@@ -82,7 +82,7 @@ fun createApplicationEngine(
         install(StatusPages) {
             exception<ValidationException> { cause ->
                 call.respond(HttpStatusCode.BadRequest, cause.validationResult)
-                log.error("Caught ValidationException", cause)
+                log.warn("Caught ValidationException", cause)
             }
 
             exception<Throwable> { cause ->

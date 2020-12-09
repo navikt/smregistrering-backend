@@ -60,6 +60,13 @@ class SyfoTilgangsKontrollClient(
                     begrunnelse = "syfo-tilgangskontroll svarer med Unauthorized"
                 )
             }
+            HttpStatusCode.Forbidden -> {
+                log.warn("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med Forbidden")
+                return Tilgang(
+                    harTilgang = false,
+                    begrunnelse = "syfo-tilgangskontroll svarer med Forbidden"
+                )
+            }
             HttpStatusCode.OK -> {
                 log.debug("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med ok")
                 log.info("Sjekker tilgang for veileder på person")
@@ -68,7 +75,7 @@ class SyfoTilgangsKontrollClient(
                 return tilgang
             }
         }
-        log.error("Mottok ukjent responskode fra syfotilgangskontroll: ${httpResponse.status}")
+        log.warn("Mottok ukjent responskode fra syfotilgangskontroll: ${httpResponse.status}")
         throw IllegalStateException("Mottok ukjent responskode fra syfotilgangskontroll: ${httpResponse.status}")
     }
 
