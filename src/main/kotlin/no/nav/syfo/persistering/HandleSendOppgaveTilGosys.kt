@@ -3,6 +3,7 @@ package no.nav.syfo.persistering
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
+import no.nav.syfo.metrics.SENT_TO_GOSYS_COUNTER
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
@@ -25,6 +26,8 @@ suspend fun handleSendOppgaveTilGosys(
         tilordnetRessurs = veileder.veilederIdent
     )
     manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
+
+    SENT_TO_GOSYS_COUNTER.inc()
 
     log.info("Ferdig å sende oppgave med id $oppgaveId til Gosys {}", fields(loggingMeta))
 }
