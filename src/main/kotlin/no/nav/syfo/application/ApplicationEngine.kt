@@ -43,7 +43,8 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
-import no.nav.syfo.sykmelder.service.SykmelderNotFoundException
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
+import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 
@@ -89,9 +90,12 @@ fun createApplicationEngine(
                 call.respond(HttpStatusCode.InternalServerError)
                 log.warn("Caught SykmelderNotFoundException", cause)
             }
+            exception<UnauthorizedException> { cause ->
+                call.respond(HttpStatusCode.Unauthorized)
+                log.warn("Caught UnauthorizedException", cause)
+            }
             exception<Throwable> { cause ->
                 call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-
                 log.error("Caught exception", cause)
                 throw cause
             }

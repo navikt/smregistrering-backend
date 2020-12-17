@@ -13,6 +13,7 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
