@@ -246,7 +246,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                             log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
                                             call.respond(
                                                 HttpStatusCode.InternalServerError,
-                                                "Noe gikk galt ved innsending av oppgave"
+                                                "En uforutsett feil oppsto ved validering av oppgaven"
                                             )
                                         }
                                     }
