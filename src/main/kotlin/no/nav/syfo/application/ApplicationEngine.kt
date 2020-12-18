@@ -34,7 +34,6 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
@@ -43,7 +42,6 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
-import no.nav.syfo.sykmelder.service.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 
@@ -81,17 +79,8 @@ fun createApplicationEngine(
             }
         }
         install(StatusPages) {
-            exception<ValidationException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.validationResult)
-                log.warn("Caught ValidationException", cause)
-            }
-            exception<SykmelderNotFoundException> { cause ->
-                call.respond(HttpStatusCode.InternalServerError)
-                log.warn("Caught SykmelderNotFoundException", cause)
-            }
             exception<Throwable> { cause ->
                 call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-
                 log.error("Caught exception", cause)
                 throw cause
             }

@@ -28,6 +28,8 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
+import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
@@ -67,8 +69,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 oppgaveId == null -> {
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
                     call.respond(
-                            HttpStatusCode.BadRequest,
-                            "Path parameter mangler eller er feil formattert: oppgaveid"
+                        HttpStatusCode.BadRequest,
+                        "Path parameter mangler eller er feil formattert: oppgaveid"
                     )
                 }
                 accessToken == null -> {
@@ -80,77 +82,79 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
-                    val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
-                    if (!manuellOppgaveDTOList.isNullOrEmpty()) {
-                        val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
-                        val journalpostId = manuellOppgaveDTOList.first().journalpostId
-                        val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
+                    try {
 
-                        val loggingMeta = LoggingMeta(
+                        val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                        if (!manuellOppgaveDTOList.isNullOrEmpty()) {
+                            val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
+                            val journalpostId = manuellOppgaveDTOList.first().journalpostId
+                            val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
+
+                            val loggingMeta = LoggingMeta(
                                 mottakId = sykmeldingId,
                                 dokumentInfoId = dokumentInfoId,
                                 msgId = sykmeldingId,
                                 sykmeldingId = sykmeldingId,
                                 journalpostId = journalpostId
-                        )
+                            )
 
-                        if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
+                            if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
 
-                            validate(smRegistreringManuell)
+                                validate(smRegistreringManuell)
 
-                            val sykmelderHpr = smRegistreringManuell.behandler.hpr
+                                val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
-                            if (sykmelderHpr.isNullOrEmpty()) {
-                                log.error("HPR-nummer mangler {}", fields(loggingMeta))
-                                call.respond(HttpStatusCode.BadRequest, "Mangler HPR-nummer for behandler")
-                            }
+                                if (sykmelderHpr.isNullOrEmpty()) {
+                                    log.error("HPR-nummer mangler {}", fields(loggingMeta))
+                                    call.respond(HttpStatusCode.BadRequest, "Mangler HPR-nummer for behandler")
+                                }
 
-                            log.info("Henter sykmelder fra HPR og PDL")
-                            val sykmelder = sykmelderService.hentSykmelder(
+                                log.info("Henter sykmelder fra HPR og PDL")
+                                val sykmelder = sykmelderService.hentSykmelder(
                                     sykmelderHpr!!,
                                     accessToken,
                                     callId
-                            )
+                                )
 
-                            log.info("Henter pasient fra PDL {} ", loggingMeta)
-                            val pasient = pdlService.getPdlPerson(
+                                log.info("Henter pasient fra PDL {} ", loggingMeta)
+                                val pasient = pdlService.getPdlPerson(
                                     fnr = smRegistreringManuell.pasientFnr,
                                     userToken = accessToken,
                                     callId = callId
-                            )
+                                )
 
-                            if (pasient.fnr == null || pasient.aktorId == null) {
-                                log.error("Pasientens altørId eller fnr finnes ikke i PDL")
-                                call.respond(HttpStatusCode.InternalServerError)
-                            }
+                                if (pasient.fnr == null || pasient.aktorId == null) {
+                                    log.error("Pasientens aktørId eller fnr finnes ikke i PDL")
+                                    call.respond(HttpStatusCode.InternalServerError, "Fant ikke pasientens aktørid ")
+                                }
 
-                            val samhandlerPraksis = findBestSamhandlerPraksis(
+                                val samhandlerPraksis = findBestSamhandlerPraksis(
                                     kuhrsarClient.getSamhandler(sykmelder.fnr!!)
-                            )
-                            if (samhandlerPraksis == null) {
-                                log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
-                            }
+                                )
+                                if (samhandlerPraksis == null) {
+                                    log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
+                                }
 
-                            val fellesformat = mapsmRegistreringManuelltTilFellesformat(
+                                val fellesformat = mapsmRegistreringManuelltTilFellesformat(
                                     smRegistreringManuell = smRegistreringManuell,
                                     pdlPasient = pasient,
                                     sykmelder = sykmelder,
                                     sykmeldingId = sykmeldingId,
                                     datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
-                            )
+                                )
 
-                            val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
-                            val msgHead = fellesformat.get<XMLMsgHead>()
+                                val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
+                                val msgHead = fellesformat.get<XMLMsgHead>()
 
-                            val sykmelding = healthInformation.toSykmelding(
+                                val sykmelding = healthInformation.toSykmelding(
                                     sykmeldingId = sykmeldingId,
                                     pasientAktoerId = pasient.aktorId!!,
                                     legeAktoerId = sykmelder.aktorId!!,
                                     msgId = sykmeldingId,
                                     signaturDato = msgHead.msgInfo.genDate
-                            )
+                                )
 
-                            val receivedSykmelding = ReceivedSykmelding(
+                                val receivedSykmelding = ReceivedSykmelding(
                                     sykmelding = sykmelding,
                                     personNrPasient = pasient.fnr!!,
                                     tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
@@ -162,96 +166,117 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     legekontorHerId = null,
                                     legekontorReshId = null,
                                     mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
-                                            ?: msgHead.msgInfo.genDate,
+                                        ?: msgHead.msgInfo.genDate,
                                     rulesetVersion = healthInformation.regelSettVersjon,
                                     fellesformat = fellesformatMarshaller.toString(fellesformat),
                                     tssid = samhandlerPraksis?.tss_ident ?: ""
-                            )
+                                )
 
-                            log.info(
+                                log.info(
                                     "Papirsykmelding manuell registering mappet til internt format uten feil {}",
                                     fields(loggingMeta)
-                            )
+                                )
 
-                            val validationResult = regelClient.valider(receivedSykmelding, sykmeldingId)
-                            log.info(
+                                val validationResult = regelClient.valider(receivedSykmelding, sykmeldingId)
+                                log.info(
                                     "Resultat: {}, {}, {}",
                                     StructuredArguments.keyValue("ruleStatus", validationResult.status.name),
                                     StructuredArguments.keyValue(
-                                            "ruleHits",
-                                            validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
+                                        "ruleHits",
+                                        validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
                                     fields(loggingMeta)
-                            )
+                                )
 
-                            if (validationResult.ruleHits.isAllRulesWhitelisted()) {
-                                when (validationResult.status) {
-                                    Status.OK, Status.MANUAL_PROCESSING -> {
-                                        val veileder = authorizationService.getVeileder(accessToken)
+                                if (validationResult.ruleHits.isAllRulesWhitelisted()) {
+                                    when (validationResult.status) {
+                                        Status.OK, Status.MANUAL_PROCESSING -> {
+                                            val veileder = authorizationService.getVeileder(accessToken)
 
-                                        handleOKOppgave(
-                                            sykmeldingJobService,
-                                            receivedSykmelding = receivedSykmelding,
-                                            loggingMeta = loggingMeta,
-                                            oppgaveClient = oppgaveClient,
-                                            dokArkivClient = dokArkivClient,
-                                            safJournalpostService = safJournalpostService,
-                                            accessToken = accessToken,
-                                            sykmeldingId = sykmeldingId,
-                                            journalpostId = journalpostId,
-                                            oppgaveId = oppgaveId,
-                                            veileder = veileder,
-                                            sykmelder = sykmelder,
-                                            navEnhet = navEnhet
-                                        )
-
-                                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
-                                            call.respond(HttpStatusCode.NoContent)
-                                        } else {
-                                            log.error(
-                                                "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                            handleOKOppgave(
+                                                sykmeldingJobService,
+                                                receivedSykmelding = receivedSykmelding,
+                                                loggingMeta = loggingMeta,
+                                                oppgaveClient = oppgaveClient,
+                                                dokArkivClient = dokArkivClient,
+                                                safJournalpostService = safJournalpostService,
+                                                accessToken = accessToken,
+                                                sykmeldingId = sykmeldingId,
+                                                journalpostId = journalpostId,
+                                                oppgaveId = oppgaveId,
+                                                veileder = veileder,
+                                                sykmelder = sykmelder,
+                                                navEnhet = navEnhet
                                             )
+
+                                            if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                                                call.respond(HttpStatusCode.NoContent)
+                                            } else {
+                                                log.error(
+                                                    "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
+                                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                                )
+                                                call.respond(HttpStatusCode.InternalServerError, "Fant ikke en uløst oppgave for oppgaveId $oppgaveId")
+                                            }
+                                        }
+                                        else -> {
+                                            log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
                                             call.respond(HttpStatusCode.InternalServerError)
                                         }
                                     }
-                                    else -> {
-                                        log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
-                                        call.respond(HttpStatusCode.InternalServerError)
+                                } else {
+                                    when (validationResult.status) {
+                                        Status.MANUAL_PROCESSING -> {
+                                            log.info(
+                                                "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                            )
+                                            call.respond(HttpStatusCode.BadRequest, validationResult)
+                                        }
+                                        Status.OK -> {
+                                            log.error(
+                                                "ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet",
+                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                            )
+                                            call.respond(
+                                                HttpStatusCode.InternalServerError,
+                                                "Noe gikk galt ved innsending av oppgave"
+                                            )
+                                        }
+                                        else -> {
+                                            log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                                            call.respond(
+                                                HttpStatusCode.InternalServerError,
+                                                "En uforutsett feil oppsto ved validering av oppgaven"
+                                            )
+                                        }
                                     }
                                 }
                             } else {
-                                when (validationResult.status) {
-                                    Status.MANUAL_PROCESSING -> {
-                                        log.info(
-                                                "Ferdigstilling av papirsykmeldinger manuell registering traff regel MANUAL_PROCESSING {}",
-                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                        )
-                                        call.respond(HttpStatusCode.BadRequest, validationResult)
-                                    }
-                                    Status.OK -> {
-                                        log.error("ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet",
-                                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                        )
-                                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved innsending av oppgave")
-                                    }
-                                    else -> {
-                                        log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
-                                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved innsending av oppgave")
-                                    }
-                                }
+                                log.warn(
+                                    "Veileder har ikkje tilgang, {}, {}",
+                                    StructuredArguments.keyValue("oppgaveId", oppgaveId), fields(loggingMeta)
+                                )
+                                call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
                             }
                         } else {
                             log.warn(
-                                    "Veileder har ikkje tilgang, {}, {}",
-                                    StructuredArguments.keyValue("oppgaveId", oppgaveId), fields(loggingMeta)
-                            )
-                            call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
-                        }
-                    } else {
-                        log.warn(
                                 "Henting av papirsykmeldinger manuell registering returente null {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                        call.respond(HttpStatusCode.InternalServerError, "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId")
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            )
+                            call.respond(
+                                HttpStatusCode.NotFound,
+                                "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
+                            )
+                        }
+                    } catch (e: SykmelderNotFoundException) {
+                        log.warn("Caught SykmelderNotFoundException", e)
+                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
+                    } catch (e: UnauthorizedException) {
+                        log.warn("Caught UnauthorizedException", e)
+                        call.respond(HttpStatusCode.Unauthorized, "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll")
+                    } catch (e: ValidationException) {
+                        log.warn("Caught ValidationException", e)
+                        call.respond(HttpStatusCode.BadRequest, e.validationResult)
                     }
                 }
             }

@@ -4,6 +4,7 @@ import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.log
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 
 class SykmelderService(
     private val norskHelsenettClient: NorskHelsenettClient,
@@ -41,5 +42,3 @@ class SykmelderService(
         )
     }
 }
-
-class SykmelderNotFoundException(message: String?) : Exception(message)
