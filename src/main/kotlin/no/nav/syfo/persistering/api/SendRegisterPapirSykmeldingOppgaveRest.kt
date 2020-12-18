@@ -264,7 +264,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
                             call.respond(
-                                HttpStatusCode.InternalServerError,
+                                HttpStatusCode.NotFound,
                                 "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
                             )
                         }
