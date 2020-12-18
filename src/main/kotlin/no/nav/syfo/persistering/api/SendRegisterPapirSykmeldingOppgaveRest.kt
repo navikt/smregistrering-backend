@@ -124,8 +124,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 )
 
                                 if (pasient.fnr == null || pasient.aktorId == null) {
-                                    log.error("Pasientens altørId eller fnr finnes ikke i PDL")
-                                    call.respond(HttpStatusCode.InternalServerError)
+                                    log.error("Pasientens aktørId eller fnr finnes ikke i PDL")
+                                    call.respond(HttpStatusCode.InternalServerError, "Fant ikke pasientens aktørid ")
                                 }
 
                                 val samhandlerPraksis = findBestSamhandlerPraksis(
@@ -215,7 +215,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                                     "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
                                                     StructuredArguments.keyValue("oppgaveId", oppgaveId)
                                                 )
-                                                call.respond(HttpStatusCode.InternalServerError)
+                                                call.respond(HttpStatusCode.InternalServerError, "Fant ikke en uløst oppgave for oppgaveId $oppgaveId")
                                             }
                                         }
                                         else -> {
@@ -270,10 +270,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         }
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
-                        call.respond(HttpStatusCode.InternalServerError)
+                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
                     } catch (e: UnauthorizedException) {
                         log.warn("Caught UnauthorizedException", e)
-                        call.respond(HttpStatusCode.Unauthorized)
+                        call.respond(HttpStatusCode.Unauthorized, "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll")
                     } catch (e: ValidationException) {
                         log.warn("Caught ValidationException", e)
                         call.respond(HttpStatusCode.BadRequest, e.validationResult)
