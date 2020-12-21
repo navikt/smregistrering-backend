@@ -142,7 +142,7 @@ class DokArkivClient(
 
     fun getTittel(avvist: Boolean): String {
         return if (avvist) {
-            "Avvist sykmelding mottatt på papir"
+            "Avvist papirsykmelding"
         } else {
             "Papirsykmelding"
         }
