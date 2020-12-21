@@ -202,6 +202,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                                 accessToken = accessToken,
                                                 sykmeldingId = sykmeldingId,
                                                 journalpostId = journalpostId,
+                                                dokumentInfoId = dokumentInfoId,
                                                 oppgaveId = oppgaveId,
                                                 veileder = veileder,
                                                 sykmelder = sykmelder,

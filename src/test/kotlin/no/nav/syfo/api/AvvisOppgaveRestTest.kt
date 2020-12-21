@@ -197,7 +197,7 @@ class AvvisOppgaveRestTest {
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                     Oppgave(

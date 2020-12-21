@@ -27,6 +27,7 @@ class DokArkivClient(
 
     suspend fun oppdaterOgFerdigstillJournalpost(
         journalpostId: String,
+        dokumentInfoId: String? = null,
         pasientFnr: String,
         sykmeldingId: String,
         sykmelder: Sykmelder,
@@ -34,12 +35,13 @@ class DokArkivClient(
         navEnhet: String,
         avvist: Boolean
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, pasientFnr = pasientFnr, sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        oppdaterJournalpost(journalpostId = journalpostId, dokumentInfoId = dokumentInfoId, pasientFnr = pasientFnr, sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, loggingMeta = loggingMeta)
         return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
     private suspend fun oppdaterJournalpost(
         journalpostId: String,
+        dokumentInfoId: String?,
         pasientFnr: String,
         sykmelder: Sykmelder,
         avvist: Boolean,
@@ -60,7 +62,12 @@ class DokArkivClient(
                 ),
                 bruker = Bruker(id = pasientFnr),
                 sak = Sak(),
-                tittel = getTittel(avvist)
+                tittel = getTittel(avvist),
+                dokumenter = if (avvist && dokumentInfoId != null) {
+                    listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
+                } else {
+                    null
+                }
             )
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
@@ -157,7 +164,8 @@ class DokArkivClient(
         val avsenderMottaker: AvsenderMottaker,
         val bruker: Bruker,
         val sak: Sak,
-        val tittel: String
+        val tittel: String,
+        val dokumenter: List<DokumentInfo>?
     )
 
     data class AvsenderMottaker(
@@ -173,5 +181,10 @@ class DokArkivClient(
 
     data class Sak(
         val sakstype: String = "GENERELL_SAK"
+    )
+
+    data class DokumentInfo(
+        val dokumentInfoId: String,
+        val tittel: String
     )
 }
