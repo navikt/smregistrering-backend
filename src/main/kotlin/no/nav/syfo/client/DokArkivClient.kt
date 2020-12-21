@@ -53,27 +53,15 @@ class DokArkivClient(
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
 
-            body = if (avvist) {
-                OppdaterJournalpost(
-                    avsenderMottaker = AvsenderMottaker(
-                        id = padHpr(sykmelder.hprNummer),
-                        navn = finnNavn(sykmelder)
-                    ),
-                    bruker = Bruker(id = pasientFnr),
-                    sak = Sak(),
-                    tittel = "Avvist sykmelding mottatt på papir"
-                )
-            } else {
-                OppdaterJournalpost(
-                    avsenderMottaker = AvsenderMottaker(
-                        id = padHpr(sykmelder.hprNummer),
-                        navn = finnNavn(sykmelder)
-                    ),
-                    bruker = Bruker(id = pasientFnr),
-                    sak = Sak(),
-                    tittel = "Papirsykmelding"
-                )
-            }
+            body = OppdaterJournalpost(
+                avsenderMottaker = AvsenderMottaker(
+                    id = padHpr(sykmelder.hprNummer),
+                    navn = finnNavn(sykmelder)
+                ),
+                bruker = Bruker(id = pasientFnr),
+                sak = Sak(),
+                tittel = getTittel(avvist)
+            )
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
             log.error("Dokarkiv svarte med feilmelding ved oppdatering av journalpost for msgId {}, {}", msgId, fields(loggingMeta))
@@ -150,6 +138,14 @@ class DokArkivClient(
 
     fun finnNavn(sykmelder: Sykmelder): String {
         return "${sykmelder.fornavn} ${sykmelder.etternavn}"
+    }
+
+    fun getTittel(avvist: Boolean): String {
+        return if (avvist) {
+            "Avvist sykmelding mottatt på papir"
+        } else {
+            "Papirsykmelding"
+        }
     }
 
     data class FerdigstillJournal(
