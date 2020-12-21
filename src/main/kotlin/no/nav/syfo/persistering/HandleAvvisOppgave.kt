@@ -18,6 +18,7 @@ suspend fun handleAvvisOppgave(
     loggingMeta: LoggingMeta,
     sykmeldingId: String,
     journalpostId: String,
+    dokumentInfoId: String?,
     oppgaveId: Int,
     veileder: Veileder,
     pasientFnr: String,
@@ -25,12 +26,14 @@ suspend fun handleAvvisOppgave(
     navEnhet: String
 ) {
     dokArkivClient.oppdaterOgFerdigstillJournalpost(
-        journalpostId,
-        pasientFnr,
-        sykmeldingId,
-        sykmelder,
-        loggingMeta,
-        navEnhet
+        journalpostId = journalpostId,
+        dokumentInfoId = dokumentInfoId,
+        pasientFnr = pasientFnr,
+        sykmeldingId = sykmeldingId,
+        sykmelder = sykmelder,
+        loggingMeta = loggingMeta,
+        navEnhet = navEnhet,
+        avvist = true
     )
 
     val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)

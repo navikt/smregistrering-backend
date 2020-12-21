@@ -27,20 +27,24 @@ class DokArkivClient(
 
     suspend fun oppdaterOgFerdigstillJournalpost(
         journalpostId: String,
+        dokumentInfoId: String? = null,
         pasientFnr: String,
         sykmeldingId: String,
         sykmelder: Sykmelder,
         loggingMeta: LoggingMeta,
-        navEnhet: String
+        navEnhet: String,
+        avvist: Boolean
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, pasientFnr = pasientFnr, sykmelder = sykmelder, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        oppdaterJournalpost(journalpostId = journalpostId, dokumentInfoId = dokumentInfoId, pasientFnr = pasientFnr, sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, loggingMeta = loggingMeta)
         return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
-    suspend fun oppdaterJournalpost(
+    private suspend fun oppdaterJournalpost(
         journalpostId: String,
+        dokumentInfoId: String?,
         pasientFnr: String,
         sykmelder: Sykmelder,
+        avvist: Boolean,
         msgId: String,
         loggingMeta: LoggingMeta
     ) {
@@ -53,11 +57,17 @@ class DokArkivClient(
 
             body = OppdaterJournalpost(
                 avsenderMottaker = AvsenderMottaker(
-                        id = padHpr(sykmelder.hprNummer),
-                        navn = finnNavn(sykmelder)
-                    ),
+                    id = padHpr(sykmelder.hprNummer),
+                    navn = finnNavn(sykmelder)
+                ),
                 bruker = Bruker(id = pasientFnr),
-                sak = Sak()
+                sak = Sak(),
+                tittel = getTittel(avvist),
+                dokumenter = if (avvist && dokumentInfoId != null) {
+                    listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
+                } else {
+                    null
+                }
             )
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
@@ -137,6 +147,14 @@ class DokArkivClient(
         return "${sykmelder.fornavn} ${sykmelder.etternavn}"
     }
 
+    fun getTittel(avvist: Boolean): String {
+        return if (avvist) {
+            "Avvist papirsykmelding"
+        } else {
+            "Papirsykmelding"
+        }
+    }
+
     data class FerdigstillJournal(
         val journalfoerendeEnhet: String
     )
@@ -145,7 +163,9 @@ class DokArkivClient(
         val tema: String = "SYM",
         val avsenderMottaker: AvsenderMottaker,
         val bruker: Bruker,
-        val sak: Sak
+        val sak: Sak,
+        val tittel: String,
+        val dokumenter: List<DokumentInfo>?
     )
 
     data class AvsenderMottaker(
@@ -161,5 +181,10 @@ class DokArkivClient(
 
     data class Sak(
         val sakstype: String = "GENERELL_SAK"
+    )
+
+    data class DokumentInfo(
+        val dokumentInfoId: String,
+        val tittel: String
     )
 }
