@@ -30,7 +30,8 @@ suspend fun handleAvvisOppgave(
         sykmeldingId,
         sykmelder,
         loggingMeta,
-        navEnhet
+        navEnhet,
+        avvist = true
     )
 
     val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)

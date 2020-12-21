@@ -31,16 +31,18 @@ class DokArkivClient(
         sykmeldingId: String,
         sykmelder: Sykmelder,
         loggingMeta: LoggingMeta,
-        navEnhet: String
+        navEnhet: String,
+        avvist: Boolean
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, pasientFnr = pasientFnr, sykmelder = sykmelder, msgId = sykmeldingId, loggingMeta = loggingMeta)
+        oppdaterJournalpost(journalpostId = journalpostId, pasientFnr = pasientFnr, sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, loggingMeta = loggingMeta)
         return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
     }
 
-    suspend fun oppdaterJournalpost(
+    private suspend fun oppdaterJournalpost(
         journalpostId: String,
         pasientFnr: String,
         sykmelder: Sykmelder,
+        avvist: Boolean,
         msgId: String,
         loggingMeta: LoggingMeta
     ) {
@@ -51,14 +53,27 @@ class DokArkivClient(
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("Nav-Callid", msgId)
 
-            body = OppdaterJournalpost(
-                avsenderMottaker = AvsenderMottaker(
+            body = if (avvist) {
+                OppdaterJournalpost(
+                    avsenderMottaker = AvsenderMottaker(
                         id = padHpr(sykmelder.hprNummer),
                         navn = finnNavn(sykmelder)
                     ),
-                bruker = Bruker(id = pasientFnr),
-                sak = Sak()
-            )
+                    bruker = Bruker(id = pasientFnr),
+                    sak = Sak(),
+                    tittel = "Avvist sykmelding mottatt på papir"
+                )
+            } else {
+                OppdaterJournalpost(
+                    avsenderMottaker = AvsenderMottaker(
+                        id = padHpr(sykmelder.hprNummer),
+                        navn = finnNavn(sykmelder)
+                    ),
+                    bruker = Bruker(id = pasientFnr),
+                    sak = Sak(),
+                    tittel = "Papirsykmelding"
+                )
+            }
         }.execute()
         if (httpResponse.status == HttpStatusCode.InternalServerError) {
             log.error("Dokarkiv svarte med feilmelding ved oppdatering av journalpost for msgId {}, {}", msgId, fields(loggingMeta))
@@ -145,7 +160,8 @@ class DokArkivClient(
         val tema: String = "SYM",
         val avsenderMottaker: AvsenderMottaker,
         val bruker: Bruker,
-        val sak: Sak
+        val sak: Sak,
+        val tittel: String
     )
 
     data class AvsenderMottaker(

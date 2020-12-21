@@ -41,7 +41,8 @@ suspend fun handleOKOppgave(
             sykmeldingId,
             sykmelder,
             loggingMeta,
-            navEnhet
+            navEnhet,
+            avvist = false
         )
     } else {
         log.info("Hopper over oppdaterOgFerdigstillJournalpost, journalpostId $journalpostId er allerede journalført")
