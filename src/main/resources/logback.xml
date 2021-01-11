@@ -12,7 +12,7 @@
         <appender-ref ref="stdout_json"/>
     </logger>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="stdout_json"/>
     </root>
 </configuration>
