@@ -85,13 +85,14 @@ fun createApplicationEngine(
                 throw cause
             }
         }
+
         install(CORS) {
             method(HttpMethod.Get)
             method(HttpMethod.Post)
             method(HttpMethod.Put)
             method(HttpMethod.Options)
             header("Content-Type")
-            host(env.smregistreringUrl, schemes = listOf("https", "https"))
+            host(env.smregistreringUrl, schemes = listOf("http", "https"))
             allowCredentials = true
         }
 
