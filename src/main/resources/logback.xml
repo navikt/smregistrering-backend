@@ -8,6 +8,10 @@
 
     <logger name="no.nav" level="INFO"/>
 
+    <logger name="io.ktor.auth.jwt" level="DEBUG">
+        <appender-ref ref="stdout_json"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
