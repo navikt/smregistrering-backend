@@ -19,9 +19,7 @@ fun Application.setupAuth(
 ) {
     install(Authentication) {
         jwt(name = "jwt") {
-            log.info("auth 1")
             verifier(jwkProvider, issuer)
-            log.info("auth 2")
             validate { credentials ->
                 when {
                     hasSyfosmmanuellBackendClientIdAudience(credentials, vaultSecrets) -> JWTPrincipal(credentials.payload)
@@ -44,6 +42,5 @@ fun unauthorized(credentials: JWTCredential): Principal? {
 }
 
 fun hasSyfosmmanuellBackendClientIdAudience(credentials: JWTCredential, vaultSecrets: VaultSecrets): Boolean {
-    log.info("auth 3")
     return credentials.payload.audience.contains(vaultSecrets.smregistreringBackendClientId)
 }
