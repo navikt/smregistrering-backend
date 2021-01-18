@@ -6,6 +6,7 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.DokArkivClient
@@ -19,6 +20,7 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
+@KtorExperimentalAPI
 fun Route.avvisOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     authorizationService: AuthorizationService,
@@ -100,6 +102,7 @@ fun Route.avvisOppgave(
                                 sykmelder = sykmelder,
                                 veileder = veileder,
                                 journalpostId = journalpostId,
+                                dokumentInfoId = dokumentInfoId,
                                 loggingMeta = loggingMeta,
                                 navEnhet = navEnhet,
                                 oppgaveId = oppgaveId,

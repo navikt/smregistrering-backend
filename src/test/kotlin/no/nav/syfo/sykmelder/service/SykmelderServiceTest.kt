@@ -13,6 +13,7 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
@@ -104,7 +105,7 @@ class SykmelderServiceTest {
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns null
 
         runBlocking {
-            val exception = assertFailsWith<IllegalStateException> {
+            val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
             }
             exception.message shouldEqual "Kunne ikke hente fnr for hpr $hprNummer"
@@ -135,7 +136,7 @@ class SykmelderServiceTest {
         )
 
         runBlocking {
-            val exception = assertFailsWith<IllegalStateException> {
+            val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
             }
             exception.message shouldEqual "Kunne ikke hente aktorId for hpr $hprNummer"

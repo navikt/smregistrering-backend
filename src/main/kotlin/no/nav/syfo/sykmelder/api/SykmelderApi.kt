@@ -8,6 +8,8 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import java.util.UUID
 import no.nav.syfo.log
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
+import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
@@ -28,8 +30,16 @@ fun Route.sykmelderApi(
                 else -> {
                     val accessToken = getAccessTokenFromAuthHeader(call.request)!!
                     val callId = UUID.randomUUID().toString()
-                    val sykmelder = sykmelderService.hentSykmelder(hprNummer.toString(), accessToken, callId)
-                    call.respond(sykmelder)
+                    try {
+                        val sykmelder = sykmelderService.hentSykmelder(hprNummer.toString(), accessToken, callId)
+                        call.respond(sykmelder)
+                    } catch (e: SykmelderNotFoundException) {
+                        log.warn("Caught SykmelderNotFoundException", e)
+                        call.respond(HttpStatusCode.NotFound)
+                    } catch (e: UnauthorizedException) {
+                        log.warn("Caught UnauthorizedException", e)
+                        call.respond(HttpStatusCode.Unauthorized)
+                    }
                 }
             }
         }

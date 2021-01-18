@@ -13,7 +13,10 @@ import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
+import java.lang.RuntimeException
 import no.nav.syfo.log
+import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
+import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.padHpr
 
 class NorskHelsenettClient(
@@ -42,11 +45,11 @@ class NorskHelsenettClient(
         return when (httpResponse.status) {
             NotFound -> {
                 log.warn("Fant ikke behandler for HprNummer $hprNummer for callId $callId")
-                null
+                throw SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
             }
             Unauthorized -> {
                 log.warn("Norsk helsenett returnerte Unauthorized for henting av behandler: $hprNummer")
-                null
+                throw UnauthorizedException("Norsk helsenett returnerte Unauthorized ved oppslag av HPR-nummer $hprNummer")
             }
             OK -> {
                 log.info("Hentet behandler for callId {}", callId)
@@ -54,7 +57,7 @@ class NorskHelsenettClient(
             }
             else -> {
                 log.error("Feil ved henting av behandler. Statuskode: ${httpResponse.status}")
-                null
+                throw RuntimeException("En ukjent feil oppsto ved ved henting av behandler. Statuskode: ${httpResponse.status}")
             }
         }
     }

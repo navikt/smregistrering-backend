@@ -26,6 +26,7 @@ suspend fun handleOKOppgave(
     accessToken: String,
     sykmeldingId: String,
     journalpostId: String,
+    dokumentInfoId: String?,
     oppgaveId: Int,
     veileder: Veileder,
     sykmelder: Sykmelder,
@@ -36,12 +37,14 @@ suspend fun handleOKOppgave(
 
     if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)) {
         dokArkivClient.oppdaterOgFerdigstillJournalpost(
-            journalpostId,
-            receivedSykmelding.personNrPasient,
-            sykmeldingId,
-            sykmelder,
-            loggingMeta,
-            navEnhet
+            journalpostId = journalpostId,
+            dokumentInfoId = dokumentInfoId,
+            pasientFnr = receivedSykmelding.personNrPasient,
+            sykmeldingId = sykmeldingId,
+            sykmelder = sykmelder,
+            loggingMeta = loggingMeta,
+            navEnhet = navEnhet,
+            avvist = false
         )
     } else {
         log.info("Hopper over oppdaterOgFerdigstillJournalpost, journalpostId $journalpostId er allerede journalført")

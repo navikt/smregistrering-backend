@@ -63,7 +63,7 @@ spec:
     - name: SMREGISTERING_BACKEND_CLIENT_ID_PATH
       value: /secrets/azuread/smregistrering-backend/client_id
     - name: SMREGISTERING_URL
-      value: smregistrering.nais.preprod.local
+      value: smregistrering.dev.adeo.no
     - name: HENT_DOKUMENT_URL
       value: https://saf-q1.nais.preprod.local/
     - name: AKTOR_REGISTER_V1_URL
@@ -84,3 +84,5 @@ spec:
       value: c18eba24-f676-47db-9a97-3c66e9304aee
     - name: SAFJOURNALPOST_GRAPHQL_PATH
       value: https://saf-q1.nais.preprod.local/graphql
+    - name: OPPGAVEBEHANDLING_URL
+      value: https://oppgave-q1.nais.preprod.local/api/v1/oppgaver

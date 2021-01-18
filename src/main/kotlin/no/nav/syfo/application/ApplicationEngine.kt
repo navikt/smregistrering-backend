@@ -34,7 +34,6 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
@@ -80,25 +79,20 @@ fun createApplicationEngine(
             }
         }
         install(StatusPages) {
-            exception<ValidationException> { cause ->
-                call.respond(HttpStatusCode.BadRequest, cause.validationResult)
-                log.error("Caught ValidationException", cause)
-            }
-
             exception<Throwable> { cause ->
                 call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
-
                 log.error("Caught exception", cause)
                 throw cause
             }
         }
+
         install(CORS) {
             method(HttpMethod.Get)
             method(HttpMethod.Post)
             method(HttpMethod.Put)
             method(HttpMethod.Options)
             header("Content-Type")
-            host(env.smregistreringUrl, schemes = listOf("https", "https"))
+            host(env.smregistreringUrl, schemes = listOf("http", "https"))
             allowCredentials = true
         }
 
