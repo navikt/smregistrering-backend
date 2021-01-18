@@ -1,11 +1,13 @@
 package no.nav.syfo.sykmelder.service
 
+import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.log
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 
+@KtorExperimentalAPI
 class SykmelderService(
     private val norskHelsenettClient: NorskHelsenettClient,
     private val pdlPersonService: PdlPersonService
