@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.auth.authenticate
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
 import io.ktor.http.HttpHeaders
@@ -470,13 +471,15 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 ), jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                hentPapirSykmeldingManuellOppgave(
-                    manuellOppgaveService,
-                    safDokumentClient,
-                    oppgaveClient,
-                    pdlService,
-                    syfoTilgangsKontrollService
-                )
+                authenticate("jwt") {
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        oppgaveClient,
+                        pdlService,
+                        syfoTilgangsKontrollService
+                    )
+                }
             }
 
             application.install(ContentNegotiation) {
