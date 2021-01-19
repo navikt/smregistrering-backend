@@ -33,5 +33,20 @@ fun Route.pasientApi(
                 }
             }
         }
+        get("/pasient") {
+
+            when (val pasientFnr = call.request.headers["X-Pasient-Fnr"]) {
+                null -> {
+                    log.info("Ugyldig header: pasientFnr is missing")
+                    call.respond(HttpStatusCode.BadRequest)
+                }
+                else -> {
+                    val accessToken = getAccessTokenFromAuthHeader(call.request)!!
+                    val callId = UUID.randomUUID().toString()
+                    val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, userToken = accessToken, callId = callId)
+                    call.respond(pdlPerson.navn)
+                }
+            }
+        }
     }
 }
