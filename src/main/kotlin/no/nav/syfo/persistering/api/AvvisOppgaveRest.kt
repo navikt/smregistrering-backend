@@ -80,20 +80,7 @@ fun Route.avvisOppgave(
                         val veileder = authorizationService.getVeileder(accessToken)
 
                         val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
-                        val sykmelder = if (!hpr.isNullOrEmpty()) {
-                            log.info("Henter sykmelder fra HPR og PDL")
-                            sykmelderService.hentSykmelder(hpr, accessToken, callId)
-                        } else {
-                            Sykmelder(
-                                fornavn = "Helseforetak",
-                                mellomnavn = null,
-                                etternavn = "",
-                                aktorId = null,
-                                hprNummer = null,
-                                fnr = null,
-                                godkjenninger = null
-                            )
-                        }
+                        val sykmelder = finnSykmelder(hpr, sykmelderService, accessToken, callId, oppgaveId)
 
                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
                             handleAvvisOppgave(
@@ -120,3 +107,35 @@ fun Route.avvisOppgave(
         }
     }
 }
+
+@KtorExperimentalAPI
+private suspend fun finnSykmelder(
+    hpr: String?,
+    sykmelderService: SykmelderService,
+    accessToken: String,
+    callId: String,
+    oppgaveId: Int
+): Sykmelder {
+    return if (!hpr.isNullOrEmpty()) {
+        log.info("Henter sykmelder fra HPR og PDL for oppgaveid $oppgaveId")
+        try {
+            sykmelderService.hentSykmelder(hpr, accessToken, callId)
+        } catch (e: Exception) {
+            log.error("Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId")
+            return getDefaultSykmelder()
+        }
+    } else {
+        getDefaultSykmelder()
+    }
+}
+
+private fun getDefaultSykmelder(): Sykmelder =
+    Sykmelder(
+        fornavn = "Helseforetak",
+        mellomnavn = null,
+        etternavn = "",
+        aktorId = null,
+        hprNummer = null,
+        fnr = null,
+        godkjenninger = null
+    )
