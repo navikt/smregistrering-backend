@@ -35,9 +35,7 @@ fun Route.pasientApi(
         }
         get("/pasient") {
 
-            val pasientFnr = call.request.headers["pasientFnr"]
-
-            when (pasientFnr) {
+            when (val pasientFnr = call.request.headers["X-Pasient-Fnr"]) {
                 null -> {
                     log.info("Ugyldig header: pasientFnr is missing")
                     call.respond(HttpStatusCode.BadRequest)
