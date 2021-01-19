@@ -26,7 +26,7 @@ fun Application.setupAuth(
     install(Authentication) {
         addPhase(AuthenticationPipeline.CheckAuthentication)
         intercept(AuthenticationPipeline.CheckAuthentication) {
-            if(!ignoreList.contains(context.request.uri)) {
+            if (!ignoreList.contains(context.request.uri)) {
                 val r = this.context.authentication.principal
                 val header = this.context.request.headers[HttpHeaders.Authorization]
                 if (r == null && header != null) {
