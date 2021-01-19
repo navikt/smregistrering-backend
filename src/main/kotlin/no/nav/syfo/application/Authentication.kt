@@ -16,21 +16,24 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.log
 
+val ignoreList = listOf("/is_ready", "/is_alive", "/prometheus")
+
 fun Application.setupAuth(
     vaultSecrets: VaultSecrets,
     jwkProvider: JwkProvider,
     issuer: String
 ) {
-
     install(Authentication) {
         addPhase(AuthenticationPipeline.CheckAuthentication)
         intercept(AuthenticationPipeline.CheckAuthentication) {
-            val r = this.context.authentication.principal
-            val header = this.context.request.headers[HttpHeaders.Authorization]
-            if (r == null && header != null) {
-                log.warn("Has ${HttpHeaders.Authorization} header, but it is empty or invalid for url: ${context.request.uri}")
-            } else if (header == null) {
-                log.warn("Has no Authorization header for url: ${context.request.uri}")
+            if(!ignoreList.contains(context.request.uri)) {
+                val r = this.context.authentication.principal
+                val header = this.context.request.headers[HttpHeaders.Authorization]
+                if (r == null && header != null) {
+                    log.warn("Has ${HttpHeaders.Authorization} header, but it is empty or invalid for url: ${context.request.uri}")
+                } else if (header == null) {
+                    log.warn("Has no Authorization header for url: ${context.request.uri}")
+                }
             }
         }
         jwt(name = "jwt") {
