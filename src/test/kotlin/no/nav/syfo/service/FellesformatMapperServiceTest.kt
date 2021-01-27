@@ -84,9 +84,9 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
         receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = null, erIkkeIArbeid = null)
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
+        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
         receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual false
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
@@ -219,9 +219,9 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
         receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = null, erIkkeIArbeid = null)
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
+        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
         receivedSykmelding.sykmelding.meldingTilNAV shouldEqual MeldingTilNAV(bistandUmiddelbart = false, beskrivBistand = "")
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
