@@ -16,6 +16,7 @@ import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
+import no.nav.syfo.model.Gradert
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
 import no.nav.syfo.model.MedisinskArsak
@@ -410,6 +411,30 @@ class FellesformatMapperServiceTest {
         dynaSvarType.restriksjon.restriksjonskode.size shouldEqual 1
         dynaSvarType.restriksjon.restriksjonskode.first().dn shouldEqual "Informasjonen skal ikke vises arbeidsgiver"
         dynaSvarType.restriksjon.restriksjonskode.first().v shouldEqual "A"
+    }
+
+    @Test
+    fun `Skal ikke sette aktivitetIkkeMulig hvis denne ikke er satt fra frontend`() {
+        val gradertPeriode = Periode(
+            fom = LocalDate.now().minusWeeks(1),
+            tom = LocalDate.now(),
+            aktivitetIkkeMulig = null,
+            avventendeInnspillTilArbeidsgiver = null,
+            behandlingsdager = null,
+            gradert = Gradert(reisetilskudd = true, grad = 50),
+            reisetilskudd = false
+        )
+
+        val periode = tilHelseOpplysningerArbeidsuforhetPeriode(gradertPeriode)
+
+        periode.periodeFOMDato shouldEqual LocalDate.now().minusWeeks(1)
+        periode.periodeTOMDato shouldEqual LocalDate.now()
+        periode.gradertSykmelding.sykmeldingsgrad shouldEqual 50
+        periode.gradertSykmelding.isReisetilskudd shouldEqual true
+        periode.aktivitetIkkeMulig shouldEqual null
+        periode.behandlingsdager shouldEqual null
+        periode.isReisetilskudd shouldEqual false
+        periode.avventendeSykmelding shouldEqual null
     }
 }
 
