@@ -43,12 +43,7 @@ fun HelseOpplysningerArbeidsuforhet.toSykmelding(
         pasientAktoerId = pasientAktoerId,
         medisinskVurdering = medisinskVurdering.toMedisinskVurdering(),
         skjermesForPasient = medisinskVurdering?.isSkjermesForPasient ?: false,
-        arbeidsgiver = Arbeidsgiver(
-                harArbeidsgiver = HarArbeidsgiver.EN_ARBEIDSGIVER,
-                navn = null,
-                stillingsprosent = null,
-                yrkesbetegnelse = null
-        ),
+        arbeidsgiver = arbeidsgiver.toArbeidsgiver(),
         perioder = aktivitet.periode.map(HelseOpplysningerArbeidsuforhet.Aktivitet.Periode::toPeriode),
         prognose = prognose?.toPrognose(),
         utdypendeOpplysninger = utdypendeOpplysninger?.toMap() ?: mapOf(),
