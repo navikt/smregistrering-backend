@@ -207,12 +207,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.medisinskVurdering.yrkesskadeDato shouldEqual null
         receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak shouldEqual null
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
-        receivedSykmelding.sykmelding.arbeidsgiver shouldEqual Arbeidsgiver(
-            HarArbeidsgiver.EN_ARBEIDSGIVER,
-            "NAV ikt",
-            "Utvikler",
-            100
-        )
+        receivedSykmelding.sykmelding.arbeidsgiver shouldEqual Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, null, null, null)
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
         receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
@@ -456,7 +451,7 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
             utdypendeOpplysninger = null,
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
-            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, null, null, null),
             behandletDato = LocalDate.of(2020, 4, 1),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
