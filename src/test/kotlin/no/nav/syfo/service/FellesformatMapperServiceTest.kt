@@ -15,7 +15,6 @@ import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
-import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
 import no.nav.syfo.model.MedisinskArsak
@@ -136,26 +135,12 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val fellesformat = getXmleiFellesformat(smRegisteringManuellt, sykmeldingId, datoOpprettet)
@@ -281,26 +266,12 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
@@ -342,26 +313,12 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
@@ -452,8 +409,6 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
                     yrkesskadeDato = null,
                     annenFraversArsak = null
             ),
-            prognose = Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null),
-            utdypendeOpplysninger = null,
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
@@ -461,11 +416,9 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
     )
 }
 

@@ -261,7 +261,6 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 skjermesForPasient = false,
                 arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
                 behandletDato = LocalDate.now(),
-                andreTiltak = "Neida",
                 behandler = Behandler(
                     "Per",
                     "",
@@ -277,10 +276,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 meldingTilArbeidsgiver = "Nei",
                 meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
                 navnFastlege = "Per Person",
-                prognose = null,
-                tiltakArbeidsplassen = "Mer flesk og duppe!",
-                tiltakNAV = "Nei",
-                utdypendeOpplysninger = null
+                harUtdypendeOpplysninger = false
             )
 
             val future = mockk<Future<RecordMetadata>>()
@@ -464,17 +460,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 tiltakNAV = "Nei",
                 tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
                 utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now()
-                    ),
-                    null
-                ),
+                prognose = null,
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
                     biDiagnoser = emptyList(),
@@ -798,7 +784,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldEqual HttpStatusCode.BadRequest
                 response.contentType() shouldEqual ContentType.Application.Json.withCharset(Charsets.UTF_8)
                 response.content shouldNotBe null
-                response.content!!.lines() shouldEqual listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"erIArbeidValidation\",\"messageForSender\":\"Sykmeldingen kan ikke ha både 5.2 og 5.3 fylt ut samtidig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
+                response.content!!.lines() shouldEqual listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
             }
         }
     }

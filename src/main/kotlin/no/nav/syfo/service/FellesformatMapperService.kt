@@ -145,32 +145,9 @@ fun mapsmRegistreringManuelltTilFellesformat(
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
                                 periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
                             }
-                            prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
-                                isArbeidsforEtterEndtPeriode = smRegistreringManuell.prognose?.arbeidsforEtterPeriode
-                                beskrivHensynArbeidsplassen = smRegistreringManuell.prognose?.hensynArbeidsplassen
-                                erIArbeid = smRegistreringManuell.prognose?.erIArbeid?.let {
-                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
-                                        isAnnetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.annetArbeidPaSikt
-                                        isEgetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.egetArbeidPaSikt
-                                        arbeidFraDato = smRegistreringManuell.prognose.erIArbeid?.arbeidFOM
-                                        vurderingDato = smRegistreringManuell.prognose.erIArbeid?.vurderingsdato
-                                    }
-                                }
-                                erIkkeIArbeid = smRegistreringManuell.prognose?.erIkkeIArbeid?.let {
-                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIkkeIArbeid().apply {
-                                        isArbeidsforPaSikt = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforPaSikt
-                                        arbeidsforFraDato = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforFOM
-                                        vurderingDato = smRegistreringManuell.prognose.erIkkeIArbeid?.vurderingsdato
-                                    }
-                                }
-                            }
-                            utdypendeOpplysninger =
-                                tilUtdypendeOpplysninger(smRegistreringManuell.utdypendeOpplysninger)
-                            tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
-                                tiltakArbeidsplassen = smRegistreringManuell.tiltakArbeidsplassen
-                                tiltakNAV = smRegistreringManuell.tiltakNAV
-                                andreTiltak = smRegistreringManuell.andreTiltak
-                            }
+                            prognose = null
+                            utdypendeOpplysninger = null
+                            tiltak = null
                             meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
                                 isBistandNAVUmiddelbart =
                                     smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
