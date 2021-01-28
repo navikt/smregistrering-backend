@@ -260,37 +260,41 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
     HelseOpplysningerArbeidsuforhet.Aktivitet.Periode().apply {
         periodeFOMDato = periode.fom
         periodeTOMDato = periode.tom
-        aktivitetIkkeMulig = HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AktivitetIkkeMulig().apply {
-            medisinskeArsaker = if (periode.aktivitetIkkeMulig?.medisinskArsak != null) {
-                ArsakType().apply {
-                    beskriv = periode.aktivitetIkkeMulig?.medisinskArsak?.beskrivelse
-                    arsakskode.addAll(
-                        periode.aktivitetIkkeMulig!!.medisinskArsak!!.arsak.stream().map {
-                            CS().apply {
-                                v = it.codeValue
-                                dn = it.text
-                            }
-                        }.collect(Collectors.toList())
-                    )
+        aktivitetIkkeMulig = if (periode.aktivitetIkkeMulig != null) {
+            HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AktivitetIkkeMulig().apply {
+                medisinskeArsaker = if (periode.aktivitetIkkeMulig?.medisinskArsak != null) {
+                    ArsakType().apply {
+                        beskriv = periode.aktivitetIkkeMulig?.medisinskArsak?.beskrivelse
+                        arsakskode.addAll(
+                            periode.aktivitetIkkeMulig!!.medisinskArsak!!.arsak.stream().map {
+                                CS().apply {
+                                    v = it.codeValue
+                                    dn = it.text
+                                }
+                            }.collect(Collectors.toList())
+                        )
+                    }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
-            arbeidsplassen = if (periode.aktivitetIkkeMulig?.arbeidsrelatertArsak != null) {
-                ArsakType().apply {
-                    beskriv = periode.aktivitetIkkeMulig?.arbeidsrelatertArsak?.beskrivelse
-                    arsakskode.addAll(
-                        periode.aktivitetIkkeMulig!!.arbeidsrelatertArsak!!.arsak.stream().map {
-                            CS().apply {
-                                v = it.codeValue
-                                dn = it.text
-                            }
-                        }.collect(Collectors.toList())
-                    )
+                arbeidsplassen = if (periode.aktivitetIkkeMulig?.arbeidsrelatertArsak != null) {
+                    ArsakType().apply {
+                        beskriv = periode.aktivitetIkkeMulig?.arbeidsrelatertArsak?.beskrivelse
+                        arsakskode.addAll(
+                            periode.aktivitetIkkeMulig!!.arbeidsrelatertArsak!!.arsak.stream().map {
+                                CS().apply {
+                                    v = it.codeValue
+                                    dn = it.text
+                                }
+                            }.collect(Collectors.toList())
+                        )
+                    }
+                } else {
+                    null
                 }
-            } else {
-                null
             }
+        } else {
+            null
         }
         avventendeSykmelding = if (periode.avventendeInnspillTilArbeidsgiver != null) {
             HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AvventendeSykmelding().apply {
