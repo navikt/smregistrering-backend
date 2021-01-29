@@ -45,7 +45,7 @@ fun HelseOpplysningerArbeidsuforhet.toSykmelding(
         skjermesForPasient = medisinskVurdering?.isSkjermesForPasient ?: false,
         arbeidsgiver = arbeidsgiver.toArbeidsgiver(),
         perioder = aktivitet.periode.map(HelseOpplysningerArbeidsuforhet.Aktivitet.Periode::toPeriode),
-        prognose = Prognose(arbeidsforEtterPeriode = false, erIArbeid = null, erIkkeIArbeid = null, hensynArbeidsplassen = null),
+        prognose = null,
         utdypendeOpplysninger = mapOf(),
         tiltakArbeidsplassen = null,
         tiltakNAV = null,
