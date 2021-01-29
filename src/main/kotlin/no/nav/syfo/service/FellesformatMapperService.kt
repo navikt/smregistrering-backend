@@ -32,6 +32,7 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
+import no.nav.syfo.model.RestrictionCode
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.model.PdlPerson
@@ -224,7 +225,12 @@ fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.Utdypen
             spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
             spmSvar.add(DynaSvarType().apply {
                 spmTekst = "Utdypende opplysninger"
-                restriksjon = null
+                restriksjon = DynaSvarType.Restriksjon().apply {
+                    restriksjonskode.add(CS().apply {
+                        dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
+                        v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
+                    })
+                }
                 spmId = "6.1.1"
                 svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
             })
