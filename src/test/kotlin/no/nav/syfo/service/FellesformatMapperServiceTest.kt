@@ -1,6 +1,5 @@
 package no.nav.syfo.service
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -324,50 +323,6 @@ class FellesformatMapperServiceTest {
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
         tilSyketilfelleStartDato shouldEqual smRegisteringManuell.perioder.first().fom
-    }
-
-    @Test
-    fun `Utdypende opplysninger skal håndtere tomme maps`() {
-
-        val stringMap = "{\n" +
-                "  \"6.1\": {},\n" +
-                "  \"6.2\": {},\n" +
-                "  \"6.3\": {},\n" +
-                "  \"6.4\": {},\n" +
-                "  \"6.5\": {},\n" +
-                "  \"6.6\": {}\n" +
-                "}"
-        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
-
-        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
-        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 0
-    }
-
-    @Test
-    fun `Utdypende opplysninger skal håndtere maps med innhold`() {
-
-        val stringMap = "{\n " +
-                "  \"6.1\": {\"6.1.1\":\"bar\"},\n" +
-                "  \"6.2\": {},\n" +
-                "  \"6.3\": {},\n" +
-                "  \"6.4\": {},\n" +
-                "  \"6.5\": {},\n" +
-                "  \"6.6\": {}\n" +
-                "}"
-        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
-
-        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
-        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 1
-        val spmGruppe = tilUtdypendeOpplysninger.spmGruppe.first()
-        spmGruppe.spmGruppeId shouldEqual "6.1"
-        spmGruppe.spmGruppeTekst shouldEqual "Utdypende opplysninger ved 7/8,17 og 39 uker"
-        val dynaSvarType = spmGruppe.spmSvar.first()
-        dynaSvarType.spmId shouldEqual "6.1.1"
-        dynaSvarType.spmTekst shouldEqual "Er det sykdommen, utredningen og/eller behandlingen som hindrer økt aktivitet? Beskriv."
-        dynaSvarType.svarTekst shouldEqual "bar"
-        dynaSvarType.restriksjon.restriksjonskode.size shouldEqual 1
-        dynaSvarType.restriksjon.restriksjonskode.first().dn shouldEqual "Informasjonen skal ikke vises arbeidsgiver"
-        dynaSvarType.restriksjon.restriksjonskode.first().v shouldEqual "A"
     }
 
     @Test

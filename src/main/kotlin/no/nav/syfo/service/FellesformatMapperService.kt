@@ -32,8 +32,6 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.QuestionId
-import no.nav.syfo.model.RestrictionCode
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.model.PdlPerson
@@ -218,35 +216,6 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
             }
         })
     }
-
-fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
-    val utdypendeOpplysninger = HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger()
-
-    from?.entries?.stream()?.map {
-        HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
-            spmGruppeId = it.key
-            spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
-            spmSvar.addAll(it.value.entries.stream().map {
-                DynaSvarType().apply {
-                    spmTekst = QuestionId.fromSpmId(it.key).spmTekst
-                    restriksjon = DynaSvarType.Restriksjon().apply {
-                        restriksjonskode.add(CS().apply {
-                            dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
-                            v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
-                        })
-                    }
-                    spmId = it.key
-                    svarTekst = it.value
-                }
-            }.collect(Collectors.toList()))
-        }
-    }?.forEach {
-        if (it.spmSvar.size != 0) {
-            utdypendeOpplysninger.spmGruppe.add(it)
-        }
-    }
-    return utdypendeOpplysninger
-}
 
 fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
     return HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger().apply {
