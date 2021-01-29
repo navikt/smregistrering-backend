@@ -13,12 +13,8 @@ data class SmRegistreringManuell(
     val skjermesForPasient: Boolean,
     val behandler: Behandler,
     val kontaktMedPasient: KontaktMedPasient,
-    val prognose: Prognose?,
     val meldingTilNAV: MeldingTilNAV?,
     val meldingTilArbeidsgiver: String?,
-    val tiltakNAV: String?,
-    val tiltakArbeidsplassen: String?,
-    val andreTiltak: String?,
-    val utdypendeOpplysninger: Map<String, Map<String, String>>?,
-    val navnFastlege: String?
+    val navnFastlege: String?,
+    val harUtdypendeOpplysninger: Boolean
 )

@@ -32,7 +32,6 @@ import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.QuestionId
 import no.nav.syfo.model.RestrictionCode
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
@@ -145,32 +144,9 @@ fun mapsmRegistreringManuelltTilFellesformat(
                             aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
                                 periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
                             }
-                            prognose = HelseOpplysningerArbeidsuforhet.Prognose().apply {
-                                isArbeidsforEtterEndtPeriode = smRegistreringManuell.prognose?.arbeidsforEtterPeriode
-                                beskrivHensynArbeidsplassen = smRegistreringManuell.prognose?.hensynArbeidsplassen
-                                erIArbeid = smRegistreringManuell.prognose?.erIArbeid?.let {
-                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIArbeid().apply {
-                                        isAnnetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.annetArbeidPaSikt
-                                        isEgetArbeidPaSikt = smRegistreringManuell.prognose.erIArbeid?.egetArbeidPaSikt
-                                        arbeidFraDato = smRegistreringManuell.prognose.erIArbeid?.arbeidFOM
-                                        vurderingDato = smRegistreringManuell.prognose.erIArbeid?.vurderingsdato
-                                    }
-                                }
-                                erIkkeIArbeid = smRegistreringManuell.prognose?.erIkkeIArbeid?.let {
-                                    HelseOpplysningerArbeidsuforhet.Prognose.ErIkkeIArbeid().apply {
-                                        isArbeidsforPaSikt = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforPaSikt
-                                        arbeidsforFraDato = smRegistreringManuell.prognose.erIkkeIArbeid?.arbeidsforFOM
-                                        vurderingDato = smRegistreringManuell.prognose.erIkkeIArbeid?.vurderingsdato
-                                    }
-                                }
-                            }
-                            utdypendeOpplysninger =
-                                tilUtdypendeOpplysninger(smRegistreringManuell.utdypendeOpplysninger)
-                            tiltak = HelseOpplysningerArbeidsuforhet.Tiltak().apply {
-                                tiltakArbeidsplassen = smRegistreringManuell.tiltakArbeidsplassen
-                                tiltakNAV = smRegistreringManuell.tiltakNAV
-                                andreTiltak = smRegistreringManuell.andreTiltak
-                            }
+                            prognose = null
+                            utdypendeOpplysninger = if (smRegistreringManuell.harUtdypendeOpplysninger) flaggScanHarUtdypendeOpplysninger() else null
+                            tiltak = null
                             meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
                                 isBistandNAVUmiddelbart =
                                     smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
@@ -242,33 +218,24 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
         })
     }
 
-fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
-    val utdypendeOpplysninger = HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger()
-
-    from?.entries?.stream()?.map {
-        HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
-            spmGruppeId = it.key
+fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
+    return HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger().apply {
+        spmGruppe.add(HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
+            spmGruppeId = "6.1"
             spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
-            spmSvar.addAll(it.value.entries.stream().map {
-                DynaSvarType().apply {
-                    spmTekst = QuestionId.fromSpmId(it.key).spmTekst
-                    restriksjon = DynaSvarType.Restriksjon().apply {
-                        restriksjonskode.add(CS().apply {
-                            dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
-                            v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
-                        })
-                    }
-                    spmId = it.key
-                    svarTekst = it.value
+            spmSvar.add(DynaSvarType().apply {
+                spmTekst = "Utdypende opplysninger"
+                restriksjon = DynaSvarType.Restriksjon().apply {
+                    restriksjonskode.add(CS().apply {
+                        dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
+                        v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
+                    })
                 }
-            }.collect(Collectors.toList()))
-        }
-    }?.forEach {
-        if (it.spmSvar.size != 0) {
-            utdypendeOpplysninger.spmGruppe.add(it)
-        }
+                spmId = "6.1.1"
+                svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
+            })
+        })
     }
-    return utdypendeOpplysninger
 }
 
 fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode> {

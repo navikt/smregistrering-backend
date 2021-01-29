@@ -1,6 +1,5 @@
 package no.nav.syfo.service
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -15,7 +14,6 @@ import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
-import no.nav.syfo.model.ErIArbeid
 import no.nav.syfo.model.Gradert
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
@@ -24,7 +22,6 @@ import no.nav.syfo.model.MedisinskArsakType
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.MeldingTilNAV
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
@@ -36,6 +33,7 @@ import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getReceivedSykmelding
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.junit.Test
@@ -50,7 +48,7 @@ class FellesformatMapperServiceTest {
 
     @Test
     fun `Realistisk case ende-til-ende`() {
-        val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege)
+        val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege, harUtdypendeOpplysninger = true)
 
         val receivedSykmelding = getReceivedSykmelding(
                 manuell = smRegisteringManuellt,
@@ -83,11 +81,11 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
         receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null)
-        receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
+        receivedSykmelding.sykmelding.prognose shouldEqual null
+        receivedSykmelding.sykmelding.utdypendeOpplysninger.toString().shouldContain("Papirsykmeldingen inneholder utdypende opplysninger.")
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
+        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
         receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual false
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
@@ -137,26 +135,12 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val fellesformat = getXmleiFellesformat(smRegisteringManuellt, sykmeldingId, datoOpprettet)
@@ -218,11 +202,11 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
         receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
         receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
-        receivedSykmelding.sykmelding.prognose shouldEqual Prognose(arbeidsforEtterPeriode = true, hensynArbeidsplassen = "Nei", erIArbeid = ErIArbeid(egetArbeidPaSikt = true, annetArbeidPaSikt = false, arbeidFOM = LocalDate.of(2020, 6, 23), vurderingsdato = LocalDate.of(2020, 6, 23)), erIkkeIArbeid = null)
+        receivedSykmelding.sykmelding.prognose shouldEqual null
         receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual "Pasienten trenger mer å gjøre"
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual "Nei"
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual "Nei"
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
+        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
+        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
         receivedSykmelding.sykmelding.meldingTilNAV shouldEqual MeldingTilNAV(bistandUmiddelbart = false, beskrivBistand = "")
         receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
         receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
@@ -282,26 +266,12 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
@@ -343,74 +313,16 @@ class FellesformatMapperServiceTest {
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
             behandletDato = LocalDate.of(2020, 4, 1),
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    true,
-                    false,
-                    arbeidFOM = LocalDate.of(2020, 6, 23),
-                    vurderingsdato = LocalDate.of(2020, 6, 23)
-                ),
-                null
-            ),
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = false
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
         tilSyketilfelleStartDato shouldEqual smRegisteringManuell.perioder.first().fom
-    }
-
-    @Test
-    fun `Utdypende opplysninger skal håndtere tomme maps`() {
-
-        val stringMap = "{\n" +
-                "  \"6.1\": {},\n" +
-                "  \"6.2\": {},\n" +
-                "  \"6.3\": {},\n" +
-                "  \"6.4\": {},\n" +
-                "  \"6.5\": {},\n" +
-                "  \"6.6\": {}\n" +
-                "}"
-        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
-
-        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
-        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 0
-    }
-
-    @Test
-    fun `Utdypende opplysninger skal håndtere maps med innhold`() {
-
-        val stringMap = "{\n " +
-                "  \"6.1\": {\"6.1.1\":\"bar\"},\n" +
-                "  \"6.2\": {},\n" +
-                "  \"6.3\": {},\n" +
-                "  \"6.4\": {},\n" +
-                "  \"6.5\": {},\n" +
-                "  \"6.6\": {}\n" +
-                "}"
-        val map = objectMapper.readValue<Map<String, Map<String, String>>>(stringMap)
-
-        val tilUtdypendeOpplysninger = tilUtdypendeOpplysninger(map)
-        tilUtdypendeOpplysninger.spmGruppe.size shouldEqual 1
-        val spmGruppe = tilUtdypendeOpplysninger.spmGruppe.first()
-        spmGruppe.spmGruppeId shouldEqual "6.1"
-        spmGruppe.spmGruppeTekst shouldEqual "Utdypende opplysninger ved 7/8,17 og 39 uker"
-        val dynaSvarType = spmGruppe.spmSvar.first()
-        dynaSvarType.spmId shouldEqual "6.1.1"
-        dynaSvarType.spmTekst shouldEqual "Er det sykdommen, utredningen og/eller behandlingen som hindrer økt aktivitet? Beskriv."
-        dynaSvarType.svarTekst shouldEqual "bar"
-        dynaSvarType.restriksjon.restriksjonskode.size shouldEqual 1
-        dynaSvarType.restriksjon.restriksjonskode.first().dn shouldEqual "Informasjonen skal ikke vises arbeidsgiver"
-        dynaSvarType.restriksjon.restriksjonskode.first().v shouldEqual "A"
     }
 
     @Test
@@ -438,7 +350,7 @@ class FellesformatMapperServiceTest {
     }
 }
 
-fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistreringManuell {
+fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOpplysninger: Boolean = false): SmRegistreringManuell {
     return SmRegistreringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
@@ -477,8 +389,6 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
                     yrkesskadeDato = null,
                     annenFraversArsak = null
             ),
-            prognose = Prognose(arbeidsforEtterPeriode = false, hensynArbeidsplassen = null, erIArbeid = ErIArbeid(egetArbeidPaSikt = false, annetArbeidPaSikt = false, arbeidFOM = null, vurderingsdato = null), erIkkeIArbeid = null),
-            utdypendeOpplysninger = null,
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
             arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
@@ -486,11 +396,9 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
             kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), "")
+            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+            harUtdypendeOpplysninger = harUtdypendeOpplysninger
     )
 }
 

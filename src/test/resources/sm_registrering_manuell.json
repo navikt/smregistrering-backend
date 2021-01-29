@@ -56,27 +56,10 @@
     "kontaktDato": "2020-06-04",
     "begrunnelseIkkeKontakt": "Test begrunnelse ikke kontakt."
   },
-  "prognose": {
-    "arbeidsforEtterPeriode": true,
-    "hensynArbeidsplassen": "Test hensyn arbeidsplassen.",
-    "erIkkeIArbeid": {
-      "arbeidsforPaSikt": true,
-      "arbeidsforFOM": "2020-06-04",
-      "vurderingsdato": "2020-06-04"
-    }
-  },
   "meldingTilNAV": {
     "bistandUmiddelbart": false,
     "beskrivBistand": null
   },
   "meldingTilArbeidsgiver": "Test melding til arbeidsgiver",
-  "tiltakNAV": null,
-  "tiltakArbeidsplassen": "Test tiltak arbeidsplassen",
-  "andreTiltak": "Test andre tiltak: mer flesk og duppe i kantina!",
-  "utdypendeOpplysninger": {
-    "6.1": {
-      "6.1.1": "Kanskje?"
-    }
-  },
   "navnFastlege": "Skrue McDuck"
 }

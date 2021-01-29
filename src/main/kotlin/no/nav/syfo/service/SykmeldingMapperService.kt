@@ -16,8 +16,6 @@ import no.nav.syfo.model.ArbeidsrelatertArsakType
 import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
-import no.nav.syfo.model.ErIArbeid
-import no.nav.syfo.model.ErIkkeIArbeid
 import no.nav.syfo.model.Gradert
 import no.nav.syfo.model.HarArbeidsgiver
 import no.nav.syfo.model.KontaktMedPasient
@@ -26,7 +24,6 @@ import no.nav.syfo.model.MedisinskArsakType
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.MeldingTilNAV
 import no.nav.syfo.model.Periode
-import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.SporsmalSvar
 import no.nav.syfo.model.SvarRestriksjon
 import no.nav.syfo.model.Sykmelding
@@ -45,11 +42,11 @@ fun HelseOpplysningerArbeidsuforhet.toSykmelding(
         skjermesForPasient = medisinskVurdering?.isSkjermesForPasient ?: false,
         arbeidsgiver = arbeidsgiver.toArbeidsgiver(),
         perioder = aktivitet.periode.map(HelseOpplysningerArbeidsuforhet.Aktivitet.Periode::toPeriode),
-        prognose = prognose?.toPrognose(),
-        utdypendeOpplysninger = utdypendeOpplysninger?.toMap() ?: mapOf(),
-        tiltakArbeidsplassen = tiltak?.tiltakArbeidsplassen,
-        tiltakNAV = tiltak?.tiltakNAV,
-        andreTiltak = tiltak?.andreTiltak,
+        prognose = null,
+        utdypendeOpplysninger = if (utdypendeOpplysninger != null) utdypendeOpplysninger.toMap() else emptyMap(),
+        tiltakArbeidsplassen = null,
+        tiltakNAV = null,
+        andreTiltak = null,
         meldingTilNAV = meldingTilNav?.toMeldingTilNAV(),
         meldingTilArbeidsgiver = meldingTilArbeidsgiver,
         kontaktMedPasient = kontaktMedPasient.toKontaktMedPasient(),
@@ -117,25 +114,6 @@ fun CS.toMedisinskArsakType() = if (v == null || v == "0") { null } else { Medis
 // TODO: Remove if-wrapping whenever the EPJ systems stops sending garbage data
 fun CS.toArbeidsrelatertArsakType() = if (v == null || v == "0") { null } else { ArbeidsrelatertArsakType.values().first { it.codeValue == v } }
 
-fun HelseOpplysningerArbeidsuforhet.Prognose.toPrognose() = Prognose(
-        arbeidsforEtterPeriode = isArbeidsforEtterEndtPeriode == true,
-        hensynArbeidsplassen = beskrivHensynArbeidsplassen,
-        erIArbeid = erIArbeid?.let {
-            ErIArbeid(
-                    egetArbeidPaSikt = it.isEgetArbeidPaSikt == true,
-                    annetArbeidPaSikt = it.isAnnetArbeidPaSikt == true,
-                    arbeidFOM = it.arbeidFraDato,
-                    vurderingsdato = it.vurderingDato
-            )
-        },
-        erIkkeIArbeid = erIkkeIArbeid?.let {
-            ErIkkeIArbeid(
-                    arbeidsforPaSikt = it.isArbeidsforPaSikt == true,
-                    arbeidsforFOM = it.arbeidsforFraDato,
-                    vurderingsdato = it.vurderingDato
-            )
-        }
-)
 // TODO: Remove mapNotNull whenever the EPJ systems stops sending garbage data
 fun HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.toMap() =
         spmGruppe.map { spmGruppe ->
