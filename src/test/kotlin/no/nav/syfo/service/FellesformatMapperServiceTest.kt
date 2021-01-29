@@ -34,6 +34,7 @@ import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getReceivedSykmelding
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.junit.Test
@@ -48,7 +49,7 @@ class FellesformatMapperServiceTest {
 
     @Test
     fun `Realistisk case ende-til-ende`() {
-        val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege)
+        val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege, harUtdypendeOpplysninger = true)
 
         val receivedSykmelding = getReceivedSykmelding(
                 manuell = smRegisteringManuellt,
@@ -82,7 +83,7 @@ class FellesformatMapperServiceTest {
         receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
         receivedSykmelding.sykmelding.perioder.size shouldEqual 1
         receivedSykmelding.sykmelding.prognose shouldEqual null
-        receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
+        receivedSykmelding.sykmelding.utdypendeOpplysninger.toString().shouldContain("Papirsykmeldingen inneholder utdypende opplysninger.")
         receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
         receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
         receivedSykmelding.sykmelding.andreTiltak shouldEqual null
@@ -394,7 +395,7 @@ class FellesformatMapperServiceTest {
     }
 }
 
-fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistreringManuell {
+fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOpplysninger: Boolean = false): SmRegistreringManuell {
     return SmRegistreringManuell(
             pasientFnr = fnrPasient,
             sykmelderFnr = fnrLege,
@@ -442,7 +443,7 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String): SmRegistrerin
             meldingTilNAV = null,
             navnFastlege = "Per Person",
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-            harUtdypendeOpplysninger = false
+            harUtdypendeOpplysninger = harUtdypendeOpplysninger
     )
 }
 

@@ -146,7 +146,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                 periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
                             }
                             prognose = null
-                            utdypendeOpplysninger = null
+                            utdypendeOpplysninger = if (smRegistreringManuell.harUtdypendeOpplysninger) flaggScanHarUtdypendeOpplysninger() else null
                             tiltak = null
                             meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
                                 isBistandNAVUmiddelbart =
@@ -246,6 +246,21 @@ fun tilUtdypendeOpplysninger(from: Map<String, Map<String, String>>?): HelseOppl
         }
     }
     return utdypendeOpplysninger
+}
+
+fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
+    return HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger().apply {
+        spmGruppe.add(HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
+            spmGruppeId = "6.1"
+            spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
+            spmSvar.add(DynaSvarType().apply {
+                spmTekst = "Utdypende opplysninger"
+                restriksjon = null
+                spmId = "6.1.1"
+                svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
+            })
+        })
+    }
 }
 
 fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode> {
