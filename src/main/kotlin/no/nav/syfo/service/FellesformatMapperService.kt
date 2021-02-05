@@ -42,7 +42,8 @@ fun mapsmRegistreringManuelltTilFellesformat(
     pdlPasient: PdlPerson,
     sykmelder: Sykmelder,
     sykmeldingId: String,
-    datoOpprettet: LocalDateTime?
+    datoOpprettet: LocalDateTime?,
+    journalpostId: String
 ): XMLEIFellesformat {
     return XMLEIFellesformat().apply {
         any.add(XMLMsgHead().apply {
@@ -161,7 +162,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                             behandler = tilBehandler(sykmelder)
                             avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
                                 systemNavn = "Papirsykmelding"
-                                systemVersjon = "1"
+                                systemVersjon = journalpostId // Dette er nødvendig for at vi skal slippe å opprette generert PDF for papirsykmeldinger i syfosmsak
                             }
                             strekkode = "123456789qwerty"
                         })

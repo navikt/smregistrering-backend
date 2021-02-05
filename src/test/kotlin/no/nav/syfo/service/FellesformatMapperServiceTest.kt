@@ -94,7 +94,7 @@ class FellesformatMapperServiceTest {
             LocalTime.NOON
         )
         receivedSykmelding.sykmelding.behandler shouldNotEqual null
-        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
+        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", journalpostId)
         receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
         receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
         receivedSykmelding.sykmelding.navnFastlege shouldEqual null
@@ -225,7 +225,7 @@ class FellesformatMapperServiceTest {
             adresse = Adresse(null, null, null, null, null),
             tlf = "tel:55553336"
         )
-        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", "1")
+        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", journalpostId)
         receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
         receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
         receivedSykmelding.sykmelding.navnFastlege shouldEqual null
@@ -402,6 +402,8 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOp
     )
 }
 
+const val journalpostId = "123"
+
 fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
     return mapsmRegistreringManuelltTilFellesformat(
             smRegistreringManuell = smRegisteringManuellt,
@@ -411,7 +413,8 @@ fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldin
             sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                     fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null),
             sykmeldingId = sykmeldingId,
-            datoOpprettet = datoOpprettet
+            datoOpprettet = datoOpprettet,
+            journalpostId = journalpostId
     )
 }
 
