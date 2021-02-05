@@ -140,7 +140,8 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                     pdlPasient = pasient,
                                     sykmelder = sykmelder,
                                     sykmeldingId = sykmeldingId,
-                                    datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
+                                    datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime(),
+                                    journalpostId = journalpostId
                                 )
 
                                 val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
