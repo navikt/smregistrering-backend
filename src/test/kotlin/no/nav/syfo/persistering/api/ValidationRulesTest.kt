@@ -171,4 +171,18 @@ class ValidationRulesTest {
 
         harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual false
     }
+
+    @Test
+    fun `behandletDato frem i tid gir valideringsfeil`() {
+        val behandletDato = LocalDate.now().plusDays(1)
+
+        erFremtidigDato(behandletDato) shouldEqual true
+    }
+
+    @Test
+    fun `behandletDato idag gir ikke valideringsfeil`() {
+        val behandletDato = LocalDate.now()
+
+        erFremtidigDato(behandletDato) shouldEqual false
+    }
 }
