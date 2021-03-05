@@ -48,6 +48,19 @@ fun validate(smRegistreringManuell: SmRegistreringManuell) {
             )
         )
         throw ValidationException(validationResult)
+    } else if (erFremtidigDato(smRegistreringManuell.behandletDato)) {
+        val validationResult = ValidationResult(
+            status = Status.MANUAL_PROCESSING,
+            ruleHits = listOf(
+                RuleInfo(
+                    ruleName = "behandletDatoValidation",
+                    messageForSender = "Behandletdato kan ikke være frem i tid.",
+                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                    ruleStatus = Status.MANUAL_PROCESSING
+                )
+            )
+        )
+        throw ValidationException(validationResult)
     }
 }
 
@@ -71,3 +84,7 @@ fun harUlovligKombinasjonMedReisetilskudd(perioder: List<Periode>): Boolean {
 }
 
 fun Periode.range(): ClosedRange<LocalDate> = fom.rangeTo(tom)
+
+fun erFremtidigDato(dato: LocalDate): Boolean {
+    return dato.isAfter(LocalDate.now())
+}
