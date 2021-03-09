@@ -36,6 +36,32 @@ class ValidationRulesTest {
     }
 
     @Test
+    fun `Identiske perioder gir valideringsfeil`() {
+        val perioder = listOf(
+            Periode(
+                fom = LocalDate.of(2020, 9, 1),
+                tom = LocalDate.of(2020, 9, 10),
+                aktivitetIkkeMulig = AktivitetIkkeMulig(medisinskArsak = null, arbeidsrelatertArsak = null),
+                gradert = null,
+                avventendeInnspillTilArbeidsgiver = null,
+                behandlingsdager = null,
+                reisetilskudd = false
+            ),
+            Periode(
+                fom = LocalDate.of(2020, 9, 1),
+                tom = LocalDate.of(2020, 9, 10),
+                aktivitetIkkeMulig = AktivitetIkkeMulig(medisinskArsak = null, arbeidsrelatertArsak = null),
+                gradert = null,
+                avventendeInnspillTilArbeidsgiver = null,
+                behandlingsdager = null,
+                reisetilskudd = false
+            )
+        )
+
+        harOverlappendePerioder(perioder) shouldEqual true
+    }
+
+    @Test
     fun `Perioder uten overlapp gir ikke valideringsfeil`() {
         val perioder = listOf(
             Periode(
