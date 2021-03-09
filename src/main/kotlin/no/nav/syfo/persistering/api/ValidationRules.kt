@@ -22,7 +22,7 @@ fun validate(smRegistreringManuell: SmRegistreringManuell) {
             )
         )
         throw ValidationException(validationResult)
-    } else if (harOverlappendePerioder(smRegistreringManuell.perioder) || harIdentiskePerioder(smRegistreringManuell.perioder)) {
+    } else if (harOverlappendePerioder(smRegistreringManuell.perioder)) {
         val validationResult = ValidationResult(
             status = Status.MANUAL_PROCESSING,
             ruleHits = listOf(
