@@ -65,13 +65,17 @@ fun validate(smRegistreringManuell: SmRegistreringManuell) {
 }
 
 fun harOverlappendePerioder(perioder: List<Periode>): Boolean {
-    return perioder.any { periodA ->
+    return harIdentiskePerioder(perioder) || perioder.any { periodA ->
         perioder
             .filter { periodB -> periodB != periodA }
             .any { periodB ->
                 periodA.fom in periodB.range() || periodA.tom in periodB.range()
             }
     }
+}
+
+private fun harIdentiskePerioder(perioder: List<Periode>): Boolean {
+    return perioder.distinct().count() != perioder.size
 }
 
 fun harUlovligKombinasjonMedReisetilskudd(perioder: List<Periode>): Boolean {
