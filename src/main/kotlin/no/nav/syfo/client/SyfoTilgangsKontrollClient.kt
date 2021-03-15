@@ -33,14 +33,14 @@ class SyfoTilgangsKontrollClient(
         }.execute()
         when (httpResponse.status) {
             HttpStatusCode.InternalServerError -> {
-                log.error("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarte med InternalServerError")
+                log.warn("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarte med InternalServerError")
                 return Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarte med InternalServerError"
                 )
             }
             HttpStatusCode.BadRequest -> {
-                log.error("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med BadRequest")
+                log.warn("syfo-tilgangskontroll sjekkVeiledersTilgangTilPersonViaAzure svarer med BadRequest")
                 return Tilgang(
                     harTilgang = false,
                     begrunnelse = "syfo-tilgangskontroll svarer med BadRequest"
