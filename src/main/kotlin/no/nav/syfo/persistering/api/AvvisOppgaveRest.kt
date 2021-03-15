@@ -121,7 +121,7 @@ private suspend fun finnSykmelder(
         try {
             sykmelderService.hentSykmelder(hpr, accessToken, callId)
         } catch (e: Exception) {
-            log.error("Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId")
+            log.warn("Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId")
             return getDefaultSykmelder()
         }
     } else {

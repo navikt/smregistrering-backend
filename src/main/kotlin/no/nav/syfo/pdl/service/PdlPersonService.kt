@@ -22,15 +22,15 @@ class PdlPersonService(private val pdlClient: PdlClient, private val stsOidcClie
             }
         }
         if (pdlResponse.data.hentPerson == null) {
-            log.error("Klarte ikke hente ut person fra PDL {}", callId)
+            log.warn("Klarte ikke hente ut person fra PDL {}", callId)
             throw PersonNotFoundInPdl("Klarte ikke hente ut person fra PDL")
         }
         if (pdlResponse.data.hentPerson.navn.isNullOrEmpty()) {
-            log.error("Fant ikke navn på person i PDL {}", callId)
+            log.warn("Fant ikke navn på person i PDL {}", callId)
             throw PersonNotFoundInPdl("Fant ikke navn på person i PDL")
         }
         if (pdlResponse.data.hentIdenter == null || pdlResponse.data.hentIdenter.identer.isNullOrEmpty()) {
-            log.error("Fant ikke aktørid i PDL {}", callId)
+            log.warn("Fant ikke aktørid i PDL {}", callId)
             throw AktoerNotFoundException("Fant ikke aktørId i PDL")
         }
         return PdlPerson(getNavn(pdlResponse.data.hentPerson.navn[0]), pdlResponse.data.hentIdenter.identer)
