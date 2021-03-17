@@ -135,7 +135,8 @@ class SendPapirsykmeldingService(
                         ?: msgHead.msgInfo.genDate,
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
-                    tssid = samhandlerPraksis?.tss_ident ?: ""
+                    tssid = samhandlerPraksis?.tss_ident ?: "",
+                    merknader = null
                 )
 
                 log.info(
