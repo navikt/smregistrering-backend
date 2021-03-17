@@ -9,35 +9,16 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
 import java.util.UUID
-import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
-import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.handleRegistration
-import no.nav.syfo.saf.service.SafJournalpostService
-import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
-import no.nav.syfo.sykmelder.service.SykmelderService
-import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 @KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
-    sykmeldingJobService: SykmeldingJobService,
-    manuellOppgaveService: ManuellOppgaveService,
-    oppgaveClient: OppgaveClient,
-    kuhrsarClient: SarClient,
-    dokArkivClient: DokArkivClient,
-    safJournalpostService: SafJournalpostService,
-    regelClient: RegelClient,
-    pdlService: PdlPersonService,
-    sykmelderService: SykmelderService,
-    authorizationService: AuthorizationService
+    sendPapirsykmeldingService: SendPapirsykmeldingService
 ) {
     route("/api/v1") {
         post("/oppgave/{oppgaveid}/send") {
@@ -69,24 +50,22 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 else -> {
                     try {
-
-                        handleRegistration(
+                        val httpServiceResponse = sendPapirsykmeldingService.handleRegistration(
                             smRegistreringManuell,
-                            sykmelderService,
                             accessToken,
                             callId,
-                            pdlService,
-                            kuhrsarClient,
-                            regelClient,
-                            authorizationService,
-                            sykmeldingJobService,
-                            oppgaveClient,
-                            dokArkivClient,
-                            safJournalpostService,
                             oppgaveId,
-                            navEnhet,
-                            manuellOppgaveService
+                            navEnhet
                         )
+
+                        when {
+                            httpServiceResponse.payload != null -> {
+                                call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+                            }
+                            else -> {
+                                call.respond(httpServiceResponse.httpStatusCode)
+                            }
+                        }
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")

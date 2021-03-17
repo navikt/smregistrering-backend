@@ -34,6 +34,7 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
@@ -101,16 +102,18 @@ fun createApplicationEngine(
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, pdlService, authorizationService)
                 sendPapirSykmeldingManuellOppgave(
-                    sykmeldingJobService,
-                    manuellOppgaveService,
-                    oppgaveClient,
-                    kuhrsarClient,
-                    dokArkivClient,
-                    safJournalpostService,
-                    regelClient,
-                    pdlService,
-                    sykmelderService,
-                    authorizationService
+                    SendPapirsykmeldingService(
+                        sykmelderService,
+                        pdlService,
+                        kuhrsarClient,
+                        regelClient,
+                        authorizationService,
+                        sykmeldingJobService,
+                        oppgaveClient,
+                        dokArkivClient,
+                        safJournalpostService,
+                        manuellOppgaveService
+                    )
                 )
                 avvisOppgave(
                     manuellOppgaveService,

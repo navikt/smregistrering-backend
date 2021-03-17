@@ -72,6 +72,7 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -112,6 +113,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val sykmeldingJobService = mockk<SykmeldingJobService>(relaxed = true)
+
     @After
     fun after() {
         database.connection.dropData()
@@ -133,16 +135,18 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
-                    sykmeldingJobService,
-                    manuellOppgaveService,
-                    oppgaveClient,
-                    kuhrsarClient,
-                    dokArkivClient,
-                    safJournalpostService,
-                    regelClient,
-                    pdlPersonService,
-                    sykmelderService,
-                    authorizationService
+                    SendPapirsykmeldingService(
+                        sykmelderService,
+                        pdlPersonService,
+                        kuhrsarClient,
+                        regelClient,
+                        authorizationService,
+                        sykmeldingJobService,
+                        oppgaveClient,
+                        dokArkivClient,
+                        safJournalpostService,
+                        manuellOppgaveService
+                    )
                 )
             }
 
@@ -396,16 +400,18 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
+                    SendPapirsykmeldingService(
+                        sykmelderService,
+                        pdlPersonService,
+                        kuhrsarClient,
+                        regelClient,
+                        authorizationService,
                         sykmeldingJobService,
-                    manuellOppgaveService,
-                    oppgaveClient,
-                    kuhrsarClient,
-                    dokArkivClient,
-                    safJournalpostService,
-                    regelClient,
-                    pdlPersonService,
-                    sykmelderService,
-                    authorizationService
+                        oppgaveClient,
+                        dokArkivClient,
+                        safJournalpostService,
+                        manuellOppgaveService
+                    )
                 )
             }
 
@@ -605,16 +611,18 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
-                    sykmeldingJobService,
-                    manuellOppgaveService,
-                    oppgaveClient,
-                    kuhrsarClient,
-                    dokArkivClient,
-                    safJournalpostService,
-                    regelClient,
-                    pdlPersonService,
-                    sykmelderService,
-                    authorizationService
+                    SendPapirsykmeldingService(
+                        sykmelderService,
+                        pdlPersonService,
+                        kuhrsarClient,
+                        regelClient,
+                        authorizationService,
+                        sykmeldingJobService,
+                        oppgaveClient,
+                        dokArkivClient,
+                        safJournalpostService,
+                        manuellOppgaveService
+                    )
                 )
             }
 
