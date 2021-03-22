@@ -22,7 +22,8 @@ class SafDokumentClient constructor(
         journalpostId: String,
         dokumentInfoId: String,
         msgId: String,
-        accessToken: String
+        accessToken: String,
+        oppgaveId: Int
     ): ByteArray? {
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
@@ -32,40 +33,35 @@ class SafDokumentClient constructor(
                 header("Nav-Consumer-Id", "smregistrering-backend")
             }.execute()
 
+        log.info("Saf returnerte: httpstatus {} for oppgaveId {}", httpResponse.status, oppgaveId)
+
         return when (httpResponse.status) {
             HttpStatusCode.NotFound -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Dokumentet finnes ikke for journalpostId {}", journalpostId)
+                log.error("Dokumentet finnes ikke for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw SafNotFoundException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.InternalServerError -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}", journalpostId)
+                log.error("Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Forbidden -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
+                log.error("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Unauthorized -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Bruker har ikke tilgang til for journalpostId {}", journalpostId)
+                log.error("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.NotAcceptable -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Not Acceptable for journalpostId {}", journalpostId)
+                log.error("Not Acceptable for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.BadRequest -> {
-                log.error("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.error("Dårlig requests for journalpostId {}", journalpostId)
+                log.error("Bad Requests for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, httpResponse.call.response.receive())
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             else -> {
-                log.info("Saf returnerte: httpstatus {}", httpResponse.status)
-                log.info("Hentet papirsykmelding pdf for journalpostId {}", journalpostId)
+                log.info("Hentet papirsykmelding pdf for journalpostId {}, oppgaveId {}", journalpostId, oppgaveId)
                 httpResponse.call.response.receive<ByteArray>()
             }
         }
@@ -85,6 +81,6 @@ class SafDokumentClient constructor(
             journalpostId,
             dokumentInfoId
         )
-        return hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken)
+        return hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken, oppgaveId)
     }
 }
