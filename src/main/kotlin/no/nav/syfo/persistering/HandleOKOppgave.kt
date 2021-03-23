@@ -1,6 +1,7 @@
 package no.nav.syfo.persistering
 
 import io.ktor.util.KtorExperimentalAPI
+import java.time.LocalDate
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.syfo.client.DokArkivClient
@@ -8,6 +9,7 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillOppgave
+import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
@@ -63,6 +65,12 @@ suspend fun handleOKOppgave(
 
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
 
+        if (shouldCreateOppfolgingsOppgave(receivedSykmelding)) {
+            val createOppfolgingsoppgave = createOppfolgingsoppgave(receivedSykmelding, navEnhet, veileder)
+            val opprettOppgave = oppgaveClient.opprettOppgave(createOppfolgingsoppgave, sykmeldingId)
+            log.info("Opprettet oppfølgingsoppgave med id {} for sykmeldingsId {}", opprettOppgave.id, sykmeldingId)
+        }
+
         sykmeldingJobService.createJobs(receivedSykmelding)
 
         log.info(
@@ -74,3 +82,22 @@ suspend fun handleOKOppgave(
         log.info("Hopper over ferdigstillOppgave, oppgaveId $oppgaveId er allerede ${oppgave.status}")
     }
 }
+
+private fun shouldCreateOppfolgingsOppgave(receivedSykmelding: ReceivedSykmelding): Boolean {
+    return receivedSykmelding.merknader?.isNotEmpty() == true
+}
+
+fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding, enhet: String, veileder: Veileder): Oppgave =
+    Oppgave(
+        aktoerId = receivedSykmelding.sykmelding.pasientAktoerId,
+        tildeltEnhetsnr = enhet,
+        opprettetAvEnhetsnr = "9999",
+        tilordnetRessurs = veileder.veilederIdent,
+        behandlesAvApplikasjon = "FS22",
+        beskrivelse = "Oppfølgingsoppgave for tilbakedatert papirsykmelding registrert med merknad " +
+                receivedSykmelding.merknader?.joinToString { it.type },
+        tema = "SYM",
+        oppgavetype = "BEH_EL_SYM",
+        aktivDato = LocalDate.now(),
+        prioritet = "HOY"
+    )
