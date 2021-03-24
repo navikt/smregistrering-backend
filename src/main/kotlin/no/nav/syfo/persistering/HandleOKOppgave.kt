@@ -90,14 +90,14 @@ private fun shouldCreateOppfolgingsOppgave(receivedSykmelding: ReceivedSykmeldin
 fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding, enhet: String, veileder: Veileder): Oppgave =
     Oppgave(
         aktoerId = receivedSykmelding.sykmelding.pasientAktoerId,
-        tildeltEnhetsnr = enhet,
         opprettetAvEnhetsnr = "9999",
-        tilordnetRessurs = veileder.veilederIdent,
+        tildeltEnhetsnr = enhet,                    // TODO: Avklar riktig verdi
+        tilordnetRessurs = veileder.veilederIdent,  // TODO: Avklar riktig verdi
         behandlesAvApplikasjon = "FS22",
-        beskrivelse = "Oppfølgingsoppgave for tilbakedatert papirsykmelding registrert med merknad " +
-                receivedSykmelding.merknader?.joinToString { it.type },
+        beskrivelse = "Oppfølgingsoppgave for tilbakedatert papirsykmelding",
         tema = "SYM",
         oppgavetype = "BEH_EL_SYM",
         aktivDato = LocalDate.now(),
+        fristFerdigstillelse =  LocalDate.now(),
         prioritet = "HOY"
     )
