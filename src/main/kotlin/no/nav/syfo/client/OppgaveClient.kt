@@ -97,11 +97,6 @@ class OppgaveClient(
         }
     }
 
-    suspend fun hentOppgaveVersjon(oppgaveId: Int, msgId: String): Int {
-        return hentOppgave(oppgaveId, msgId).versjon
-            ?: throw RuntimeException("Fant ikke versjon for oppgave $oppgaveId, msgId $msgId")
-    }
-
     protected suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
