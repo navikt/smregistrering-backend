@@ -196,9 +196,26 @@ class AvvisOppgaveRestTest {
             )
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
-
+            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
+                    Oppgave(
+                        id = 123, versjon = 1,
+                        tilordnetRessurs = "",
+                        tildeltEnhetsnr = "",
+                        journalpostId = "",
+                        aktivDato = LocalDate.MAX,
+                        aktoerId = "",
+                        behandlesAvApplikasjon = "",
+                        behandlingstype = "",
+                        beskrivelse = "",
+                        fristFerdigstillelse = null,
+                        oppgavetype = "",
+                        opprettetAvEnhetsnr = "",
+                        prioritet = "",
+                        saksreferanse = "",
+                        tema = "",
+                        status = "OPPRETTET"
+                    )
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
-            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                     Oppgave(
                         id = 123, versjon = 1,

@@ -36,20 +36,26 @@ suspend fun handleAvvisOppgave(
         avvist = true
     )
 
-    val oppgaveVersjon = oppgaveClient.hentOppgaveVersjon(oppgaveId, sykmeldingId)
+    val oppgave = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId)
 
     val ferdigstillOppgave = FerdigstillOppgave(
-        versjon = oppgaveVersjon,
+        versjon = oppgave.versjon ?: throw RuntimeException("Fant ikke versjon for oppgave ${oppgave.id}, sykmeldingId $sykmeldingId"),
         id = oppgaveId,
         status = OppgaveStatus.FERDIGSTILT,
         tildeltEnhetsnr = navEnhet,
-        tilordnetRessurs = veileder.veilederIdent
+        tilordnetRessurs = veileder.veilederIdent,
+        mappeId = if (oppgave.tildeltEnhetsnr == navEnhet) {
+            oppgave.mappeId
+        } else {
+            // Det skaper trøbbel i Oppgave-apiet hvis enheten som blir satt ikke har den aktuelle mappen
+            null
+        }
     )
 
-    val oppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
+    val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
     log.info(
         "Ferdigstiller oppgave med {}, {}",
-        StructuredArguments.keyValue("oppgaveId", oppgave.id),
+        StructuredArguments.keyValue("oppgaveId", ferdigStiltOppgave.id),
         StructuredArguments.fields(loggingMeta)
     )
 }
