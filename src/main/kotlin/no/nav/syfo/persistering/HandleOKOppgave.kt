@@ -91,12 +91,12 @@ fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding, enhet: Stri
     Oppgave(
         aktoerId = receivedSykmelding.sykmelding.pasientAktoerId,
         opprettetAvEnhetsnr = "9999",
-        tildeltEnhetsnr = "4488", // Sendes til NAY v/ 4488
         tilordnetRessurs = null,
         behandlesAvApplikasjon = "FS22",
         beskrivelse = "Oppfølgingsoppgave for tilbakedatert papirsykmelding",
         tema = "SYM",
         oppgavetype = "BEH_EL_SYM",
+        behandlingstype = "ae0239",
         aktivDato = LocalDate.now(),
         fristFerdigstillelse = LocalDate.now(),
         prioritet = "HOY"
