@@ -58,7 +58,13 @@ suspend fun handleOKOppgave(
             id = oppgaveId,
             status = OppgaveStatus.FERDIGSTILT,
             tildeltEnhetsnr = navEnhet,
-            tilordnetRessurs = veileder.veilederIdent
+            tilordnetRessurs = veileder.veilederIdent,
+            mappeId = if (oppgave.tildeltEnhetsnr == navEnhet) {
+                oppgave.mappeId
+            } else {
+                // Det skaper trøbbel i Oppgave-apiet hvis enheten som blir satt ikke har den aktuelle mappen
+                null
+            }
         )
 
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)

@@ -19,7 +19,8 @@ data class Oppgave(
     val aktivDato: LocalDate,
     val fristFerdigstillelse: LocalDate? = null,
     val prioritet: String,
-    val status: String? = null
+    val status: String? = null,
+    val mappeId: Int? = null
 )
 
 data class FerdigstillOppgave(
@@ -27,7 +28,8 @@ data class FerdigstillOppgave(
     val versjon: Int,
     val status: OppgaveStatus,
     val tilordnetRessurs: String,
-    val tildeltEnhetsnr: String
+    val tildeltEnhetsnr: String,
+    val mappeId: Int?
 )
 
 enum class OppgaveStatus(val status: String) {
