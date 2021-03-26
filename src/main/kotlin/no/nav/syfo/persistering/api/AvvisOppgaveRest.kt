@@ -32,7 +32,7 @@ fun Route.avvisOppgave(
         post("oppgave/{oppgaveId}/avvis") {
             val oppgaveId = call.parameters["oppgaveId"]?.toIntOrNull()
 
-            log.info("Mottok kall til POST /api/v1/sykmelder/$oppgaveId/avvis")
+            log.info("Mottok kall til POST /api/v1/oppgave/$oppgaveId/avvis")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val callId = UUID.randomUUID().toString()
