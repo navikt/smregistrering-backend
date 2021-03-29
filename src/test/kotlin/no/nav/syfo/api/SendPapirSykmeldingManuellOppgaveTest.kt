@@ -720,7 +720,6 @@ class SendPapirSykmeldingManuellOppgaveTest {
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.hentOppgaveVersjon(any(), any()) } returns 1
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
                 id = 123, versjon = 1,
                 tilordnetRessurs = "",
