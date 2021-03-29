@@ -45,6 +45,7 @@ import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.service.SykmelderService
@@ -66,6 +67,7 @@ class AvvisOppgaveRestTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
+    private val safJournalpostService = mockk<SafJournalpostService>()
 
     @Test
     fun avvisOppgaveOK() {
@@ -88,7 +90,8 @@ class AvvisOppgaveRestTest {
                     dokArkivClient = dokArkivClient,
                     authorizationService = authorizationService,
                     manuellOppgaveService = manuellOppgaveService,
-                    sykmelderService = sykmelderService
+                    sykmelderService = sykmelderService,
+                    safJournalpostService = safJournalpostService
                 )
             }
 
@@ -126,6 +129,8 @@ class AvvisOppgaveRestTest {
                         aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                         fnr = "12345", hprNummer = "hpr", godkjenninger = null
                     )
+
+            coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
             coEvery { manuellOppgaveService.ferdigstillSmRegistering(any()) } returns 1
 

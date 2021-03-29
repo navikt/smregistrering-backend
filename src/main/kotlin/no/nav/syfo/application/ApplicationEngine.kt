@@ -118,6 +118,7 @@ fun createApplicationEngine(
                 avvisOppgave(
                     manuellOppgaveService,
                     authorizationService,
+                    safJournalpostService,
                     sykmelderService,
                     dokArkivClient,
                     oppgaveClient
