@@ -100,10 +100,9 @@ fun Route.avvisOppgave(
                             accessToken = accessToken
                         )
 
-                        val ferdigstillSmRegistreringCount = manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
-                        if (ferdigstillSmRegistreringCount < 1) {
+                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) < 1) {
                             log.warn(
-                                "Ferdigstilling av papirsm i database rapporterer update count < 1, er oppgaven allerede ferdigstilt? {}",
+                                "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
                         }
