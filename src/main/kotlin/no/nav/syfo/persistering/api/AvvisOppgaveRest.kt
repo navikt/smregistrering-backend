@@ -14,6 +14,7 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.persistering.handleAvvisOppgave
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.service.SykmelderService
@@ -24,6 +25,7 @@ import no.nav.syfo.util.getAccessTokenFromAuthHeader
 fun Route.avvisOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     authorizationService: AuthorizationService,
+    safJournalpostService: SafJournalpostService,
     sykmelderService: SykmelderService,
     dokArkivClient: DokArkivClient,
     oppgaveClient: OppgaveClient
@@ -82,21 +84,29 @@ fun Route.avvisOppgave(
                         val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
                         val sykmelder = finnSykmelder(hpr, sykmelderService, accessToken, callId, oppgaveId)
 
-                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
-                            handleAvvisOppgave(
-                                dokArkivClient = dokArkivClient,
-                                oppgaveClient = oppgaveClient,
-                                sykmelder = sykmelder,
-                                veileder = veileder,
-                                journalpostId = journalpostId,
-                                dokumentInfoId = dokumentInfoId,
-                                loggingMeta = loggingMeta,
-                                navEnhet = navEnhet,
-                                oppgaveId = oppgaveId,
-                                pasientFnr = pasientFnr,
-                                sykmeldingId = sykmeldingId
+                        handleAvvisOppgave(
+                            dokArkivClient = dokArkivClient,
+                            oppgaveClient = oppgaveClient,
+                            safJournalpostService = safJournalpostService,
+                            sykmelder = sykmelder,
+                            veileder = veileder,
+                            journalpostId = journalpostId,
+                            dokumentInfoId = dokumentInfoId,
+                            loggingMeta = loggingMeta,
+                            navEnhet = navEnhet,
+                            oppgaveId = oppgaveId,
+                            pasientFnr = pasientFnr,
+                            sykmeldingId = sykmeldingId,
+                            accessToken = accessToken
+                        )
+
+                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) < 1) {
+                            log.warn(
+                                "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
                         }
+
                         call.respond(HttpStatusCode.NoContent)
                     } else {
                         log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
