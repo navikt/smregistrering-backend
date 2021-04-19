@@ -176,7 +176,11 @@ suspend fun blockingApplicationLogic(
                 journalpostId = receivedPapirSmRegistering.journalpostId
             )
 
-            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+            try {
+                handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+            } catch (e: Exception) {
+                log.error("Ignorerer feil i dev: ${receivedPapirSmRegistering.journalpostId}")
+            }
         }
         delay(100)
     }
