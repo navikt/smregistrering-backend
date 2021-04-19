@@ -29,7 +29,7 @@ import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
-import no.nav.syfo.util.isAllRulesWhitelisted
+import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.toString
 
 class SendPapirsykmeldingService(
@@ -156,7 +156,7 @@ class SendPapirsykmeldingService(
                     StructuredArguments.fields(loggingMeta)
                 )
 
-                if (validationResult.ruleHits.isAllRulesWhitelisted()) {
+                if (validationResult.ruleHits.isWhitelisted()) {
                     return handleOK(
                         validationResult,
                         accessToken,

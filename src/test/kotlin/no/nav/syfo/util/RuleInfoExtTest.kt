@@ -27,10 +27,16 @@ internal class RuleInfoExtTest {
                 messageForUser = "",
                 ruleName = WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
                 ruleStatus = Status.MANUAL_PROCESSING
+            ),
+            RuleInfo(
+                messageForSender = "",
+                messageForUser = "",
+                ruleName = WhitelistedRuleHit.PASIENTEN_HAR_KODE_6.toString(),
+                ruleStatus = Status.MANUAL_PROCESSING
             )
         )
 
-        ruleHits.isAllRulesWhitelisted() shouldBe true
+        ruleHits.isWhitelisted() shouldBe true
     }
 
     @Test
@@ -56,6 +62,6 @@ internal class RuleInfoExtTest {
             )
         )
 
-        ruleHits.isAllRulesWhitelisted() shouldBe false
+        ruleHits.isWhitelisted() shouldBe false
     }
 }
