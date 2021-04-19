@@ -72,7 +72,7 @@ suspend fun handleOKOppgave(
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
 
         if (shouldCreateOppfolgingsOppgave(receivedSykmelding)) {
-            val createOppfolgingsoppgave = createOppfolgingsoppgave(receivedSykmelding, navEnhet, veileder)
+            val createOppfolgingsoppgave = createOppfolgingsoppgave(receivedSykmelding)
             val opprettOppgave = oppgaveClient.opprettOppgave(createOppfolgingsoppgave, sykmeldingId)
             log.info("Opprettet oppfølgingsoppgave med id {} for sykmeldingsId {}", opprettOppgave.id, sykmeldingId)
         }
@@ -93,7 +93,7 @@ private fun shouldCreateOppfolgingsOppgave(receivedSykmelding: ReceivedSykmeldin
     return receivedSykmelding.merknader?.isNotEmpty() == true
 }
 
-fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding, enhet: String, veileder: Veileder): Oppgave =
+fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding): Oppgave =
     Oppgave(
         aktoerId = receivedSykmelding.sykmelding.pasientAktoerId,
         opprettetAvEnhetsnr = "9999",
