@@ -26,7 +26,6 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
             mottattDato = datoOpprettet,
             rulesetVersion = healthInformation.regelSettVersjon,
             fellesformat = fellesformatMarshaller.toString(fellesformat),
-            tssid = null,
-            merknader = null
+            tssid = null
     )
 }

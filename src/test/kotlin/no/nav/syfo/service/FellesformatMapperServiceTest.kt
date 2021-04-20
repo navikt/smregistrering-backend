@@ -170,8 +170,7 @@ class FellesformatMapperServiceTest {
             mottattDato = datoOpprettet,
             rulesetVersion = healthInformation.regelSettVersjon,
             fellesformat = objectMapper.writeValueAsString(fellesformat),
-            tssid = null,
-            merknader = null
+            tssid = null
         )
 
         receivedSykmelding.personNrPasient shouldEqual fnrPasient
