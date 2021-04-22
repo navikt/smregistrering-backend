@@ -78,7 +78,7 @@ fun checkValidState(
                 ruleHits = listOf(
                     RuleInfo(
                         ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
-                        messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmledingen må avvises.",
+                        messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
                         messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
                         ruleStatus = Status.MANUAL_PROCESSING
                     )
