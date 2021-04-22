@@ -15,7 +15,7 @@ import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.api.validate
+import no.nav.syfo.persistering.api.checkValidState
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -65,8 +65,6 @@ class SendPapirsykmeldingService(
             )
 
             if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
-                validate(smRegistreringManuell)
-
                 val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                 if (sykmelderHpr.isNullOrEmpty()) {
@@ -153,7 +151,11 @@ class SendPapirsykmeldingService(
                     StructuredArguments.fields(loggingMeta)
                 )
 
-                if (validationResult.ruleHits.isWhitelisted()) {
+                checkValidState(smRegistreringManuell, sykmelder, validationResult)
+
+                if (!validationResult.ruleHits.isWhitelisted()) {
+                    return handleBrokenRule(validationResult, oppgaveId)
+                } else {
                     return handleOK(
                         validationResult,
                         accessToken,
@@ -166,8 +168,6 @@ class SendPapirsykmeldingService(
                         sykmelder,
                         navEnhet
                     )
-                } else {
-                    return handleBrokenRule(validationResult, oppgaveId)
                 }
             } else {
                 return handleAccessDenied(oppgaveId, loggingMeta)

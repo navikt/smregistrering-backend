@@ -10,3 +10,8 @@ enum class WhitelistedRuleHit {
     FREMDATERT,
     PASIENTEN_HAR_KODE_6
 }
+
+enum class RuleHitCustomError {
+    BEHANDLER_MANGLER_AUTORISASJON_I_HPR,
+    BEHANDLER_SUSPENDERT
+}

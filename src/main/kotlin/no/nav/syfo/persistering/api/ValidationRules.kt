@@ -2,66 +2,123 @@ package no.nav.syfo.persistering.api
 
 import java.time.LocalDate
 import no.nav.syfo.model.Periode
+import no.nav.syfo.model.RuleHitCustomError
 import no.nav.syfo.model.RuleInfo
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
+import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
 
-fun validate(smRegistreringManuell: SmRegistreringManuell) {
+fun checkValidState(
+    smRegistreringManuell: SmRegistreringManuell,
+    sykmelder: Sykmelder,
+    validationResult: ValidationResult
+) {
 
-    if (smRegistreringManuell.perioder.isEmpty()) {
-        val validationResult = ValidationResult(
-            status = Status.MANUAL_PROCESSING,
-            ruleHits = listOf(
-                RuleInfo(
-                    ruleName = "periodeValidation",
-                    messageForSender = "Sykmeldingen må ha minst én periode oppgitt for å være gyldig",
-                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                    ruleStatus = Status.MANUAL_PROCESSING
+    when {
+        smRegistreringManuell.perioder.isEmpty() -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = "periodeValidation",
+                        messageForSender = "Sykmeldingen må ha minst én periode oppgitt for å være gyldig",
+                        messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
                 )
             )
-        )
-        throw ValidationException(validationResult)
-    } else if (harOverlappendePerioder(smRegistreringManuell.perioder)) {
-        val validationResult = ValidationResult(
-            status = Status.MANUAL_PROCESSING,
-            ruleHits = listOf(
-                RuleInfo(
-                    ruleName = "overlappendePeriodeValidation",
-                    messageForSender = "Sykmeldingen har overlappende perioder",
-                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                    ruleStatus = Status.MANUAL_PROCESSING
+            throw ValidationException(validationResult)
+        }
+        harOverlappendePerioder(smRegistreringManuell.perioder) -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = "overlappendePeriodeValidation",
+                        messageForSender = "Sykmeldingen har overlappende perioder",
+                        messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
                 )
             )
-        )
-        throw ValidationException(validationResult)
-    } else if (harUlovligKombinasjonMedReisetilskudd(smRegistreringManuell.perioder)) {
-        val validationResult = ValidationResult(
-            status = Status.MANUAL_PROCESSING,
-            ruleHits = listOf(
-                RuleInfo(
-                    ruleName = "reisetilskuddValidation",
-                    messageForSender = "Sykmeldingen inneholder periode som kombinerer reisetilskudd med annen sykmeldingstype",
-                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                    ruleStatus = Status.MANUAL_PROCESSING
+            throw ValidationException(validationResult)
+        }
+        harUlovligKombinasjonMedReisetilskudd(smRegistreringManuell.perioder) -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = "reisetilskuddValidation",
+                        messageForSender = "Sykmeldingen inneholder periode som kombinerer reisetilskudd med annen sykmeldingstype",
+                        messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
                 )
             )
-        )
-        throw ValidationException(validationResult)
-    } else if (erFremtidigDato(smRegistreringManuell.behandletDato)) {
-        val validationResult = ValidationResult(
-            status = Status.MANUAL_PROCESSING,
-            ruleHits = listOf(
-                RuleInfo(
-                    ruleName = "behandletDatoValidation",
-                    messageForSender = "Behandletdato kan ikke være frem i tid.",
-                    messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                    ruleStatus = Status.MANUAL_PROCESSING
+            throw ValidationException(validationResult)
+        }
+        erFremtidigDato(smRegistreringManuell.behandletDato) -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = "behandletDatoValidation",
+                        messageForSender = "Behandletdato kan ikke være frem i tid.",
+                        messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
                 )
             )
-        )
-        throw ValidationException(validationResult)
+            throw ValidationException(validationResult)
+        }
+        studentBehandlerUtenAutorisasjon(validationResult, sykmelder) -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
+                        messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmledingen må avvises.",
+                        messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
+                )
+            )
+            throw ValidationException(validationResult)
+        }
+        suspendertBehandler(validationResult) -> {
+            val validationResult = ValidationResult(
+                status = Status.MANUAL_PROCESSING,
+                ruleHits = listOf(
+                    RuleInfo(
+                        ruleName = RuleHitCustomError.BEHANDLER_SUSPENDERT.name,
+                        messageForSender = "Legen har mistet retten til å skrive sykmelding.",
+                        messageForUser = "Legen har mistet retten til å skrive sykmelding.",
+                        ruleStatus = Status.MANUAL_PROCESSING
+                    )
+                )
+            )
+            throw ValidationException(validationResult)
+        }
     }
+}
+
+fun suspendertBehandler(validationResult: ValidationResult): Boolean {
+    return validationResult.ruleHits.any {
+        it.ruleName == RuleHitCustomError.BEHANDLER_SUSPENDERT.name
+    }
+}
+
+fun studentBehandlerUtenAutorisasjon(validationResult: ValidationResult, sykmelder: Sykmelder): Boolean {
+    val behandlerManglerAutorisasjon = validationResult.ruleHits.any {
+        it.ruleName == RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name
+    }
+
+    val erStudent = sykmelder.godkjenninger?.any {
+        it.autorisasjon?.aktiv == true && it.autorisasjon.oid == 7704 && it.autorisasjon.verdi == "3"
+    }
+
+    return behandlerManglerAutorisasjon && erStudent == true
 }
 
 fun harOverlappendePerioder(perioder: List<Periode>): Boolean {
