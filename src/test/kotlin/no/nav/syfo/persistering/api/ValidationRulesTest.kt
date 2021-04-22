@@ -1,9 +1,18 @@
 package no.nav.syfo.persistering.api
 
 import java.time.LocalDate
+import kotlin.test.assertFailsWith
+import no.nav.syfo.client.Godkjenning
+import no.nav.syfo.client.Kode
 import no.nav.syfo.model.AktivitetIkkeMulig
 import no.nav.syfo.model.Gradert
 import no.nav.syfo.model.Periode
+import no.nav.syfo.model.RuleHitCustomError
+import no.nav.syfo.model.RuleInfo
+import no.nav.syfo.model.Status
+import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.model.ValidationResult
+import no.nav.syfo.service.getSmRegistreringManuell
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
@@ -210,5 +219,28 @@ class ValidationRulesTest {
         val behandletDato = LocalDate.now()
 
         erFremtidigDato(behandletDato) shouldEqual false
+    }
+
+    @Test
+    fun `studentLisensSkalKasteFeil`() {
+        val smRegistreringManuell = getSmRegistreringManuell("12345678912", "12345678912",
+            false)
+        val sykmelder = Sykmelder("hpr", "12345678912", null, null, null,
+            null,
+            listOf(Godkjenning(helsepersonellkategori = null, autorisasjon = Kode(true, 7704, "3"))))
+        val validationResult = ValidationResult(Status.MANUAL_PROCESSING,
+            ruleHits = listOf(RuleInfo(ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
+                messageForUser = "", messageForSender = "", ruleStatus = Status.MANUAL_PROCESSING)))
+
+        val exception = assertFailsWith<ValidationException> {
+            checkValidState(smRegistreringManuell, sykmelder, validationResult = validationResult)
+        }
+        exception.validationResult.ruleHits.size shouldEqual 1
+        exception.validationResult shouldEqual ValidationResult(status = Status.MANUAL_PROCESSING, ruleHits = listOf(RuleInfo(
+            ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
+            messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
+            messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
+            ruleStatus = Status.MANUAL_PROCESSING
+        )))
     }
 }
