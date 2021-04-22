@@ -231,10 +231,10 @@ class ValidationRulesTest {
         val validationResult = ValidationResult(Status.MANUAL_PROCESSING,
             ruleHits = listOf(RuleInfo(ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
                 messageForUser = "", messageForSender = "", ruleStatus = Status.MANUAL_PROCESSING)))
+
         val exception = assertFailsWith<ValidationException> {
             checkValidState(smRegistreringManuell, sykmelder, validationResult = validationResult)
         }
-
         exception.validationResult.ruleHits.size shouldEqual 1
         exception.validationResult shouldEqual ValidationResult(status = Status.MANUAL_PROCESSING, ruleHits = listOf(RuleInfo(
             ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
