@@ -290,8 +290,10 @@ class SendPapirsykmeldingService(
     }
 
     private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
-        return if (sykmelding.behandletTidspunkt.toLocalDate() >
-            sykmelding.perioder.map { it.fom }.min()!!.plusDays(7)
+        val behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate()
+        val terskel = sykmelding.perioder.map { it.fom }.min()?.plusDays(7)
+        return if (behandletTidspunkt != null && terskel != null &&
+            behandletTidspunkt > terskel
         ) {
             listOf(Merknad("TILBAKEDATERT_PAPIRSYKMELDING", null))
         } else {
