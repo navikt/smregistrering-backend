@@ -125,7 +125,8 @@ class OppgaveClient(
         val oppgave = hentOppgave(oppgaveId, msgId)
         val oppdatertOppgave = oppgave.copy(
             behandlesAvApplikasjon = "FS22",
-            tilordnetRessurs = tilordnetRessurs
+            tilordnetRessurs = tilordnetRessurs,
+            mappeId = null
         )
         return oppdaterOppgave(oppdatertOppgave, msgId)
     }
