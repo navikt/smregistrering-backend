@@ -9,10 +9,12 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.log
+import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.model.Sykmelding
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.checkValidState
@@ -133,7 +135,8 @@ class SendPapirsykmeldingService(
                         ?: msgHead.msgInfo.genDate,
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
-                    tssid = samhandlerPraksis?.tss_ident ?: ""
+                    tssid = samhandlerPraksis?.tss_ident ?: "",
+                    merknader = createMerknad(sykmelding)
                 )
 
                 log.info(
@@ -283,6 +286,16 @@ class SendPapirsykmeldingService(
                 log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
                 return HttpServiceResponse(HttpStatusCode.InternalServerError)
             }
+        }
+    }
+
+    private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
+        return if (sykmelding.behandletTidspunkt.toLocalDate() >
+            sykmelding.perioder.map { it.fom }.min()!!.plusDays(7)
+        ) {
+            listOf(Merknad("TILBAKEDATERT_PAPIRSYKMELDING", null))
+        } else {
+            null
         }
     }
 }
