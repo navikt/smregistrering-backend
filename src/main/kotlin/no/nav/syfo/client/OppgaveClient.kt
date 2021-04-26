@@ -8,6 +8,7 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.statement.HttpStatement
+import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -65,6 +66,8 @@ class OppgaveClient(
         log.info("DEBUG: Sending HTTP Patch request {}", patch)
 
         val httpResponse = patch.execute()
+
+        log.info("DEBUG: Request was {}", httpResponse.request)
 
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
