@@ -59,12 +59,7 @@ suspend fun handleOKOppgave(
             status = OppgaveStatus.FERDIGSTILT,
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
-            mappeId = if (oppgave.tildeltEnhetsnr == navEnhet) {
-                oppgave.mappeId
-            } else {
-                // Det skaper trøbbel i Oppgave-apiet hvis enheten som blir satt ikke har den aktuelle mappen
-                null
-            }
+            mappeId = null
         )
 
         log.info("Veileders enhet er $navEnhet og oppgavens enhet er ${oppgave.tildeltEnhetsnr}")
