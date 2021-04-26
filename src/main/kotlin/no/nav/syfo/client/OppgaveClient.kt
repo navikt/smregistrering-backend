@@ -54,13 +54,17 @@ class OppgaveClient(
 
         log.info("Ferdigstiller oppgave med msgId {}, oppgaveId {} ", msgId, ferdigstilloppgave.id)
 
-        val httpResponse = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
+        val patch = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
             body = ferdigstilloppgave
-        }.execute()
+        }
+
+        log.info("DEBUG: Sending HTTP Patch request {}", patch)
+
+        val httpResponse = patch.execute()
 
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
