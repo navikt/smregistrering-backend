@@ -67,7 +67,8 @@ class OppgaveClient(
 
         val httpResponse = patch.execute()
 
-        log.info("DEBUG: Request was {}", httpResponse.request)
+        log.info("DEBUG: Request was {}, {}, {}", httpResponse.request.call, httpResponse.request.attributes, httpResponse.request.content)
+        log.info("DEBUG: Headers where {}", httpResponse.request.headers)
 
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
