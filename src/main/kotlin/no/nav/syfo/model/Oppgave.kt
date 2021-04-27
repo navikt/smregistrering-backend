@@ -3,10 +3,10 @@ package no.nav.syfo.model
 import java.time.LocalDate
 
 data class Oppgave(
-    val id: Int?,
+    val id: Int? = null,
     val versjon: Int? = null,
     val tildeltEnhetsnr: String? = null,
-    val opprettetAvEnhetsnr: String?,
+    val opprettetAvEnhetsnr: String? = null,
     val aktoerId: String? = null,
     val journalpostId: String? = null,
     val behandlesAvApplikasjon: String? = null,
