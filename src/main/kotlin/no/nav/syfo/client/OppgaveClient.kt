@@ -16,6 +16,7 @@ import io.ktor.util.KtorExperimentalAPI
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlin.RuntimeException
+import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
@@ -67,7 +68,10 @@ class OppgaveClient(
 
         val httpResponse = patch.execute()
 
-        log.info("DEBUG: Request was {}, {}, {}", httpResponse.request.call, httpResponse.request.attributes, httpResponse.request.content)
+        log.info("DEBUG: Request was {}", httpResponse.request.call)
+        log.info("DEBUG: Attributes {}", fields(httpResponse.request.attributes))
+        log.info("DEBUG: Content {}", httpResponse.request.content)
+        log.info("DEBUG: Content with fields {}", fields(httpResponse.request.content))
         log.info("DEBUG: Headers where {}", httpResponse.request.headers)
 
         return when (httpResponse.status) {
