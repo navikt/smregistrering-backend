@@ -12,6 +12,7 @@ import no.nav.syfo.metrics.INCOMING_MESSAGE_COUNTER
 import no.nav.syfo.metrics.MESSAGE_STORED_IN_DB_COUNTER
 import no.nav.syfo.metrics.OPPRETT_OPPGAVE_COUNTER
 import no.nav.syfo.model.Oppgave
+import no.nav.syfo.model.OpprettOppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.db.erOpprettManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
@@ -35,7 +36,7 @@ suspend fun handleRecivedMessage(
                 papirSmRegistering.sykmeldingId, fields(loggingMeta)
             )
         } else {
-            val opprettOppgave = Oppgave(
+            val opprettOppgave = OpprettOppgave(
                 aktoerId = papirSmRegistering.aktorId,
                 opprettetAvEnhetsnr = "9999",
                 behandlesAvApplikasjon = "SMR",

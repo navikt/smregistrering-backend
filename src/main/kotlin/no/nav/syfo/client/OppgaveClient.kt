@@ -20,6 +20,7 @@ import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
+import no.nav.syfo.model.OpprettOppgave
 
 @KtorExperimentalAPI
 class OppgaveClient(
@@ -27,7 +28,7 @@ class OppgaveClient(
     private val oidcClient: StsOidcClient,
     private val httpClient: HttpClient
 ) {
-    suspend fun opprettOppgave(oppgave: Oppgave, msgId: String):
+    suspend fun opprettOppgave(oppgave: OpprettOppgave, msgId: String):
             Oppgave {
 
         log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)

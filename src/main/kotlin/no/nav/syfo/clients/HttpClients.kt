@@ -50,7 +50,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
                 registerModule(JavaTimeModule())
                 configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+                setSerializationInclusion(JsonInclude.Include.ALWAYS)
             }
         }
         expectSuccess = false
