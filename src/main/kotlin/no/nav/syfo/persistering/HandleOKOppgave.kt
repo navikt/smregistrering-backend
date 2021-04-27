@@ -62,9 +62,6 @@ suspend fun handleOKOppgave(
             mappeId = null
         )
 
-        log.info("Veileders enhet er $navEnhet og oppgavens enhet er ${oppgave.tildeltEnhetsnr}")
-        log.info("Ferdigstiller oppgave: {}", ferdigstillOppgave)
-
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
 
         sykmeldingJobService.createJobs(receivedSykmelding)
