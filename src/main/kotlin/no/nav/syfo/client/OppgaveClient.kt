@@ -8,7 +8,6 @@ import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.statement.HttpStatement
-import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -16,7 +15,6 @@ import io.ktor.util.KtorExperimentalAPI
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlin.RuntimeException
-import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
@@ -57,20 +55,13 @@ class OppgaveClient(
 
         log.info("Ferdigstiller oppgave med msgId {}, oppgaveId {} ", msgId, ferdigstilloppgave.id)
 
-        val patch = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
+        val httpResponse = httpClient.patch<HttpStatement>(url + "/" + ferdigstilloppgave.id) {
             contentType(ContentType.Application.Json)
             val oidcToken = oidcClient.oidcToken()
             header("Authorization", "Bearer ${oidcToken.access_token}")
             header("X-Correlation-ID", msgId)
             body = ferdigstilloppgave
-        }
-
-        log.info("DEBUG: Sending HTTP Patch request {}", patch)
-
-        val httpResponse = patch.execute()
-
-        log.info("DEBUG: Request was {}", fields(httpResponse.request.call))
-        log.info("DEBUG: Content with fields {}", fields(httpResponse.request.content))
+        }.execute()
 
         return when (httpResponse.status) {
             HttpStatusCode.OK -> {
