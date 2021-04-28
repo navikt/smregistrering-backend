@@ -302,6 +302,18 @@ class SendPapirsykmeldingService(
     }
 }
 
+private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
+    val behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate()
+    val terskel = sykmelding.perioder.map { it.fom }.min()?.plusDays(7)
+    return if (behandletTidspunkt != null && terskel != null &&
+        behandletTidspunkt > terskel
+    ) {
+        listOf(Merknad("TILBAKEDATERT_PAPIRSYKMELDING", null))
+    } else {
+        null
+    }
+}
+
 data class HttpServiceResponse(
     val httpStatusCode: HttpStatusCode,
     val payload: Any? = null
