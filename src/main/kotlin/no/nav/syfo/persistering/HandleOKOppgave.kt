@@ -9,8 +9,8 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillOppgave
-import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OppgaveStatus
+import no.nav.syfo.model.OpprettOppgave
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.saf.service.SafJournalpostService
@@ -88,8 +88,8 @@ private fun shouldCreateOppfolgingsOppgave(receivedSykmelding: ReceivedSykmeldin
     return receivedSykmelding.merknader?.isNotEmpty() == true
 }
 
-fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding): Oppgave =
-    Oppgave(
+fun createOppfolgingsoppgave(receivedSykmelding: ReceivedSykmelding): OpprettOppgave =
+    OpprettOppgave(
         aktoerId = receivedSykmelding.sykmelding.pasientAktoerId,
         opprettetAvEnhetsnr = "9999",
         tilordnetRessurs = null,
