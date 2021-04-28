@@ -54,12 +54,7 @@ suspend fun handleAvvisOppgave(
             status = OppgaveStatus.FERDIGSTILT,
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
-            mappeId = if (oppgave.tildeltEnhetsnr == navEnhet) {
-                oppgave.mappeId
-            } else {
-                // Det skaper trøbbel i Oppgave-apiet hvis enheten som blir satt ikke har den aktuelle mappen
-                null
-            }
+            mappeId = null
         )
 
         val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
