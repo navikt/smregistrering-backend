@@ -6,13 +6,14 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 import java.util.UUID
 import no.nav.syfo.log
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
-import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
+@KtorExperimentalAPI
 fun Route.sykmelderApi(
     sykmelderService: SykmelderService
 ) {
@@ -21,17 +22,15 @@ fun Route.sykmelderApi(
             val hprNummer = call.parameters["hprNummer"]?.toIntOrNull()
 
             log.info("Mottok kall til GET /api/v1/sykmelder/$hprNummer")
-
-            when {
-                hprNummer == null -> {
+            when (hprNummer) {
+                null -> {
                     log.info("Ugyldig path parameter: hprNummer")
                     call.respond(HttpStatusCode.BadRequest)
                 }
                 else -> {
-                    val accessToken = getAccessTokenFromAuthHeader(call.request)!!
                     val callId = UUID.randomUUID().toString()
                     try {
-                        val sykmelder = sykmelderService.hentSykmelder(hprNummer.toString(), accessToken, callId)
+                        val sykmelder = sykmelderService.hentSykmelder(hprNummer.toString(), callId)
                         call.respond(sykmelder)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)

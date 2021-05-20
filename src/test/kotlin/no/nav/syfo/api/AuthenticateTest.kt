@@ -83,7 +83,7 @@ internal class AuthenticateTest {
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
             coEvery { authorization.hasAccess(any(), any()) } returns true
-            coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+            coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")

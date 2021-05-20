@@ -82,7 +82,7 @@ fun Route.avvisOppgave(
                         val veileder = authorizationService.getVeileder(accessToken)
 
                         val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
-                        val sykmelder = finnSykmelder(hpr, sykmelderService, accessToken, callId, oppgaveId)
+                        val sykmelder = finnSykmelder(hpr, sykmelderService, callId, oppgaveId)
 
                         handleAvvisOppgave(
                             dokArkivClient = dokArkivClient,
@@ -122,14 +122,13 @@ fun Route.avvisOppgave(
 private suspend fun finnSykmelder(
     hpr: String?,
     sykmelderService: SykmelderService,
-    accessToken: String,
     callId: String,
     oppgaveId: Int
 ): Sykmelder {
     return if (!hpr.isNullOrEmpty()) {
         log.info("Henter sykmelder fra HPR og PDL for oppgaveid $oppgaveId")
         try {
-            sykmelderService.hentSykmelder(hpr, accessToken, callId)
+            sykmelderService.hentSykmelder(hpr, callId)
         } catch (e: Exception) {
             log.warn("Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId")
             return getDefaultSykmelder()

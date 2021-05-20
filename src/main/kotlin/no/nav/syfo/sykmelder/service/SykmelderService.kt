@@ -13,7 +13,7 @@ class SykmelderService(
     private val pdlPersonService: PdlPersonService
 ) {
 
-    suspend fun hentSykmelder(hprNummer: String, userToken: String, callId: String): Sykmelder {
+    suspend fun hentSykmelder(hprNummer: String, callId: String): Sykmelder {
         if (hprNummer.isEmpty()) {
             log.warn("HPR-nummer mangler, kan ikke fortsette")
             throw IllegalStateException("HPR-nummer mangler")
@@ -26,7 +26,7 @@ class SykmelderService(
             throw SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
         }
 
-        val pdlPerson = pdlPersonService.getPdlPerson(behandler.fnr, userToken, callId)
+        val pdlPerson = pdlPersonService.getPdlPerson(behandler.fnr, callId)
 
         if (pdlPerson.aktorId == null) {
             log.warn("Fant ikke aktorId til behandler for HPR {}", hprNummer)
