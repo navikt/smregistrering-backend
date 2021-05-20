@@ -11,7 +11,6 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
-import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.handleSendOppgaveTilGosys
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafNotFoundException
@@ -25,7 +24,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
     oppgaveClient: OppgaveClient,
-    pdlService: PdlPersonService,
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {

@@ -160,7 +160,6 @@ internal class AuthenticateTest {
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
-                        pdlService,
                         authorization
                     )
                 }
@@ -268,7 +267,6 @@ internal class AuthenticateTest {
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
-                        pdlService,
                         authorization
                     )
                 }
