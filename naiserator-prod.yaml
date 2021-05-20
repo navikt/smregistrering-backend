@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: smregistrering-backend
-  namespace: default
+  namespace: teamsykmelding
   labels:
     team: teamsykmelding
 spec:
@@ -44,7 +44,7 @@ spec:
         mountPath: /secrets/serviceuser
       - kvPath: /azuread/data/prod/creds/smregistrering-backend
         mountPath: /secrets/azuread/smregistrering-backend
-      - kvPath: /kv/prod/fss/smregistrering-backend/default
+      - kvPath: /kv/prod/fss/smregistrering-backend/teamsykmelding
         mountPath: /secrets/default
       - kvPath: /azuread/data/prod/creds/syfosmpapirregler
         mountPath: /secrets/azuread/syfosmpapirregler
