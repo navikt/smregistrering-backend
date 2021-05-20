@@ -117,14 +117,14 @@ class AvvisOppgaveRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                     Sykmelder(
                         aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                         fnr = "12345", hprNummer = "hpr", godkjenninger = null

@@ -1,6 +1,7 @@
 package no.nav.syfo.sykmelder.service
 
 import io.ktor.util.InternalAPI
+import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.assertFailsWith
@@ -17,11 +18,12 @@ import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
+@KtorExperimentalAPI
 class SykmelderServiceTest {
 
-    val pdlService = mockk<PdlPersonService>()
-    val norskHelsenettClient = mockk<NorskHelsenettClient>()
-    val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
+    private val pdlService = mockk<PdlPersonService>()
+    private val norskHelsenettClient = mockk<NorskHelsenettClient>()
+    private val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
 
     @Test
     internal fun `Hent sykmelder`() {
@@ -31,7 +33,7 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(fornavn, mellomnavn, etternavn),
                 listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID"))
         )
@@ -46,7 +48,7 @@ class SykmelderServiceTest {
         )
 
         runBlocking {
-            val sykmelder = sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
+            val sykmelder = sykmelderService.hentSykmelder(hprNummer, "callid")
 
             sykmelder.hprNummer shouldEqual hprNummer
             sykmelder.fnr shouldEqual fnr
@@ -65,7 +67,7 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(fornavn, mellomnavn, etternavn),
                 listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID"))
         )
@@ -81,7 +83,7 @@ class SykmelderServiceTest {
 
         runBlocking {
             val exception = assertFailsWith<IllegalStateException> {
-                sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
+                sykmelderService.hentSykmelder(hprNummer, "callid")
             }
             exception.message shouldEqual "HPR-nummer mangler"
         }
@@ -95,7 +97,7 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(fornavn, mellomnavn, etternavn),
                 listOf(
                         IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
@@ -106,7 +108,7 @@ class SykmelderServiceTest {
 
         runBlocking {
             val exception = assertFailsWith<SykmelderNotFoundException> {
-                sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
+                sykmelderService.hentSykmelder(hprNummer, "callid")
             }
             exception.message shouldEqual "Kunne ikke hente fnr for hpr $hprNummer"
         }
@@ -121,7 +123,7 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(fornavn, mellomnavn, etternavn),
                 listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"))
         )
@@ -137,7 +139,7 @@ class SykmelderServiceTest {
 
         runBlocking {
             val exception = assertFailsWith<SykmelderNotFoundException> {
-                sykmelderService.hentSykmelder(hprNummer, "usertoken", "callid")
+                sykmelderService.hentSykmelder(hprNummer, "callid")
             }
             exception.message shouldEqual "Kunne ikke hente aktorId for hpr $hprNummer"
         }

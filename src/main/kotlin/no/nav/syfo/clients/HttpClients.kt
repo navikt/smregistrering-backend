@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.client.AccessTokenClient
+import no.nav.syfo.client.AccessTokenClientV2
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
@@ -85,12 +86,19 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         .maximumSize(100)
         .build<Map<String, String>, String>()
 
-    val accessTokenClient = AccessTokenClient(
+    private val accessTokenClient = AccessTokenClient(
         env.aadAccessTokenUrl,
         vaultSecrets.smregistreringBackendClientId,
         vaultSecrets.smregistreringBackendClientSecret,
         httpClientWithProxy,
         aadCache
+    )
+
+    private val accessTokenClientV2 = AccessTokenClientV2(
+        env.aadAccessTokenV2Url,
+        env.clientIdV2,
+        env.clientSecretV2,
+        httpClientWithProxy
     )
 
     val regelClient =
@@ -111,7 +119,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         env.pdlGraphqlPath,
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
 
-    val pdlService = PdlPersonService(pdlClient, oidcClient)
+    val pdlService = PdlPersonService(pdlClient, accessTokenClientV2, env.pdlScope)
 
     private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
 

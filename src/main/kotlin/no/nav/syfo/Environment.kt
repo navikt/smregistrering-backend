@@ -39,7 +39,11 @@ data class Environment(
     val scopeSyfotilgangskontroll: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL", "http://syfohelsenettproxy.default"),
     val helsenettproxyId: String = getEnvVar("HELSENETTPROXY_ID"),
-    val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH")
+    val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH"),
+    val aadAccessTokenV2Url: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+    val clientIdV2: String = getEnvVar("AZURE_APP_CLIENT_ID"),
+    val clientSecretV2: String = getEnvVar("AZURE_APP_CLIENT_SECRET"),
+    val pdlScope: String = getEnvVar("PDL_SCOPE")
 
 ) : KafkaConfig
 

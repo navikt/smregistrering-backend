@@ -353,7 +353,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(
                     "Billy",
                     "Bob",
@@ -364,7 +364,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                         fnr = "12345", hprNummer = "hpr", godkjenninger = null)
 
@@ -559,14 +559,14 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                 fnr = "12345", hprNummer = "hpr", godkjenninger = null)
 
@@ -764,14 +764,14 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any(), any()) } returns PdlPerson(
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"), listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
-            coEvery { sykmelderService.hentSykmelder(any(), any(), any()) } returns
+            coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                     Sykmelder(
                         aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
                         fnr = "12345", hprNummer = "hpr",

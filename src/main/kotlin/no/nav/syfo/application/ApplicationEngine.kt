@@ -123,7 +123,7 @@ fun createApplicationEngine(
                     dokArkivClient,
                     oppgaveClient
                 )
-                pasientApi(pdlService)
+                pasientApi(pdlService, authorizationService)
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
             }

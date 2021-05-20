@@ -1,6 +1,7 @@
 package no.nav.syfo.persistering
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.DokArkivClient
@@ -32,6 +33,7 @@ import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.toString
 
+@KtorExperimentalAPI
 class SendPapirsykmeldingService(
     private val sykmelderService: SykmelderService,
     private val pdlService: PdlPersonService,
@@ -77,14 +79,12 @@ class SendPapirsykmeldingService(
                 log.info("Henter sykmelder fra HPR og PDL")
                 val sykmelder = sykmelderService.hentSykmelder(
                     sykmelderHpr,
-                    accessToken,
                     callId
                 )
 
                 log.info("Henter pasient fra PDL {} ", loggingMeta)
                 val pasient = pdlService.getPdlPerson(
                     fnr = smRegistreringManuell.pasientFnr,
-                    userToken = accessToken,
                     callId = callId
                 )
 

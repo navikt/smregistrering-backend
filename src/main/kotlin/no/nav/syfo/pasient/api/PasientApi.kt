@@ -9,10 +9,12 @@ import io.ktor.routing.route
 import java.util.UUID
 import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.pasientApi(
-    pdlPersonService: PdlPersonService
+    pdlPersonService: PdlPersonService,
+    authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
         get("/pasient") {
@@ -24,8 +26,13 @@ fun Route.pasientApi(
                 else -> {
                     val accessToken = getAccessTokenFromAuthHeader(call.request)!!
                     val callId = UUID.randomUUID().toString()
-                    val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, userToken = accessToken, callId = callId)
-                    call.respond(pdlPerson.navn)
+                    if (authorizationService.hasAccess(accessToken, pasientFnr)) {
+                        val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, callId = callId)
+                        call.respond(pdlPerson.navn)
+                    } else {
+                        log.warn("Veileder har ikke tilgang til pasient, $callId")
+                        call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til pasienten")
+                    }
                 }
             }
         }
