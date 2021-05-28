@@ -35,20 +35,38 @@ suspend fun handleRecivedMessage(
                 papirSmRegistering.sykmeldingId, fields(loggingMeta)
             )
         } else {
-            val opprettOppgave = OpprettOppgave(
-                aktoerId = papirSmRegistering.aktorId,
-                opprettetAvEnhetsnr = "9999",
-                behandlesAvApplikasjon = "SMR",
-                beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
-                tema = "SYM",
-                oppgavetype = "JFR",
-                aktivDato = LocalDate.now(),
-                fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                    LocalDate.now().plusDays(4)
-                ),
-                prioritet = "HOY",
-                journalpostId = papirSmRegistering.journalpostId
-            )
+            val opprettOppgave = if (papirSmRegistering.sykmeldingId == "20bed37f-a0fd-4ee9-92af-454668035364") {
+                OpprettOppgave(
+                    aktoerId = papirSmRegistering.aktorId,
+                    opprettetAvEnhetsnr = "9999",
+                    tildeltEnhetsnr = "1903",
+                    behandlesAvApplikasjon = "SMR",
+                    beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
+                    tema = "SYM",
+                    oppgavetype = "JFR",
+                    aktivDato = LocalDate.now(),
+                    fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                        LocalDate.now().plusDays(4)
+                    ),
+                    prioritet = "HOY",
+                    journalpostId = papirSmRegistering.journalpostId
+                )
+            } else {
+                OpprettOppgave(
+                    aktoerId = papirSmRegistering.aktorId,
+                    opprettetAvEnhetsnr = "9999",
+                    behandlesAvApplikasjon = "SMR",
+                    beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
+                    tema = "SYM",
+                    oppgavetype = "JFR",
+                    aktivDato = LocalDate.now(),
+                    fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                        LocalDate.now().plusDays(4)
+                    ),
+                    prioritet = "HOY",
+                    journalpostId = papirSmRegistering.journalpostId
+                )
+            }
 
             val oppgave = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
             OPPRETT_OPPGAVE_COUNTER.inc()
