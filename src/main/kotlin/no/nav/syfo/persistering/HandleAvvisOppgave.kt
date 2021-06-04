@@ -54,7 +54,8 @@ suspend fun handleAvvisOppgave(
             status = OppgaveStatus.FERDIGSTILT,
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
-            mappeId = null
+            mappeId = null,
+            beskrivelse = "Avvist papirsykmelding med årsak [ÅRSAK]" // TODO
         )
 
         val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
