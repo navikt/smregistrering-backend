@@ -16,6 +16,7 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -31,6 +32,7 @@ import no.nav.syfo.client.Tilgang
 import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
+import no.nav.syfo.model.AvvisSykmeldingRequest
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
@@ -40,6 +42,7 @@ import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.objectMapper
 import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
@@ -220,6 +223,9 @@ class AvvisOppgaveRestTest {
                         tema = "",
                         status = "OPPRETTET"
                     )
+
+            val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
+
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                     Oppgave(
@@ -246,6 +252,7 @@ class AvvisOppgaveRestTest {
                 addHeader("Content-Type", "application/json")
                 addHeader("X-Nav-Enhet", "1234")
                 addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
             }) {
                 response.status() shouldEqual HttpStatusCode.NoContent
                 response.content shouldBe null

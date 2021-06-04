@@ -26,7 +26,8 @@ suspend fun handleAvvisOppgave(
     pasientFnr: String,
     sykmelder: Sykmelder,
     navEnhet: String,
-    accessToken: String
+    accessToken: String,
+    avvisSykmeldingReason: String?
 ) {
 
     if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)) {
@@ -55,7 +56,10 @@ suspend fun handleAvvisOppgave(
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
             mappeId = null,
-            beskrivelse = "Avvist papirsykmelding med årsak [ÅRSAK]" // TODO
+            beskrivelse = when {
+                !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
+                else -> null
+            }
         )
 
         val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
