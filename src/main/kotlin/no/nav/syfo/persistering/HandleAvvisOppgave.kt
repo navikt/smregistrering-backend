@@ -58,7 +58,7 @@ suspend fun handleAvvisOppgave(
             mappeId = null,
             beskrivelse = when {
                 !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
-                else -> null
+                else -> "Avvist papirsykmelding uten oppgitt årsak."
             }
         )
 
