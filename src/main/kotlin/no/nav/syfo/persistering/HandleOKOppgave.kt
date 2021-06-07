@@ -59,7 +59,8 @@ suspend fun handleOKOppgave(
             status = OppgaveStatus.FERDIGSTILT,
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
-            mappeId = null
+            mappeId = null,
+            beskrivelse = oppgave.beskrivelse
         )
 
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
