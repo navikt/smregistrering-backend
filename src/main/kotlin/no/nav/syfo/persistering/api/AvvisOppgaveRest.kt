@@ -2,6 +2,7 @@ package no.nav.syfo.persistering.api
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
@@ -12,6 +13,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
+import no.nav.syfo.model.AvvisSykmeldingRequest
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.persistering.handleAvvisOppgave
 import no.nav.syfo.saf.service.SafJournalpostService
@@ -39,6 +41,8 @@ fun Route.avvisOppgave(
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val callId = UUID.randomUUID().toString()
             val navEnhet = call.request.headers["X-Nav-Enhet"]
+
+            val avvisSykmeldingRequest: AvvisSykmeldingRequest? = call.receiveOrNull()
 
             when {
                 oppgaveId == null -> {
@@ -97,7 +101,8 @@ fun Route.avvisOppgave(
                             oppgaveId = oppgaveId,
                             pasientFnr = pasientFnr,
                             sykmeldingId = sykmeldingId,
-                            accessToken = accessToken
+                            accessToken = accessToken,
+                            avvisSykmeldingReason = avvisSykmeldingRequest?.reason
                         )
 
                         if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) < 1) {

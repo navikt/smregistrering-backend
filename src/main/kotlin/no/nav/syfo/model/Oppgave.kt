@@ -46,7 +46,8 @@ data class FerdigstillOppgave(
     val status: OppgaveStatus,
     val tilordnetRessurs: String,
     val tildeltEnhetsnr: String,
-    val mappeId: Int?
+    val mappeId: Int?,
+    val beskrivelse: String? = null
 )
 
 enum class OppgaveStatus(val status: String) {
