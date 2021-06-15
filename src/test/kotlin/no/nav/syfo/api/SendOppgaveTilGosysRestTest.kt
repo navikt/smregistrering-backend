@@ -96,7 +96,7 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any()) } returns 1
 
             val oppgaveid = 308076319
 

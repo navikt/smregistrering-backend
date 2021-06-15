@@ -135,7 +135,7 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any()) } returns 1
 
             val oppgaveid = 308076319
 

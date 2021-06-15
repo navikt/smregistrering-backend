@@ -16,6 +16,7 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.Sykmelding
+import no.nav.syfo.model.Utfall
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.checkValidState
@@ -269,7 +270,7 @@ class SendPapirsykmeldingService(
                     navEnhet = navEnhet
                 )
 
-                return if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) > 0) {
+                return if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.OK) > 0) {
                     HttpServiceResponse(HttpStatusCode.NoContent)
                 } else {
                     log.error(
