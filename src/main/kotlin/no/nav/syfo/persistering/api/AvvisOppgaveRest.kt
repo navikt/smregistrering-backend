@@ -15,6 +15,7 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
 import no.nav.syfo.model.AvvisSykmeldingRequest
 import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.model.Utfall
 import no.nav.syfo.persistering.handleAvvisOppgave
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
@@ -105,7 +106,7 @@ fun Route.avvisOppgave(
                             avvisSykmeldingReason = avvisSykmeldingRequest?.reason
                         )
 
-                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId) < 1) {
+                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.AVVIST) < 1) {
                             log.warn(
                                 "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)

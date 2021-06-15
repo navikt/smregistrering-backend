@@ -4,6 +4,7 @@ import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
 import no.nav.syfo.metrics.SENT_TO_GOSYS_COUNTER
+import no.nav.syfo.model.Utfall
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
@@ -25,7 +26,7 @@ suspend fun handleSendOppgaveTilGosys(
         msgId = loggingMeta.msgId,
         tilordnetRessurs = veileder.veilederIdent
     )
-    manuellOppgaveService.ferdigstillSmRegistering(oppgaveId)
+    manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.SENDT_TIL_GOSYS)
 
     SENT_TO_GOSYS_COUNTER.inc()
 
