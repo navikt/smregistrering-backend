@@ -30,7 +30,7 @@ data class Environment(
     val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-sm2013-automatiskBehandling"),
     val sm2013BehandlingsUtfallTopic: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-behandlingsUtfall"),
     val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave"),
-    val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL", "http://syfo-tilgangskontroll.default/syfo-tilgangskontroll"),
+    val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
     val developmentMode: Boolean = getEnvVar("DEVELOPMENT_MODE", "false").toBoolean(),
     override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
