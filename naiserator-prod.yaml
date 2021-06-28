@@ -92,3 +92,5 @@ spec:
       value: https://saf.nais.adeo.no/graphql
     - name: OPPGAVEBEHANDLING_URL
       value: https://oppgave.nais.adeo.no/api/v1/oppgaver
+    - name: SYFOTILGANGSKONTROLL_URL
+      value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll
