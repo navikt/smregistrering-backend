@@ -94,3 +94,7 @@ spec:
       value: https://oppgave.nais.adeo.no/api/v1/oppgaver
     - name: SYFOTILGANGSKONTROLL_URL
       value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll
+    - name: SYFOSMPAPIR_REGLER_ENDPOINT_URL
+      value: https://syfosmpapirregler.nais.adeo.no
+    - name: HELSENETT_ENDPOINT_URL
+      value: https://syfohelsenettproxy.nais.adeo.no
