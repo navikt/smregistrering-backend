@@ -16,6 +16,7 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
+import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
@@ -45,6 +46,7 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
+@KtorExperimentalAPI
 class SendOppgaveTilGosysRestTest {
 
     private val path = "src/test/resources/jwkset.json"
@@ -96,7 +98,7 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 

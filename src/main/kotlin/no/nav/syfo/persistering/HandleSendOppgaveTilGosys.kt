@@ -1,5 +1,6 @@
 package no.nav.syfo.persistering
 
+import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
@@ -9,6 +10,7 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 
+@KtorExperimentalAPI
 suspend fun handleSendOppgaveTilGosys(
     authorizationService: AuthorizationService,
     oppgaveClient: OppgaveClient,
@@ -26,7 +28,7 @@ suspend fun handleSendOppgaveTilGosys(
         msgId = loggingMeta.msgId,
         tilordnetRessurs = veileder.veilederIdent
     )
-    manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.SENDT_TIL_GOSYS)
+    manuellOppgaveService.ferdigstillSmRegistering(oppgaveId = oppgaveId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
 
     SENT_TO_GOSYS_COUNTER.inc()
 

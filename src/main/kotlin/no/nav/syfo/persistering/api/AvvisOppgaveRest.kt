@@ -105,12 +105,17 @@ fun Route.avvisOppgave(
                             accessToken = accessToken,
                             avvisSykmeldingReason = avvisSykmeldingRequest?.reason
                         )
-
-                        if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.AVVIST) < 1) {
-                            log.warn(
-                                "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                            )
+                        manuellOppgaveService.ferdigstillSmRegistering(
+                            oppgaveId = oppgaveId,
+                            utfall = Utfall.AVVIST,
+                            ferdigstiltAv = veileder.veilederIdent
+                        ).also {
+                            if (it < 1) {
+                                log.warn(
+                                    "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
+                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                )
+                            }
                         }
 
                         call.respond(HttpStatusCode.NoContent)

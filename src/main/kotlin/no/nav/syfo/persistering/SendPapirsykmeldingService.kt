@@ -270,17 +270,20 @@ class SendPapirsykmeldingService(
                     navEnhet = navEnhet
                 )
 
-                return if (manuellOppgaveService.ferdigstillSmRegistering(oppgaveId, Utfall.OK) > 0) {
-                    HttpServiceResponse(HttpStatusCode.NoContent)
-                } else {
-                    log.error(
-                        "Ferdigstilling av papirsykmeldinger manuell registering i db feilet {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                    )
-                    HttpServiceResponse(
-                        HttpStatusCode.InternalServerError,
-                        "Fant ikke en uløst oppgave for oppgaveId $oppgaveId"
-                    )
+                manuellOppgaveService.ferdigstillSmRegistering(
+                    oppgaveId = oppgaveId,
+                    utfall = Utfall.OK,
+                    ferdigstiltAv = veileder.veilederIdent
+                ).let {
+                    return if (it > 0) {
+                        HttpServiceResponse(HttpStatusCode.NoContent)
+                    } else {
+                        log.error(
+                            "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
+                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                        )
+                        HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ingen uløst oppgave for oppgaveId $oppgaveId")
+                    }
                 }
             }
             else -> {
