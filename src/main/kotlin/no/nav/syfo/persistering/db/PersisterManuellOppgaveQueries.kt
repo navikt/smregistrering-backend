@@ -1,6 +1,8 @@
 package no.nav.syfo.persistering.db
 
 import java.sql.Timestamp
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.util.toPGObject
@@ -53,19 +55,23 @@ fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
         }
     }
 
-fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int, utfall: String): Int =
+fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int, utfall: String, ferdigstiltAv: String): Int =
     connection.use { connection ->
         val status = connection.prepareStatement(
             """
             UPDATE MANUELLOPPGAVE
             SET ferdigstilt = ?,
-                utfall = ?
+                utfall = ?,
+                ferdigstilt_av = ?,
+                dato_ferdigstilt = ?
             WHERE oppgave_id = ?;
             """
         ).use {
             it.setBoolean(1, true)
             it.setString(2, utfall)
-            it.setInt(3, oppgaveId)
+            it.setString(3, ferdigstiltAv)
+            it.setTimestamp(4, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()))
+            it.setInt(5, oppgaveId)
             it.executeUpdate()
         }
         connection.commit()
