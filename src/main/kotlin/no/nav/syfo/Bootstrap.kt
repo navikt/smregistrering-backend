@@ -57,8 +57,7 @@ fun main() {
         serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
         oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath),
         smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath),
-        smregistreringBackendClientSecret = getFileAsString(env.smregistreringBackendClientSecretPath),
-        syfosmpapirregelClientId = getFileAsString(env.syfosmpapirregelClientIdPath)
+        smregistreringBackendClientSecret = getFileAsString(env.smregistreringBackendClientSecretPath)
     )
 
     val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)

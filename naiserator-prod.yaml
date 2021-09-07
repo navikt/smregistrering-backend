@@ -46,8 +46,6 @@ spec:
         mountPath: /secrets/azuread/smregistrering-backend
       - kvPath: /kv/prod/fss/smregistrering-backend/teamsykmelding
         mountPath: /secrets/default
-      - kvPath: /azuread/data/prod/creds/syfosmpapirregler
-        mountPath: /secrets/azuread/syfosmpapirregler
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.adeo.no"
@@ -76,8 +74,6 @@ spec:
       value: http://dokarkiv.default/rest/journalpostapi/v1/journalpost
     - name: AADACCESSTOKEN_URL
       value: https://login.microsoftonline.com/navno.onmicrosoft.com/oauth2/token
-    - name: SYFOSMPAIR_REGLER_CLIENT_ID_PATH
-      value: /secrets/azuread/syfosmpapirregler/client_id
     - name: SMREGISTERING_BACKEND_CLIENT_SECRET_PATH
       value: /secrets/azuread/smregistrering-backend/client_secret
     - name: PDL_GRAPHQL_PATH
@@ -98,3 +94,5 @@ spec:
       value: https://syfosmpapirregler.nais.adeo.no
     - name: HELSENETT_ENDPOINT_URL
       value: https://syfohelsenettproxy.nais.adeo.no
+    - name: SYFOSMPAPIRREGLER_SCOPE
+      value: api://prod-fss.teamsykmelding.syfosmpapirregler/.default

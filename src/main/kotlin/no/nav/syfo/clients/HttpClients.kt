@@ -102,7 +102,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     )
 
     val regelClient =
-        RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
+        RegelClient(env.regelEndpointURL, accessTokenClientV2, env.syfosmpapirregelScope, httpClient)
 
     private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
