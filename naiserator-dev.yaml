@@ -46,8 +46,6 @@ spec:
         mountPath: /secrets/azuread/smregistrering-backend
       - kvPath: /kv/preprod/fss/smregistrering-backend/teamsykmelding
         mountPath: /secrets/default
-      - kvPath: /azuread/data/dev/creds/syfosmpapirregler
-        mountPath: /secrets/azuread/syfosmpapirregler
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.preprod.local"
@@ -76,8 +74,6 @@ spec:
       value: https://dokarkiv-q1.nais.preprod.local/rest/journalpostapi/v1/journalpost
     - name: AADACCESSTOKEN_URL
       value: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/token
-    - name: SYFOSMPAIR_REGLER_CLIENT_ID_PATH
-      value: /secrets/azuread/syfosmpapirregler/client_id
     - name: SMREGISTERING_BACKEND_CLIENT_SECRET_PATH
       value: /secrets/azuread/smregistrering-backend/client_secret
     - name: PDL_GRAPHQL_PATH
@@ -86,8 +82,8 @@ spec:
       value: api://dev-fss.pdl.pdl-api/.default
     - name: SYFOTILGANGSKONTROLL_SCOPE
       value: 32e36aa5-1d12-452a-9b1e-9f3f557cbb4d
-    - name: HELSENETTPROXY_ID
-      value: c18eba24-f676-47db-9a97-3c66e9304aee
+    - name: HELSENETT_SCOPE
+      value: api://dev-fss.teamsykmelding.syfohelsenettproxy/.default
     - name: SAFJOURNALPOST_GRAPHQL_PATH
       value: https://saf-q1.nais.preprod.local/graphql
     - name: OPPGAVEBEHANDLING_URL
@@ -98,3 +94,5 @@ spec:
       value: https://syfosmpapirregler.nais.preprod.local
     - name: HELSENETT_ENDPOINT_URL
       value: https://syfohelsenettproxy.nais.preprod.local
+    - name: SYFOSMPAPIRREGLER_SCOPE
+      value: api://dev-fss.teamsykmelding.syfosmpapirregler/.default

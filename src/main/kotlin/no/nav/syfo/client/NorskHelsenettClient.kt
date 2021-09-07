@@ -21,7 +21,7 @@ import no.nav.syfo.util.padHpr
 
 class NorskHelsenettClient(
     private val endpointUrl: String,
-    private val accessTokenClient: AccessTokenClient,
+    private val accessTokenClient: AccessTokenClientV2,
     private val resourceId: String,
     private val httpClient: HttpClient
 ) {
@@ -29,8 +29,8 @@ class NorskHelsenettClient(
     @KtorExperimentalAPI
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
-        val accessToken = accessTokenClient.hentAccessToken(resourceId)
-        val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/behandlerMedHprNummer") {
+        val accessToken = accessTokenClient.getAccessTokenV2(resourceId)
+        val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/v2/behandlerMedHprNummer") {
             accept(ContentType.Application.Json)
             headers {
                 append("Authorization", "Bearer $accessToken")

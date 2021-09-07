@@ -102,7 +102,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     )
 
     val regelClient =
-        RegelClient(env.regelEndpointURL, accessTokenClient, vaultSecrets.syfosmpapirregelClientId, httpClient)
+        RegelClient(env.regelEndpointURL, accessTokenClientV2, env.syfosmpapirregelScope, httpClient)
 
     private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
@@ -121,7 +121,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     val pdlService = PdlPersonService(pdlClient, accessTokenClientV2, env.pdlScope)
 
-    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
+    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClientV2, env.helsenettproxyScope, httpClient)
 
     val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
 

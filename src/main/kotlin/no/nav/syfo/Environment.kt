@@ -24,7 +24,6 @@ data class Environment(
     val aadAccessTokenUrl: String = getEnvVar("AADACCESSTOKEN_URL"),
     val regelEndpointURL: String = getEnvVar("SYFOSMPAPIR_REGLER_ENDPOINT_URL"),
     val smregistreringBackendClientSecretPath: String = getEnvVar("SMREGISTERING_BACKEND_CLIENT_SECRET_PATH"),
-    val syfosmpapirregelClientIdPath: String = getEnvVar("SYFOSMPAIR_REGLER_CLIENT_ID_PATH"),
     val syfoserviceKafkaTopic: String = "privat-syfo-syfoservice-mq",
     val sm2013ManualHandlingTopic: String = getEnvVar("KAFKA_SM2013_MANUAL_TOPIC", "privat-syfo-sm2013-manuellBehandling"),
     val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-sm2013-automatiskBehandling"),
@@ -38,12 +37,13 @@ data class Environment(
     override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
     val scopeSyfotilgangskontroll: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL"),
-    val helsenettproxyId: String = getEnvVar("HELSENETTPROXY_ID"),
+    val helsenettproxyScope: String = getEnvVar("HELSENETT_SCOPE"),
     val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH"),
     val aadAccessTokenV2Url: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
     val clientIdV2: String = getEnvVar("AZURE_APP_CLIENT_ID"),
     val clientSecretV2: String = getEnvVar("AZURE_APP_CLIENT_SECRET"),
-    val pdlScope: String = getEnvVar("PDL_SCOPE")
+    val pdlScope: String = getEnvVar("PDL_SCOPE"),
+    val syfosmpapirregelScope: String = getEnvVar("SYFOSMPAPIRREGLER_SCOPE")
 
 ) : KafkaConfig
 
@@ -52,8 +52,7 @@ data class VaultSecrets(
     val serviceuserPassword: String,
     val oidcWellKnownUri: String,
     val smregistreringBackendClientId: String,
-    val smregistreringBackendClientSecret: String,
-    val syfosmpapirregelClientId: String
+    val smregistreringBackendClientSecret: String
 ) : KafkaCredentials {
     override val kafkaUsername: String = serviceuserUsername
     override val kafkaPassword: String = serviceuserPassword
