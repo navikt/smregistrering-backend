@@ -121,7 +121,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     val pdlService = PdlPersonService(pdlClient, accessTokenClientV2, env.pdlScope)
 
-    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClient, env.helsenettproxyId, httpClient)
+    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClientV2, env.helsenettproxyScope, httpClient)
 
     val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
 
