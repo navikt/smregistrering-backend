@@ -48,9 +48,11 @@ suspend fun handleRecivedMessage(
     }
 }
 
-private suspend fun upsertOppgave(papirSmRegistering: PapirSmRegistering,
-                                  oppgaveClient: OppgaveClient,
-                                  loggingMeta: LoggingMeta): Oppgave {
+private suspend fun upsertOppgave(
+    papirSmRegistering: PapirSmRegistering,
+    oppgaveClient: OppgaveClient,
+    loggingMeta: LoggingMeta
+): Oppgave {
     return if (papirSmRegistering.oppgaveId == null) {
         val opprettOppgave = OpprettOppgave(
             aktoerId = papirSmRegistering.aktorId,
