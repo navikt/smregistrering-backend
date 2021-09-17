@@ -12,7 +12,7 @@ class KafkaConsumers(env: Environment, vaultSecrets: KafkaCredentials) {
     private val kafkaBaseConfig = loadBaseConfig(env, vaultSecrets)
 
     init {
-        kafkaBaseConfig["auto.offset.reset"] = "none"
+        kafkaBaseConfig["auto.offset.reset"] = "latest"
     }
 
     private val properties = setSecurityProtocol(env, kafkaBaseConfig.toConsumerConfig(
