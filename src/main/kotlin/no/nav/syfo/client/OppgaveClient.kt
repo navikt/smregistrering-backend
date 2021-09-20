@@ -131,6 +131,21 @@ class OppgaveClient(
         )
         return oppdaterOppgave(oppdatertOppgave, msgId)
     }
+
+    suspend fun patchManuellOppgave(oppgaveId: Int, msgId: String): Oppgave {
+        val oppgave = hentOppgave(oppgaveId, msgId)
+        val patch = oppgave.copy(
+            behandlesAvApplikasjon = "SMR",
+            beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
+            mappeId = null,
+            aktivDato = LocalDate.now(),
+            fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                LocalDate.now().plusDays(4)
+            ),
+            prioritet = "HOY"
+        )
+        return oppdaterOppgave(patch, msgId)
+    }
 }
 
 fun finnFristForFerdigstillingAvOppgave(ferdistilleDato: LocalDate): LocalDate {

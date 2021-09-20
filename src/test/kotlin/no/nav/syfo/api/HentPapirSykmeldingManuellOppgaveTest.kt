@@ -110,6 +110,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             val manuellOppgave = PapirSmRegistering(
                 journalpostId = "134",
+                oppgaveId = "123",
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
@@ -279,6 +280,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
         val manuellOppgave = PapirSmRegistering(
             journalpostId = "134",
+            oppgaveId = "123",
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
@@ -388,6 +390,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
             val manuellOppgave = PapirSmRegistering(
                 journalpostId = "134",
+                oppgaveId = "123",
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
