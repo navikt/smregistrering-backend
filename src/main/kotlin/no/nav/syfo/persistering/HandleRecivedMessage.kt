@@ -6,7 +6,7 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.finnFristForFerdigstillingAvOppgave
-import no.nav.syfo.db.Database
+import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
 import no.nav.syfo.metrics.INCOMING_MESSAGE_COUNTER
 import no.nav.syfo.metrics.MESSAGE_STORED_IN_DB_COUNTER
@@ -22,7 +22,7 @@ import no.nav.syfo.util.wrapExceptions
 @KtorExperimentalAPI
 suspend fun handleRecivedMessage(
     papirSmRegistering: PapirSmRegistering,
-    database: Database,
+    database: DatabaseInterface,
     oppgaveClient: OppgaveClient,
     loggingMeta: LoggingMeta
 ) {
@@ -48,12 +48,13 @@ suspend fun handleRecivedMessage(
     }
 }
 
+@KtorExperimentalAPI
 private suspend fun upsertOppgave(
     papirSmRegistering: PapirSmRegistering,
     oppgaveClient: OppgaveClient,
     loggingMeta: LoggingMeta
 ): Oppgave {
-    return if (papirSmRegistering.oppgaveId == null) {
+    return if (papirSmRegistering.oppgaveId == null || (papirSmRegistering.oppgaveId.toIntOrNull() == null)) {
         val opprettOppgave = OpprettOppgave(
             aktoerId = papirSmRegistering.aktorId,
             opprettetAvEnhetsnr = "9999",
