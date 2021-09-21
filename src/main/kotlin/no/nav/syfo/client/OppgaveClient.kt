@@ -134,17 +134,38 @@ class OppgaveClient(
 
     suspend fun patchManuellOppgave(oppgaveId: Int, msgId: String): Oppgave {
         val oppgave = hentOppgave(oppgaveId, msgId)
-        val patch = oppgave.copy(
-            behandlesAvApplikasjon = "SMR",
-            beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
-            mappeId = null,
-            aktivDato = LocalDate.now(),
-            fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                LocalDate.now().plusDays(4)
-            ),
-            prioritet = "HOY"
-        )
-        return oppdaterOppgave(patch, msgId)
+        if (oppgave.status == "FERDIGSTILT") {
+            log.warn("Oppgave med id $oppgaveId er allerede ferdigstilt. Oppretter ny oppgave for msgId $msgId")
+            return opprettOppgave(
+                OpprettOppgave(
+                    aktoerId = oppgave.aktoerId,
+                    opprettetAvEnhetsnr = "9999",
+                    behandlesAvApplikasjon = "SMR",
+                    beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
+                    tema = "SYM",
+                    oppgavetype = "JFR",
+                    aktivDato = LocalDate.now(),
+                    fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                        LocalDate.now().plusDays(4)
+                    ),
+                    prioritet = "HOY",
+                    journalpostId = oppgave.journalpostId
+                ),
+                msgId
+            )
+        } else {
+            val patch = oppgave.copy(
+                behandlesAvApplikasjon = "SMR",
+                beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
+                mappeId = null,
+                aktivDato = LocalDate.now(),
+                fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
+                    LocalDate.now().plusDays(4)
+                ),
+                prioritet = "HOY"
+            )
+            return oppdaterOppgave(patch, msgId)
+        }
     }
 }
 
