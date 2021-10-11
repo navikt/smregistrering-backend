@@ -100,9 +100,7 @@ fun main() {
 
     ApplicationServer(applicationEngine, applicationState).start()
 
-    if (!env.developmentMode) {
-        RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
-    }
+    RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
 
     applicationState.ready = true
 
