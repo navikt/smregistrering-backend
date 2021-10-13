@@ -13,13 +13,13 @@ import io.ktor.auth.jwt.jwt
 import io.ktor.http.HttpHeaders
 import io.ktor.request.uri
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.log
 
 val ignoreList = listOf("/is_ready", "/is_alive", "/prometheus")
 
 fun Application.setupAuth(
-    vaultSecrets: VaultSecrets,
+    environment: Environment,
     jwkProvider: JwkProvider,
     issuer: String
 ) {
@@ -40,7 +40,7 @@ fun Application.setupAuth(
             verifier(jwkProvider, issuer)
             validate { credentials ->
                 when {
-                    hasSyfosmmanuellBackendClientIdAudience(credentials, vaultSecrets) -> JWTPrincipal(credentials.payload)
+                    hasSmregistreringBackendClientAudience(credentials, environment) -> JWTPrincipal(credentials.payload)
                     else -> {
                         unauthorized(credentials)
                     }
@@ -59,6 +59,6 @@ fun unauthorized(credentials: JWTCredential): Principal? {
     return null
 }
 
-fun hasSyfosmmanuellBackendClientIdAudience(credentials: JWTCredential, vaultSecrets: VaultSecrets): Boolean {
-    return credentials.payload.audience.contains(vaultSecrets.smregistreringBackendClientId)
+fun hasSmregistreringBackendClientAudience(credentials: JWTCredential, env: Environment): Boolean {
+    return credentials.payload.audience.contains(env.azureAppClientId)
 }

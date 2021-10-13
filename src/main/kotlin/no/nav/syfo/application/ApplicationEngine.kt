@@ -70,7 +70,7 @@ fun createApplicationEngine(
         // Increase timeout of Netty to handle large content bodies
         responseWriteTimeoutSeconds = 40
     }) {
-        setupAuth(vaultSecrets, jwkProvider, issuer)
+        setupAuth(env, jwkProvider, issuer)
         install(ContentNegotiation) {
             jackson {
                 registerKotlinModule()

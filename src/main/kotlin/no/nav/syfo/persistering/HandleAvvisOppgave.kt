@@ -4,12 +4,12 @@ import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.saf.service.SafJournalpostService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.util.LoggingMeta
 
 @KtorExperimentalAPI

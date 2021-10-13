@@ -5,13 +5,13 @@ import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.saf.service.SafJournalpostService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 

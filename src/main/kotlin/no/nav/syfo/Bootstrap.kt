@@ -55,9 +55,7 @@ fun main() {
     val vaultSecrets = VaultSecrets(
         serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
         serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
-        oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath),
-        smregistreringBackendClientId = getFileAsString(env.smregistreringBackendClientIdPath),
-        smregistreringBackendClientSecret = getFileAsString(env.smregistreringBackendClientSecretPath)
+        oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath)
     )
 
     val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)
@@ -95,7 +93,7 @@ fun main() {
         httpClients.regelClient,
         httpClients.pdlService,
         httpClients.sykmelderService,
-        AuthorizationService(httpClients.syfoTilgangsKontrollClient)
+        AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

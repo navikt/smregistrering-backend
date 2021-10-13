@@ -22,12 +22,11 @@ import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -41,6 +40,7 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
@@ -56,6 +56,7 @@ class SendOppgaveTilGosysRestTest {
     private val oppgaveClient = mockk<OppgaveClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
+    private val env = mockk<Environment>()
 
     @Test
     fun avvisOppgaveOK() {
@@ -63,13 +64,7 @@ class SendOppgaveTilGosysRestTest {
             start()
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)

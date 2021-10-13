@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.apache.Apache
@@ -15,20 +13,17 @@ import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.util.KtorExperimentalAPI
 import java.net.ProxySelector
-import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
-import no.nav.syfo.client.AccessTokenClient
-import no.nav.syfo.client.AccessTokenClientV2
+import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.MSGraphClient
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.StsOidcClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
-import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.saf.SafDokumentClient
@@ -81,47 +76,31 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
 
-    private val aadCache: Cache<Map<String, String>, String> = Caffeine.newBuilder()
-        .expireAfterWrite(50, TimeUnit.MINUTES)
-        .maximumSize(100)
-        .build<Map<String, String>, String>()
-
-    private val accessTokenClient = AccessTokenClient(
-        env.aadAccessTokenUrl,
-        vaultSecrets.smregistreringBackendClientId,
-        vaultSecrets.smregistreringBackendClientSecret,
-        httpClientWithProxy,
-        aadCache
-    )
-
-    private val accessTokenClientV2 = AccessTokenClientV2(
-        env.aadAccessTokenV2Url,
-        env.clientIdV2,
-        env.clientSecretV2,
-        httpClientWithProxy
+    private val azureAdV2Client = AzureAdV2Client(
+        environment = env,
+        httpClient = httpClientWithProxy
     )
 
     val regelClient =
-        RegelClient(env.regelEndpointURL, accessTokenClientV2, env.syfosmpapirregelScope, httpClient)
+        RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)
 
-    private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(100)
-        .build<Map<String, String>, Tilgang>()
-    private val veilederCache: Cache<String, Veileder> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(100)
-        .build<String, Veileder>()
+    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
+        environment = env,
+        azureAdV2Client = azureAdV2Client,
+        httpClient = httpClientWithProxy
+    )
 
-    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(env.syfoTilgangsKontrollClientUrl, accessTokenClient, env.scopeSyfotilgangskontroll, httpClient, syfoTilgangskontrollCache, veilederCache)
+    val msGraphClient = MSGraphClient(environment = env,
+        azureAdV2Client = azureAdV2Client,
+        httpClient = httpClientWithProxy)
 
     private val pdlClient = PdlClient(httpClient,
         env.pdlGraphqlPath,
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
 
-    val pdlService = PdlPersonService(pdlClient, accessTokenClientV2, env.pdlScope)
+    val pdlService = PdlPersonService(pdlClient, azureAdV2Client, env.pdlScope)
 
-    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, accessTokenClientV2, env.helsenettproxyScope, httpClient)
+    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
 
     val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
 

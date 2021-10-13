@@ -1,6 +1,6 @@
 package no.nav.syfo.pdl.service
 
-import no.nav.syfo.client.AccessTokenClientV2
+import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.error.AktoerNotFoundException
 import no.nav.syfo.pdl.error.PersonNotFoundInPdl
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 
 class PdlPersonService(
     private val pdlClient: PdlClient,
-    private val accessTokenClientV2: AccessTokenClientV2,
+    private val azureAdV2Client: AzureAdV2Client,
     private val pdlScope: String
 ) {
     companion object {
@@ -18,8 +18,9 @@ class PdlPersonService(
     }
 
     suspend fun getPdlPerson(fnr: String, callId: String): PdlPerson {
-        val token = accessTokenClientV2.getAccessTokenV2(pdlScope)
-        val pdlResponse = pdlClient.getPerson(fnr, token)
+        val token = azureAdV2Client.getAccessToken(pdlScope)
+        // TODO handle null value
+        val pdlResponse = pdlClient.getPerson(fnr, token!!.accessToken)
 
         if (pdlResponse.errors != null) {
             pdlResponse.errors.forEach {
