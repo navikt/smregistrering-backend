@@ -65,21 +65,21 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     private val httpClient = HttpClient(Apache, config)
 
+    private val azureAdV2Client = AzureAdV2Client(
+        environment = env,
+        httpClient = httpClientWithProxy
+    )
+
     val oidcClient =
         StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
 
     val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
 
-    val safClient = SafDokumentClient(env.hentDokumentUrl, httpClient)
+    val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
     val sarClient = SarClient(env.kuhrSarApiUrl, httpClient)
 
     val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
-
-    private val azureAdV2Client = AzureAdV2Client(
-        environment = env,
-        httpClient = httpClientWithProxy
-    )
 
     val regelClient =
         RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)

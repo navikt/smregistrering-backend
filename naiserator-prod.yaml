@@ -72,8 +72,6 @@ spec:
       value: /secrets/azuread/smregistrering-backend/client_id
     - name: SMREGISTERING_URL
       value: smregistrering.nais.adeo.no
-    - name: HENT_DOKUMENT_URL
-      value: https://saf.nais.adeo.no/
     - name: AKTOR_REGISTER_V1_URL
       value: https://app.adeo.no/aktoerregister/api/v1
     - name: DOK_ARKIV_URL
@@ -88,8 +86,12 @@ spec:
       value: api://prod-fss.pdl.pdl-api/.default
     - name: HELSENETT_SCOPE
       value: api://prod-fss.teamsykmelding.syfohelsenettproxy/.default
+    - name: HENT_DOKUMENT_URL
+      value: https://saf.nais.adeo.no/
     - name: SAFJOURNALPOST_GRAPHQL_PATH
       value: https://saf.nais.adeo.no/graphql
+    - name: SAF_SCOPE
+      value: api://prod-fss.teamdokumenthandtering.saf/.default
     - name: OPPGAVEBEHANDLING_URL
       value: https://oppgave.nais.adeo.no/api/v1/oppgaver
     - name: SYFOTILGANGSKONTROLL_URL
