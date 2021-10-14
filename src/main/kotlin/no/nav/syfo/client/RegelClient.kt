@@ -24,7 +24,7 @@ class RegelClient(
             accept(ContentType.Application.Json)
             val accessToken = accessTokenClient.getAccessToken(resourceId)
             headers {
-                append("Authorization", "Bearer $accessToken")
+                append("Authorization", "Bearer ${accessToken?.accessToken}")
                 append("Nav-CallId", msgId)
             }
             body = sykmelding
