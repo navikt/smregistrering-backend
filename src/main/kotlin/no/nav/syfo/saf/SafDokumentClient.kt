@@ -16,7 +16,7 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
-    private val environment: Environment,
+    environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient
 ) {
@@ -31,14 +31,13 @@ class SafDokumentClient constructor(
         oppgaveId: Int
     ): ByteArray? {
 
-        log.info("Prøver å hente OBO-token for SAF")
-        val onBehalfOfToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)
-        log.info("OBO-token for SAF ${onBehalfOfToken?.accessToken}")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente accessToken for SAF")
 
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
                 accept(ContentType.Application.Pdf)
-                header("Authorization", "Bearer ${onBehalfOfToken?.accessToken}")
+                header("Authorization", "Bearer $oboToken")
                 header("Nav-Callid", msgId)
                 header("Nav-Consumer-Id", "smregistrering-backend")
             }.execute()

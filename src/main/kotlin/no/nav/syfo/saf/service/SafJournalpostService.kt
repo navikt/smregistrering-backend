@@ -20,12 +20,10 @@ class SafJournalpostService(
 
     suspend fun erJournalfoert(journalpostId: String, token: String): Boolean {
 
-        // TODO: Remove unecessary debug statements
-        log.info("Trying to get OBO token for SafJournalpostService")
-        val onBehalfOfToken = azureAdV2Client.getOnBehalfOfToken(token, scope)
-        log.info("Got OBO token for SafJournalpostService ${onBehalfOfToken!!.accessToken}")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(token, scope)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente OBO-token for SafJournalpostService")
 
-        val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, onBehalfOfToken!!.accessToken)
+        val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, oboToken)
 
         if (graphQLResponse == null) {
             log.error("Kall til SAF feilet for $journalpostId")

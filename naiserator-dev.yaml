@@ -98,13 +98,13 @@ spec:
       value: https://syfo-tilgangskontroll.nais.preprod.local/syfo-tilgangskontroll
     - name: SYFOTILGANGSKONTROLL_SCOPE
       value: api://dev-fss.teamsykefravr.syfo-tilgangskontroll/.default
-    - name: SYFOSMPAPIR_REGLER_ENDPOINT_URL
-      value: https://syfosmpapirregler.nais.preprod.local
-    - name: MS_GRAPH_API_SCOPE
-      value: https://graph.microsoft.com/.default
     - name: MS_GRAPH_API_URL
       value: https://graph.microsoft.com/v1.0
+    - name: MS_GRAPH_API_SCOPE
+      value: https://graph.microsoft.com/.default
     - name: HELSENETT_ENDPOINT_URL
       value: https://syfohelsenettproxy.nais.preprod.local
+    - name: SYFOSMPAPIR_REGLER_ENDPOINT_URL
+      value: https://syfosmpapirregler.nais.preprod.local
     - name: SYFOSMPAPIRREGLER_SCOPE
       value: api://dev-fss.teamsykmelding.syfosmpapirregler/.default

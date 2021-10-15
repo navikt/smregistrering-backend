@@ -34,7 +34,6 @@ data class Environment(
     val helsenettproxyScope: String = getEnvVar("HELSENETT_SCOPE"),
     val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH"),
     val safScope: String = getEnvVar("SAF_SCOPE"),
-    val aadAccessTokenV2Url: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
     val pdlScope: String = getEnvVar("PDL_SCOPE"),
     val syfosmpapirregelScope: String = getEnvVar("SYFOSMPAPIRREGLER_SCOPE"),
     val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL"),

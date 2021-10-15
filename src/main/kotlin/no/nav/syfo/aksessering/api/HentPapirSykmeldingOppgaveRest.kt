@@ -67,8 +67,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                             try {
 
-                                log.info("Litta accessToken for oppgaveId $oppgaveId : $accessToken")
-
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
                                     journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
                                     dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",

@@ -30,11 +30,14 @@ class NorskHelsenettClient(
     @KtorExperimentalAPI
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
-        val accessToken = azureAdV2Client.getAccessToken(resourceId)
+
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente accessToken for syfohelsenettproxy")
+
         val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/v2/behandlerMedHprNummer") {
             accept(ContentType.Application.Json)
             headers {
-                append("Authorization", "Bearer ${accessToken?.accessToken}")
+                append("Authorization", "Bearer $accessToken")
                 append("Nav-CallId", callId)
                 append("hprNummer", padHpr(hprNummer)!!)
             }
