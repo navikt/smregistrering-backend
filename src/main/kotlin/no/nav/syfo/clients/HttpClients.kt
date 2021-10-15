@@ -110,5 +110,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
     )
 
-    val safJournalpostService = SafJournalpostService(safJournalpostClient)
+    // Todo: Er denne SafJournalpostService og SafDokumentClient egentlig samme tjeneste / samme scope?
+    val safJournalpostService = SafJournalpostService(env, azureAdV2Client, safJournalpostClient)
 }
