@@ -24,7 +24,7 @@ import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.OppgaveClient
@@ -69,6 +69,9 @@ internal class AuthenticateTest {
     private val authorization = mockk<AuthorizationService>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val pdlService = mockk<PdlPersonService>()
+    private val env = mockk<Environment>() {
+        coEvery { azureAppClientId } returns "clientId"
+    }
 
     @After
     fun after() {
@@ -146,13 +149,7 @@ internal class AuthenticateTest {
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 authenticate("jwt") {
@@ -253,13 +250,7 @@ internal class AuthenticateTest {
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 authenticate("jwt") {

@@ -23,13 +23,12 @@ import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AvvisSykmeldingRequest
@@ -51,6 +50,7 @@ import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
@@ -71,6 +71,7 @@ class AvvisOppgaveRestTest {
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val safJournalpostService = mockk<SafJournalpostService>()
+    private val env = mockk<Environment>()
 
     @Test
     fun avvisOppgaveOK() {
@@ -78,13 +79,7 @@ class AvvisOppgaveRestTest {
             start()
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 avvisOppgave(

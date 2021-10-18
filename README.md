@@ -154,12 +154,3 @@ Prod credentials:
 read postgresql/prod-fss/creds/smregistrering-backend-readonly
 
 ```
-
-## Running in development mode
-To run smregistrering-backend locally you need a bunch of other services like Vault, a PostgreSQL database, an authentication service, Kafka, Zookeeper etc. 
-The dependencies are available as a Docker compose setup at https://github.com/navikt/smregistrering-backend-docker-compose 
-
-To get started:
-1. Check out the [smregistrering-backend-docker-compose](https://github.com/navikt/smregistrering-backend-docker-compose) repository and start the services as described in the [readme](https://github.com/navikt/smregistrering-backend-docker-compose/blob/master/README.md) file.
-2. Create a local run config for smregistrering-backend pointing to Bootstrap.tk
-3. Add the contents of dev-stack/dev-runtime-env as runtime environments in the run config. 

@@ -14,6 +14,7 @@ import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.util.KtorExperimentalAPI
 import java.io.IOException
 import java.lang.RuntimeException
+import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
@@ -21,7 +22,7 @@ import no.nav.syfo.util.padHpr
 
 class NorskHelsenettClient(
     private val endpointUrl: String,
-    private val accessTokenClient: AccessTokenClientV2,
+    private val azureAdV2Client: AzureAdV2Client,
     private val resourceId: String,
     private val httpClient: HttpClient
 ) {
@@ -29,7 +30,10 @@ class NorskHelsenettClient(
     @KtorExperimentalAPI
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
-        val accessToken = accessTokenClient.getAccessTokenV2(resourceId)
+
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente accessToken for syfohelsenettproxy")
+
         val httpResponse = httpClient.get<HttpStatement>("$endpointUrl/api/v2/behandlerMedHprNummer") {
             accept(ContentType.Application.Json)
             headers {

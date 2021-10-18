@@ -66,6 +66,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         if (authorizationService.hasAccess(accessToken, fnr)) {
 
                             try {
+
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
                                     journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
                                     dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",

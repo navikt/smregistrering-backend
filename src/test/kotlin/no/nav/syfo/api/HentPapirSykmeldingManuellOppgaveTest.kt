@@ -28,7 +28,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
 import no.nav.syfo.application.setupAuth
@@ -39,7 +39,6 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -60,6 +59,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
@@ -86,6 +86,9 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
+    private val env = mockk<Environment>() {
+        coEvery { azureAppClientId } returns "clientId"
+    }
 
     @After
     fun after() {
@@ -163,13 +166,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 hentPapirSykmeldingManuellOppgave(
@@ -443,13 +440,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 authenticate("jwt") {

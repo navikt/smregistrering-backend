@@ -33,7 +33,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.concurrent.Future
-import no.nav.syfo.VaultSecrets
+import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.Godkjenning
@@ -43,7 +43,6 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.client.Veileder
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
@@ -80,6 +79,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.testutil.PsqlContainerDatabase
@@ -113,24 +113,20 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val sykmeldingJobService = mockk<SykmeldingJobService>(relaxed = true)
+    private val environment = mockk<Environment>()
 
     @After
     fun after() {
         database.connection.dropData()
     }
+
     @Test
     fun `Registrering av papirsykmelding happycase`() {
         with(TestApplicationEngine()) {
             start()
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -343,7 +339,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any())
+            } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -389,13 +394,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -549,7 +548,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any())
+            } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -568,7 +576,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                     Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                fnr = "12345", hprNummer = "hpr", godkjenninger = null)
+                        fnr = "12345", hprNummer = "hpr", godkjenninger = null)
 
             with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
                 addHeader("Accept", "application/json")
@@ -600,13 +608,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             application.setupAuth(
-                VaultSecrets(
-                    serviceuserUsername = "username",
-                    serviceuserPassword = "password",
-                    oidcWellKnownUri = "https://sts.issuer.net/myid",
-                    smregistreringBackendClientId = "clientId",
-                    smregistreringBackendClientSecret = "secret"
-                ), jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -754,7 +756,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any())
+            } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()

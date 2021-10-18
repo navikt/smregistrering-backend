@@ -9,14 +9,19 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.KtorExperimentalAPI
+import no.nav.syfo.Environment
+import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 import no.nav.syfo.saf.exception.SafNotFoundException
 
 @KtorExperimentalAPI
 class SafDokumentClient constructor(
-    private val url: String,
+    environment: Environment,
+    private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient
 ) {
+    private val url: String = environment.hentDokumentUrl
+    private val scope: String = environment.safScope
 
     private suspend fun hentDokumentFraSaf(
         journalpostId: String,
@@ -25,10 +30,14 @@ class SafDokumentClient constructor(
         accessToken: String,
         oppgaveId: Int
     ): ByteArray? {
+
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente accessToken for SAF")
+
         val httpResponse =
             httpClient.get<HttpStatement>("$url/rest/hentdokument/$journalpostId/$dokumentInfoId/ARKIV") {
                 accept(ContentType.Application.Pdf)
-                header("Authorization", "Bearer $accessToken")
+                header("Authorization", "Bearer $oboToken")
                 header("Nav-Callid", msgId)
                 header("Nav-Consumer-Id", "smregistrering-backend")
             }.execute()
