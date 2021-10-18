@@ -73,25 +73,6 @@ class AvvisOppgaveRestTest {
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val env = mockk<Environment>()
 
-//    private val env = Environment(
-//        kafkaBootstrapServers = "http://foo",
-//        mountPathVault = "",
-//        databaseName = "",
-//        smregistreringbackendDBURL = "url",
-//        smregistreringUrl = "https://smregistrering",
-//        oppgavebehandlingUrl = "oppgave",
-//        cluster = "cluster",
-//        truststore = "",
-//        truststorePassword = "",
-//        syfoTilgangsKontrollClientUrl = "http://syfotilgangskontroll",
-//        syfoTilgangsKontrollScope = "scope",
-//        msGraphApiScope = "http://ms.graph.fo/",
-//        msGraphApiUrl = "http://ms.graph.fo.ton/",
-//        azureTokenEndpoint = "http://ms.token/",
-//        azureAppClientSecret = "secret",
-//        azureAppClientId = "clientId"
-//    )
-
     @Test
     fun avvisOppgaveOK() {
         with(TestApplicationEngine()) {

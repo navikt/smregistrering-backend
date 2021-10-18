@@ -1,5 +1,6 @@
 package no.nav.syfo.pdl.service
 
+import java.lang.RuntimeException
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.error.AktoerNotFoundException
@@ -18,9 +19,9 @@ class PdlPersonService(
     }
 
     suspend fun getPdlPerson(fnr: String, callId: String): PdlPerson {
-        val token = azureAdV2Client.getAccessToken(pdlScope)
-        // TODO handle null value
-        val pdlResponse = pdlClient.getPerson(fnr, token!!.accessToken)
+        val token = azureAdV2Client.getAccessToken(pdlScope)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente accessToken for PDL")
+        val pdlResponse = pdlClient.getPerson(fnr, token)
 
         if (pdlResponse.errors != null) {
             pdlResponse.errors.forEach {
