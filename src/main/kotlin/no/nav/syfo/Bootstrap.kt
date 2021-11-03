@@ -11,12 +11,10 @@ import io.ktor.util.KtorExperimentalAPI
 import java.net.URL
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
@@ -34,7 +32,7 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.TrackableException
+import no.nav.syfo.util.Unbounded
 import no.nav.syfo.util.getFileAsString
 import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -106,73 +104,51 @@ fun main() {
         sykmeldingJobRunner.startJobRunner()
         log.info("Started SykmeldingJobRunner")
     }
-    launchListeners(
+
+    val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
+
+    startConsumer(
         applicationState,
         env,
-        kafkaConsumers,
+        kafkaConsumerPapirSmRegistering,
         database,
         httpClients.oppgaveClient
     )
 }
 
-@InternalAPI
-fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
-    GlobalScope.launch {
-        try {
-            action()
-        } catch (e: TrackableException) {
-            log.error(
-                "En uhåndtert feil oppstod, applikasjonen restarter {}",
-                StructuredArguments.fields(e.loggingMeta), e.cause
-            )
-        } finally {
-            applicationState.alive = false
-            applicationState.ready = false
-        }
-    }
-
-@InternalAPI
 @KtorExperimentalAPI
-fun launchListeners(
+fun startConsumer(
     applicationState: ApplicationState,
     env: Environment,
-    kafkaConsumers: KafkaConsumers,
+    kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
     database: Database,
     oppgaveClient: OppgaveClient
 ) {
-    createListener(applicationState) {
-        val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
-
-        kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
-        blockingApplicationLogic(
-            applicationState,
-            kafkaConsumerPapirSmRegistering,
-            database,
-            oppgaveClient
-        )
-    }
-}
-
-@KtorExperimentalAPI
-suspend fun blockingApplicationLogic(
-    applicationState: ApplicationState,
-    kafkaConsumer: KafkaConsumer<String, String>,
-    database: Database,
-    oppgaveClient: OppgaveClient
-) {
-    while (applicationState.ready) {
-        kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
-            val receivedPapirSmRegistering: PapirSmRegistering = objectMapper.readValue(consumerRecord.value())
-            val loggingMeta = LoggingMeta(
-                mottakId = receivedPapirSmRegistering.sykmeldingId,
-                dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
-                msgId = receivedPapirSmRegistering.sykmeldingId,
-                sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                journalpostId = receivedPapirSmRegistering.journalpostId
-            )
-
-            handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+    GlobalScope.launch(Dispatchers.Unbounded) {
+        while (applicationState.ready) {
+            try {
+                log.info("Starting consuming topic ${env.sm2013SmregistreringTopic}")
+                kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
+                while (applicationState.ready) {
+                    kafkaConsumerPapirSmRegistering.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
+                        val receivedPapirSmRegistering: PapirSmRegistering =
+                            objectMapper.readValue(consumerRecord.value())
+                        val loggingMeta = LoggingMeta(
+                            mottakId = receivedPapirSmRegistering.sykmeldingId,
+                            dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
+                            msgId = receivedPapirSmRegistering.sykmeldingId,
+                            sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
+                            journalpostId = receivedPapirSmRegistering.journalpostId
+                        )
+                        handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+                    }
+                    delay(1)
+                }
+            } catch (ex: Exception) {
+                log.error("Error running kafka consumer, unsubscribing and waiting 10 seconds for retry", ex)
+                kafkaConsumerPapirSmRegistering.unsubscribe()
+                delay(10_000)
+            }
         }
-        delay(100)
     }
 }
