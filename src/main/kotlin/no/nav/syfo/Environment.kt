@@ -13,7 +13,6 @@ data class Environment(
     val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
     val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
     val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend"),
-    val oidcWellKnownUriPath: String = getEnvVar("OIDC_WELL_KNOWN_URI"),
     val smregistreringUrl: String = getEnvVar("SMREGISTERING_URL"),
     val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service.default/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL"),
@@ -42,13 +41,14 @@ data class Environment(
     val msGraphApiUrl: String = getEnvVar("MS_GRAPH_API_URL"),
     val azureTokenEndpoint: String = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
     val azureAppClientId: String = getEnvVar("AZURE_APP_CLIENT_ID"),
-    val azureAppClientSecret: String = getEnvVar("AZURE_APP_CLIENT_SECRET")
+    val azureAppClientSecret: String = getEnvVar("AZURE_APP_CLIENT_SECRET"),
+    val jwkKeysUrl: String = getEnvVar("AZURE_OPENID_CONFIG_JWKS_URI"),
+    val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER")
 ) : KafkaConfig
 
 data class VaultSecrets(
     val serviceuserUsername: String,
-    val serviceuserPassword: String,
-    val oidcWellKnownUri: String
+    val serviceuserPassword: String
 ) : KafkaCredentials {
     override val kafkaUsername: String = serviceuserUsername
     override val kafkaPassword: String = serviceuserPassword

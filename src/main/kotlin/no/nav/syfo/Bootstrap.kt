@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
-import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
@@ -52,12 +51,10 @@ fun main() {
     val env = Environment()
     val vaultSecrets = VaultSecrets(
         serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
-        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
-        oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath)
+        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
     )
 
-    val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)
-    val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
+    val jwkProvider = JwkProviderBuilder(URL(env.jwkKeysUrl))
         .cached(10, 24, TimeUnit.HOURS)
         .rateLimited(10, 1, TimeUnit.MINUTES)
         .build()
@@ -79,9 +76,7 @@ fun main() {
     val applicationEngine = createApplicationEngine(sykmeldingJobService,
         env,
         applicationState,
-        vaultSecrets,
         jwkProvider,
-        wellKnown.issuer,
         manuellOppgaveService,
         httpClients.safClient,
         httpClients.oppgaveClient,
