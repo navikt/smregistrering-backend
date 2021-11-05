@@ -17,7 +17,7 @@ val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.2.5"
 val flywayVersion = "7.15.0"
 val hikariVersion = "5.0.0"
-val vaultJavaDriveVersion = "5.1.0"
+val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "9.2"
 val mockkVersion = "1.12.0"
 val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
@@ -131,7 +131,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.testcontainers:postgresql:$postgresContainerVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    //testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
