@@ -85,7 +85,7 @@ class SyfoTilgangsKontrollClientTest {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
         }
 
-        coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken(any(), any()) }
+        coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
     }
 
     @Test
@@ -97,7 +97,7 @@ class SyfoTilgangsKontrollClientTest {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", "987654")
         }
 
-        coVerify(exactly = 2) { azureAdV2Client.getOnBehalfOfToken(any(), any()) }
+        coVerify(exactly = 2) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
     }
 
     @Test
@@ -109,6 +109,7 @@ class SyfoTilgangsKontrollClientTest {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("xxxxxxxxx", pasientFnr)
         }
 
-        coVerify(exactly = 2) { azureAdV2Client.getOnBehalfOfToken(any(), any()) }
+        coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
+        coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("xxxxxxxxx", "scope") }
     }
 }
