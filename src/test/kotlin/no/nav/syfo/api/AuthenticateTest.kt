@@ -18,12 +18,8 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
@@ -51,11 +47,13 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.Test
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
-@KtorExperimentalAPI
 internal class AuthenticateTest {
 
     private val database = PsqlContainerDatabase.database
@@ -87,7 +85,8 @@ internal class AuthenticateTest {
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(true, null)
             coEvery { authorization.hasAccess(any(), any()) } returns true
             coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"), listOf(
+                Navn("Billy", "Bob", "Thornton"),
+                listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
@@ -144,7 +143,8 @@ internal class AuthenticateTest {
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false)
+                skjermesForPasient = false
+            )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -177,11 +177,13 @@ internal class AuthenticateTest {
                 }
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid shouldEqual oppgaveid
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid shouldBeEqualTo oppgaveid
             }
         }
     }
@@ -278,11 +280,13 @@ internal class AuthenticateTest {
                 }
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
-            }) {
-                response.status() shouldEqual HttpStatusCode.Unauthorized
-                response.content shouldEqual null
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
+                response.content shouldBeEqualTo null
             }
         }
     }

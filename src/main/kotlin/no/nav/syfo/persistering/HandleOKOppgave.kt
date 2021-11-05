@@ -1,6 +1,5 @@
 package no.nav.syfo.persistering
 
-import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments.fields
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.syfo.client.DokArkivClient
@@ -15,7 +14,6 @@ import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 
-@KtorExperimentalAPI
 suspend fun handleOKOppgave(
     sykmeldingJobService: SykmeldingJobService,
     receivedSykmelding: ReceivedSykmelding,

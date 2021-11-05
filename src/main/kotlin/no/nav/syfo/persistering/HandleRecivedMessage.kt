@@ -1,7 +1,5 @@
 package no.nav.syfo.persistering
 
-import io.ktor.util.KtorExperimentalAPI
-import java.time.LocalDate
 import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
@@ -18,8 +16,8 @@ import no.nav.syfo.persistering.db.erOpprettManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.wrapExceptions
+import java.time.LocalDate
 
-@KtorExperimentalAPI
 suspend fun handleRecivedMessage(
     papirSmRegistering: PapirSmRegistering,
     database: DatabaseInterface,
@@ -48,7 +46,6 @@ suspend fun handleRecivedMessage(
     }
 }
 
-@KtorExperimentalAPI
 private suspend fun upsertOppgave(
     papirSmRegistering: PapirSmRegistering,
     oppgaveClient: OppgaveClient,
@@ -79,8 +76,10 @@ private suspend fun upsertOppgave(
         )
         opprettetOppgave
     } else {
-        val oppdatertOppgave = oppgaveClient.patchManuellOppgave(papirSmRegistering.oppgaveId.toInt(),
-            loggingMeta.msgId)
+        val oppdatertOppgave = oppgaveClient.patchManuellOppgave(
+            papirSmRegistering.oppgaveId.toInt(),
+            loggingMeta.msgId
+        )
         log.info(
             "Patchet manuell papirsykmeldingsoppgave med {}, {}",
             StructuredArguments.keyValue("oppgaveId", oppdatertOppgave.id),

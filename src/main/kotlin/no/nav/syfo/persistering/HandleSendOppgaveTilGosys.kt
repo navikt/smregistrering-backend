@@ -1,6 +1,5 @@
 package no.nav.syfo.persistering
 
-import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.log
@@ -10,7 +9,6 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 
-@KtorExperimentalAPI
 suspend fun handleSendOppgaveTilGosys(
     authorizationService: AuthorizationService,
     oppgaveClient: OppgaveClient,

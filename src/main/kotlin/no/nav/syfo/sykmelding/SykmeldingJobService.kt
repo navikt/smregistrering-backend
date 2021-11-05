@@ -1,6 +1,5 @@
 package no.nav.syfo.sykmelding
 
-import java.time.OffsetDateTime
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
@@ -13,6 +12,7 @@ import no.nav.syfo.sykmelding.jobs.db.updateJob
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
+import java.time.OffsetDateTime
 
 class SykmeldingJobService(private val databaseInterface: DatabaseInterface) {
 

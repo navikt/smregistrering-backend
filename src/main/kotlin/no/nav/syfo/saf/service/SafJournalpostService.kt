@@ -1,10 +1,10 @@
 package no.nav.syfo.saf.service
 
-import java.lang.RuntimeException
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.saf.SafJournalpostClient
 import org.slf4j.LoggerFactory
+import java.lang.RuntimeException
 
 class SafJournalpostService(
     environment: Environment,

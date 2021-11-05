@@ -7,7 +7,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.spyk
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
@@ -15,9 +14,10 @@ import no.nav.syfo.azuread.v2.AzureAdV2TokenResponse
 import no.nav.syfo.objectMapper
 import no.nav.syfo.testutil.HttpClientTest
 import no.nav.syfo.testutil.ResponseData
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
+import java.util.concurrent.TimeUnit
 
 class SyfoTilgangsKontrollClientTest {
 
@@ -53,12 +53,16 @@ class SyfoTilgangsKontrollClientTest {
 
     @Test
     internal fun `Skal returnere harTilgang til true`() {
-        httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(
-            AzureAdV2TokenResponse("token", 1000000, "token_type")))
+        httpClient.responseDataOboToken = ResponseData(
+            HttpStatusCode.OK,
+            objectMapper.writeValueAsString(
+                AzureAdV2TokenResponse("token", 1000000, "token_type")
+            )
+        )
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
-            tilgang?.harTilgang shouldEqual true
+            tilgang?.harTilgang shouldBeEqualTo true
         }
     }
 
@@ -68,14 +72,14 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData = ResponseData(HttpStatusCode.InternalServerError, objectMapper.writeValueAsString(Tilgang(false, "har ikke tilgang")))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
-            tilgang?.harTilgang shouldEqual false
+            tilgang?.harTilgang shouldBeEqualTo false
         }
     }
 
     @Test
     internal fun `Henter fra cache hvis kallet er cachet`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "har ikke tilgang")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
@@ -87,7 +91,7 @@ class SyfoTilgangsKontrollClientTest {
     @Test
     internal fun `Henter ikke fra cache hvis samme accesstoken men ulikt fnr`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "har ikke tilgang")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", "987654")
@@ -99,7 +103,7 @@ class SyfoTilgangsKontrollClientTest {
     @Test
     internal fun `Henter ikke fra cache hvis samme fnr men ulikt accesstoken`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "har ikke tilgang")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("xxxxxxxxx", pasientFnr)

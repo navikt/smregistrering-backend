@@ -7,16 +7,14 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
-import io.ktor.util.KtorExperimentalAPI
-import java.util.UUID
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import java.util.UUID
 
-@KtorExperimentalAPI
 fun Route.sendPapirSykmeldingManuellOppgave(
     sendPapirsykmeldingService: SendPapirsykmeldingService
 ) {

@@ -16,12 +16,8 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.OppgaveClient
@@ -43,10 +39,12 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
-@KtorExperimentalAPI
 class SendOppgaveTilGosysRestTest {
 
     private val path = "src/test/resources/jwkset.json"
@@ -183,13 +181,15 @@ class SendOppgaveTilGosysRestTest {
                 status = "OPPRETTET"
             )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader("X-Nav-Enhet", "1234")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-            }) {
-                response.status() shouldEqual HttpStatusCode.NoContent
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
                 response.content shouldBe null
             }
         }

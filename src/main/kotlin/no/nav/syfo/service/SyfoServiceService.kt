@@ -1,7 +1,5 @@
 package no.nav.syfo.service
 
-import java.time.LocalDateTime
-import java.time.LocalTime
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
@@ -9,6 +7,8 @@ import no.nav.syfo.model.KafkaMessageMetadata
 import no.nav.syfo.model.SyfoserviceKafkaMessage
 import no.nav.syfo.model.Tilleggsdata
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 fun notifySyfoService(
     syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer,

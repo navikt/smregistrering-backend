@@ -21,18 +21,9 @@ import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.contentType
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.Calendar
-import java.util.concurrent.Future
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
@@ -85,13 +76,20 @@ import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBe
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.After
 import org.junit.Test
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
+import java.util.concurrent.Future
 
-@KtorExperimentalAPI
 class SendPapirSykmeldingManuellOppgaveTest {
     private val database = PsqlContainerDatabase.database
     private val path = "src/test/resources/jwkset.json"
@@ -340,14 +338,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
-                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
-                    any())
+                    any(),
+                    any()
+                )
             } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
@@ -363,24 +363,29 @@ class SendPapirSykmeldingManuellOppgaveTest {
                     "Billy",
                     "Bob",
                     "Thornton"
-                ), listOf(
+                ),
+                listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
-                    Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr", godkjenninger = null)
+                Sykmelder(
+                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader("X-Nav-Enhet", "1234")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-            }) {
-                response.status() shouldEqual HttpStatusCode.NoContent
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
             }
 
             verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
@@ -549,14 +554,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
-                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
-                    any())
+                    any(),
+                    any()
+                )
             } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
@@ -568,33 +575,40 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"), listOf(
+                Navn("Billy", "Bob", "Thornton"),
+                listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
-                    Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr", godkjenninger = null)
+                Sykmelder(
+                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader("X-Nav-Enhet", "1234")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-            }) {
-                response.status() shouldEqual HttpStatusCode.NoContent
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
             }
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-            }) {
-                response.status() shouldEqual HttpStatusCode.BadRequest
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.BadRequest
             }
 
             verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
@@ -757,14 +771,16 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 )
             )
             coEvery {
-                dokArkivClient.oppdaterOgFerdigstillJournalpost(any(),
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
                     any(),
-                    any())
+                    any(),
+                    any()
+                )
             } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
@@ -776,33 +792,38 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"), listOf(
+                Navn("Billy", "Bob", "Thornton"),
+                listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
-                    Sykmelder(
-                        aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr",
-                        godkjenninger = listOf(
-                            Godkjenning(
-                                Kode(aktiv = true, oid = 1, verdi = "FOO"),
-                                Kode(aktiv = true, oid = 1, verdi = "BAR")))
+                Sykmelder(
+                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = "12345", hprNummer = "hpr",
+                    godkjenninger = listOf(
+                        Godkjenning(
+                            Kode(aktiv = true, oid = 1, verdi = "FOO"),
+                            Kode(aktiv = true, oid = 1, verdi = "BAR")
+                        )
                     )
+                )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader("X-Nav-Enhet", "1234")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-            }) {
-                response.status() shouldEqual HttpStatusCode.BadRequest
-                response.contentType() shouldEqual ContentType.Application.Json.withCharset(Charsets.UTF_8)
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                response.contentType() shouldBeEqualTo ContentType.Application.Json.withCharset(Charsets.UTF_8)
                 response.content shouldNotBe null
-                response.content!!.lines() shouldEqual listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
+                response.content!!.lines() shouldBeEqualTo listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
             }
         }
     }

@@ -6,14 +6,12 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
-import io.ktor.util.KtorExperimentalAPI
-import java.util.UUID
 import no.nav.syfo.log
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
+import java.util.UUID
 
-@KtorExperimentalAPI
 fun Route.sykmelderApi(
     sykmelderService: SykmelderService
 ) {

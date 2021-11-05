@@ -1,6 +1,5 @@
 package no.nav.syfo.persistering
 
-import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
@@ -12,7 +11,6 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.util.LoggingMeta
 
-@KtorExperimentalAPI
 suspend fun handleAvvisOppgave(
     dokArkivClient: DokArkivClient,
     oppgaveClient: OppgaveClient,

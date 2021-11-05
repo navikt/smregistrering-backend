@@ -21,7 +21,6 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
@@ -45,7 +44,6 @@ import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 
-@KtorExperimentalAPI
 @InternalAPI
 fun createApplicationEngine(
     sykmeldingJobService: SykmeldingJobService,

@@ -8,7 +8,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.registerNaisApi
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 internal class SelfTest {
@@ -24,8 +24,8 @@ internal class SelfTest {
             application.routing { registerNaisApi(applicationState) }
 
             with(handleRequest(HttpMethod.Get, "/is_alive")) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.content shouldEqual "I'm alive! :)"
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.content shouldBeEqualTo "I'm alive! :)"
             }
         }
     }
@@ -41,8 +41,8 @@ internal class SelfTest {
             application.routing { registerNaisApi(applicationState) }
 
             with(handleRequest(HttpMethod.Get, "/is_ready")) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.content shouldEqual "I'm ready! :)"
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.content shouldBeEqualTo "I'm ready! :)"
             }
         }
     }
@@ -58,8 +58,8 @@ internal class SelfTest {
             application.routing { registerNaisApi(applicationState) }
 
             with(handleRequest(HttpMethod.Get, "/is_alive")) {
-                response.status() shouldEqual HttpStatusCode.InternalServerError
-                response.content shouldEqual "I'm dead x_x"
+                response.status() shouldBeEqualTo HttpStatusCode.InternalServerError
+                response.content shouldBeEqualTo "I'm dead x_x"
             }
         }
     }
@@ -74,8 +74,8 @@ internal class SelfTest {
             applicationState.alive = false
             application.routing { registerNaisApi(applicationState) }
             with(handleRequest(HttpMethod.Get, "/is_ready")) {
-                response.status() shouldEqual HttpStatusCode.InternalServerError
-                response.content shouldEqual "Please wait! I'm not ready :("
+                response.status() shouldBeEqualTo HttpStatusCode.InternalServerError
+                response.content shouldBeEqualTo "Please wait! I'm not ready :("
             }
         }
     }

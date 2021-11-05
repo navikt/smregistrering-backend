@@ -1,12 +1,9 @@
 package no.nav.syfo.persistering
 
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.model.Adresse
@@ -24,8 +21,9 @@ import no.nav.syfo.util.LoggingMeta
 import org.junit.After
 import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
-@KtorExperimentalAPI
 class HandleRecivedMessageKtTest {
     private val database = PsqlContainerDatabase.database
     private val oppgaveClient = mockk<OppgaveClient>()

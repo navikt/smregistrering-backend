@@ -1,14 +1,14 @@
 package no.nav.syfo.sykmelding.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.Timestamp
-import java.time.Instant
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.objectMapper
 import no.nav.syfo.util.toPGObject
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.Timestamp
+import java.time.Instant
 
 fun DatabaseInterface.upsertSykmelding(receivedSykmelding: ReceivedSykmelding) {
     connection.use { connection ->
@@ -18,9 +18,11 @@ fun DatabaseInterface.upsertSykmelding(receivedSykmelding: ReceivedSykmelding) {
 }
 
 private fun upsertSykmelding(connection: Connection, receivedSykmelding: ReceivedSykmelding) {
-    connection.prepareStatement("""
+    connection.prepareStatement(
+        """
            insert into sendt_sykmelding(sykmelding_id, sykmelding, timestamp) values (?, ?, ?) on conflict (sykmelding_id) do update set sykmelding = ?
-        """).use { ps ->
+        """
+    ).use { ps ->
         ps.setString(1, receivedSykmelding.sykmelding.id)
         ps.setObject(2, toPGObject(receivedSykmelding))
         ps.setTimestamp(3, Timestamp.from(Instant.now()))
@@ -31,9 +33,11 @@ private fun upsertSykmelding(connection: Connection, receivedSykmelding: Receive
 
 fun DatabaseInterface.getSykmelding(sykmledingId: String): ReceivedSykmelding? {
     return connection.use {
-        it.prepareStatement("""
+        it.prepareStatement(
+            """
             select * from sendt_sykmelding where sykmelding_id = ?
-        """).use {
+        """
+        ).use {
             it.setString(1, sykmledingId)
             it.executeQuery().toReceivedSykmelding()
         }

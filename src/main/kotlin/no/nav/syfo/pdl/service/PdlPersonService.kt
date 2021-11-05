@@ -1,6 +1,5 @@
 package no.nav.syfo.pdl.service
 
-import java.lang.RuntimeException
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.error.AktoerNotFoundException
@@ -8,6 +7,7 @@ import no.nav.syfo.pdl.error.PersonNotFoundInPdl
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import org.slf4j.LoggerFactory
+import java.lang.RuntimeException
 
 class PdlPersonService(
     private val pdlClient: PdlClient,

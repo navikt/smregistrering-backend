@@ -1,11 +1,11 @@
 package no.nav.syfo.persistering.db
 
-import java.sql.Timestamp
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.util.toPGObject
+import java.sql.Timestamp
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
     connection.use { connection ->
