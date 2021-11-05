@@ -17,12 +17,8 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
@@ -54,10 +50,12 @@ import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 
-@KtorExperimentalAPI
 class AvvisOppgaveRestTest {
 
     private val path = "src/test/resources/jwkset.json"
@@ -115,17 +113,18 @@ class AvvisOppgaveRestTest {
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"), listOf(
+                Navn("Billy", "Bob", "Thornton"),
+                listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
                     IdentInformasjon("12345", false, "AKTORID")
                 )
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
-                    Sykmelder(
-                        aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                        fnr = "12345", hprNummer = "hpr", godkjenninger = null
-                    )
+                Sykmelder(
+                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                )
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
@@ -200,56 +199,58 @@ class AvvisOppgaveRestTest {
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
-                    Oppgave(
-                        id = 123, versjon = 1,
-                        tilordnetRessurs = "",
-                        tildeltEnhetsnr = "",
-                        journalpostId = "",
-                        aktivDato = LocalDate.MAX,
-                        aktoerId = "",
-                        behandlesAvApplikasjon = "",
-                        behandlingstype = "",
-                        beskrivelse = "",
-                        fristFerdigstillelse = null,
-                        oppgavetype = "",
-                        opprettetAvEnhetsnr = "",
-                        prioritet = "",
-                        saksreferanse = "",
-                        tema = "",
-                        status = "OPPRETTET"
-                    )
+                Oppgave(
+                    id = 123, versjon = 1,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET"
+                )
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
 
             coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
-                    Oppgave(
-                        id = 123, versjon = 1,
-                        tilordnetRessurs = "",
-                        tildeltEnhetsnr = "",
-                        journalpostId = "",
-                        aktivDato = LocalDate.MAX,
-                        aktoerId = "",
-                        behandlesAvApplikasjon = "",
-                        behandlingstype = "",
-                        beskrivelse = "",
-                        fristFerdigstillelse = null,
-                        oppgavetype = "",
-                        opprettetAvEnhetsnr = "",
-                        prioritet = "",
-                        saksreferanse = "",
-                        tema = "",
-                        status = "OPPRETTET"
-                    )
+                Oppgave(
+                    id = 123, versjon = 1,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET"
+                )
 
-            with(handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader("X-Nav-Enhet", "1234")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
-            }) {
-                response.status() shouldEqual HttpStatusCode.NoContent
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
                 response.content shouldBe null
             }
         }

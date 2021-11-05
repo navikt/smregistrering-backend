@@ -7,10 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
-import java.net.URL
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -18,7 +14,6 @@ import kotlinx.coroutines.launch
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
-import no.nav.syfo.application.getWellKnown
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
@@ -38,6 +33,9 @@ import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.URL
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 val objectMapper: ObjectMapper = ObjectMapper()
     .registerModule(JavaTimeModule())
@@ -47,17 +45,14 @@ val objectMapper: ObjectMapper = ObjectMapper()
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
 @InternalAPI
-@KtorExperimentalAPI
 fun main() {
     val env = Environment()
     val vaultSecrets = VaultSecrets(
         serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
-        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath),
-        oidcWellKnownUri = getFileAsString(env.oidcWellKnownUriPath)
+        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
     )
 
-    val wellKnown = getWellKnown(vaultSecrets.oidcWellKnownUri)
-    val jwkProvider = JwkProviderBuilder(URL(wellKnown.jwks_uri))
+    val jwkProvider = JwkProviderBuilder(URL(env.jwkKeysUrl))
         .cached(10, 24, TimeUnit.HOURS)
         .rateLimited(10, 1, TimeUnit.MINUTES)
         .build()
@@ -76,12 +71,11 @@ fun main() {
     val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
     val sykmeldingJobRunner = SykmeldingJobRunner(applicationState, sykmeldingJobService, kafkaProducers.kafkaRecievedSykmeldingProducer, kafkaProducers.kafkaSyfoserviceProducer)
 
-    val applicationEngine = createApplicationEngine(sykmeldingJobService,
+    val applicationEngine = createApplicationEngine(
+        sykmeldingJobService,
         env,
         applicationState,
-        vaultSecrets,
         jwkProvider,
-        wellKnown.issuer,
         manuellOppgaveService,
         httpClients.safClient,
         httpClients.oppgaveClient,
@@ -116,7 +110,6 @@ fun main() {
     )
 }
 
-@KtorExperimentalAPI
 fun startConsumer(
     applicationState: ApplicationState,
     env: Environment,

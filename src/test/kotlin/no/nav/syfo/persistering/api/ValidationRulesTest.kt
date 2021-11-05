@@ -1,7 +1,5 @@
 package no.nav.syfo.persistering.api
 
-import java.time.LocalDate
-import kotlin.test.assertFailsWith
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -13,8 +11,10 @@ import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.service.getSmRegistreringManuell
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
+import java.time.LocalDate
+import kotlin.test.assertFailsWith
 
 class ValidationRulesTest {
 
@@ -41,7 +41,7 @@ class ValidationRulesTest {
             )
         )
 
-        harOverlappendePerioder(perioder) shouldEqual true
+        harOverlappendePerioder(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -67,7 +67,7 @@ class ValidationRulesTest {
             )
         )
 
-        harOverlappendePerioder(perioder) shouldEqual true
+        harOverlappendePerioder(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -93,7 +93,7 @@ class ValidationRulesTest {
             )
         )
 
-        harOverlappendePerioder(perioder) shouldEqual false
+        harOverlappendePerioder(perioder) shouldBeEqualTo false
     }
 
     @Test
@@ -110,7 +110,7 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual false
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo false
     }
 
     @Test
@@ -127,7 +127,7 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual true
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -144,7 +144,7 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual true
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -161,7 +161,7 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual true
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -178,7 +178,7 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual true
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo true
     }
 
     @Test
@@ -204,43 +204,58 @@ class ValidationRulesTest {
             )
         )
 
-        harUlovligKombinasjonMedReisetilskudd(perioder) shouldEqual false
+        harUlovligKombinasjonMedReisetilskudd(perioder) shouldBeEqualTo false
     }
 
     @Test
     fun `behandletDato frem i tid gir valideringsfeil`() {
         val behandletDato = LocalDate.now().plusDays(1)
 
-        erFremtidigDato(behandletDato) shouldEqual true
+        erFremtidigDato(behandletDato) shouldBeEqualTo true
     }
 
     @Test
     fun `behandletDato idag gir ikke valideringsfeil`() {
         val behandletDato = LocalDate.now()
 
-        erFremtidigDato(behandletDato) shouldEqual false
+        erFremtidigDato(behandletDato) shouldBeEqualTo false
     }
 
     @Test
     fun `studentLisensSkalKasteFeil`() {
-        val smRegistreringManuell = getSmRegistreringManuell("12345678912", "12345678912",
-            false)
-        val sykmelder = Sykmelder("hpr", "12345678912", null, null, null,
+        val smRegistreringManuell = getSmRegistreringManuell(
+            "12345678912", "12345678912",
+            false
+        )
+        val sykmelder = Sykmelder(
+            "hpr", "12345678912", null, null, null,
             null,
-            listOf(Godkjenning(helsepersonellkategori = null, autorisasjon = Kode(true, 7704, "3"))))
-        val validationResult = ValidationResult(Status.MANUAL_PROCESSING,
-            ruleHits = listOf(RuleInfo(ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
-                messageForUser = "", messageForSender = "", ruleStatus = Status.MANUAL_PROCESSING)))
+            listOf(Godkjenning(helsepersonellkategori = null, autorisasjon = Kode(true, 7704, "3")))
+        )
+        val validationResult = ValidationResult(
+            Status.MANUAL_PROCESSING,
+            ruleHits = listOf(
+                RuleInfo(
+                    ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
+                    messageForUser = "", messageForSender = "", ruleStatus = Status.MANUAL_PROCESSING
+                )
+            )
+        )
 
         val exception = assertFailsWith<ValidationException> {
             checkValidState(smRegistreringManuell, sykmelder, validationResult = validationResult)
         }
-        exception.validationResult.ruleHits.size shouldEqual 1
-        exception.validationResult shouldEqual ValidationResult(status = Status.MANUAL_PROCESSING, ruleHits = listOf(RuleInfo(
-            ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
-            messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
-            messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
-            ruleStatus = Status.MANUAL_PROCESSING
-        )))
+        exception.validationResult.ruleHits.size shouldBeEqualTo 1
+        exception.validationResult shouldBeEqualTo ValidationResult(
+            status = Status.MANUAL_PROCESSING,
+            ruleHits = listOf(
+                RuleInfo(
+                    ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
+                    messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
+                    messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
+                    ruleStatus = Status.MANUAL_PROCESSING
+                )
+            )
+        )
     }
 }

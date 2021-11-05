@@ -3,16 +3,14 @@ package no.nav.syfo.client
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
+import io.ktor.client.features.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
-import io.ktor.client.statement.HttpStatement
-import io.ktor.http.HttpStatusCode
-import java.io.Serializable
-import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
+import java.io.Serializable
+import java.util.concurrent.TimeUnit
 
 class MSGraphClient(
     environment: Environment,
@@ -25,9 +23,9 @@ class MSGraphClient(
     private val msGraphApiAccountNameQuery = "$msGraphApiUrl/me/?\$select=onPremisesSamAccountName"
 
     val subjectCache: Cache<String, String> = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .maximumSize(100)
-            .build<String, String>()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(100)
+        .build<String, String>()
 
     suspend fun getSubjectFromMsGraph(accessToken: String): String {
 
@@ -49,17 +47,19 @@ class MSGraphClient(
     }
 
     private suspend fun callMsGraphApi(oboToken: String): String {
-
-        val response = httpClient.get<HttpStatement>(msGraphApiAccountNameQuery) {
-            headers {
-                append("Authorization", "Bearer $oboToken")
+        try {
+            return httpClient.get<GraphResponse>(msGraphApiAccountNameQuery) {
+                headers {
+                    append("Authorization", "Bearer $oboToken")
+                }
+            }.onPremisesSamAccountName
+        } catch (e: Exception) {
+            val feilmelding = if (e is ResponseException) {
+                "Noe gikk galt ved henting av veilederIdent fra Ms Graph ${e.response.status} ${e.response.content}"
+            } else {
+                "Noe gikk galt ved henting av veilederIdent fra Ms Graph"
             }
-        }.execute()
-
-        if (response.status == HttpStatusCode.OK) {
-            return response.call.receive<GraphResponse>().onPremisesSamAccountName
-        } else {
-            throw RuntimeException("Noe gikk galt ved henting av veilderIdent fra Ms Graph ${response.status} ${response.call.receive<String>()}")
+            throw RuntimeException(feilmelding)
         }
     }
 }

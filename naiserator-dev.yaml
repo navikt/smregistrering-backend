@@ -48,10 +48,6 @@ spec:
     paths:
       - kvPath: serviceuser/data/dev/srvregpapirsm
         mountPath: /secrets/serviceuser
-      - kvPath: /azuread/data/dev/creds/smregistrering-backend
-        mountPath: /secrets/azuread/smregistrering-backend
-      - kvPath: /kv/preprod/fss/smregistrering-backend/teamsykmelding
-        mountPath: /secrets/default
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.preprod.local"
@@ -66,20 +62,10 @@ spec:
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/smregistrering-backend
     - name: MOUNT_PATH_VAULT
       value: /postgresql/preprod-fss
-    - name: OIDC_WELL_KNOWN_URI
-      value: /secrets/default/oidcWellKnownUri
-    - name: SMREGISTERING_BACKEND_CLIENT_ID_PATH
-      value: /secrets/azuread/smregistrering-backend/client_id
     - name: SMREGISTERING_URL
       value: smregistrering.dev.adeo.no
-    - name: AKTOR_REGISTER_V1_URL
-      value: https://app-q1.adeo.no/aktoerregister/api/v1
     - name: DOK_ARKIV_URL
       value: https://dokarkiv-q1.nais.preprod.local/rest/journalpostapi/v1/journalpost
-    - name: AADACCESSTOKEN_URL
-      value: https://login.microsoftonline.com/navq.onmicrosoft.com/oauth2/token
-    - name: SMREGISTERING_BACKEND_CLIENT_SECRET_PATH
-      value: /secrets/azuread/smregistrering-backend/client_secret
     - name: PDL_GRAPHQL_PATH
       value: https://pdl-api.nais.preprod.local/graphql
     - name: PDL_SCOPE

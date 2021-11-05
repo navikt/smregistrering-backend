@@ -21,9 +21,7 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.Environment
-import no.nav.syfo.VaultSecrets
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.client.DokArkivClient
@@ -46,15 +44,12 @@ import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 
-@KtorExperimentalAPI
 @InternalAPI
 fun createApplicationEngine(
     sykmeldingJobService: SykmeldingJobService,
     env: Environment,
     applicationState: ApplicationState,
-    vaultSecrets: VaultSecrets,
     jwkProvider: JwkProvider,
-    issuer: String,
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
     oppgaveClient: OppgaveClient,
@@ -70,7 +65,7 @@ fun createApplicationEngine(
         // Increase timeout of Netty to handle large content bodies
         responseWriteTimeoutSeconds = 40
     }) {
-        setupAuth(env, jwkProvider, issuer)
+        setupAuth(env, jwkProvider, env.jwtIssuer)
         install(ContentNegotiation) {
             jackson {
                 registerKotlinModule()

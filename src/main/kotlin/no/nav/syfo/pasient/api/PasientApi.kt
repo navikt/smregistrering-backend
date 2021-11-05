@@ -6,11 +6,11 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
-import java.util.UUID
 import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import java.util.UUID
 
 fun Route.pasientApi(
     pdlPersonService: PdlPersonService,

@@ -1,7 +1,5 @@
 package no.nav.syfo.sykmelding
 
-import java.io.StringReader
-import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.syfo.application.ApplicationState
@@ -14,6 +12,8 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatUnmarshaller
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.io.StringReader
+import java.time.OffsetDateTime
 
 class SykmeldingJobRunner(
     private val applicationState: ApplicationState,
@@ -49,8 +49,11 @@ class SykmeldingJobRunner(
         try {
             val receivedSykmelding = sykmeldingJobService.getReceivedSykmelding(job.sykmeldingId)
             receivedSykmeldingKafkaProducer.producer.send(
-                    ProducerRecord(receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic, job.sykmeldingId,
-                            receivedSykmelding)).get()
+                ProducerRecord(
+                    receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic, job.sykmeldingId,
+                    receivedSykmelding
+                )
+            ).get()
         } catch (ex: Exception) {
             log.error("Error producing sykmelding to kafka for job $job}")
             throw ex
@@ -64,9 +67,9 @@ class SykmeldingJobRunner(
             if (receivedSykmelding != null) {
                 val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(receivedSykmelding.fellesformat)) as XMLEIFellesformat
                 notifySyfoService(
-                        syfoserviceKafkaProducer = syfoserviceKafkaProducer,
-                        sykmeldingId = job.sykmeldingId,
-                        healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
+                    syfoserviceKafkaProducer = syfoserviceKafkaProducer,
+                    sykmeldingId = job.sykmeldingId,
+                    healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
                 )
             } else {
                 throw Exception("Could not find sykmelding ${job.sykmeldingId} in database}")

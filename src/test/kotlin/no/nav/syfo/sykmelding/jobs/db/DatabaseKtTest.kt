@@ -2,9 +2,6 @@ package no.nav.syfo.sykmelding.jobs.db
 
 import io.mockk.coEvery
 import io.mockk.mockkStatic
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.UUID
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,11 +17,14 @@ import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBe
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.After
 import org.junit.Test
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.UUID
 
 class DatabaseKtTest {
     private val testDb = PsqlContainerDatabase.database
@@ -34,7 +34,7 @@ class DatabaseKtTest {
 
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
-        coEvery { delay(any()) } returns Unit
+        coEvery { delay(3_000) } returns Unit
     }
 
     @After
@@ -99,8 +99,8 @@ class DatabaseKtTest {
         )
         val savedSykmelding = testDb.getSykmelding(sykmeldingId.toString())
         val savedNotUpdatedSykmelding = testDb.getSykmelding(notUpdated.sykmelding.id)
-        savedSykmelding?.personNrPasient shouldEqual "3"
-        savedNotUpdatedSykmelding?.personNrPasient shouldEqual "4"
+        savedSykmelding?.personNrPasient shouldBeEqualTo "3"
+        savedNotUpdatedSykmelding?.personNrPasient shouldBeEqualTo "4"
     }
 
     @Test
@@ -109,7 +109,7 @@ class DatabaseKtTest {
         val jobs = listOf(newJob)
         testDb.insertJobs(jobs)
         val savedJob = testDb.getJob(JOB_STATUS.NEW).first()
-        savedJob shouldEqual newJob
+        savedJob shouldBeEqualTo newJob
     }
 
     @Test
@@ -117,7 +117,7 @@ class DatabaseKtTest {
         insertSykmelding()
         testDb.insertJobs(listOf(newJob))
         val inprogressJob = testDb.getNextJob()
-        inprogressJob!!.status shouldEqual JOB_STATUS.IN_PROGRESS
+        inprogressJob!!.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
     }
 
     @Test
@@ -138,7 +138,7 @@ class DatabaseKtTest {
 
             job.join()
             job2.join()
-            firstJob shouldNotEqual secondJob
+            firstJob shouldNotBeEqualTo secondJob
         }
     }
 
@@ -147,13 +147,13 @@ class DatabaseKtTest {
         insertSykmelding()
         testDb.insertJobs(listOf(newJob))
         val job = testDb.getNextJob()
-        job?.status shouldEqual JOB_STATUS.IN_PROGRESS
+        job?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
 
         testDb.updateJob(job!!.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
 
         val doneJob = testDb.getJobForSykmeldingId(sykmeldingId = sykmeldingId.toString())
 
-        doneJob.size shouldEqual 1
+        doneJob.size shouldBeEqualTo 1
     }
 
     private fun insertSykmelding() {

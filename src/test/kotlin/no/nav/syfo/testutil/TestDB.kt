@@ -2,11 +2,11 @@ package no.nav.syfo.testutil
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import java.sql.Connection
-import javax.sql.DataSource
 import no.nav.syfo.db.DatabaseInterface
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
+import java.sql.Connection
+import javax.sql.DataSource
 
 fun Connection.dropData() {
     use { connection ->
@@ -33,18 +33,20 @@ class PsqlContainerDatabase private constructor() : DatabaseInterface {
         val databaseName = "smregistrering"
         psqlContainer = PsqlContainer().withUsername(databaseUsername).withPassword(databasePassword).withDatabaseName(databaseName)
         psqlContainer.start()
-        dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = psqlContainer.jdbcUrl
-            username = databaseUsername
-            password = databasePassword
-            maximumPoolSize = 10
-            minimumIdle = 3
-            idleTimeout = 10001
-            maxLifetime = 300000
-            isAutoCommit = false
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-            validate()
-        })
+        dataSource = HikariDataSource(
+            HikariConfig().apply {
+                jdbcUrl = psqlContainer.jdbcUrl
+                username = databaseUsername
+                password = databasePassword
+                maximumPoolSize = 10
+                minimumIdle = 3
+                idleTimeout = 10001
+                maxLifetime = 300000
+                isAutoCommit = false
+                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                validate()
+            }
+        )
         Flyway.configure().run {
             dataSource(psqlContainer.jdbcUrl, databaseUsername, databasePassword).load().migrate()
         }

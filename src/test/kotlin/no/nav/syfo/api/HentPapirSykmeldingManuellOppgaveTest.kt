@@ -17,17 +17,9 @@ import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import java.nio.file.Paths
-import java.sql.Connection
-import java.sql.Timestamp
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.Calendar
-import java.util.concurrent.Future
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -63,12 +55,18 @@ import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.PsqlContainerDatabase
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.After
 import org.junit.Test
+import java.nio.file.Paths
+import java.sql.Connection
+import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.util.Calendar
+import java.util.concurrent.Future
 
-@KtorExperimentalAPI
 internal class HentPapirSykmeldingManuellOppgaveTest {
     private val database = PsqlContainerDatabase.database
     private val path = "src/test/resources/jwkset.json"
@@ -214,12 +212,15 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             )
             coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
                 Pair(
-                    "143242345", IdentInfoResult(
+                    "143242345",
+                    IdentInfoResult(
                         identer = listOf(IdentInfo("645514141444", "asd", true)),
                         feilmelding = null
                     )
-                ), Pair(
-                    "18459123134", IdentInfoResult(
+                ),
+                Pair(
+                    "18459123134",
+                    IdentInfoResult(
                         identer = listOf(IdentInfo("6455142134", "asd", true)),
                         feilmelding = null
                     )
@@ -241,7 +242,18 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     samh_ident = listOf()
                 )
             )
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns ""
             coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
             coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -251,21 +263,25 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 ruleHits = emptyList()
             )
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.content?.contains("\"aktorId\":\"1314\"") shouldEqual true
-                response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldEqual true
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.content?.contains("\"aktorId\":\"1314\"") shouldBeEqualTo true
+                response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldBeEqualTo true
             }
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-            }) {
-                response.status() shouldEqual HttpStatusCode.Unauthorized
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
             }
         }
     }
@@ -351,12 +367,15 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
         )
         coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
             Pair(
-                "143242345", IdentInfoResult(
+                "143242345",
+                IdentInfoResult(
                     identer = listOf(IdentInfo("645514141444", "asd", true)),
                     feilmelding = null
                 )
-            ), Pair(
-                "18459123134", IdentInfoResult(
+            ),
+            Pair(
+                "18459123134",
+                IdentInfoResult(
                     identer = listOf(IdentInfo("6455142134", "asd", true)),
                     feilmelding = null
                 )
@@ -365,8 +384,8 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
 
-        hentManuellOppgaver.size shouldEqual 1
-        hentManuellOppgaver[0].papirSmRegistering shouldEqual null
+        hentManuellOppgaver.size shouldBeEqualTo 1
+        hentManuellOppgaver[0].papirSmRegistering shouldBeEqualTo null
     }
 
     @Test
@@ -374,7 +393,15 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } throws SafNotFoundException("Saf returnerte: httpstatus 200")
+            coEvery {
+                safDokumentClient.hentDokument(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } throws SafNotFoundException("Saf returnerte: httpstatus 200")
             coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
                 true,
                 null
@@ -487,13 +514,15 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 status = "OPPRETTET"
             )
 
-            with(handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                addHeader("Accept", "application/json")
-                addHeader("Content-Type", "application/json")
-                addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-            }) {
-                response.status() shouldEqual HttpStatusCode.Gone
-                response.content shouldEqual "SENT_TO_GOSYS"
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.Gone
+                response.content shouldBeEqualTo "SENT_TO_GOSYS"
             }
 
             coVerify(exactly = 1) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }

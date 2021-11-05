@@ -1,9 +1,5 @@
 package no.nav.syfo.service
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.stream.Collectors
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLCS
 import no.nav.helse.msgHead.XMLCV
@@ -36,6 +32,10 @@ import no.nav.syfo.model.RestrictionCode
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.model.PdlPerson
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.stream.Collectors
 
 fun mapsmRegistreringManuelltTilFellesformat(
     smRegistreringManuell: SmRegistreringManuell,
@@ -46,130 +46,138 @@ fun mapsmRegistreringManuelltTilFellesformat(
     journalpostId: String
 ): XMLEIFellesformat {
     return XMLEIFellesformat().apply {
-        any.add(XMLMsgHead().apply {
-            msgInfo = XMLMsgInfo().apply {
-                type = XMLCS().apply {
-                    dn = "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding"
-                    v = "SYKMELD"
-                }
-                miGversion = "v1.2 2006-05-24"
-                genDate = datoOpprettet ?: LocalDateTime.of(smRegistreringManuell.perioder.first().fom, LocalTime.NOON)
-                msgId = sykmeldingId
-                ack = XMLCS().apply {
-                    dn = "Ja"
-                    v = "J"
-                }
-                sender = XMLSender().apply {
-                    comMethod = XMLCS().apply {
-                        dn = "EDI"
-                        v = "EDI"
+        any.add(
+            XMLMsgHead().apply {
+                msgInfo = XMLMsgInfo().apply {
+                    type = XMLCS().apply {
+                        dn = "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding"
+                        v = "SYKMELD"
                     }
-                    organisation = XMLOrganisation().apply {
-                        healthcareProfessional = XMLHealthcareProfessional().apply {
-                            givenName = sykmelder.fornavn
-                            middleName = sykmelder.mellomnavn
-                            familyName = sykmelder.etternavn
+                    miGversion = "v1.2 2006-05-24"
+                    genDate = datoOpprettet ?: LocalDateTime.of(smRegistreringManuell.perioder.first().fom, LocalTime.NOON)
+                    msgId = sykmeldingId
+                    ack = XMLCS().apply {
+                        dn = "Ja"
+                        v = "J"
+                    }
+                    sender = XMLSender().apply {
+                        comMethod = XMLCS().apply {
+                            dn = "EDI"
+                            v = "EDI"
+                        }
+                        organisation = XMLOrganisation().apply {
+                            healthcareProfessional = XMLHealthcareProfessional().apply {
+                                givenName = sykmelder.fornavn
+                                middleName = sykmelder.mellomnavn
+                                familyName = sykmelder.etternavn
+                                ident.addAll(
+                                    listOf(
+                                        XMLIdent().apply {
+                                            id = sykmelder.fnr
+                                            typeId = XMLCV().apply {
+                                                dn = "Fødselsnummer"
+                                                s = "2.16.578.1.12.4.1.1.8327"
+                                                v = "FNR"
+                                            }
+                                        }
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    receiver = XMLReceiver().apply {
+                        comMethod = XMLCS().apply {
+                            dn = "EDI"
+                            v = "EDI"
+                        }
+                        organisation = XMLOrganisation().apply {
+                            organisationName = "NAV"
                             ident.addAll(
                                 listOf(
                                     XMLIdent().apply {
-                                        id = sykmelder.fnr
+                                        id = "79768"
                                         typeId = XMLCV().apply {
-                                            dn = "Fødselsnummer"
-                                            s = "2.16.578.1.12.4.1.1.8327"
-                                            v = "FNR"
+                                            dn = "Identifikator fra Helsetjenesteenhetsregisteret (HER-id)"
+                                            s = "2.16.578.1.12.4.1.1.9051"
+                                            v = "HER"
                                         }
-                                    })
+                                    },
+                                    XMLIdent().apply {
+                                        id = "889640782"
+                                        typeId = XMLCV().apply {
+                                            dn = "Organisasjonsnummeret i Enhetsregister (Brønøysund)"
+                                            s = "2.16.578.1.12.4.1.1.9051"
+                                            v = "ENH"
+                                        }
+                                    }
+                                )
                             )
                         }
                     }
                 }
-                receiver = XMLReceiver().apply {
-                    comMethod = XMLCS().apply {
-                        dn = "EDI"
-                        v = "EDI"
-                    }
-                    organisation = XMLOrganisation().apply {
-                        organisationName = "NAV"
-                        ident.addAll(
-                            listOf(
-                                XMLIdent().apply {
-                                    id = "79768"
-                                    typeId = XMLCV().apply {
-                                        dn = "Identifikator fra Helsetjenesteenhetsregisteret (HER-id)"
-                                        s = "2.16.578.1.12.4.1.1.9051"
-                                        v = "HER"
-                                    }
-                                },
-                                XMLIdent().apply {
-                                    id = "889640782"
-                                    typeId = XMLCV().apply {
-                                        dn = "Organisasjonsnummeret i Enhetsregister (Brønøysund)"
-                                        s = "2.16.578.1.12.4.1.1.9051"
-                                        v = "ENH"
-                                    }
-                                })
-                        )
-                    }
-                }
-            }
-            document.add(XMLDocument().apply {
-                refDoc = XMLRefDoc().apply {
-                    msgType = XMLCS().apply {
-                        dn = "XML-instans"
-                        v = "XML"
-                    }
-                    content = XMLRefDoc.Content().apply {
-                        any.add(HelseOpplysningerArbeidsuforhet().apply {
-                            syketilfelleStartDato = tilSyketilfelleStartDato(smRegistreringManuell)
-                            pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
-                                navn = NavnType().apply {
-                                    fornavn = pdlPasient.navn.fornavn
-                                    mellomnavn = pdlPasient.navn.mellomnavn
-                                    etternavn = pdlPasient.navn.etternavn
-                                }
-                                fodselsnummer = Ident().apply {
-                                    id = pdlPasient.fnr
-                                    typeId = CV().apply {
-                                        dn = "Fødselsnummer"
-                                        s = "2.16.578.1.12.4.1.1.8116"
-                                        v = "FNR"
-                                    }
-                                }
+                document.add(
+                    XMLDocument().apply {
+                        refDoc = XMLRefDoc().apply {
+                            msgType = XMLCS().apply {
+                                dn = "XML-instans"
+                                v = "XML"
                             }
-                            arbeidsgiver = tilArbeidsgiver(smRegistreringManuell.arbeidsgiver)
-                            medisinskVurdering =
-                                tilMedisinskVurdering(
-                                    smRegistreringManuell.medisinskVurdering,
-                                    smRegistreringManuell.skjermesForPasient
+                            content = XMLRefDoc.Content().apply {
+                                any.add(
+                                    HelseOpplysningerArbeidsuforhet().apply {
+                                        syketilfelleStartDato = tilSyketilfelleStartDato(smRegistreringManuell)
+                                        pasient = HelseOpplysningerArbeidsuforhet.Pasient().apply {
+                                            navn = NavnType().apply {
+                                                fornavn = pdlPasient.navn.fornavn
+                                                mellomnavn = pdlPasient.navn.mellomnavn
+                                                etternavn = pdlPasient.navn.etternavn
+                                            }
+                                            fodselsnummer = Ident().apply {
+                                                id = pdlPasient.fnr
+                                                typeId = CV().apply {
+                                                    dn = "Fødselsnummer"
+                                                    s = "2.16.578.1.12.4.1.1.8116"
+                                                    v = "FNR"
+                                                }
+                                            }
+                                        }
+                                        arbeidsgiver = tilArbeidsgiver(smRegistreringManuell.arbeidsgiver)
+                                        medisinskVurdering =
+                                            tilMedisinskVurdering(
+                                                smRegistreringManuell.medisinskVurdering,
+                                                smRegistreringManuell.skjermesForPasient
+                                            )
+                                        aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
+                                            periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
+                                        }
+                                        prognose = null
+                                        utdypendeOpplysninger = if (smRegistreringManuell.harUtdypendeOpplysninger) flaggScanHarUtdypendeOpplysninger() else null
+                                        tiltak = null
+                                        meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
+                                            isBistandNAVUmiddelbart =
+                                                smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
+                                            beskrivBistandNAV = smRegistreringManuell.meldingTilNAV?.beskrivBistand ?: ""
+                                        }
+                                        meldingTilArbeidsgiver = smRegistreringManuell.meldingTilArbeidsgiver
+                                        kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
+                                            kontaktDato = smRegistreringManuell.kontaktMedPasient.kontaktDato
+                                            begrunnIkkeKontakt = smRegistreringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
+                                            behandletDato = LocalDateTime.of(smRegistreringManuell.behandletDato, LocalTime.NOON)
+                                        }
+                                        behandler = tilBehandler(sykmelder)
+                                        avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
+                                            systemNavn = "Papirsykmelding"
+                                            systemVersjon = journalpostId // Dette er nødvendig for at vi skal slippe å opprette generert PDF for papirsykmeldinger i syfosmsak
+                                        }
+                                        strekkode = "123456789qwerty"
+                                    }
                                 )
-                            aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
-                                periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
                             }
-                            prognose = null
-                            utdypendeOpplysninger = if (smRegistreringManuell.harUtdypendeOpplysninger) flaggScanHarUtdypendeOpplysninger() else null
-                            tiltak = null
-                            meldingTilNav = HelseOpplysningerArbeidsuforhet.MeldingTilNav().apply {
-                                isBistandNAVUmiddelbart =
-                                    smRegistreringManuell.meldingTilNAV?.bistandUmiddelbart ?: false
-                                beskrivBistandNAV = smRegistreringManuell.meldingTilNAV?.beskrivBistand ?: ""
-                            }
-                            meldingTilArbeidsgiver = smRegistreringManuell.meldingTilArbeidsgiver
-                            kontaktMedPasient = HelseOpplysningerArbeidsuforhet.KontaktMedPasient().apply {
-                                kontaktDato = smRegistreringManuell.kontaktMedPasient.kontaktDato
-                                begrunnIkkeKontakt = smRegistreringManuell.kontaktMedPasient.begrunnelseIkkeKontakt
-                                behandletDato = LocalDateTime.of(smRegistreringManuell.behandletDato, LocalTime.NOON)
-                            }
-                            behandler = tilBehandler(sykmelder)
-                            avsenderSystem = HelseOpplysningerArbeidsuforhet.AvsenderSystem().apply {
-                                systemNavn = "Papirsykmelding"
-                                systemVersjon = journalpostId // Dette er nødvendig for at vi skal slippe å opprette generert PDF for papirsykmeldinger i syfosmsak
-                            }
-                            strekkode = "123456789qwerty"
-                        })
+                        }
                     }
-                }
-            })
-        })
+                )
+            }
+        )
     }
 }
 
@@ -208,42 +216,52 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
             )
         )
         adresse = Address()
-        kontaktInfo.add(TeleCom().apply {
-            typeTelecom = CS().apply {
-                v = "HP"
-                dn = "Hovedtelefon"
+        kontaktInfo.add(
+            TeleCom().apply {
+                typeTelecom = CS().apply {
+                    v = "HP"
+                    dn = "Hovedtelefon"
+                }
+                teleAddress = URL().apply {
+                    v = "tel:55553336"
+                }
             }
-            teleAddress = URL().apply {
-                v = "tel:55553336"
-            }
-        })
+        )
     }
 
 fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger {
     return HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger().apply {
-        spmGruppe.add(HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
-            spmGruppeId = "6.1"
-            spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
-            spmSvar.add(DynaSvarType().apply {
-                spmTekst = "Utdypende opplysninger"
-                restriksjon = DynaSvarType.Restriksjon().apply {
-                    restriksjonskode.add(CS().apply {
-                        dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
-                        v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
-                    })
-                }
-                spmId = "6.1.1"
-                svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
-            })
-        })
+        spmGruppe.add(
+            HelseOpplysningerArbeidsuforhet.UtdypendeOpplysninger.SpmGruppe().apply {
+                spmGruppeId = "6.1"
+                spmGruppeTekst = "Utdypende opplysninger ved 7/8,17 og 39 uker"
+                spmSvar.add(
+                    DynaSvarType().apply {
+                        spmTekst = "Utdypende opplysninger"
+                        restriksjon = DynaSvarType.Restriksjon().apply {
+                            restriksjonskode.add(
+                                CS().apply {
+                                    dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
+                                    v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
+                                }
+                            )
+                        }
+                        spmId = "6.1.1"
+                        svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
+                    }
+                )
+            }
+        )
     }
 }
 
 fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode> {
     return ArrayList<HelseOpplysningerArbeidsuforhet.Aktivitet.Periode>().apply {
-        addAll(perioder.map {
-            tilHelseOpplysningerArbeidsuforhetPeriode(it)
-        })
+        addAll(
+            perioder.map {
+                tilHelseOpplysningerArbeidsuforhetPeriode(it)
+            }
+        )
     }
 }
 

@@ -1,6 +1,5 @@
 package no.nav.syfo.persistering.api
 
-import java.time.LocalDate
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.RuleHitCustomError
 import no.nav.syfo.model.RuleInfo
@@ -8,6 +7,7 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.ValidationResult
+import java.time.LocalDate
 
 fun checkValidState(
     smRegistreringManuell: SmRegistreringManuell,

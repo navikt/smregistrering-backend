@@ -1,10 +1,5 @@
 package no.nav.syfo.service
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.Month
-import java.util.UUID
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
@@ -33,10 +28,15 @@ import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getReceivedSykmelding
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Month
+import java.util.UUID
 
 class FellesformatMapperServiceTest {
     val sykmeldingId = "1234"
@@ -51,53 +51,57 @@ class FellesformatMapperServiceTest {
         val smRegisteringManuellt = getSmRegistreringManuell(fnrPasient, fnrLege, harUtdypendeOpplysninger = true)
 
         val receivedSykmelding = getReceivedSykmelding(
-                manuell = smRegisteringManuellt,
-                fnrPasient = fnrPasient,
-                sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
-                datoOpprettet = datoOpprettet
+            manuell = smRegisteringManuellt,
+            fnrPasient = fnrPasient,
+            sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
+            datoOpprettet = datoOpprettet
         )
 
-        receivedSykmelding.sykmelding.perioder.first().behandlingsdager shouldEqual 10
+        receivedSykmelding.sykmelding.perioder.first().behandlingsdager shouldBeEqualTo 10
 
-        receivedSykmelding.personNrPasient shouldEqual fnrPasient
-        receivedSykmelding.personNrLege shouldEqual fnrLege
-        receivedSykmelding.navLogId shouldEqual sykmeldingId
-        receivedSykmelding.msgId shouldEqual sykmeldingId
-        receivedSykmelding.legekontorOrgName shouldEqual ""
-        receivedSykmelding.mottattDato shouldEqual datoOpprettet
-        receivedSykmelding.tssid shouldEqual null
-        receivedSykmelding.sykmelding.pasientAktoerId shouldEqual aktorId
-        receivedSykmelding.sykmelding.medisinskVurdering shouldNotEqual null
-        receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose shouldEqual Diagnose(
+        receivedSykmelding.personNrPasient shouldBeEqualTo fnrPasient
+        receivedSykmelding.personNrLege shouldBeEqualTo fnrLege
+        receivedSykmelding.navLogId shouldBeEqualTo sykmeldingId
+        receivedSykmelding.msgId shouldBeEqualTo sykmeldingId
+        receivedSykmelding.legekontorOrgName shouldBeEqualTo ""
+        receivedSykmelding.mottattDato shouldBeEqualTo datoOpprettet
+        receivedSykmelding.tssid shouldBeEqualTo null
+        receivedSykmelding.sykmelding.pasientAktoerId shouldBeEqualTo aktorId
+        receivedSykmelding.sykmelding.medisinskVurdering shouldNotBeEqualTo null
+        receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose shouldBeEqualTo Diagnose(
             system = "2.16.578.1.12.4.1.1.7170",
             kode = "A070",
             tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
         )
-        receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first() shouldEqual Diagnose(
+        receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first() shouldBeEqualTo Diagnose(
             system = "2.16.578.1.12.4.1.1.7170",
             kode = "U070",
             tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
         )
-        receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
-        receivedSykmelding.sykmelding.arbeidsgiver shouldNotEqual null
-        receivedSykmelding.sykmelding.perioder.size shouldEqual 1
-        receivedSykmelding.sykmelding.prognose shouldEqual null
-        receivedSykmelding.sykmelding.utdypendeOpplysninger.toString().shouldContain("Papirsykmeldingen inneholder utdypende opplysninger.")
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
-        receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldEqual false
-        receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
-        receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(
+        receivedSykmelding.sykmelding.skjermesForPasient shouldBeEqualTo false
+        receivedSykmelding.sykmelding.arbeidsgiver shouldNotBeEqualTo null
+        receivedSykmelding.sykmelding.perioder.size shouldBeEqualTo 1
+        receivedSykmelding.sykmelding.prognose shouldBeEqualTo null
+        receivedSykmelding.sykmelding.utdypendeOpplysninger.toString()
+            .shouldContain("Papirsykmeldingen inneholder utdypende opplysninger.")
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldBeEqualTo null
+        receivedSykmelding.sykmelding.tiltakNAV shouldBeEqualTo null
+        receivedSykmelding.sykmelding.andreTiltak shouldBeEqualTo null
+        receivedSykmelding.sykmelding.meldingTilNAV?.bistandUmiddelbart shouldBeEqualTo false
+        receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldBeEqualTo null
+        receivedSykmelding.sykmelding.kontaktMedPasient shouldBeEqualTo KontaktMedPasient(
+            LocalDate.of(2020, 6, 23),
+            "Ja nei det."
+        )
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldBeEqualTo LocalDateTime.of(
             LocalDate.of(2020, 4, 1),
             LocalTime.NOON
         )
-        receivedSykmelding.sykmelding.behandler shouldNotEqual null
-        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", journalpostId)
-        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
-        receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
-        receivedSykmelding.sykmelding.navnFastlege shouldEqual null
+        receivedSykmelding.sykmelding.behandler shouldNotBeEqualTo null
+        receivedSykmelding.sykmelding.avsenderSystem shouldBeEqualTo AvsenderSystem("Papirsykmelding", journalpostId)
+        receivedSykmelding.sykmelding.syketilfelleStartDato shouldBeEqualTo LocalDate.of(2020, 4, 1)
+        receivedSykmelding.sykmelding.signaturDato shouldBeEqualTo datoOpprettet
+        receivedSykmelding.sykmelding.navnFastlege shouldBeEqualTo null
     }
 
     @Test
@@ -171,51 +175,58 @@ class FellesformatMapperServiceTest {
             rulesetVersion = healthInformation.regelSettVersjon,
             fellesformat = objectMapper.writeValueAsString(fellesformat),
             tssid = null,
-            merknader = null
+            merknader = null,
+            partnerreferanse = null
         )
 
-        receivedSykmelding.personNrPasient shouldEqual fnrPasient
-        receivedSykmelding.personNrLege shouldEqual fnrLege
-        receivedSykmelding.navLogId shouldEqual sykmeldingId
-        receivedSykmelding.msgId shouldEqual sykmeldingId
-        receivedSykmelding.legekontorOrgName shouldEqual ""
-        receivedSykmelding.mottattDato shouldEqual datoOpprettet
-        receivedSykmelding.tssid shouldEqual null
-        receivedSykmelding.sykmelding.pasientAktoerId shouldEqual aktorId
-        receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose shouldEqual Diagnose(
+        receivedSykmelding.personNrPasient shouldBeEqualTo fnrPasient
+        receivedSykmelding.personNrLege shouldBeEqualTo fnrLege
+        receivedSykmelding.navLogId shouldBeEqualTo sykmeldingId
+        receivedSykmelding.msgId shouldBeEqualTo sykmeldingId
+        receivedSykmelding.legekontorOrgName shouldBeEqualTo ""
+        receivedSykmelding.mottattDato shouldBeEqualTo datoOpprettet
+        receivedSykmelding.tssid shouldBeEqualTo null
+        receivedSykmelding.sykmelding.pasientAktoerId shouldBeEqualTo aktorId
+        receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose shouldBeEqualTo Diagnose(
             system = "2.16.578.1.12.4.1.1.7170",
             kode = "A070",
             tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
         )
-        receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser shouldEqual emptyList()
-        receivedSykmelding.sykmelding.medisinskVurdering.svangerskap shouldEqual false
-        receivedSykmelding.sykmelding.medisinskVurdering.yrkesskade shouldEqual false
-        receivedSykmelding.sykmelding.medisinskVurdering.yrkesskadeDato shouldEqual null
-        receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak shouldEqual null
-        receivedSykmelding.sykmelding.skjermesForPasient shouldEqual false
-        receivedSykmelding.sykmelding.arbeidsgiver shouldEqual Arbeidsgiver(
+        receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser shouldBeEqualTo emptyList()
+        receivedSykmelding.sykmelding.medisinskVurdering.svangerskap shouldBeEqualTo false
+        receivedSykmelding.sykmelding.medisinskVurdering.yrkesskade shouldBeEqualTo false
+        receivedSykmelding.sykmelding.medisinskVurdering.yrkesskadeDato shouldBeEqualTo null
+        receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak shouldBeEqualTo null
+        receivedSykmelding.sykmelding.skjermesForPasient shouldBeEqualTo false
+        receivedSykmelding.sykmelding.arbeidsgiver shouldBeEqualTo Arbeidsgiver(
             HarArbeidsgiver.EN_ARBEIDSGIVER,
             "NAV ikt",
             "Utvikler",
             100
         )
-        receivedSykmelding.sykmelding.perioder.size shouldEqual 1
-        receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldEqual AktivitetIkkeMulig(null, null)
-        receivedSykmelding.sykmelding.perioder[0].fom shouldEqual LocalDate.of(2019, Month.AUGUST, 15)
-        receivedSykmelding.sykmelding.perioder[0].tom shouldEqual LocalDate.of(2019, Month.SEPTEMBER, 30)
-        receivedSykmelding.sykmelding.prognose shouldEqual null
-        receivedSykmelding.sykmelding.utdypendeOpplysninger shouldEqual emptyMap()
-        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldEqual null
-        receivedSykmelding.sykmelding.tiltakNAV shouldEqual null
-        receivedSykmelding.sykmelding.andreTiltak shouldEqual null
-        receivedSykmelding.sykmelding.meldingTilNAV shouldEqual MeldingTilNAV(bistandUmiddelbart = false, beskrivBistand = "")
-        receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldEqual null
-        receivedSykmelding.sykmelding.kontaktMedPasient shouldEqual KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det.")
-        receivedSykmelding.sykmelding.behandletTidspunkt shouldEqual LocalDateTime.of(
+        receivedSykmelding.sykmelding.perioder.size shouldBeEqualTo 1
+        receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig shouldBeEqualTo AktivitetIkkeMulig(null, null)
+        receivedSykmelding.sykmelding.perioder[0].fom shouldBeEqualTo LocalDate.of(2019, Month.AUGUST, 15)
+        receivedSykmelding.sykmelding.perioder[0].tom shouldBeEqualTo LocalDate.of(2019, Month.SEPTEMBER, 30)
+        receivedSykmelding.sykmelding.prognose shouldBeEqualTo null
+        receivedSykmelding.sykmelding.utdypendeOpplysninger shouldBeEqualTo emptyMap()
+        receivedSykmelding.sykmelding.tiltakArbeidsplassen shouldBeEqualTo null
+        receivedSykmelding.sykmelding.tiltakNAV shouldBeEqualTo null
+        receivedSykmelding.sykmelding.andreTiltak shouldBeEqualTo null
+        receivedSykmelding.sykmelding.meldingTilNAV shouldBeEqualTo MeldingTilNAV(
+            bistandUmiddelbart = false,
+            beskrivBistand = ""
+        )
+        receivedSykmelding.sykmelding.meldingTilArbeidsgiver shouldBeEqualTo null
+        receivedSykmelding.sykmelding.kontaktMedPasient shouldBeEqualTo KontaktMedPasient(
+            LocalDate.of(2020, 6, 23),
+            "Ja nei det."
+        )
+        receivedSykmelding.sykmelding.behandletTidspunkt shouldBeEqualTo LocalDateTime.of(
             LocalDate.of(2020, 4, 1),
             LocalTime.NOON
         )
-        receivedSykmelding.sykmelding.behandler shouldEqual Behandler(
+        receivedSykmelding.sykmelding.behandler shouldBeEqualTo Behandler(
             fornavn = "Billy",
             mellomnavn = "Bob",
             etternavn = "Thornton",
@@ -226,10 +237,10 @@ class FellesformatMapperServiceTest {
             adresse = Adresse(null, null, null, null, null),
             tlf = "tel:55553336"
         )
-        receivedSykmelding.sykmelding.avsenderSystem shouldEqual AvsenderSystem("Papirsykmelding", journalpostId)
-        receivedSykmelding.sykmelding.syketilfelleStartDato shouldEqual LocalDate.of(2020, 4, 1)
-        receivedSykmelding.sykmelding.signaturDato shouldEqual datoOpprettet
-        receivedSykmelding.sykmelding.navnFastlege shouldEqual null
+        receivedSykmelding.sykmelding.avsenderSystem shouldBeEqualTo AvsenderSystem("Papirsykmelding", journalpostId)
+        receivedSykmelding.sykmelding.syketilfelleStartDato shouldBeEqualTo LocalDate.of(2020, 4, 1)
+        receivedSykmelding.sykmelding.signaturDato shouldBeEqualTo datoOpprettet
+        receivedSykmelding.sykmelding.navnFastlege shouldBeEqualTo null
     }
 
     @Test
@@ -276,7 +287,7 @@ class FellesformatMapperServiceTest {
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
-        tilSyketilfelleStartDato shouldEqual smRegisteringManuell.syketilfelleStartDato
+        tilSyketilfelleStartDato shouldBeEqualTo smRegisteringManuell.syketilfelleStartDato
     }
 
     @Test
@@ -323,7 +334,7 @@ class FellesformatMapperServiceTest {
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
-        tilSyketilfelleStartDato shouldEqual smRegisteringManuell.perioder.first().fom
+        tilSyketilfelleStartDato shouldBeEqualTo smRegisteringManuell.perioder.first().fom
     }
 
     @Test
@@ -340,66 +351,67 @@ class FellesformatMapperServiceTest {
 
         val periode = tilHelseOpplysningerArbeidsuforhetPeriode(gradertPeriode)
 
-        periode.periodeFOMDato shouldEqual LocalDate.now().minusWeeks(1)
-        periode.periodeTOMDato shouldEqual LocalDate.now()
-        periode.gradertSykmelding.sykmeldingsgrad shouldEqual 50
-        periode.gradertSykmelding.isReisetilskudd shouldEqual true
-        periode.aktivitetIkkeMulig shouldEqual null
-        periode.behandlingsdager shouldEqual null
-        periode.isReisetilskudd shouldEqual false
-        periode.avventendeSykmelding shouldEqual null
+        periode.periodeFOMDato shouldBeEqualTo LocalDate.now().minusWeeks(1)
+        periode.periodeTOMDato shouldBeEqualTo LocalDate.now()
+        periode.gradertSykmelding.sykmeldingsgrad shouldBeEqualTo 50
+        periode.gradertSykmelding.isReisetilskudd shouldBeEqualTo true
+        periode.aktivitetIkkeMulig shouldBeEqualTo null
+        periode.behandlingsdager shouldBeEqualTo null
+        periode.isReisetilskudd shouldBeEqualTo false
+        periode.avventendeSykmelding shouldBeEqualTo null
     }
 }
 
 fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOpplysninger: Boolean = false): SmRegistreringManuell {
     return SmRegistreringManuell(
-            pasientFnr = fnrPasient,
-            sykmelderFnr = fnrLege,
-            perioder = listOf(
-                    Periode(
-                            fom = LocalDate.now(),
-                            tom = LocalDate.now(),
+        pasientFnr = fnrPasient,
+        sykmelderFnr = fnrLege,
+        perioder = listOf(
+            Periode(
+                fom = LocalDate.now(),
+                tom = LocalDate.now(),
 
-                            aktivitetIkkeMulig = AktivitetIkkeMulig(medisinskArsak = MedisinskArsak(
-                                    beskrivelse = "test data",
-                                    arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
-                            ),
-                                    arbeidsrelatertArsak = null
-                            ),
-                            avventendeInnspillTilArbeidsgiver = null,
-                            behandlingsdager = 10,
-                            gradert = null,
-                            reisetilskudd = false
-                    )
-            ),
-            medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(
-                            system = "2.16.578.1.12.4.1.1.7170",
-                            kode = "A070",
-                            tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                aktivitetIkkeMulig = AktivitetIkkeMulig(
+                    medisinskArsak = MedisinskArsak(
+                        beskrivelse = "test data",
+                        arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
                     ),
-                    biDiagnoser = listOf(
-                            Diagnose(
-                                    system = "2.16.578.1.12.4.1.1.7170",
-                                    kode = "U070",
-                                    tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
-                            )
-                    ),
-                    svangerskap = false,
-                    yrkesskade = false,
-                    yrkesskadeDato = null,
-                    annenFraversArsak = null
+                    arbeidsrelatertArsak = null
+                ),
+                avventendeInnspillTilArbeidsgiver = null,
+                behandlingsdager = 10,
+                gradert = null,
+                reisetilskudd = false
+            )
+        ),
+        medisinskVurdering = MedisinskVurdering(
+            hovedDiagnose = Diagnose(
+                system = "2.16.578.1.12.4.1.1.7170",
+                kode = "A070",
+                tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
             ),
-            syketilfelleStartDato = LocalDate.of(2020, 4, 1),
-            skjermesForPasient = false,
-            arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-            behandletDato = LocalDate.of(2020, 4, 1),
-            kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
-            meldingTilArbeidsgiver = null,
-            meldingTilNAV = null,
-            navnFastlege = "Per Person",
-            behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-            harUtdypendeOpplysninger = harUtdypendeOpplysninger
+            biDiagnoser = listOf(
+                Diagnose(
+                    system = "2.16.578.1.12.4.1.1.7170",
+                    kode = "U070",
+                    tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
+                )
+            ),
+            svangerskap = false,
+            yrkesskade = false,
+            yrkesskadeDato = null,
+            annenFraversArsak = null
+        ),
+        syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+        skjermesForPasient = false,
+        arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+        behandletDato = LocalDate.of(2020, 4, 1),
+        kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 6, 23), "Ja nei det."),
+        meldingTilArbeidsgiver = null,
+        meldingTilNAV = null,
+        navnFastlege = "Per Person",
+        behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
+        harUtdypendeOpplysninger = harUtdypendeOpplysninger
     )
 }
 
@@ -407,24 +419,29 @@ const val journalpostId = "123"
 
 fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
     return mapsmRegistreringManuelltTilFellesformat(
-            smRegistreringManuell = smRegisteringManuellt,
-            pdlPasient = PdlPerson(Navn("Billy", "Bob", "Thornton"), listOf(
-                    IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
-            )),
-            sykmelder = Sykmelder(aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null),
-            sykmeldingId = sykmeldingId,
-            datoOpprettet = datoOpprettet,
-            journalpostId = journalpostId
+        smRegistreringManuell = smRegisteringManuellt,
+        pdlPasient = PdlPerson(
+            Navn("Billy", "Bob", "Thornton"),
+            listOf(
+                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
+            )
+        ),
+        sykmelder = Sykmelder(
+            aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+            fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null
+        ),
+        sykmeldingId = sykmeldingId,
+        datoOpprettet = datoOpprettet,
+        journalpostId = journalpostId
     )
 }
 
 fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: XMLMsgHead, sykmeldingId: String = "1234", aktorId: String = "aktorId", aktorIdLege: String = "aktorIdLege"): Sykmelding {
     return healthInformation.toSykmelding(
-            sykmeldingId = sykmeldingId,
-            pasientAktoerId = aktorId,
-            legeAktoerId = aktorIdLege,
-            msgId = sykmeldingId,
-            signaturDato = msgHead.msgInfo.genDate
+        sykmeldingId = sykmeldingId,
+        pasientAktoerId = aktorId,
+        legeAktoerId = aktorIdLege,
+        msgId = sykmeldingId,
+        signaturDato = msgHead.msgInfo.genDate
     )
 }

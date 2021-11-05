@@ -11,8 +11,6 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
-import io.ktor.util.KtorExperimentalAPI
-import java.net.ProxySelector
 import no.nav.syfo.Environment
 import no.nav.syfo.VaultSecrets
 import no.nav.syfo.azuread.v2.AzureAdV2Client
@@ -31,8 +29,8 @@ import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
+import java.net.ProxySelector
 
-@KtorExperimentalAPI
 class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         engine {
@@ -49,7 +47,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
                 setSerializationInclusion(JsonInclude.Include.ALWAYS)
             }
         }
-        expectSuccess = false
     }
 
     private val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -90,13 +87,17 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         httpClient = httpClientWithProxy
     )
 
-    val msGraphClient = MSGraphClient(environment = env,
+    val msGraphClient = MSGraphClient(
+        environment = env,
         azureAdV2Client = azureAdV2Client,
-        httpClient = httpClientWithProxy)
+        httpClient = httpClientWithProxy
+    )
 
-    private val pdlClient = PdlClient(httpClient,
+    private val pdlClient = PdlClient(
+        httpClient,
         env.pdlGraphqlPath,
-        PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""))
+        PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), "")
+    )
 
     val pdlService = PdlPersonService(pdlClient, azureAdV2Client, env.pdlScope)
 

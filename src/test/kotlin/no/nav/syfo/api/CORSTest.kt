@@ -11,7 +11,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.registerNaisApi
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
 internal class CORSTest {
@@ -31,9 +31,9 @@ internal class CORSTest {
             application.routing { registerNaisApi(applicationState) }
 
             with(handleRequest(HttpMethod.Get, "/is_alive")) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual null
-                response.content shouldEqual "I'm alive! :)"
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo null
+                response.content shouldBeEqualTo "I'm alive! :)"
             }
         }
     }
@@ -52,12 +52,14 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "invalid-host")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual null
-                response.content shouldEqual "I'm ready! :)"
+            with(
+                handleRequest(HttpMethod.Get, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "invalid-host")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo null
+                response.content shouldBeEqualTo "I'm ready! :)"
             }
         }
     }
@@ -76,12 +78,14 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual null
-                response.content shouldEqual "I'm ready! :)"
+            with(
+                handleRequest(HttpMethod.Get, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo null
+                response.content shouldBeEqualTo "I'm ready! :)"
             }
         }
     }
@@ -99,12 +103,14 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual "https://smregistrering.nais.preprod.local"
-                response.content shouldEqual "I'm ready! :)"
+            with(
+                handleRequest(HttpMethod.Get, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo "https://smregistrering.nais.preprod.local"
+                response.content shouldBeEqualTo "I'm ready! :)"
             }
         }
     }
@@ -122,12 +128,14 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "null")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual "*"
-                response.content shouldEqual "I'm ready! :)"
+            with(
+                handleRequest(HttpMethod.Get, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "null")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo "*"
+                response.content shouldBeEqualTo "I'm ready! :)"
             }
         }
     }
@@ -146,14 +154,16 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Options, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
-                addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual "https://smregistrering.nais.preprod.local"
-                response.headers[HttpHeaders.AccessControlAllowHeaders] shouldEqual "Content-Type"
-                response.headers[HttpHeaders.Vary] shouldEqual HttpHeaders.Origin
+            with(
+                handleRequest(HttpMethod.Options, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
+                    addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo "https://smregistrering.nais.preprod.local"
+                response.headers[HttpHeaders.AccessControlAllowHeaders] shouldBeEqualTo "Content-Type"
+                response.headers[HttpHeaders.Vary] shouldBeEqualTo HttpHeaders.Origin
             }
         }
     }
@@ -172,14 +182,16 @@ internal class CORSTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Options, "/is_ready") {
-                addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
-                addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
-            }) {
-                response.status() shouldEqual HttpStatusCode.OK
-                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldEqual "https://smregistrering.nais.preprod.local"
-                response.headers[HttpHeaders.Vary] shouldEqual HttpHeaders.Origin
-                response.headers[HttpHeaders.AccessControlAllowCredentials] shouldEqual "true"
+            with(
+                handleRequest(HttpMethod.Options, "/is_ready") {
+                    addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
+                    addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.OK
+                response.headers[HttpHeaders.AccessControlAllowOrigin] shouldBeEqualTo "https://smregistrering.nais.preprod.local"
+                response.headers[HttpHeaders.Vary] shouldBeEqualTo HttpHeaders.Origin
+                response.headers[HttpHeaders.AccessControlAllowCredentials] shouldBeEqualTo "true"
             }
         }
     }

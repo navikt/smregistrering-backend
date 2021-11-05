@@ -1,7 +1,6 @@
 package no.nav.syfo.persistering
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.util.KtorExperimentalAPI
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.DokArkivClient
@@ -34,7 +33,6 @@ import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.toString
 
-@KtorExperimentalAPI
 class SendPapirsykmeldingService(
     private val sykmelderService: SykmelderService,
     private val pdlService: PdlPersonService,
@@ -137,7 +135,8 @@ class SendPapirsykmeldingService(
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
                     tssid = samhandlerPraksis?.tss_ident ?: "",
-                    merknader = createMerknad(sykmelding)
+                    merknader = createMerknad(sykmelding),
+                    partnerreferanse = null
                 )
 
                 log.info(
@@ -151,7 +150,8 @@ class SendPapirsykmeldingService(
                     StructuredArguments.keyValue("ruleStatus", validationResult.status.name),
                     StructuredArguments.keyValue(
                         "ruleHits",
-                        validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }),
+                        validationResult.ruleHits.joinToString(", ", "(", ")") { it.ruleName }
+                    ),
                     StructuredArguments.fields(loggingMeta)
                 )
 
@@ -188,7 +188,8 @@ class SendPapirsykmeldingService(
             StructuredArguments.keyValue("oppgaveId", oppgaveId)
         )
 
-        return HttpServiceResponse(HttpStatusCode.NotFound,
+        return HttpServiceResponse(
+            HttpStatusCode.NotFound,
             "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
         )
     }
@@ -296,7 +297,7 @@ class SendPapirsykmeldingService(
 
 private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
     val behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate()
-    val terskel = sykmelding.perioder.map { it.fom }.min()?.plusDays(7)
+    val terskel = sykmelding.perioder.map { it.fom }.minOrNull()?.plusDays(7)
     return if (behandletTidspunkt != null && terskel != null &&
         behandletTidspunkt > terskel
     ) {

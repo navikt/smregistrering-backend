@@ -6,8 +6,6 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.util.KtorExperimentalAPI
-import java.lang.RuntimeException
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.ValidationResult
@@ -18,7 +16,6 @@ class RegelClient(
     private val resourceId: String,
     private val client: HttpClient
 ) {
-    @KtorExperimentalAPI
     suspend fun valider(sykmelding: ReceivedSykmelding, msgId: String): ValidationResult {
         return client.post("$endpointUrl/api/v2/rules/validate") {
             contentType(ContentType.Application.Json)

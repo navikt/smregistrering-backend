@@ -11,23 +11,20 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.util.KtorExperimentalAPI
-import java.time.DayOfWeek
-import java.time.LocalDate
-import kotlin.RuntimeException
 import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OpprettOppgave
+import java.time.DayOfWeek
+import java.time.LocalDate
 
-@KtorExperimentalAPI
 class OppgaveClient(
     private val url: String,
     private val oidcClient: StsOidcClient,
     private val httpClient: HttpClient
 ) {
     suspend fun opprettOppgave(oppgave: OpprettOppgave, msgId: String):
-            Oppgave {
+        Oppgave {
 
         log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)
 

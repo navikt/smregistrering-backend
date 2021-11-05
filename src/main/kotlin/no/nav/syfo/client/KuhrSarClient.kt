@@ -5,13 +5,11 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
-import io.ktor.util.KtorExperimentalAPI
 import no.nav.syfo.metrics.SAMHANDLERPRAKSIS_FOUND_COUNTER
 import no.nav.syfo.metrics.SAMHANDLERPRAKSIS_NOT_FOUND_COUNTER
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SamhandlerPraksis
 
-@KtorExperimentalAPI
 class SarClient(
     private val endpointUrl: String,
     private val httpClient: HttpClient

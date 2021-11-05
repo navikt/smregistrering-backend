@@ -20,21 +20,18 @@ import io.ktor.routing.put
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.util.KtorExperimentalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.net.ServerSocket
-import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.model.Oppgave
-import no.nav.syfo.util.LoggingMeta
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.net.ServerSocket
+import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
-@KtorExperimentalAPI
 class OppgaveClientTest {
     private val oppgaveId = 1
     private val oppgaveIdFerdigstilt = 2
@@ -50,7 +47,6 @@ class OppgaveClientTest {
             }
         }
     }
-    private val loggingMetadata = LoggingMeta("", "", "", "", "")
 
     private val mockHttpServerPort = ServerSocket(0).use { it.localPort }
     private val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
@@ -65,32 +61,44 @@ class OppgaveClientTest {
         }
         routing {
             get("/oppgave/$oppgaveId") {
-                call.respond(HttpStatusCode.OK, Oppgave(
-                    id = oppgaveId, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
-                    tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
-                    prioritet = "HOY", status = "AAPNET", mappeId = null
-                ))
+                call.respond(
+                    HttpStatusCode.OK,
+                    Oppgave(
+                        id = oppgaveId, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
+                        tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
+                        prioritet = "HOY", status = "AAPNET", mappeId = null
+                    )
+                )
             }
             get("/oppgave/$oppgaveIdFerdigstilt") {
-                call.respond(HttpStatusCode.OK, Oppgave(
-                    id = oppgaveIdFerdigstilt, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
-                    tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
-                    prioritet = "HOY", status = "FERDIGSTILT", mappeId = null
-                ))
+                call.respond(
+                    HttpStatusCode.OK,
+                    Oppgave(
+                        id = oppgaveIdFerdigstilt, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
+                        tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
+                        prioritet = "HOY", status = "FERDIGSTILT", mappeId = null
+                    )
+                )
             }
             put("/oppgave/$oppgaveId") {
-                call.respond(HttpStatusCode.OK, Oppgave(
-                    id = oppgaveId, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
-                    tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
-                    prioritet = "HOY", status = "AAPNET", mappeId = null
-                ))
+                call.respond(
+                    HttpStatusCode.OK,
+                    Oppgave(
+                        id = oppgaveId, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
+                        tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
+                        prioritet = "HOY", status = "AAPNET", mappeId = null
+                    )
+                )
             }
             post("/oppgave") {
-                call.respond(HttpStatusCode.Created, Oppgave(
-                    id = oppgaveIdNy, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
-                    tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
-                    prioritet = "HOY", status = "FERDIGSTILT", mappeId = null
-                ))
+                call.respond(
+                    HttpStatusCode.Created,
+                    Oppgave(
+                        id = oppgaveIdNy, versjon = 1, tildeltEnhetsnr = "9999", opprettetAvEnhetsnr = "9999", aktoerId = "aktoerId", journalpostId = "123", behandlesAvApplikasjon = null, saksreferanse = "1",
+                        tilordnetRessurs = null, beskrivelse = "beskrivelse", tema = "SYM", oppgavetype = "JFR", behandlingstype = null, aktivDato = LocalDate.now().minusWeeks(1), fristFerdigstillelse = null,
+                        prioritet = "HOY", status = "FERDIGSTILT", mappeId = null
+                    )
+                )
             }
         }
     }.start()
@@ -112,7 +120,7 @@ class OppgaveClientTest {
         runBlocking {
             val patchetOppgave = oppgaveClient.patchManuellOppgave(oppgaveId, "msgId")
 
-            patchetOppgave.id shouldEqual oppgaveId
+            patchetOppgave.id shouldBeEqualTo oppgaveId
         }
     }
 
@@ -121,7 +129,7 @@ class OppgaveClientTest {
         runBlocking {
             val patchetOppgave = oppgaveClient.patchManuellOppgave(oppgaveIdFerdigstilt, "msgId")
 
-            patchetOppgave.id shouldEqual oppgaveIdNy
+            patchetOppgave.id shouldBeEqualTo oppgaveIdNy
         }
     }
 }
