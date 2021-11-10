@@ -176,7 +176,9 @@ class FellesformatMapperServiceTest {
             fellesformat = objectMapper.writeValueAsString(fellesformat),
             tssid = null,
             merknader = null,
-            partnerreferanse = null
+            partnerreferanse = null,
+            legeHelsepersonellkategori = "LE",
+            legeHprNr = "hpr"
         )
 
         receivedSykmelding.personNrPasient shouldBeEqualTo fnrPasient

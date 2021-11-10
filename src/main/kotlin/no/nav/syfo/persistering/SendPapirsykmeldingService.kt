@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
@@ -136,7 +137,9 @@ class SendPapirsykmeldingService(
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
                     tssid = samhandlerPraksis?.tss_ident ?: "",
                     merknader = createMerknad(sykmelding),
-                    partnerreferanse = null
+                    partnerreferanse = null,
+                    legeHelsepersonellkategori = sykmelder.godkjenninger?.getHelsepersonellKategori(),
+                    legeHprNr = sykmelder.hprNummer
                 )
 
                 log.info(
@@ -307,6 +310,18 @@ private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
     }
 }
 
+fun List<Godkjenning>.getHelsepersonellKategori(): String? = when {
+    find { it.helsepersonellkategori?.verdi == "LE" } != null -> "LE"
+    find { it.helsepersonellkategori?.verdi == "TL" } != null -> "TL"
+    find { it.helsepersonellkategori?.verdi == "MT" } != null -> "MT"
+    find { it.helsepersonellkategori?.verdi == "FT" } != null -> "FT"
+    find { it.helsepersonellkategori?.verdi == "KI" } != null -> "KI"
+    else -> {
+        val verdi = firstOrNull()?.helsepersonellkategori?.verdi
+        log.warn("Signerende behandler har ikke en helsepersonellkategori($verdi) vi kjenner igjen")
+        verdi
+    }
+}
 data class HttpServiceResponse(
     val httpStatusCode: HttpStatusCode,
     val payload: Any? = null

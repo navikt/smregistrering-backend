@@ -28,6 +28,8 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
         fellesformat = fellesformatMarshaller.toString(fellesformat),
         tssid = null,
         merknader = null,
-        partnerreferanse = null
+        partnerreferanse = null,
+        legeHelsepersonellkategori = "LE",
+        legeHprNr = "hpr"
     )
 }
