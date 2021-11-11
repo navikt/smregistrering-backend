@@ -57,7 +57,7 @@ class SendOppgaveTilGosysRestTest {
     private val env = mockk<Environment>()
 
     @Test
-    fun avvisOppgaveOK() {
+    fun sendOppgaveTilGosysOK() {
         with(TestApplicationEngine()) {
             start()
 
@@ -160,6 +160,80 @@ class SendOppgaveTilGosysRestTest {
             )
 
             coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
+
+            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+                id = oppgaveid,
+                versjon = 1,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
+
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                response.content shouldBe null
+            }
+        }
+    }
+
+    @Test
+    fun sendOppgaveTilGosysOppgaveFerdigstilt() {
+        with(TestApplicationEngine()) {
+            start()
+
+            application.setupAuth(
+                env, jwkProvider, "https://sts.issuer.net/myid"
+            )
+            application.routing {
+                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+            }
+
+            application.install(ContentNegotiation) {
+                jackson {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                }
+            }
+            application.install(StatusPages) {
+                exception<Throwable> { cause ->
+                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    log.error("Caught exception", cause)
+                    throw cause
+                }
+            }
+            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+                true,
+                null
+            )
+
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
+
+            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+
+            val oppgaveid = 308076319
+
+            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns emptyList()
 
             coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = oppgaveid,

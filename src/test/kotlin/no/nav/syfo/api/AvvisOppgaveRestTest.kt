@@ -255,4 +255,124 @@ class AvvisOppgaveRestTest {
             }
         }
     }
+
+    @Test
+    fun avvisOppgaveAlleredeFerdigstilt() {
+        with(TestApplicationEngine()) {
+            start()
+
+            application.setupAuth(
+                env, jwkProvider, "https://sts.issuer.net/myid"
+            )
+            application.routing {
+                avvisOppgave(
+                    oppgaveClient = oppgaveClient,
+                    dokArkivClient = dokArkivClient,
+                    authorizationService = authorizationService,
+                    manuellOppgaveService = manuellOppgaveService,
+                    sykmelderService = sykmelderService,
+                    safJournalpostService = safJournalpostService
+                )
+            }
+
+            application.install(ContentNegotiation) {
+                jackson {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                }
+            }
+            application.install(StatusPages) {
+                exception<Throwable> { cause ->
+                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    log.error("Caught exception", cause)
+                    throw cause
+                }
+            }
+            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+                true,
+                null
+            )
+
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
+
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
+                Navn("Billy", "Bob", "Thornton"),
+                listOf(
+                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("12345", false, "AKTORID")
+                )
+            )
+
+            coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
+                Sykmelder(
+                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
+                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                )
+
+            coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
+
+            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+
+            val oppgaveid = 308076319
+
+            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns emptyList()
+            coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
+                Oppgave(
+                    id = 123, versjon = 1,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET"
+                )
+
+            val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
+
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
+                Oppgave(
+                    id = 123, versjon = 1,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET"
+                )
+
+            with(
+                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader("X-Nav-Enhet", "1234")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                response.content shouldBe null
+            }
+        }
+    }
 }

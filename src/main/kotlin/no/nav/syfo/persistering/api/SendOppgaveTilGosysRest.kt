@@ -46,27 +46,42 @@ fun Route.sendOppgaveTilGosys(
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
 
-                    val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
-                    val journalpostId = manuellOppgaveDTOList.first().journalpostId
-                    val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
-                    val pasientFnr = manuellOppgaveDTOList.first().fnr!!
-
-                    val loggingMeta = LoggingMeta(
-                        mottakId = sykmeldingId,
-                        dokumentInfoId = dokumentInfoId,
-                        msgId = callId,
-                        sykmeldingId = sykmeldingId,
-                        journalpostId = journalpostId
-                    )
-
-                    if (authorizationService.hasAccess(accessToken, pasientFnr)) {
-
-                        handleSendOppgaveTilGosys(authorizationService, oppgaveClient, manuellOppgaveService, loggingMeta, oppgaveId, accessToken)
-
+                    if (manuellOppgaveDTOList.isEmpty()) {
+                        log.info("Oppgave med id $oppgaveId er allerede ferdigstilt")
                         call.respond(HttpStatusCode.NoContent)
                     } else {
-                        log.warn("Veileder har ikke tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                        call.respond(HttpStatusCode.Unauthorized)
+                        val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
+                        val journalpostId = manuellOppgaveDTOList.first().journalpostId
+                        val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
+                        val pasientFnr = manuellOppgaveDTOList.first().fnr!!
+
+                        val loggingMeta = LoggingMeta(
+                            mottakId = sykmeldingId,
+                            dokumentInfoId = dokumentInfoId,
+                            msgId = callId,
+                            sykmeldingId = sykmeldingId,
+                            journalpostId = journalpostId
+                        )
+
+                        if (authorizationService.hasAccess(accessToken, pasientFnr)) {
+
+                            handleSendOppgaveTilGosys(
+                                authorizationService,
+                                oppgaveClient,
+                                manuellOppgaveService,
+                                loggingMeta,
+                                oppgaveId,
+                                accessToken
+                            )
+
+                            call.respond(HttpStatusCode.NoContent)
+                        } else {
+                            log.warn(
+                                "Veileder har ikke tilgang, {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            )
+                            call.respond(HttpStatusCode.Unauthorized)
+                        }
                     }
                 }
             }
