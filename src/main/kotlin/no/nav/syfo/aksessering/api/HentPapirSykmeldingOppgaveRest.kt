@@ -12,6 +12,7 @@ import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.persistering.handleSendOppgaveTilGosys
 import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -31,6 +32,9 @@ fun Route.hentPapirSykmeldingManuellOppgave(
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
+            val manuellOppgaveDTOList = oppgaveId?.let {
+                manuellOppgaveService.hentManuellOppgaver(it)
+            } ?: emptyList()
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -40,7 +44,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                     log.info("Ugyldig path parameter: oppgaveid")
                     call.respond(HttpStatusCode.BadRequest)
                 }
-                manuellOppgaveService.hentManuellOppgaver(oppgaveId).isEmpty() -> {
+                manuellOppgaveDTOList.isEmpty() -> {
                     log.info(
                         "Fant ingen uløste manuelloppgaver med oppgaveid {}",
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
@@ -56,19 +60,16 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         StructuredArguments.keyValue("oppgaveId", oppgaveId)
                     )
 
-                    val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
-
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                         val fnr = manuellOppgaveDTOList.first().fnr!!
 
                         if (authorizationService.hasAccess(accessToken, fnr)) {
 
                             try {
-
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                                    journalpostId = manuellOppgaveDTOList.firstOrNull()?.journalpostId ?: "",
-                                    dokumentInfoId = manuellOppgaveDTOList.firstOrNull()?.dokumentInfoId ?: "",
-                                    msgId = manuellOppgaveDTOList.firstOrNull()?.sykmeldingId ?: "",
+                                    journalpostId = manuellOppgaveDTOList.first().journalpostId,
+                                    dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId ?: "",
+                                    msgId = manuellOppgaveDTOList.first().sykmeldingId,
                                     accessToken = accessToken,
                                     oppgaveId = oppgaveId
                                 )
@@ -85,6 +86,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                                     call.respond(papirManuellOppgave)
                                 }
+                            } catch (safForbiddenException: SafForbiddenException) {
+                                call.respond(HttpStatusCode.Forbidden, "Du har ikke tilgang til dokumentet i SAF")
                             } catch (safNotFoundException: SafNotFoundException) {
 
                                 val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
@@ -115,7 +118,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
+                            call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
                         }
                     }
                 }

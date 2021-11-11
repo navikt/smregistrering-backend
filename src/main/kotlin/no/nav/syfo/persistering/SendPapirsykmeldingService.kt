@@ -205,7 +205,7 @@ class SendPapirsykmeldingService(
             "Veileder har ikkje tilgang, {}, {}",
             StructuredArguments.keyValue("oppgaveId", oppgaveId), StructuredArguments.fields(loggingMeta)
         )
-        return HttpServiceResponse(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
+        return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
     }
 
     private fun handleBrokenRule(

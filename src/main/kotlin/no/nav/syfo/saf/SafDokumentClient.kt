@@ -12,6 +12,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
+import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 
 class SafDokumentClient constructor(
@@ -57,12 +58,12 @@ class SafDokumentClient constructor(
                         throw SafNotFoundException("Saf returnerte: httpstatus ${e.response.status}")
                     }
                     HttpStatusCode.Forbidden -> {
-                        log.error("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, e.response.call.response.receive())
-                        throw RuntimeException("Saf returnerte: httpstatus ${e.response.status}")
+                        log.warn("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, e.response.call.response.receive())
+                        throw SafForbiddenException("Saf returnerte: httpstatus ${e.response.status}")
                     }
                     HttpStatusCode.Unauthorized -> {
-                        log.error("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, e.response.call.response.receive())
-                        throw RuntimeException("Saf returnerte: httpstatus ${e.response.status}")
+                        log.warn("Bruker har ikke tilgang til for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, e.response.call.response.receive())
+                        throw SafForbiddenException("Saf returnerte: httpstatus ${e.response.status}")
                     }
                     HttpStatusCode.NotAcceptable -> {
                         log.error("Not Acceptable for journalpostId {}, oppgaveId {}, response {}", journalpostId, oppgaveId, e.response.call.response.receive())

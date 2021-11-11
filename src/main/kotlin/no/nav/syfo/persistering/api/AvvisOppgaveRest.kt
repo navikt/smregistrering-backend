@@ -62,64 +62,68 @@ fun Route.avvisOppgave(
                 else -> {
 
                     val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
-
-                    val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
-                    val journalpostId = manuellOppgaveDTOList.first().journalpostId
-                    val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
-                    val pasientFnr = manuellOppgaveDTOList.first().fnr!!
-
-                    val loggingMeta = LoggingMeta(
-                        mottakId = sykmeldingId,
-                        dokumentInfoId = dokumentInfoId,
-                        msgId = callId,
-                        sykmeldingId = sykmeldingId,
-                        journalpostId = journalpostId
-                    )
-
-                    /***
-                     * Vi antar at pasientFnr finnes da sykmeldinger må ha fnr fylt ut
-                     * for å bli routet til smregistrering-backend (håndtert av syfosmpapirmottak)
-                     */
-                    if (authorizationService.hasAccess(accessToken, pasientFnr)) {
-
-                        val veileder = authorizationService.getVeileder(accessToken)
-
-                        val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
-                        val sykmelder = finnSykmelder(hpr, sykmelderService, callId, oppgaveId)
-
-                        handleAvvisOppgave(
-                            dokArkivClient = dokArkivClient,
-                            oppgaveClient = oppgaveClient,
-                            safJournalpostService = safJournalpostService,
-                            sykmelder = sykmelder,
-                            veileder = veileder,
-                            journalpostId = journalpostId,
-                            dokumentInfoId = dokumentInfoId,
-                            loggingMeta = loggingMeta,
-                            navEnhet = navEnhet,
-                            oppgaveId = oppgaveId,
-                            pasientFnr = pasientFnr,
-                            sykmeldingId = sykmeldingId,
-                            accessToken = accessToken,
-                            avvisSykmeldingReason = avvisSykmeldingRequest?.reason
-                        )
-                        manuellOppgaveService.ferdigstillSmRegistering(
-                            oppgaveId = oppgaveId,
-                            utfall = Utfall.AVVIST,
-                            ferdigstiltAv = veileder.veilederIdent
-                        ).also {
-                            if (it < 1) {
-                                log.warn(
-                                    "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
-                                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
-                                )
-                            }
-                        }
-
+                    if (manuellOppgaveDTOList.isEmpty()) {
+                        log.info("Oppgave med id $oppgaveId er allerede ferdigstilt")
                         call.respond(HttpStatusCode.NoContent)
                     } else {
-                        log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                        call.respond(HttpStatusCode.Unauthorized)
+                        val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
+                        val journalpostId = manuellOppgaveDTOList.first().journalpostId
+                        val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
+                        val pasientFnr = manuellOppgaveDTOList.first().fnr!!
+
+                        val loggingMeta = LoggingMeta(
+                            mottakId = sykmeldingId,
+                            dokumentInfoId = dokumentInfoId,
+                            msgId = callId,
+                            sykmeldingId = sykmeldingId,
+                            journalpostId = journalpostId
+                        )
+
+                        /***
+                         * Vi antar at pasientFnr finnes da sykmeldinger må ha fnr fylt ut
+                         * for å bli routet til smregistrering-backend (håndtert av syfosmpapirmottak)
+                         */
+                        if (authorizationService.hasAccess(accessToken, pasientFnr)) {
+
+                            val veileder = authorizationService.getVeileder(accessToken)
+
+                            val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
+                            val sykmelder = finnSykmelder(hpr, sykmelderService, callId, oppgaveId)
+
+                            handleAvvisOppgave(
+                                dokArkivClient = dokArkivClient,
+                                oppgaveClient = oppgaveClient,
+                                safJournalpostService = safJournalpostService,
+                                sykmelder = sykmelder,
+                                veileder = veileder,
+                                journalpostId = journalpostId,
+                                dokumentInfoId = dokumentInfoId,
+                                loggingMeta = loggingMeta,
+                                navEnhet = navEnhet,
+                                oppgaveId = oppgaveId,
+                                pasientFnr = pasientFnr,
+                                sykmeldingId = sykmeldingId,
+                                accessToken = accessToken,
+                                avvisSykmeldingReason = avvisSykmeldingRequest?.reason
+                            )
+                            manuellOppgaveService.ferdigstillSmRegistering(
+                                oppgaveId = oppgaveId,
+                                utfall = Utfall.AVVIST,
+                                ferdigstiltAv = veileder.veilederIdent
+                            ).also {
+                                if (it < 1) {
+                                    log.warn(
+                                        "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
+                                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                    )
+                                }
+                            }
+
+                            call.respond(HttpStatusCode.NoContent)
+                        } else {
+                            log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
+                            call.respond(HttpStatusCode.Forbidden)
+                        }
                     }
                 }
             }

@@ -48,6 +48,7 @@ import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -526,6 +527,151 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             }
 
             coVerify(exactly = 1) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `Hent oppgave - manglende tilgang til dokument`() {
+        with(TestApplicationEngine()) {
+            start()
+
+            coEvery {
+                safDokumentClient.hentDokument(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } throws SafForbiddenException("Du har ikke tilgang")
+            coEvery {
+                syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                    any(),
+                    any()
+                )
+            } returns Tilgang(
+                true,
+                null
+            )
+
+            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
+            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+
+            val oppgaveid = 308076319
+
+            val manuellOppgave = PapirSmRegistering(
+                journalpostId = "134",
+                oppgaveId = "123",
+                fnr = "41424",
+                aktorId = "1314",
+                dokumentInfoId = "131313",
+                datoOpprettet = OffsetDateTime.now(),
+                sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
+                behandler = Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    null,
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345"
+                ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose = Prognose(
+                    true,
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now()
+                    ),
+                    null
+                ),
+                medisinskVurdering = MedisinskVurdering(
+                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false
+                ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false
+            )
+
+            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+
+            application.setupAuth(
+                env, jwkProvider, "https://sts.issuer.net/myid"
+            )
+            application.routing {
+                authenticate("jwt") {
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveService,
+                        safDokumentClient,
+                        oppgaveClient,
+                        syfoTilgangsKontrollService
+                    )
+                }
+            }
+
+            application.install(ContentNegotiation) {
+                jackson {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                }
+            }
+            application.install(StatusPages) {
+                exception<Throwable> { cause ->
+                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    log.error("Caught exception", cause)
+                    throw cause
+                }
+            }
+
+            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+                id = 123, versjon = 2,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET"
+            )
+
+            with(
+                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
+                    addHeader("Accept", "application/json")
+                    addHeader("Content-Type", "application/json")
+                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+            ) {
+                response.status() shouldBeEqualTo HttpStatusCode.Forbidden
+            }
+
+            coVerify(exactly = 0) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }
         }
     }
 
