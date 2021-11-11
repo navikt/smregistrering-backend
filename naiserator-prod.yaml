@@ -73,7 +73,7 @@ spec:
     - name: HELSENETT_SCOPE
       value: api://prod-fss.teamsykmelding.syfohelsenettproxy/.default
     - name: HENT_DOKUMENT_URL
-      value: https://saf.nais.adeo.no/
+      value: https://saf.nais.adeo.no
     - name: SAFJOURNALPOST_GRAPHQL_PATH
       value: https://saf.nais.adeo.no/graphql
     - name: SAF_SCOPE
