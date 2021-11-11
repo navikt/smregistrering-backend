@@ -70,7 +70,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     } catch (e: UnauthorizedException) {
                         log.warn("Caught UnauthorizedException", "Noe gikk galt ved uthenting av behandler")
                         call.respond(
-                            HttpStatusCode.Unauthorized,
+                            HttpStatusCode.Forbidden,
                             "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll"
                         )
                     } catch (e: ValidationException) {

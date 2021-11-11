@@ -118,7 +118,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til oppgaven")
+                            call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
                         }
                     }
                 }

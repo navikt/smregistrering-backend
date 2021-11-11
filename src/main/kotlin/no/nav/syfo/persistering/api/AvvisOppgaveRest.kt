@@ -122,7 +122,7 @@ fun Route.avvisOppgave(
                             call.respond(HttpStatusCode.NoContent)
                         } else {
                             log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                            call.respond(HttpStatusCode.Unauthorized)
+                            call.respond(HttpStatusCode.Forbidden)
                         }
                     }
                 }

@@ -80,7 +80,7 @@ fun Route.sendOppgaveTilGosys(
                                 "Veileder har ikke tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            call.respond(HttpStatusCode.Unauthorized)
+                            call.respond(HttpStatusCode.Forbidden)
                         }
                     }
                 }

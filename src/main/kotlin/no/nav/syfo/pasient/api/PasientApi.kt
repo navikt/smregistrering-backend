@@ -31,7 +31,7 @@ fun Route.pasientApi(
                         call.respond(pdlPerson.navn)
                     } else {
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
-                        call.respond(HttpStatusCode.Unauthorized, "Veileder har ikke tilgang til pasienten")
+                        call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til pasienten")
                     }
                 }
             }
