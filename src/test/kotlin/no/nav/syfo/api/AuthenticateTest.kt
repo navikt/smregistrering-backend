@@ -21,7 +21,7 @@ import io.ktor.server.testing.handleRequest
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.syfo.Environment
-import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
+import no.nav.syfo.aksessering.api.registerHentPapirSykmeldingApi
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
@@ -153,7 +153,7 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
+                    registerHentPapirSykmeldingApi(
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
@@ -256,7 +256,7 @@ internal class AuthenticateTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
+                    registerHentPapirSykmeldingApi(
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,

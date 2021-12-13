@@ -32,6 +32,7 @@ suspend fun handleOKOppgave(
 ) {
 
     sykmeldingJobService.upsertSykmelding(receivedSykmelding)
+    sykmeldingJobService.createJobs(receivedSykmelding)
 
     if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)) {
         dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -62,8 +63,6 @@ suspend fun handleOKOppgave(
         )
 
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
-
-        sykmeldingJobService.createJobs(receivedSykmelding)
 
         log.info(
             "Ferdigstiller oppgave med {}, {}",

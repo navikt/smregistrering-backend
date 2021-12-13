@@ -64,7 +64,7 @@ import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.ValidationException
-import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.persistering.api.registerSendPapirSykmeldingApi
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.service.SafJournalpostService
@@ -127,7 +127,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendPapirSykmeldingManuellOppgave(
+                registerSendPapirSykmeldingApi(
                     SendPapirsykmeldingService(
                         sykmelderService,
                         pdlPersonService,
@@ -402,7 +402,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendPapirSykmeldingManuellOppgave(
+                registerSendPapirSykmeldingApi(
                     SendPapirsykmeldingService(
                         sykmelderService,
                         pdlPersonService,
@@ -625,7 +625,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendPapirSykmeldingManuellOppgave(
+                registerSendPapirSykmeldingApi(
                     SendPapirsykmeldingService(
                         sykmelderService,
                         pdlPersonService,

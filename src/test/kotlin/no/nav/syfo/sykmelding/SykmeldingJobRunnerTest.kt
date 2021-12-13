@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.sykmelding.jobs.db.getJobForSykmeldingId
-import no.nav.syfo.sykmelding.jobs.db.insertJobs
+import no.nav.syfo.sykmelding.jobs.db.upsertJobs
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
@@ -94,7 +94,7 @@ class SykmeldingJobRunnerTest {
     fun runJobsDoNotResetInProgressJobsBeforeTimeout() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
         sykmeldingJobService.upsertSykmelding(sykmelding)
-        testDB.insertJobs(
+        testDB.upsertJobs(
             listOf(
                 Job(
                     sykmelding.sykmelding.id,
@@ -129,7 +129,7 @@ class SykmeldingJobRunnerTest {
     fun resetAndRunInProgressJobs() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
         sykmeldingJobService.upsertSykmelding(sykmelding)
-        testDB.insertJobs(
+        testDB.upsertJobs(
             listOf(
                 Job(
                     sykmelding.sykmelding.id,

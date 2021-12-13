@@ -21,7 +21,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.syfo.Environment
-import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
+import no.nav.syfo.aksessering.api.registerHentPapirSykmeldingApi
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.AktoerIdClient
@@ -168,7 +168,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                hentPapirSykmeldingManuellOppgave(
+                registerHentPapirSykmeldingApi(
                     manuellOppgaveService,
                     safDokumentClient,
                     oppgaveClient,
@@ -472,7 +472,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
+                    registerHentPapirSykmeldingApi(
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,
@@ -618,7 +618,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             )
             application.routing {
                 authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
+                    registerHentPapirSykmeldingApi(
                         manuellOppgaveService,
                         safDokumentClient,
                         oppgaveClient,

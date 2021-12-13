@@ -12,7 +12,7 @@ import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
 import java.util.UUID
 
-fun Route.sykmelderApi(
+fun Route.registerSykmelderApi(
     sykmelderService: SykmelderService
 ) {
     route("/api/v1") {

@@ -12,7 +12,7 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
-fun Route.pasientApi(
+fun Route.registerPasientApi(
     pdlPersonService: PdlPersonService,
     authorizationService: AuthorizationService
 ) {

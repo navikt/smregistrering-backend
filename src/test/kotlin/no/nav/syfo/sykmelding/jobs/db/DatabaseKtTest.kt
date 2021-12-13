@@ -51,7 +51,7 @@ class DatabaseKtTest {
             name = JOB_NAME.SENDT_SYKMELDING,
             updated = OffsetDateTime.now().minusMinutes(59)
         )
-        testDb.insertJobs(listOf(inProgress))
+        testDb.upsertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
         job shouldBe null
@@ -72,7 +72,7 @@ class DatabaseKtTest {
             name = JOB_NAME.SENDT_SYKMELDING,
             updated = OffsetDateTime.now().minusMinutes(61)
         )
-        testDb.insertJobs(listOf(inProgress))
+        testDb.upsertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
         job shouldBe null
@@ -107,15 +107,30 @@ class DatabaseKtTest {
     fun saveJobsToDb() {
         insertSykmelding()
         val jobs = listOf(newJob)
-        testDb.insertJobs(jobs)
+        testDb.upsertJobs(jobs)
         val savedJob = testDb.getJob(JOB_STATUS.NEW).first()
         savedJob shouldBeEqualTo newJob
     }
 
     @Test
+    fun upsertJobs() {
+        insertSykmelding()
+        val jobs = listOf(newJob)
+        testDb.upsertJobs(jobs)
+        val savedJob = testDb.getJobForSykmeldingId(newJob.sykmeldingId).first()
+        savedJob shouldBeEqualTo newJob
+
+        val anotherJob = newJob.copy(updated = OffsetDateTime.now(ZoneOffset.UTC))
+        val anotherJobs = listOf(anotherJob)
+        testDb.upsertJobs(anotherJobs)
+        val savedJob2 = testDb.getJobForSykmeldingId(newJob.sykmeldingId).first()
+        savedJob2 shouldBeEqualTo anotherJob
+    }
+
+    @Test
     fun getJobAndSetInProgress() {
         insertSykmelding()
-        testDb.insertJobs(listOf(newJob))
+        testDb.upsertJobs(listOf(newJob))
         val inprogressJob = testDb.getNextJob()
         inprogressJob!!.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
     }
@@ -123,7 +138,7 @@ class DatabaseKtTest {
     @Test
     fun getDifferentJobThreads() {
         insertSykmelding()
-        testDb.insertJobs(listOf(newJob.copy(name = JOB_NAME.SENDT_TO_SYFOSERVICE), newJob))
+        testDb.upsertJobs(listOf(newJob.copy(name = JOB_NAME.SENDT_TO_SYFOSERVICE), newJob))
 
         runBlocking {
 
@@ -145,7 +160,7 @@ class DatabaseKtTest {
     @Test
     fun updateJobStatus() {
         insertSykmelding()
-        testDb.insertJobs(listOf(newJob))
+        testDb.upsertJobs(listOf(newJob))
         val job = testDb.getNextJob()
         job?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
 

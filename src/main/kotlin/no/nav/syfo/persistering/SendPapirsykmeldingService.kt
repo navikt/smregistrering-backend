@@ -274,7 +274,7 @@ class SendPapirsykmeldingService(
                     navEnhet = navEnhet
                 )
 
-                manuellOppgaveService.ferdigstillSmRegistering(
+                manuellOppgaveService.ferdigstillManuellOppgave(
                     oppgaveId = oppgaveId,
                     utfall = Utfall.OK,
                     ferdigstiltAv = veileder.veilederIdent

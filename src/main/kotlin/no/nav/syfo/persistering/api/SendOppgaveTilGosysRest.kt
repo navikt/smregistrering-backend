@@ -16,7 +16,7 @@ import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
-fun Route.sendOppgaveTilGosys(
+fun Route.registerSendOppgaveTilGosysApi(
     manuellOppgaveService: ManuellOppgaveService,
     authorizationService: AuthorizationService,
     oppgaveClient: OppgaveClient

@@ -14,17 +14,20 @@ import java.time.ZoneOffset
 
 private const val TRANSACTION_TIMEOUT = 60_000
 
-fun DatabaseInterface.insertJobs(jobs: List<Job>) {
+fun DatabaseInterface.upsertJobs(jobs: List<Job>) {
     connection.use { connection ->
-        insertJobs(connection, jobs)
+        upsertJobs(connection, jobs)
         connection.commit()
     }
 }
 
-private fun insertJobs(connection: Connection, jobs: List<Job>) {
+private fun upsertJobs(connection: Connection, jobs: List<Job>) {
     connection.prepareStatement(
         """
-                INSERT into job(sykmelding_id, name, created, updated, status) values (?, ?, ?, ?, ?)
+            INSERT INTO job(sykmelding_id, name, created, updated, status)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (sykmelding_id, name) DO UPDATE SET updated = ?,
+                                                            status  = ?;
             """
     ).use {
         for (job in jobs) {
@@ -32,6 +35,8 @@ private fun insertJobs(connection: Connection, jobs: List<Job>) {
             it.setString(i++, job.sykmeldingId)
             it.setString(i++, job.name.name)
             it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
+            it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
+            it.setString(i++, job.status.name)
             it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
             it.setString(i++, job.status.name)
             it.addBatch()

@@ -19,7 +19,7 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
-fun Route.hentPapirSykmeldingManuellOppgave(
+fun Route.registerHentPapirSykmeldingApi(
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
     oppgaveClient: OppgaveClient,

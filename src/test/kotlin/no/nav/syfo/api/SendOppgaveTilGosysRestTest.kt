@@ -33,7 +33,7 @@ import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
-import no.nav.syfo.persistering.api.sendOppgaveTilGosys
+import no.nav.syfo.persistering.api.registerSendOppgaveTilGosysApi
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
@@ -65,7 +65,7 @@ class SendOppgaveTilGosysRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                registerSendOppgaveTilGosysApi(manuellOppgaveService, authorizationService, oppgaveClient)
             }
 
             application.install(ContentNegotiation) {
@@ -90,7 +90,7 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillManuellOppgave(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
@@ -204,7 +204,7 @@ class SendOppgaveTilGosysRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                registerSendOppgaveTilGosysApi(manuellOppgaveService, authorizationService, oppgaveClient)
             }
 
             application.install(ContentNegotiation) {
@@ -229,7 +229,7 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillManuellOppgave(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 

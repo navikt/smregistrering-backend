@@ -26,7 +26,7 @@ suspend fun handleSendOppgaveTilGosys(
         msgId = loggingMeta.msgId,
         tilordnetRessurs = veileder.veilederIdent
     )
-    manuellOppgaveService.ferdigstillSmRegistering(oppgaveId = oppgaveId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
+    manuellOppgaveService.ferdigstillManuellOppgave(oppgaveId = oppgaveId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
 
     SENT_TO_GOSYS_COUNTER.inc()
 

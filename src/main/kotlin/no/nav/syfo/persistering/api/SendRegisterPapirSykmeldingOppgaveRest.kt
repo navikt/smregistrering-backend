@@ -15,7 +15,7 @@ import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
-fun Route.sendPapirSykmeldingManuellOppgave(
+fun Route.registerSendPapirSykmeldingApi(
     sendPapirsykmeldingService: SendPapirsykmeldingService
 ) {
     route("/api/v1") {

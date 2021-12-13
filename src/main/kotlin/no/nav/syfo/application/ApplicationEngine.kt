@@ -22,7 +22,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
 import no.nav.syfo.Environment
-import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
+import no.nav.syfo.aksessering.api.registerHentPapirSykmeldingApi
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
@@ -30,17 +30,18 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
-import no.nav.syfo.pasient.api.pasientApi
+import no.nav.syfo.pasient.api.registerPasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.SendPapirsykmeldingService
-import no.nav.syfo.persistering.api.avvisOppgave
-import no.nav.syfo.persistering.api.sendOppgaveTilGosys
-import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.persistering.api.registerAvvisOppgaveApi
+import no.nav.syfo.persistering.api.registerReopenOppgaveApi
+import no.nav.syfo.persistering.api.registerSendOppgaveTilGosysApi
+import no.nav.syfo.persistering.api.registerSendPapirSykmeldingApi
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.sykmelder.api.sykmelderApi
+import no.nav.syfo.sykmelder.api.registerSykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
 
@@ -95,8 +96,8 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
-                sendPapirSykmeldingManuellOppgave(
+                registerHentPapirSykmeldingApi(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
+                registerSendPapirSykmeldingApi(
                     SendPapirsykmeldingService(
                         sykmelderService,
                         pdlService,
@@ -110,7 +111,7 @@ fun createApplicationEngine(
                         manuellOppgaveService
                     )
                 )
-                avvisOppgave(
+                registerAvvisOppgaveApi(
                     manuellOppgaveService,
                     authorizationService,
                     safJournalpostService,
@@ -118,9 +119,10 @@ fun createApplicationEngine(
                     dokArkivClient,
                     oppgaveClient
                 )
-                pasientApi(pdlService, authorizationService)
-                sykmelderApi(sykmelderService)
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                registerPasientApi(pdlService, authorizationService)
+                registerSykmelderApi(sykmelderService)
+                registerSendOppgaveTilGosysApi(manuellOppgaveService, authorizationService, oppgaveClient)
+                registerReopenOppgaveApi(manuellOppgaveService, authorizationService)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

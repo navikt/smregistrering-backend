@@ -23,7 +23,7 @@ import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
-fun Route.avvisOppgave(
+fun Route.registerAvvisOppgaveApi(
     manuellOppgaveService: ManuellOppgaveService,
     authorizationService: AuthorizationService,
     safJournalpostService: SafJournalpostService,
@@ -106,7 +106,7 @@ fun Route.avvisOppgave(
                                 accessToken = accessToken,
                                 avvisSykmeldingReason = avvisSykmeldingRequest?.reason
                             )
-                            manuellOppgaveService.ferdigstillSmRegistering(
+                            manuellOppgaveService.ferdigstillManuellOppgave(
                                 oppgaveId = oppgaveId,
                                 utfall = Utfall.AVVIST,
                                 ferdigstiltAv = veileder.veilederIdent

@@ -55,7 +55,7 @@ fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
         }
     }
 
-fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int, utfall: String, ferdigstiltAv: String): Int =
+fun DatabaseInterface.ferdigstillManuellOppgave(oppgaveId: Int, utfall: String, ferdigstiltAv: String): Int =
     connection.use { connection ->
         val status = connection.prepareStatement(
             """
@@ -71,6 +71,30 @@ fun DatabaseInterface.ferdigstillSmRegistering(oppgaveId: Int, utfall: String, f
             it.setString(2, utfall)
             it.setString(3, ferdigstiltAv)
             it.setTimestamp(4, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()))
+            it.setInt(5, oppgaveId)
+            it.executeUpdate()
+        }
+        connection.commit()
+        return status
+    }
+
+fun DatabaseInterface.gjenaapneManuellOppgave(oppgaveId: Int): Int =
+    connection.use { connection ->
+        val status = connection.prepareStatement(
+            """
+            UPDATE MANUELLOPPGAVE
+            SET ferdigstilt = ?,
+                utfall = ?,
+                ferdigstilt_av = ?,
+                dato_ferdigstilt = ?
+            WHERE oppgave_id = ? 
+            AND ferdigstilt = true;
+            """
+        ).use {
+            it.setBoolean(1, false)
+            it.setString(2, null)
+            it.setString(3, null)
+            it.setTimestamp(4, null)
             it.setInt(5, oppgaveId)
             it.executeUpdate()
         }

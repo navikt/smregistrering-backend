@@ -42,7 +42,7 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.persistering.api.registerAvvisOppgaveApi
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
@@ -80,7 +80,7 @@ class AvvisOppgaveRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                avvisOppgave(
+                registerAvvisOppgaveApi(
                     oppgaveClient = oppgaveClient,
                     dokArkivClient = dokArkivClient,
                     authorizationService = authorizationService,
@@ -128,7 +128,7 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillManuellOppgave(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
@@ -265,7 +265,7 @@ class AvvisOppgaveRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                avvisOppgave(
+                registerAvvisOppgaveApi(
                     oppgaveClient = oppgaveClient,
                     dokArkivClient = dokArkivClient,
                     authorizationService = authorizationService,
@@ -313,7 +313,7 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveService.ferdigstillManuellOppgave(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
