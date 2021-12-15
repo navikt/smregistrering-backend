@@ -15,7 +15,7 @@ val jacksonVersion = "2.13.0"
 val smCommonVersion = "1.a92720c"
 val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.3.1"
-val flywayVersion = "7.15.0"
+val flywayVersion = "8.1.0"
 val hikariVersion = "5.0.0"
 val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "9.15.2"
@@ -38,10 +38,10 @@ val kafkaVersion = "2.8.0"
 val confluentVersion = "7.0.1"
 val caffeineVersion = "3.0.4"
 val postgresContainerVersion = "1.16.2"
-val kotlinVersion = "1.5.30"
+val kotlinVersion = "1.6.0"
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.6.0"
     id("org.jmailen.kotlinter") version "3.6.0"
     id("com.diffplug.spotless") version "5.16.0"
     id("com.github.johnrengelman.shadow") version "6.1.0"
@@ -152,7 +152,7 @@ tasks {
         }
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
 
     withType<ShadowJar> {
