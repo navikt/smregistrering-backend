@@ -22,6 +22,7 @@ import org.amshove.kluent.shouldNotBe
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.After
 import org.junit.Test
+import java.time.Clock
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -30,7 +31,7 @@ class DatabaseKtTest {
     private val testDb = PsqlContainerDatabase.database
     val sykmeldingId = UUID.randomUUID()
     val newJob =
-        Job(sykmeldingId.toString(), JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.NEW, OffsetDateTime.now(ZoneOffset.UTC))
+        Job(sykmeldingId.toString(), JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.NEW, OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)))
 
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
@@ -49,7 +50,7 @@ class DatabaseKtTest {
             sykmeldingId = sykmeldingId.toString(),
             status = JOB_STATUS.IN_PROGRESS,
             name = JOB_NAME.SENDT_SYKMELDING,
-            updated = OffsetDateTime.now().minusMinutes(59)
+            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(59)
         )
         testDb.insertJobs(listOf(inProgress))
 
@@ -70,7 +71,7 @@ class DatabaseKtTest {
             sykmeldingId = sykmeldingId.toString(),
             status = JOB_STATUS.IN_PROGRESS,
             name = JOB_NAME.SENDT_SYKMELDING,
-            updated = OffsetDateTime.now().minusMinutes(61)
+            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(61)
         )
         testDb.insertJobs(listOf(inProgress))
 
@@ -149,7 +150,7 @@ class DatabaseKtTest {
         val job = testDb.getNextJob()
         job?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
 
-        testDb.updateJob(job!!.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
+        testDb.updateJob(job!!.copy(updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)), status = JOB_STATUS.DONE))
 
         val doneJob = testDb.getJobForSykmeldingId(sykmeldingId = sykmeldingId.toString())
 
