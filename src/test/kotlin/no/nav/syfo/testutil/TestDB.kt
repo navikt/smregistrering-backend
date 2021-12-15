@@ -17,7 +17,7 @@ fun Connection.dropData() {
     }
 }
 
-class PsqlContainer : PostgreSQLContainer<PsqlContainer>()
+class PsqlContainer : PostgreSQLContainer<PsqlContainer>("postgres:12")
 
 class PsqlContainerDatabase private constructor() : DatabaseInterface {
 
