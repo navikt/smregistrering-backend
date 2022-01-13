@@ -8,6 +8,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
+import java.net.URL
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -35,13 +38,8 @@ import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URL
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 
-val objectMapper: ObjectMapper = ObjectMapper()
-    .registerModule(JavaTimeModule())
-    .registerKotlinModule()
+val objectMapper: ObjectMapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
@@ -56,10 +54,9 @@ fun main() {
         serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
     )
 
-    val jwkProvider = JwkProviderBuilder(URL(env.jwkKeysUrl))
-        .cached(10, 24, TimeUnit.HOURS)
-        .rateLimited(10, 1, TimeUnit.MINUTES)
-        .build()
+    val jwkProvider =
+        JwkProviderBuilder(URL(env.jwkKeysUrl)).cached(10, 24, TimeUnit.HOURS).rateLimited(10, 1, TimeUnit.MINUTES)
+            .build()
 
     val vaultCredentialService = VaultCredentialService()
     val database = Database(env, vaultCredentialService)
@@ -68,12 +65,17 @@ fun main() {
 
     val manuellOppgaveService = ManuellOppgaveService(database)
 
-    val kafkaConsumers = KafkaConsumers(env)
+    val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env, vaultSecrets)
 
     val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
-    val sykmeldingJobRunner = SykmeldingJobRunner(applicationState, sykmeldingJobService, kafkaProducers.kafkaRecievedSykmeldingProducer, kafkaProducers.kafkaSyfoserviceProducer)
+    val sykmeldingJobRunner = SykmeldingJobRunner(
+        applicationState,
+        sykmeldingJobService,
+        kafkaProducers.kafkaRecievedSykmeldingProducer,
+        kafkaProducers.kafkaSyfoserviceProducer
+    )
 
     val applicationEngine = createApplicationEngine(
         sykmeldingJobService,
@@ -103,30 +105,25 @@ fun main() {
         log.info("Started SykmeldingJobRunner")
     }
 
-    val kafkaConsumerPapirSmRegistering = kafkaConsumers.kafkaConsumerPapirSmRegistering
-
     startConsumer(
-        applicationState,
-        env,
-        kafkaConsumerPapirSmRegistering,
-        database,
-        httpClients.oppgaveClient
+        applicationState, env.sm2013SmregistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegisteringOnPrem, database, httpClients.oppgaveClient, "on-prem"
     )
 }
 
 @DelicateCoroutinesApi
 fun startConsumer(
     applicationState: ApplicationState,
-    env: Environment,
+    topic: String,
     kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
     database: Database,
-    oppgaveClient: OppgaveClient
+    oppgaveClient: OppgaveClient,
+    source: String
 ) {
     GlobalScope.launch(Dispatchers.Unbounded) {
         while (applicationState.ready) {
             try {
-                log.info("Starting consuming topic ${env.papirSmRegistreringTopic}")
-                kafkaConsumerPapirSmRegistering.subscribe(listOf(env.papirSmRegistreringTopic))
+                log.info("$source: Starting consuming topic $topic")
+                kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
                         val receivedPapirSmRegistering: PapirSmRegistering =
@@ -136,7 +133,8 @@ fun startConsumer(
                             dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
                             msgId = receivedPapirSmRegistering.sykmeldingId,
                             sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                            journalpostId = receivedPapirSmRegistering.journalpostId
+                            journalpostId = receivedPapirSmRegistering.journalpostId,
+                            source = source
                         )
                         handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
                     }
