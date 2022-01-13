@@ -20,8 +20,10 @@ class KafkaConsumers(env: Environment, vaultSecrets: VaultSecrets) {
     private val properties = kafkaBaseConfig
         .toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
-    private val onPremProperties = kafkaBaseConfigOnPrem.toConsumerConfig("${env.applicationName}-consumer",
-        valueDeserializer = StringDeserializer::class)
+    private val onPremProperties = kafkaBaseConfigOnPrem.toConsumerConfig(
+        "${env.applicationName}-consumer",
+        valueDeserializer = StringDeserializer::class
+    )
 
     val kafkaConsumerPapirSmRegistering = KafkaConsumer<String, String>(properties)
     val kafkaConsumerPapirSmRegisteringOnPrem = KafkaConsumer<String, String>(onPremProperties)
