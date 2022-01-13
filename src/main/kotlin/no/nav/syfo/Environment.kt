@@ -6,8 +6,6 @@ import no.nav.syfo.kafka.KafkaCredentials
 data class Environment(
     val applicationPort: Int = getEnvVar("APPLICATION_PORT", "8080").toInt(),
     val applicationName: String = getEnvVar("NAIS_APP_NAME", "smregistrering-backend"),
-    override val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-    val sm2013SmregistreringTopic: String = getEnvVar("KAFKA_PAPIR_SM_REGISTERING_TOPIC", "privat-syfo-papir-sm-registering"),
     val serviceuserUsernamePath: String = getEnvVar("SERVICE_USER_USERNAME"),
     val serviceuserPasswordPath: String = getEnvVar("SERVICE_USER_PASSWORD"),
     val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
@@ -20,15 +18,7 @@ data class Environment(
     val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api.teamkuhr.svc.nais.local"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val regelEndpointURL: String = getEnvVar("SYFOSMPAPIR_REGLER_ENDPOINT_URL"),
-    val syfoserviceKafkaTopic: String = "privat-syfo-syfoservice-mq",
-    val sm2013ManualHandlingTopic: String = getEnvVar("KAFKA_SM2013_MANUAL_TOPIC", "privat-syfo-sm2013-manuellBehandling"),
-    val sm2013AutomaticHandlingTopic: String = getEnvVar("KAFKA_SM2013_AUTOMATIC_TOPIC", "privat-syfo-sm2013-automatiskBehandling"),
-    val sm2013BehandlingsUtfallTopic: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-behandlingsUtfall"),
-    val smProduserOppgaveTopic: String = getEnvVar("KAFKA_PRODUSER_OPPGAVE_TOPIC", "aapen-syfo-oppgave-produserOppgave"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
-    override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
-    override val truststore: String? = getEnvVar("NAV_TRUSTSTORE_PATH"),
-    override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL"),
     val helsenettproxyScope: String = getEnvVar("HELSENETT_SCOPE"),
     val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH"),
@@ -43,7 +33,15 @@ data class Environment(
     val azureAppClientId: String = getEnvVar("AZURE_APP_CLIENT_ID"),
     val azureAppClientSecret: String = getEnvVar("AZURE_APP_CLIENT_SECRET"),
     val jwkKeysUrl: String = getEnvVar("AZURE_OPENID_CONFIG_JWKS_URI"),
-    val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER")
+    val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER"),
+    val okSykmeldingTopic: String = "teamsykmelding.ok-sykmelding",
+    val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
+    val syfoserviceMqKafkaTopic: String = "teamsykmelding.syfoservice-mq",
+    override val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
+    val sm2013SmregistreringTopic: String = getEnvVar("KAFKA_PAPIR_SM_REGISTERING_TOPIC", "privat-syfo-papir-sm-registering"),
+    override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
+    override val truststore: String? = getEnvVar("NAV_TRUSTSTORE_PATH"),
+    override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
 ) : KafkaConfig
 
 data class VaultSecrets(
@@ -53,5 +51,6 @@ data class VaultSecrets(
     override val kafkaUsername: String = serviceuserUsername
     override val kafkaPassword: String = serviceuserPassword
 }
+
 fun getEnvVar(varName: String, defaultValue: String? = null) =
     System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")

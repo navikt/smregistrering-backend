@@ -51,6 +51,8 @@ spec:
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.adeo.no"
+  kafka:
+    pool: nav-prod
   env:
     - name: SERVICE_USER_USERNAME
       value: /secrets/serviceuser/username
