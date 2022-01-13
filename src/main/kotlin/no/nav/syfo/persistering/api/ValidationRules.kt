@@ -17,7 +17,7 @@ fun checkValidState(
 
     when {
         smRegistreringManuell.perioder.isEmpty() -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -28,10 +28,10 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
         harOverlappendePerioder(smRegistreringManuell.perioder) -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -42,10 +42,10 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
         harUlovligKombinasjonMedReisetilskudd(smRegistreringManuell.perioder) -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -56,10 +56,10 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
         erFremtidigDato(smRegistreringManuell.behandletDato) -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -70,10 +70,10 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
         studentBehandlerUtenAutorisasjon(validationResult, sykmelder) -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -84,10 +84,10 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
         suspendertBehandler(validationResult) -> {
-            val validationResult = ValidationResult(
+            val vr = ValidationResult(
                 status = Status.MANUAL_PROCESSING,
                 ruleHits = listOf(
                     RuleInfo(
@@ -98,7 +98,7 @@ fun checkValidState(
                     )
                 )
             )
-            throw ValidationException(validationResult)
+            throw ValidationException(vr)
         }
     }
 }

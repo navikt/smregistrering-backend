@@ -104,8 +104,6 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val dokArkivClient = mockk<DokArkivClient>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val regelClient = mockk<RegelClient>()
-    private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
-    private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
@@ -349,10 +347,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                     any()
                 )
             } returns ""
-            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
-            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
+
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
                 ruleHits = emptyList()
@@ -565,10 +560,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                     any()
                 )
             } returns ""
-            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
-            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
+
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
                 ruleHits = emptyList()
@@ -782,10 +774,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                     any()
                 )
             } returns ""
-            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
-            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
+
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
                 ruleHits = emptyList()

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -46,6 +47,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
+@DelicateCoroutinesApi
 @InternalAPI
 fun main() {
     val env = Environment()
@@ -66,8 +68,8 @@ fun main() {
 
     val manuellOppgaveService = ManuellOppgaveService(database)
 
-    val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
-    val kafkaProducers = KafkaProducers(env, vaultSecrets)
+    val kafkaConsumers = KafkaConsumers(env)
+    val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env, vaultSecrets)
 
     val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
@@ -112,6 +114,7 @@ fun main() {
     )
 }
 
+@DelicateCoroutinesApi
 fun startConsumer(
     applicationState: ApplicationState,
     env: Environment,
@@ -122,10 +125,10 @@ fun startConsumer(
     GlobalScope.launch(Dispatchers.Unbounded) {
         while (applicationState.ready) {
             try {
-                log.info("Starting consuming topic ${env.sm2013SmregistreringTopic}")
-                kafkaConsumerPapirSmRegistering.subscribe(listOf(env.sm2013SmregistreringTopic))
+                log.info("Starting consuming topic ${env.papirSmRegistreringTopic}")
+                kafkaConsumerPapirSmRegistering.subscribe(listOf(env.papirSmRegistreringTopic))
                 while (applicationState.ready) {
-                    kafkaConsumerPapirSmRegistering.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
+                    kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
                         val receivedPapirSmRegistering: PapirSmRegistering =
                             objectMapper.readValue(consumerRecord.value())
                         val loggingMeta = LoggingMeta(
@@ -137,12 +140,11 @@ fun startConsumer(
                         )
                         handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
                     }
-                    delay(1)
                 }
             } catch (ex: Exception) {
-                log.error("Error running kafka consumer, unsubscribing and waiting 10 seconds for retry", ex)
+                log.error("Error running kafka consumer, unsubscribing and waiting 60 seconds for retry", ex)
                 kafkaConsumerPapirSmRegistering.unsubscribe()
-                delay(10_000)
+                delay(60_000)
             }
         }
     }

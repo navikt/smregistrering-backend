@@ -33,7 +33,7 @@ private fun insertJobs(connection: Connection, jobs: List<Job>) {
             it.setString(i++, job.name.name)
             it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
             it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
-            it.setString(i++, job.status.name)
+            it.setString(i, job.status.name)
             it.addBatch()
         }
         it.executeBatch()

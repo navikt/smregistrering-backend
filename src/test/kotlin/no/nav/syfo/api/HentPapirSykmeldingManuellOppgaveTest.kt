@@ -81,8 +81,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
     private val aktoerIdClient = mockk<AktoerIdClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val regelClient = mockk<RegelClient>()
-    private val kafkaValidationResultProducer = mockk<KafkaProducers.KafkaValidationResultProducer>()
-    private val kafkaManuelTaskProducer = mockk<KafkaProducers.KafkaManuelTaskProducer>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
     private val env = mockk<Environment>() {
@@ -255,10 +253,6 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     any()
                 )
             } returns ""
-            coEvery { kafkaValidationResultProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaValidationResultProducer.sm2013BehandlingsUtfallTopic } returns "behandligtopic"
-            coEvery { kafkaManuelTaskProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaManuelTaskProducer.sm2013ProduserOppgaveTopic } returns "produseroppgavetopic"
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
                 ruleHits = emptyList()
