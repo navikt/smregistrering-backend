@@ -8,9 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
-import java.net.URL
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -38,6 +35,9 @@ import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.URL
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 val objectMapper: ObjectMapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
