@@ -106,6 +106,9 @@ fun main() {
     }
 
     startConsumer(
+        applicationState, env.papirSmRegistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegistering, database, httpClients.oppgaveClient, "aiven"
+    )
+    startConsumer(
         applicationState, env.sm2013SmregistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegisteringOnPrem, database, httpClients.oppgaveClient, "on-prem"
     )
 }
