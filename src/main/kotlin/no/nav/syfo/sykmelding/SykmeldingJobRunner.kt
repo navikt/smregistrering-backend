@@ -12,6 +12,7 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatUnmarshaller
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.errors.ClusterAuthorizationException
 import java.io.StringReader
 import java.time.OffsetDateTime
 
@@ -31,6 +32,11 @@ class SykmeldingJobRunner(
                 }
             } catch (ex: Exception) {
                 log.error("Could not process jobs", ex)
+
+                if (ex is ClusterAuthorizationException) {
+                    applicationState.ready = false
+                    applicationState.alive = false
+                }
             }
             delay(3_000)
         }
