@@ -99,7 +99,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = dokumentInfoId,
                                     msgId = sykmeldingId,
                                     sykmeldingId = sykmeldingId,
-                                    journalpostId = journalpostId
+                                    journalpostId = journalpostId,
+                                    source = "api"
                                 )
 
                                 handleSendOppgaveTilGosys(

@@ -76,7 +76,8 @@ fun Route.avvisOppgave(
                             dokumentInfoId = dokumentInfoId,
                             msgId = callId,
                             sykmeldingId = sykmeldingId,
-                            journalpostId = journalpostId
+                            journalpostId = journalpostId,
+                            source = "api"
                         )
 
                         /***

@@ -27,7 +27,7 @@ import java.time.OffsetDateTime
 class HandleRecivedMessageKtTest {
     private val database = PsqlContainerDatabase.database
     private val oppgaveClient = mockk<OppgaveClient>()
-    private val loggingMeta = LoggingMeta("", "", "", "", "")
+    private val loggingMeta = LoggingMeta("", "", "", "", "", "")
 
     @BeforeEach
     fun beforeEachTest() {

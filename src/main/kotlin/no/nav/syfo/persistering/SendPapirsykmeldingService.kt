@@ -65,7 +65,8 @@ class SendPapirsykmeldingService(
                 dokumentInfoId = dokumentInfoId,
                 msgId = sykmeldingId,
                 sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId
+                journalpostId = journalpostId,
+                source = "api"
             )
 
             if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
