@@ -58,8 +58,6 @@ spec:
       value: /secrets/serviceuser/username
     - name: SERVICE_USER_PASSWORD
       value: /secrets/serviceuser/password
-    - name: KAFKA_BOOTSTRAP_SERVERS_URL
-      value: SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443
     - name: SMREGISTERINGB_BACKEND_DB_URL
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/smregistrering-backend
     - name: MOUNT_PATH_VAULT

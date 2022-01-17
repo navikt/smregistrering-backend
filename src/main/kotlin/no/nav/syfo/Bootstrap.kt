@@ -65,7 +65,7 @@ fun main() {
 
     val manuellOppgaveService = ManuellOppgaveService(database)
 
-    val kafkaConsumers = KafkaConsumers(env, vaultSecrets)
+    val kafkaConsumers = KafkaConsumers(env)
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env, vaultSecrets)
 
@@ -107,9 +107,6 @@ fun main() {
 
     startConsumer(
         applicationState, env.papirSmRegistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegistering, database, httpClients.oppgaveClient, "aiven"
-    )
-    startConsumer(
-        applicationState, env.sm2013SmregistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegisteringOnPrem, database, httpClients.oppgaveClient, "on-prem"
     )
 }
 
