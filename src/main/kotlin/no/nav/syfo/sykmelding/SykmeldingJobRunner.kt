@@ -12,7 +12,6 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatUnmarshaller
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.errors.ClusterAuthorizationException
 import java.io.StringReader
 import java.time.OffsetDateTime
 import java.util.concurrent.ExecutionException
