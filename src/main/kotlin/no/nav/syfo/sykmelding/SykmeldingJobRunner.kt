@@ -34,6 +34,7 @@ class SykmeldingJobRunner(
                 log.error("Could not process jobs", ex)
 
                 if (ex is ClusterAuthorizationException) {
+                    log.error("Exception is ClusterAuthorizationException, restarting..")
                     applicationState.ready = false
                     applicationState.alive = false
                 }
