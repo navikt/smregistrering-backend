@@ -15,6 +15,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.errors.ClusterAuthorizationException
 import java.io.StringReader
 import java.time.OffsetDateTime
+import java.util.concurrent.ExecutionException
 
 class SykmeldingJobRunner(
     private val applicationState: ApplicationState,
@@ -33,8 +34,8 @@ class SykmeldingJobRunner(
             } catch (ex: Exception) {
                 log.error("Could not process jobs", ex)
 
-                if (ex is ClusterAuthorizationException) {
-                    log.error("Exception is ClusterAuthorizationException, restarting..")
+                if (ex is ExecutionException) {
+                    log.error("Exception is ExecutionException, restarting..", ex.cause)
                     applicationState.ready = false
                     applicationState.alive = false
                 }
