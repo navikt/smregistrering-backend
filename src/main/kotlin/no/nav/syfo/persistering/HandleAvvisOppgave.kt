@@ -10,6 +10,8 @@ import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.util.LoggingMeta
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 suspend fun handleAvvisOppgave(
     dokArkivClient: DokArkivClient,
@@ -54,10 +56,13 @@ suspend fun handleAvvisOppgave(
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
             mappeId = null,
-            beskrivelse = when {
-                !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
-                else -> "Avvist papirsykmelding uten oppgitt årsak."
-            }
+            beskrivelse = lagOppgavebeskrivelse(
+                avvisSykmeldingReason = avvisSykmeldingReason,
+                opprinneligBeskrivelse = oppgave.beskrivelse,
+                veileder = veileder,
+                navEnhet = navEnhet,
+                timestamp = LocalDateTime.now()
+            )
         )
 
         val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
@@ -69,4 +74,20 @@ suspend fun handleAvvisOppgave(
     } else {
         log.info("Hopper over ferdigstillOppgave, oppgaveId $oppgaveId er allerede ${oppgave.status}")
     }
+}
+
+fun lagOppgavebeskrivelse(
+    avvisSykmeldingReason: String?,
+    opprinneligBeskrivelse: String?,
+    veileder: Veileder,
+    navEnhet: String,
+    timestamp: LocalDateTime
+): String {
+    val oppdatertBeskrivelse = when {
+        !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
+        else -> "Avvist papirsykmelding uten oppgitt årsak."
+    }
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+    val formattedTimestamp = timestamp.format(formatter)
+    return "--- $formattedTimestamp ${veileder.veilederIdent}, $navEnhet ---\n$oppdatertBeskrivelse\n\n$opprinneligBeskrivelse"
 }

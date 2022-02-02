@@ -95,7 +95,7 @@ class OppgaveClient(
         }
     }
 
-    protected suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
+    private suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
 
