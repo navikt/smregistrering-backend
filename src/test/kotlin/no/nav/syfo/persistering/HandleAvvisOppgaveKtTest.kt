@@ -21,7 +21,6 @@ internal class HandleAvvisOppgaveKtTest {
         val oppdatertBeskrivelse = lagOppgavebeskrivelse(avvisSykmeldingReason, opprinneligBeskrivelse, veileder, enhet, timestamp)
 
         oppdatertBeskrivelse shouldBeEqualTo "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
-            "\n" +
             "Avvist papirsykmelding med årsak: Feil avventende periode\n" +
             "\n" +
             "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
@@ -37,7 +36,6 @@ internal class HandleAvvisOppgaveKtTest {
         val oppdatertBeskrivelse = lagOppgavebeskrivelse(avvisSykmeldingReason, opprinneligBeskrivelse, veileder, enhet, timestamp)
 
         oppdatertBeskrivelse shouldBeEqualTo "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
-            "\n" +
             "Avvist papirsykmelding uten oppgitt årsak.\n" +
             "\n" +
             "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +

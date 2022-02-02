@@ -89,5 +89,5 @@ fun lagOppgavebeskrivelse(
     }
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
     val formattedTimestamp = timestamp.format(formatter)
-    return "--- $formattedTimestamp ${veileder.veilederIdent}, $navEnhet ---\n\n$oppdatertBeskrivelse\n\n$opprinneligBeskrivelse"
+    return "--- $formattedTimestamp ${veileder.veilederIdent}, $navEnhet ---\n$oppdatertBeskrivelse\n\n$opprinneligBeskrivelse"
 }
