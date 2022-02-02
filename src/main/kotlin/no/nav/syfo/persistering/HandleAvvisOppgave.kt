@@ -46,6 +46,10 @@ suspend fun handleAvvisOppgave(
     val oppgave = oppgaveClient.hentOppgave(oppgaveId, sykmeldingId)
 
     if (OppgaveStatus.FERDIGSTILT.name != oppgave.status) {
+        val oppdatertBeskrivelse = when {
+            !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
+            else -> "Avvist papirsykmelding uten oppgitt årsak."
+        }
         val ferdigstillOppgave = FerdigstillOppgave(
             versjon = oppgave.versjon
                 ?: throw RuntimeException("Fant ikke versjon for oppgave ${oppgave.id}, sykmeldingId $sykmeldingId"),
@@ -54,10 +58,7 @@ suspend fun handleAvvisOppgave(
             tildeltEnhetsnr = navEnhet,
             tilordnetRessurs = veileder.veilederIdent,
             mappeId = null,
-            beskrivelse = when {
-                !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
-                else -> "Avvist papirsykmelding uten oppgitt årsak."
-            }
+            beskrivelse = "$oppdatertBeskrivelse\n${oppgave.beskrivelse}"
         )
 
         val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
