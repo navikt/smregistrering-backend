@@ -4,22 +4,22 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.5.1"
-val ktorVersion = "1.6.6"
-val logbackVersion = "1.2.7"
+val coroutinesVersion = "1.5.2"
+val ktorVersion = "1.6.7"
+val logbackVersion = "1.2.10"
 val logstashEncoderVersion = "7.0.1"
-val prometheusVersion = "0.12.0"
+val prometheusVersion = "0.14.1"
 val kluentVersion = "1.68"
-val junitJupiterVersion = "5.8.1"
-val jacksonVersion = "2.13.0"
+val junitJupiterVersion = "5.8.2"
+val jacksonVersion = "2.13.1"
 val smCommonVersion = "1.a92720c"
 val kafkaEmbeddedVersion = "2.8.0"
-val postgresVersion = "42.3.1"
-val flywayVersion = "8.1.0"
-val hikariVersion = "5.0.0"
+val postgresVersion = "42.3.2"
+val flywayVersion = "8.4.3"
+val hikariVersion = "5.0.1"
 val vaultJavaDriveVersion = "3.1.0"
-val nimbusdsVersion = "9.15.2"
-val mockkVersion = "1.12.1"
+val nimbusdsVersion = "9.18"
+val mockkVersion = "1.12.2"
 val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
 val sykmelding2013Version = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
 val kithHodemeldingVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
@@ -36,7 +36,7 @@ val commonsTextVersion = "1.9"
 val syfooppgaveSchemasVersion = "c8be932543e7356a34690ce7979d494c5d8516d8"
 val kafkaVersion = "2.8.0"
 val confluentVersion = "7.0.1"
-val caffeineVersion = "3.0.4"
+val caffeineVersion = "3.0.5"
 val postgresContainerVersion = "1.16.3"
 val kotlinVersion = "1.6.0"
 
@@ -44,7 +44,7 @@ plugins {
     kotlin("jvm") version "1.6.0"
     id("org.jmailen.kotlinter") version "3.6.0"
     id("com.diffplug.spotless") version "5.16.0"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 buildscript {
@@ -70,7 +70,7 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
 
