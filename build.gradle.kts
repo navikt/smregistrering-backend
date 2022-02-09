@@ -37,7 +37,7 @@ val syfooppgaveSchemasVersion = "c8be932543e7356a34690ce7979d494c5d8516d8"
 val kafkaVersion = "2.8.0"
 val confluentVersion = "7.0.1"
 val caffeineVersion = "3.0.4"
-val postgresContainerVersion = "1.16.2"
+val postgresContainerVersion = "1.16.3"
 val kotlinVersion = "1.6.0"
 
 plugins {

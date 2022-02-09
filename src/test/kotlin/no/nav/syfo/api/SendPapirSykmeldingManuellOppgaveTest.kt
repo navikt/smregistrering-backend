@@ -73,8 +73,7 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SykmeldingJobService
-import no.nav.syfo.testutil.PsqlContainerDatabase
-import no.nav.syfo.testutil.dropData
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBe
@@ -91,7 +90,7 @@ import java.util.Calendar
 import java.util.concurrent.Future
 
 class SendPapirSykmeldingManuellOppgaveTest {
-    private val database = PsqlContainerDatabase.database
+    private val database = TestDB()
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
@@ -113,7 +112,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
 
     @After
     fun after() {
-        database.connection.dropData()
+        database.dropData()
     }
 
     @Test

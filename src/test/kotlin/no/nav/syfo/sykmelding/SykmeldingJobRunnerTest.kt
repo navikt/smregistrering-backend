@@ -15,7 +15,7 @@ import no.nav.syfo.sykmelding.jobs.db.insertJobs
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
-import no.nav.syfo.testutil.PsqlContainerDatabase
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +24,7 @@ import org.junit.Test
 import java.time.OffsetDateTime
 
 class SykmeldingJobRunnerTest {
-    private val testDB = PsqlContainerDatabase.database
+    private val testDB = TestDB()
     val applicationState = ApplicationState(true, true)
     val sykmeldingJobService = spyk(SykmeldingJobService(testDB))
     val kafkaReceivedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)

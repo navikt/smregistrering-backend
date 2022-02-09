@@ -15,7 +15,7 @@ import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.persistering.db.opprettManuellOppgave
-import no.nav.syfo.testutil.PsqlContainerDatabase
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.LoggingMeta
 import org.junit.After
@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class HandleRecivedMessageKtTest {
-    private val database = PsqlContainerDatabase.database
+    private val database = TestDB()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val loggingMeta = LoggingMeta("", "", "", "", "", "")
 
@@ -38,7 +38,7 @@ class HandleRecivedMessageKtTest {
 
     @After
     fun after() {
-        database.connection.dropData()
+        database.dropData()
     }
 
     @Test
