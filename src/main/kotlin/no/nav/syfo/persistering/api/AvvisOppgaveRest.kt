@@ -110,7 +110,8 @@ fun Route.avvisOppgave(
                             manuellOppgaveService.ferdigstillSmRegistering(
                                 oppgaveId = oppgaveId,
                                 utfall = Utfall.AVVIST,
-                                ferdigstiltAv = veileder.veilederIdent
+                                ferdigstiltAv = veileder.veilederIdent,
+                                avvisningsgrunn = avvisSykmeldingRequest?.reason
                             ).also {
                                 if (it < 1) {
                                     log.warn(

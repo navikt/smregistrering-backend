@@ -1,12 +1,15 @@
 package no.nav.syfo.testutil
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import io.mockk.every
+import io.mockk.mockk
+import no.nav.syfo.Environment
+import no.nav.syfo.db.Database
 import no.nav.syfo.db.DatabaseInterface
-import org.flywaydb.core.Flyway
+import no.nav.syfo.db.VaultCredentialService
+import no.nav.syfo.db.VaultCredentials
+import no.nav.syfo.log
 import org.testcontainers.containers.PostgreSQLContainer
 import java.sql.Connection
-import javax.sql.DataSource
 
 fun Connection.dropData() {
     use { connection ->
@@ -19,39 +22,43 @@ fun Connection.dropData() {
 
 class PsqlContainer : PostgreSQLContainer<PsqlContainer>("postgres:12")
 
-class PsqlContainerDatabase private constructor() : DatabaseInterface {
+class TestDB : DatabaseInterface {
 
     companion object {
-        val database = PsqlContainerDatabase()
-    }
+        var database: DatabaseInterface
+        val vaultCredentialService = mockk<VaultCredentialService>()
+        private val psqlContainer: PsqlContainer = PsqlContainer()
+            .withExposedPorts(5432)
+            .withUsername("username")
+            .withPassword("password")
+            .withDatabaseName("database")
+            .withInitScript("db/testdb-init.sql")
 
-    private val psqlContainer: PsqlContainer
-    private val dataSource: DataSource
-    init {
-        val databaseUsername = "username"
-        val databasePassword = "password"
-        val databaseName = "smregistrering"
-        psqlContainer = PsqlContainer().withUsername(databaseUsername).withPassword(databasePassword).withDatabaseName(databaseName)
-        psqlContainer.start()
-        dataSource = HikariDataSource(
-            HikariConfig().apply {
-                jdbcUrl = psqlContainer.jdbcUrl
-                username = databaseUsername
-                password = databasePassword
-                maximumPoolSize = 10
-                minimumIdle = 3
-                idleTimeout = 10001
-                maxLifetime = 300000
-                isAutoCommit = false
-                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-                validate()
+        init {
+            psqlContainer.start()
+            val mockEnv = mockk<Environment>(relaxed = true)
+            every { mockEnv.mountPathVault } returns ""
+            every { mockEnv.databaseName } returns "database"
+            every { mockEnv.smregistreringbackendDBURL } returns psqlContainer.jdbcUrl
+            every { vaultCredentialService.renewCredentialsTaskData = any() } returns Unit
+            every { vaultCredentialService.getNewCredentials(any(), any(), any()) } returns VaultCredentials(
+                "1",
+                "username",
+                "password"
+            )
+            try {
+                database = Database(mockEnv, vaultCredentialService)
+            } catch (ex: Exception) {
+                log.error("error", ex)
+                database = Database(mockEnv, vaultCredentialService)
             }
-        )
-        Flyway.configure().run {
-            dataSource(psqlContainer.jdbcUrl, databaseUsername, databasePassword).load().migrate()
         }
     }
 
     override val connection: Connection
-        get() = dataSource.connection
+        get() = database.connection
+
+    fun dropData() {
+        this.connection.dropData()
+    }
 }

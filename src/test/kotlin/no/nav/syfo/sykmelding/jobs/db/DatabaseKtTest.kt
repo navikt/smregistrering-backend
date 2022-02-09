@@ -13,8 +13,7 @@ import no.nav.syfo.sykmelding.db.upsertSykmelding
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
-import no.nav.syfo.testutil.PsqlContainerDatabase
-import no.nav.syfo.testutil.dropData
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -28,7 +27,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class DatabaseKtTest {
-    private val testDb = PsqlContainerDatabase.database
+    private val testDb = TestDB()
     val sykmeldingId = UUID.randomUUID()
     val newJob =
         Job(sykmeldingId.toString(), JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.NEW, OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)))
@@ -40,7 +39,7 @@ class DatabaseKtTest {
 
     @After
     fun beforeEach() {
-        testDb.connection.dropData()
+        testDb.dropData()
     }
 
     @Test

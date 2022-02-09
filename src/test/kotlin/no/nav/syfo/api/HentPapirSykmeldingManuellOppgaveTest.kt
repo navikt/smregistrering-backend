@@ -53,8 +53,7 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
-import no.nav.syfo.testutil.PsqlContainerDatabase
-import no.nav.syfo.testutil.dropData
+import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -69,7 +68,7 @@ import java.util.Calendar
 import java.util.concurrent.Future
 
 internal class HentPapirSykmeldingManuellOppgaveTest {
-    private val database = PsqlContainerDatabase.database
+    private val database = TestDB()
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
@@ -89,7 +88,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
 
     @After
     fun after() {
-        database.connection.dropData()
+        database.dropData()
     }
 
     @Test

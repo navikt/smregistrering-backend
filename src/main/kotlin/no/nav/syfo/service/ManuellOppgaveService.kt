@@ -11,6 +11,11 @@ class ManuellOppgaveService(private val database: DatabaseInterface) {
     fun hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
         database.hentManuellOppgaver(oppgaveId)
 
-    fun ferdigstillSmRegistering(oppgaveId: Int, utfall: Utfall, ferdigstiltAv: String): Int =
-        database.ferdigstillSmRegistering(oppgaveId = oppgaveId, utfall = utfall.toString(), ferdigstiltAv = ferdigstiltAv)
+    fun ferdigstillSmRegistering(oppgaveId: Int, utfall: Utfall, ferdigstiltAv: String, avvisningsgrunn: String? = null): Int =
+        database.ferdigstillSmRegistering(
+            oppgaveId = oppgaveId,
+            utfall = utfall.toString(),
+            ferdigstiltAv = ferdigstiltAv,
+            avvisningsgrunn = avvisningsgrunn
+        )
 }
