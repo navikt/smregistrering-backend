@@ -111,7 +111,7 @@ class DokArkivClient(
         msgId: String,
         loggingMeta: LoggingMeta,
         navEnhet: String
-    ): String? {
+    ): String {
         try {
             val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
@@ -132,23 +132,19 @@ class DokArkivClient(
                     }
                     HttpStatusCode.NotFound -> {
                         log.error("Journalposten finnes ikke for journalpostid {}, msgId {}, {}", journalpostId, msgId, fields(loggingMeta))
-                        return null
+                        throw RuntimeException("Oppdatering: Journalposten finnes ikke for journalpostid $journalpostId msgid $msgId")
                     }
                     HttpStatusCode.BadRequest -> {
                         log.error("Fikk http status {} for journalpostid {}, msgId {}, {}", HttpStatusCode.BadRequest.value, journalpostId, msgId, fields(loggingMeta))
-                        return null
+                        throw RuntimeException("Fikk BadRequest ved ferdigstilling av journalpostid $journalpostId msgid $msgId")
                     }
                     HttpStatusCode.Unauthorized -> {
                         log.error("Fikk http status {} for journalpostid {}, msgId {}, {}", HttpStatusCode.Unauthorized.value, journalpostId, msgId, fields(loggingMeta))
-                        return null
-                    }
-                    HttpStatusCode.PaymentRequired -> {
-                        log.error("Fikk http status {} for journalpostid {}, msgId {}, {}", HttpStatusCode.PaymentRequired.value, journalpostId, msgId, fields(loggingMeta))
-                        return null
+                        throw RuntimeException("Fikk Unauthorized ved ferdigstilling av journalpostid $journalpostId msgid $msgId")
                     }
                     HttpStatusCode.Forbidden -> {
                         log.error("Fikk http status {} for journalpostid {}, msgId {}, {}", HttpStatusCode.Forbidden.value, journalpostId, msgId, fields(loggingMeta))
-                        return null
+                        throw RuntimeException("Fikk Forbidden ved ferdigstilling av journalpostid $journalpostId msgid $msgId")
                     }
                     else -> {
                         log.error("Feil ved ferdigstilling av journalpostid {}, msgId {}, {}. Statuskode: ${e.response.status}", journalpostId, msgId, fields(loggingMeta))
