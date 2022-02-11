@@ -63,7 +63,7 @@ class DokArkivClient(
                     bruker = Bruker(id = pasientFnr),
                     sak = Sak(),
                     tittel = getTittel(avvist),
-                    dokumenter = if (avvist && dokumentInfoId != null) {
+                    dokumenter = if (dokumentInfoId != null) {
                         listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
                     } else {
                         null
