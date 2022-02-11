@@ -8,13 +8,12 @@ Repo for manual registration of paper sykmelding, receives paper sykmelding and 
 * Kotlin
 * Ktor
 * Gradle
-* JDK 12
 * Junit
 * Jackson
 
 #### Requirements
 
-* JDK 14
+* JDK 17
 
 ### Getting github-package-registry packages NAV-IT
 Some packages used in this repo is uploaded to the Github Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
@@ -64,7 +63,7 @@ And put in a invalid diagnose, then it will end up in this app
 1. Login User (Case managers / supervisors):
    Z992389
 2. Check that the sykmelding is placed in gosys:
-   - Log in at https://gosys-nais-q1.nais.preprod.local/gosys
+   - Log in at https://gosys-q1.dev.intern.nav.no/gosys
    - Search for user with fnr
 3. Verify that there is a sykmelding task under tasks overview and 
    that this is the sykmelding you submitted
