@@ -31,14 +31,14 @@ private fun upsertSykmelding(connection: Connection, receivedSykmelding: Receive
     }
 }
 
-fun DatabaseInterface.getSykmelding(sykmledingId: String): ReceivedSykmelding? {
+fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
     return connection.use {
         it.prepareStatement(
             """
             select * from sendt_sykmelding where sykmelding_id = ?
         """
         ).use {
-            it.setString(1, sykmledingId)
+            it.setString(1, sykmeldingId)
             it.executeQuery().toReceivedSykmelding()
         }
     }

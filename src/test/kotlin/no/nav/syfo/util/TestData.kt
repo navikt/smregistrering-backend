@@ -1,10 +1,19 @@
 package no.nav.syfo.util
 
+import no.nav.helse.eiFellesformat.XMLEIFellesformat
+import no.nav.helse.msgHead.XMLMsgHead
+import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
+import no.nav.syfo.model.Sykmelder
+import no.nav.syfo.model.Sykmelding
+import no.nav.syfo.pdl.client.model.IdentInformasjon
+import no.nav.syfo.pdl.model.Navn
+import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.service.getSmRegistreringManuell
-import no.nav.syfo.service.getSykmelding
-import no.nav.syfo.service.getXmleiFellesformat
+import no.nav.syfo.service.journalpostId
+import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
+import no.nav.syfo.service.toSykmelding
 import java.time.LocalDateTime
 
 fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"), fnrPasient: String, sykmelderFnr: String, datoOpprettet: LocalDateTime = LocalDateTime.now(), sykmeldingId: String = "1234"): ReceivedSykmelding {
@@ -31,5 +40,34 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
         partnerreferanse = null,
         legeHelsepersonellkategori = "LE",
         legeHprNr = "hpr"
+    )
+}
+
+fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
+    return mapsmRegistreringManuelltTilFellesformat(
+        smRegistreringManuell = smRegisteringManuellt,
+        pdlPasient = PdlPerson(
+            Navn("Test", "Doctor", "Thornton"),
+            listOf(
+                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
+            )
+        ),
+        sykmelder = Sykmelder(
+            aktorId = "aktorid", etternavn = "Doctor", fornavn = "Test", mellomnavn = "Bob",
+            fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null
+        ),
+        sykmeldingId = sykmeldingId,
+        datoOpprettet = datoOpprettet,
+        journalpostId = journalpostId
+    )
+}
+
+fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: XMLMsgHead, sykmeldingId: String = "1234", aktorId: String = "aktorId", aktorIdLege: String = "aktorIdLege"): Sykmelding {
+    return healthInformation.toSykmelding(
+        sykmeldingId = sykmeldingId,
+        pasientAktoerId = aktorId,
+        legeAktoerId = aktorIdLege,
+        msgId = sykmeldingId,
+        signaturDato = msgHead.msgInfo.genDate
     )
 }
