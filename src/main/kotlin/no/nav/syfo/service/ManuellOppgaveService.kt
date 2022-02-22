@@ -11,8 +11,8 @@ import no.nav.syfo.sykmelding.db.getSykmelding
 
 class ManuellOppgaveService(private val database: DatabaseInterface) {
 
-    fun hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
-        database.hentManuellOppgaver(oppgaveId)
+    fun hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean = false): List<ManuellOppgaveDTO> =
+        database.hentManuellOppgaver(oppgaveId, ferdigstilt)
 
     fun ferdigstillSmRegistering(oppgaveId: Int, utfall: Utfall, ferdigstiltAv: String, avvisningsgrunn: String? = null): Int =
         database.ferdigstillSmRegistering(

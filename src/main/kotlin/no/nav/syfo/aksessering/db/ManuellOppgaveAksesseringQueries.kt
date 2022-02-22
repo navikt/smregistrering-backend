@@ -9,7 +9,7 @@ import no.nav.syfo.objectMapper
 import java.sql.ResultSet
 import java.time.ZoneOffset
 
-fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDTO> =
+fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean = false): List<ManuellOppgaveDTO> =
     connection.use { connection ->
         connection.prepareStatement(
             """
@@ -20,7 +20,7 @@ fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int): List<ManuellOppgaveDT
                 """
         ).use {
             it.setInt(1, oppgaveId)
-            it.setBoolean(2, false)
+            it.setBoolean(2, ferdigstilt)
             it.executeQuery().toList { toManuellOppgaveDTO() }
         }
     }

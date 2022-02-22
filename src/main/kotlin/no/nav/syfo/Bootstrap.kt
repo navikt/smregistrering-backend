@@ -23,11 +23,12 @@ import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.handleRecivedMessage
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
-import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.Unbounded
 import no.nav.syfo.util.getFileAsString
@@ -69,29 +70,42 @@ fun main() {
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env, vaultSecrets)
 
-    val sykmeldingJobService = SykmeldingJobService(databaseInterface = database)
+    val sendtSykmeldingService = SendtSykmeldingService(databaseInterface = database)
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
-        sykmeldingJobService,
+        sendtSykmeldingService,
         kafkaProducers.kafkaRecievedSykmeldingProducer,
         kafkaProducers.kafkaSyfoserviceProducer
     )
 
+    val authorizationService = AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
+
+    val sendPapirsykmeldingService = SendPapirsykmeldingService(
+        httpClients.sykmelderService,
+        httpClients.pdlService,
+        httpClients.sarClient,
+        httpClients.regelClient,
+        authorizationService,
+        sendtSykmeldingService,
+        httpClients.oppgaveClient,
+        httpClients.dokArkivClient,
+        httpClients.safJournalpostService,
+        manuellOppgaveService
+    )
+
     val applicationEngine = createApplicationEngine(
-        sykmeldingJobService,
         env,
+        sendPapirsykmeldingService,
         applicationState,
         jwkProvider,
         manuellOppgaveService,
         httpClients.safClient,
         httpClients.oppgaveClient,
-        httpClients.sarClient,
         httpClients.dokArkivClient,
         httpClients.safJournalpostService,
-        httpClients.regelClient,
         httpClients.pdlService,
         httpClients.sykmelderService,
-        AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
+        authorizationService
     )
 
     ApplicationServer(applicationEngine, applicationState).start()

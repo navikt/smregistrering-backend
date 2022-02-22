@@ -67,7 +67,7 @@ import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
 
-internal class HentPapirSykmeldingManuellOppgaveTest {
+internal class HentPapirSykmeldingTest {
     private val database = TestDB()
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()

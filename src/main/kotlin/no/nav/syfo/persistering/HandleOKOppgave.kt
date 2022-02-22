@@ -11,11 +11,9 @@ import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.Veileder
-import no.nav.syfo.sykmelding.SykmeldingJobService
 import no.nav.syfo.util.LoggingMeta
 
 suspend fun handleOKOppgave(
-    sykmeldingJobService: SykmeldingJobService,
     receivedSykmelding: ReceivedSykmelding,
     loggingMeta: LoggingMeta,
     oppgaveClient: OppgaveClient,
@@ -30,8 +28,6 @@ suspend fun handleOKOppgave(
     sykmelder: Sykmelder,
     navEnhet: String
 ) {
-
-    sykmeldingJobService.upsertSykmelding(receivedSykmelding)
 
     if (!safJournalpostService.erJournalfoert(journalpostId = journalpostId, token = accessToken)) {
         dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -62,8 +58,6 @@ suspend fun handleOKOppgave(
         )
 
         val ferdigstiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, sykmeldingId)
-
-        sykmeldingJobService.createJobs(receivedSykmelding)
 
         log.info(
             "Ferdigstiller oppgave med {}, {}",

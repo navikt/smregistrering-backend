@@ -44,7 +44,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
-import no.nav.syfo.sykmelding.db.upsertSykmelding
+import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.util.getReceivedSykmelding
@@ -189,7 +189,7 @@ internal class HentFerdigstiltSykmeldingTest {
             )
 
             database.opprettManuellOppgave(papirSmRegistering, oppgaveid)
-            database.upsertSykmelding(receivedSykmelding)
+            database.upsertSendtSykmelding(receivedSykmelding)
             database.ferdigstillSmRegistering(oppgaveid, "OK", "ferdigstiltAv", null)
 
             application.setupAuth(
