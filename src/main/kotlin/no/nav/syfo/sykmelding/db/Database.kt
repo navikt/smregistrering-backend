@@ -29,23 +29,21 @@ fun DatabaseInterface.upsertSendtSykmelding(receivedSykmelding: ReceivedSykmeldi
 
 fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: SendtSykmeldingHistory) {
     connection.use { connection ->
-        connection.use {
-            it.prepareStatement(
-                """
+        connection.prepareStatement(
+            """
            INSERT INTO sendt_sykmelding_history(id, sykmelding_id, ferdigstilt_av, dato_ferdigstilt, sykmelding) 
            VALUES (?, ?, ?, ?, ?) 
         """
-            ).use { ps ->
-                ps.setString(1, sendtSykmeldingHistory.id)
-                ps.setString(2, sendtSykmeldingHistory.sykmeldingId)
-                ps.setString(3, sendtSykmeldingHistory.ferdigstiltAv)
-                ps.setTimestamp(4, Timestamp.from(sendtSykmeldingHistory.datoFerdigstilt.toInstant()))
-                ps.setObject(5, toPGObject(sendtSykmeldingHistory.receivedSykmelding))
-                ps.execute()
-            }
+        ).use { ps ->
+            ps.setString(1, sendtSykmeldingHistory.id)
+            ps.setString(2, sendtSykmeldingHistory.sykmeldingId)
+            ps.setString(3, sendtSykmeldingHistory.ferdigstiltAv)
+            ps.setTimestamp(4, Timestamp.from(sendtSykmeldingHistory.datoFerdigstilt.toInstant()))
+            ps.setObject(5, toPGObject(sendtSykmeldingHistory.receivedSykmelding))
+            ps.execute()
         }
-        connection.commit()
     }
+    connection.commit()
 }
 
 fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {

@@ -275,7 +275,7 @@ class SendPapirSykmeldingTest {
             )
 
             val future = mockk<Future<RecordMetadata>>()
-            coEvery { future.get() } returns mockk<RecordMetadata>()
+            coEvery { future.get() } returns mockk()
             coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns future
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
