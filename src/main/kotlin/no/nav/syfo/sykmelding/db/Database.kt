@@ -33,7 +33,7 @@ fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: Sendt
             it.prepareStatement(
                 """
            INSERT INTO sendt_sykmelding_history(id, sykmelding_id, ferdigstilt_av, dato_ferdigstilt, sykmelding) 
-           VALUES (?, ?, ?) 
+           VALUES (?, ?, ?, ?, ?) 
         """
             ).use { ps ->
                 ps.setString(1, sendtSykmeldingHistory.id)
