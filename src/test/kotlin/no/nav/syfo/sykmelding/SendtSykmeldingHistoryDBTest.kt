@@ -41,8 +41,11 @@ class SendtSykmeldingHistoryDBTest {
 
         testDb.opprettManuellOppgave(manuellOppgave, 123)
         testDb.insertSendtSykmeldingHistory(sendtSykmeldingHistory)
-        val sendtSykmeldingHistory1 = testDb.getSendtSykmeldingHistory(sykmeldingId = sykmeldingId)
-        sendtSykmeldingHistory1 shouldBeEqualTo sendtSykmeldingHistory
+        val sendtSykmeldingHistory1 = testDb.getSendtSykmeldingHistory(sykmeldingId = sykmeldingId)!!
+        sendtSykmeldingHistory1.id shouldBeEqualTo sendtSykmeldingHistory.id
+        sendtSykmeldingHistory1.sykmeldingId shouldBeEqualTo sendtSykmeldingHistory.sykmeldingId
+        sendtSykmeldingHistory1.ferdigstiltAv shouldBeEqualTo sendtSykmeldingHistory.ferdigstiltAv
+        sendtSykmeldingHistory1.receivedSykmelding shouldBeEqualTo sendtSykmeldingHistory.receivedSykmelding
     }
 
     fun DatabaseInterface.getSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory? {
