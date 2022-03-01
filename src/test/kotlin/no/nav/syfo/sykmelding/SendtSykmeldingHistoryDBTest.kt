@@ -42,7 +42,6 @@ class SendtSykmeldingHistoryDBTest {
         testDb.opprettManuellOppgave(manuellOppgave, 123)
         testDb.insertSendtSykmeldingHistory(sendtSykmeldingHistory)
         val sendtSykmeldingHistory1 = testDb.getSendtSykmeldingHistory(sykmeldingId = sykmeldingId)
-        println("sendtSykmeldingHistory1 = $sendtSykmeldingHistory1")
         sendtSykmeldingHistory1 shouldBeEqualTo sendtSykmeldingHistory
     }
 
@@ -62,9 +61,9 @@ class SendtSykmeldingHistoryDBTest {
     private fun ResultSet.toSendtSykmeldingHistory(): SendtSykmeldingHistory? {
         return when (next()) {
             true -> SendtSykmeldingHistory(
-                id = getString("id"),
-                sykmeldingId = getString("sykmelding_id"),
-                ferdigstiltAv = getString("ferdigstilt_av"),
+                id = getString("id").trim(),
+                sykmeldingId = getString("sykmelding_id").trim(),
+                ferdigstiltAv = getString("ferdigstilt_av").trim(),
                 datoFerdigstilt = OffsetDateTime.ofInstant(getTimestamp("dato_ferdigstilt").toInstant(), ZoneId.of("UTC")),
                 receivedSykmelding = objectMapper.readValue(getString("sykmelding"))
             )
@@ -78,7 +77,7 @@ class SendtSykmeldingHistoryDBTest {
             id = UUID.randomUUID().toString(),
             sykmeldingId = sykmeldingId,
             ferdigstiltAv = "ferdigstiltAv",
-            datoFerdigstilt = OffsetDateTime.now(),
+            datoFerdigstilt = OffsetDateTime.now(ZoneId.of("UTC")),
             getReceivedSykmelding(
                 fnrPasient = "1",
                 sykmelderFnr = "2",

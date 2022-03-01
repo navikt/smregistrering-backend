@@ -40,10 +40,10 @@ fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: Sendt
             ps.setString(3, sendtSykmeldingHistory.ferdigstiltAv)
             ps.setTimestamp(4, Timestamp.from(sendtSykmeldingHistory.datoFerdigstilt.toInstant()))
             ps.setObject(5, toPGObject(sendtSykmeldingHistory.receivedSykmelding))
-            ps.execute()
+            ps.executeUpdate()
         }
+        connection.commit()
     }
-    connection.commit()
 }
 
 fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {

@@ -13,10 +13,10 @@ import java.sql.Connection
 
 fun Connection.dropData() {
     use { connection ->
+        connection.prepareStatement("DELETE FROM sendt_sykmelding_history").executeUpdate()
         connection.prepareStatement("DELETE FROM manuelloppgave").executeUpdate()
         connection.prepareStatement("DELETE FROM job").executeUpdate()
         connection.prepareStatement("DELETE FROM sendt_sykmelding").executeUpdate()
-        connection.prepareStatement("DELETE FROM sendt_sykmelding_history").executeUpdate()
         connection.commit()
     }
 }
