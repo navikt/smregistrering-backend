@@ -82,7 +82,7 @@ class SendOppgaveTilGosysRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -221,7 +221,7 @@ class SendOppgaveTilGosysRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )

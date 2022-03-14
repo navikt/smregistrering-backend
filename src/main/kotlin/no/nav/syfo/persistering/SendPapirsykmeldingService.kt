@@ -76,7 +76,12 @@ class SendPapirsykmeldingService(
                 source = "api"
             )
 
-            if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
+            val hasAccess = when (isUpdate) {
+                true -> authorizationService.hasSuperuserAccess(accessToken, smRegistreringManuell.pasientFnr)
+                false -> authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)
+            }
+
+            if (hasAccess) {
                 val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                 if (sykmelderHpr.isNullOrEmpty()) {

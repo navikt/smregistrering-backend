@@ -97,7 +97,7 @@ internal class HentPapirSykmeldingTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -396,7 +396,7 @@ internal class HentPapirSykmeldingTest {
                     any()
                 )
             } throws SafNotFoundException("Saf returnerte: httpstatus 200")
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -538,7 +538,7 @@ internal class HentPapirSykmeldingTest {
                 )
             } throws SafForbiddenException("Du har ikke tilgang")
             coEvery {
-                syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                syfoTilgangsKontrollClient.hasAccess(
                     any(),
                     any()
                 )

@@ -104,7 +104,7 @@ class AvvisOppgaveRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -289,7 +289,7 @@ class AvvisOppgaveRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )

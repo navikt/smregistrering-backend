@@ -22,13 +22,13 @@ class SyfoTilgangsKontrollClient(
     private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(100)
-        .build<Map<String, String>, Tilgang>()
+        .build()
 ) {
     companion object {
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
     }
 
-    suspend fun sjekkVeiledersTilgangTilPersonViaAzure(accessToken: String, personFnr: String): Tilgang? {
+    suspend fun hasAccess(accessToken: String, personFnr: String): Tilgang? {
         syfoTilgangskontrollCache.getIfPresent(mapOf(Pair(accessToken, personFnr)))?.let {
             log.debug("Traff cache for syfotilgangskontroll")
             return it
@@ -50,6 +50,33 @@ class SyfoTilgangsKontrollClient(
         } catch (e: Exception) {
             val feilmelding = if (e is ResponseException) {
                 "syfo-tilgangskontroll svarte med ${e.response.status}"
+            } else {
+                "noe gikk galt ved oppslag mot syfo-tilgangskontroll"
+            }
+            return Tilgang(
+                harTilgang = false,
+                begrunnelse = feilmelding
+            )
+        }
+    }
+
+    suspend fun hasSuperuserAccess(accessToken: String, personFnr: String): Tilgang? {
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)?.accessToken
+            ?: throw RuntimeException("Klarte ikke hente nytt accessToken for veileder ved tilgangssjekk")
+
+        try {
+            log.info("Sjekker om veileder har utvidet tilgang til smreg")
+            val tilgang = httpClient.get<Tilgang>("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
+                accept(ContentType.Application.Json)
+                headers {
+                    append("Authorization", "Bearer $oboToken")
+                    append(NAV_PERSONIDENT_HEADER, personFnr)
+                }
+            }
+            return tilgang
+        } catch (e: Exception) {
+            val feilmelding = if (e is ResponseException) {
+                "syfo-tilgangskontroll svarte med ${e.response.status} på forespørsel om utvidet tilgang"
             } else {
                 "noe gikk galt ved oppslag mot syfo-tilgangskontroll"
             }
