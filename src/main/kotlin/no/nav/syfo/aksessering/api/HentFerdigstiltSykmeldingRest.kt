@@ -61,12 +61,12 @@ fun Route.hentFerdigstiltSykmelding(
                         val manuellOppgave = ferdigstilteOppgaver.first()
                         val fnr = manuellOppgave.fnr!!
 
-                        if (!authorizationService.hasAccess(accessToken, fnr)) {
+                        if (!authorizationService.hasSuperuserAccess(accessToken, fnr)) {
                             log.warn(
-                                "Veileder har ikke tilgang, {}",
+                                "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
                             )
-                            call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
+                            call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
                             return@get
                         }
 

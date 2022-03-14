@@ -78,7 +78,7 @@ internal class HentFerdigstiltSykmeldingTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns "stringy string".toByteArray()
-            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.hasSuperuserAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val sykmeldingId = "sykmeldingId"
