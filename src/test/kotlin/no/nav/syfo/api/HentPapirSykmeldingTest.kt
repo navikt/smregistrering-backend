@@ -67,7 +67,7 @@ import java.time.OffsetDateTime
 import java.util.Calendar
 import java.util.concurrent.Future
 
-internal class HentPapirSykmeldingManuellOppgaveTest {
+internal class HentPapirSykmeldingTest {
     private val database = TestDB()
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
@@ -97,7 +97,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -396,7 +396,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                     any()
                 )
             } throws SafNotFoundException("Saf returnerte: httpstatus 200")
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -538,7 +538,7 @@ internal class HentPapirSykmeldingManuellOppgaveTest {
                 )
             } throws SafForbiddenException("Du har ikke tilgang")
             coEvery {
-                syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+                syfoTilgangsKontrollClient.hasAccess(
                     any(),
                     any()
                 )

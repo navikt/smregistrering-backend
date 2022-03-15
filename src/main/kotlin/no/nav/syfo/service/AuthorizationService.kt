@@ -9,13 +9,24 @@ class AuthorizationService(
 ) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
         val harTilgangTilOppgave =
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(
+            syfoTilgangsKontrollClient.hasAccess(
                 accessToken,
                 pasientFnr
             )?.harTilgang
 
         return harTilgangTilOppgave != null && harTilgangTilOppgave
     }
+
+    suspend fun hasSuperuserAccess(accessToken: String, pasientFnr: String): Boolean {
+        val harTilgangTilOppgave =
+            syfoTilgangsKontrollClient.hasSuperuserAccess(
+                accessToken,
+                pasientFnr
+            )?.harTilgang
+
+        return harTilgangTilOppgave != null && harTilgangTilOppgave
+    }
+
     suspend fun getVeileder(accessToken: String): Veileder {
         val subject = msGraphClient.getSubjectFromMsGraph(accessToken)
 

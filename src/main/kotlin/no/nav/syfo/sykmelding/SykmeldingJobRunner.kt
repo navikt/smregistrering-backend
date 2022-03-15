@@ -18,15 +18,15 @@ import java.util.concurrent.ExecutionException
 
 class SykmeldingJobRunner(
     private val applicationState: ApplicationState,
-    private val sykmeldingJobService: SykmeldingJobService,
+    private val sendtSykmeldingService: SendtSykmeldingService,
     private val receivedSykmeldingKafkaProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
     private val syfoserviceKafkaProducer: KafkaProducers.KafkaSyfoserviceProducer
 ) {
     suspend fun startJobRunner() {
         while (applicationState.ready) {
             try {
-                sykmeldingJobService.resetHangingJobs()
-                val nextJob = sykmeldingJobService.getNextJob()
+                sendtSykmeldingService.resetHangingJobs()
+                val nextJob = sendtSykmeldingService.getNextJob()
                 if (nextJob != null) {
                     runJob(nextJob = nextJob)
                 }
@@ -49,12 +49,12 @@ class SykmeldingJobRunner(
             JOB_NAME.SENDT_TO_SYFOSERVICE -> sendToSyfoService(nextJob)
             JOB_NAME.SENDT_SYKMELDING -> sendSykmelding(nextJob)
         }
-        sykmeldingJobService.finishJob(nextJob.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
+        sendtSykmeldingService.finishJob(nextJob.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
     }
 
     private fun sendSykmelding(job: Job) {
         try {
-            val receivedSykmelding = sykmeldingJobService.getReceivedSykmelding(job.sykmeldingId)
+            val receivedSykmelding = sendtSykmeldingService.getReceivedSykmelding(job.sykmeldingId)
             receivedSykmeldingKafkaProducer.producer.send(
                 ProducerRecord(
                     receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic, job.sykmeldingId,
@@ -70,7 +70,7 @@ class SykmeldingJobRunner(
     private fun sendToSyfoService(job: Job) {
         try {
 
-            val receivedSykmelding = sykmeldingJobService.getReceivedSykmelding(job.sykmeldingId)
+            val receivedSykmelding = sendtSykmeldingService.getReceivedSykmelding(job.sykmeldingId)
             if (receivedSykmelding != null) {
                 val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(receivedSykmelding.fellesformat)) as XMLEIFellesformat
                 notifySyfoService(

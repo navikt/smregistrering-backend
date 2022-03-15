@@ -22,18 +22,18 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.InternalAPI
 import no.nav.syfo.Environment
+import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.persistering.api.endreSykmelding
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
@@ -42,21 +42,18 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
-import no.nav.syfo.sykmelding.SykmeldingJobService
 
 @InternalAPI
 fun createApplicationEngine(
-    sykmeldingJobService: SykmeldingJobService,
     env: Environment,
+    sendPapirsykmeldingService: SendPapirsykmeldingService,
     applicationState: ApplicationState,
     jwkProvider: JwkProvider,
     manuellOppgaveService: ManuellOppgaveService,
     safDokumentClient: SafDokumentClient,
     oppgaveClient: OppgaveClient,
-    kuhrsarClient: SarClient,
     dokArkivClient: DokArkivClient,
     safJournalpostService: SafJournalpostService,
-    regelClient: RegelClient,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService
@@ -96,20 +93,9 @@ fun createApplicationEngine(
             registerNaisApi(applicationState)
             authenticate("jwt") {
                 hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
-                sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingService(
-                        sykmelderService,
-                        pdlService,
-                        kuhrsarClient,
-                        regelClient,
-                        authorizationService,
-                        sykmeldingJobService,
-                        oppgaveClient,
-                        dokArkivClient,
-                        safJournalpostService,
-                        manuellOppgaveService
-                    )
-                )
+                hentFerdigstiltSykmelding(manuellOppgaveService, safDokumentClient, authorizationService)
+                sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingService)
+                endreSykmelding(sendPapirsykmeldingService)
                 avvisOppgave(
                     manuellOppgaveService,
                     authorizationService,

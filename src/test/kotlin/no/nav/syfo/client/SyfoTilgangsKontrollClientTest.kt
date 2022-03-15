@@ -61,7 +61,7 @@ class SyfoTilgangsKontrollClientTest {
         )
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
-            val tilgang = syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
+            val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
             tilgang?.harTilgang shouldBeEqualTo true
         }
     }
@@ -71,7 +71,7 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
         httpClient.responseData = ResponseData(HttpStatusCode.InternalServerError, objectMapper.writeValueAsString(Tilgang(false, "har ikke tilgang")))
         runBlocking {
-            val tilgang = syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
+            val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
             tilgang?.harTilgang shouldBeEqualTo false
         }
     }
@@ -81,8 +81,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
+            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
         }
 
         coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
@@ -93,8 +93,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", "987654")
+            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", "987654")
         }
 
         coVerify(exactly = 2) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
@@ -105,8 +105,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
         runBlocking {
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure("xxxxxxxxx", pasientFnr)
+            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            syfoTilgangsKontrollClient.hasAccess("xxxxxxxxx", pasientFnr)
         }
 
         coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }

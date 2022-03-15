@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
 import no.nav.syfo.sykmelding.db.getSykmelding
-import no.nav.syfo.sykmelding.db.upsertSykmelding
+import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
 import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
@@ -89,8 +89,8 @@ class DatabaseKtTest {
         insertSykmelding()
         val notUpdated =
             getReceivedSykmelding(fnrPasient = "4", sykmelderFnr = "2", sykmeldingId = UUID.randomUUID().toString())
-        testDb.upsertSykmelding(notUpdated)
-        testDb.upsertSykmelding(
+        testDb.upsertSendtSykmelding(notUpdated)
+        testDb.upsertSendtSykmelding(
             getReceivedSykmelding(
                 fnrPasient = "3",
                 sykmelderFnr = "2",
@@ -157,7 +157,7 @@ class DatabaseKtTest {
     }
 
     private fun insertSykmelding() {
-        testDb.upsertSykmelding(
+        testDb.upsertSendtSykmelding(
             getReceivedSykmelding(
                 fnrPasient = "1",
                 sykmelderFnr = "2",

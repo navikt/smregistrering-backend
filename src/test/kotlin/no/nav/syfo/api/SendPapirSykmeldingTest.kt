@@ -72,7 +72,7 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
-import no.nav.syfo.sykmelding.SykmeldingJobService
+import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBeEqualTo
@@ -89,7 +89,7 @@ import java.time.ZoneOffset
 import java.util.Calendar
 import java.util.concurrent.Future
 
-class SendPapirSykmeldingManuellOppgaveTest {
+class SendPapirSykmeldingTest {
     private val database = TestDB()
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
@@ -107,7 +107,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
-    private val sykmeldingJobService = mockk<SykmeldingJobService>(relaxed = true)
+    private val sendtSykmeldingService = mockk<SendtSykmeldingService>(relaxed = true)
     private val environment = mockk<Environment>()
 
     @After
@@ -121,7 +121,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -131,7 +131,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
-                        sykmeldingJobService,
+                        sendtSykmeldingService,
                         oppgaveClient,
                         dokArkivClient,
                         safJournalpostService,
@@ -156,7 +156,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -275,7 +275,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             )
 
             val future = mockk<Future<RecordMetadata>>()
-            coEvery { future.get() } returns mockk<RecordMetadata>()
+            coEvery { future.get() } returns mockk()
             coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns future
             coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -382,8 +382,9 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldBeEqualTo HttpStatusCode.NoContent
             }
 
-            verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
-            verify(exactly = 1) { sykmeldingJobService.createJobs(any()) }
+            verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
+            verify(exactly = 1) { sendtSykmeldingService.createJobs(any()) }
+            verify(exactly = 1) { sendtSykmeldingService.insertSendtSykmeldingHistory(any()) }
         }
     }
 
@@ -393,7 +394,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -403,7 +404,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
-                        sykmeldingJobService,
+                        sendtSykmeldingService,
                         oppgaveClient,
                         dokArkivClient,
                         safJournalpostService,
@@ -428,7 +429,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )
@@ -602,8 +603,8 @@ class SendPapirSykmeldingManuellOppgaveTest {
                 response.status() shouldBeEqualTo HttpStatusCode.BadRequest
             }
 
-            verify(exactly = 1) { sykmeldingJobService.upsertSykmelding(any()) }
-            verify(exactly = 1) { sykmeldingJobService.createJobs(any()) }
+            verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
+            verify(exactly = 1) { sendtSykmeldingService.createJobs(any()) }
         }
     }
 
@@ -613,7 +614,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingManuellOppgaveTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -623,7 +624,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
-                        sykmeldingJobService,
+                        sendtSykmeldingService,
                         oppgaveClient,
                         dokArkivClient,
                         safJournalpostService,
@@ -653,7 +654,7 @@ class SendPapirSykmeldingManuellOppgaveTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.sjekkVeiledersTilgangTilPersonViaAzure(any(), any()) } returns Tilgang(
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
                 true,
                 null
             )

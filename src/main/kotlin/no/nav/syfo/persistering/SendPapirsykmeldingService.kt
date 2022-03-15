@@ -10,8 +10,10 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.log
+import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.ReceivedSykmelding
+import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
@@ -26,13 +28,16 @@ import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.sykmelder.service.SykmelderService
-import no.nav.syfo.sykmelding.SykmeldingJobService
+import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.toString
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.UUID
 
 class SendPapirsykmeldingService(
     private val sykmelderService: SykmelderService,
@@ -40,7 +45,7 @@ class SendPapirsykmeldingService(
     private val kuhrsarClient: SarClient,
     private val regelClient: RegelClient,
     private val authorizationService: AuthorizationService,
-    private val sykmeldingJobService: SykmeldingJobService,
+    private val sendtSykmeldingService: SendtSykmeldingService,
     private val oppgaveClient: OppgaveClient,
     private val dokArkivClient: DokArkivClient,
     private val safJournalpostService: SafJournalpostService,
@@ -52,13 +57,15 @@ class SendPapirsykmeldingService(
         accessToken: String,
         callId: String,
         oppgaveId: Int,
-        navEnhet: String
+        navEnhet: String,
+        isUpdate: Boolean = false
     ): HttpServiceResponse {
-        val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+        val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
-            val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
-            val journalpostId = manuellOppgaveDTOList.first().journalpostId
-            val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
+            val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
+            val sykmeldingId = manuellOppgave.sykmeldingId
+            val journalpostId = manuellOppgave.journalpostId
+            val dokumentInfoId = manuellOppgave.dokumentInfoId
 
             val loggingMeta = LoggingMeta(
                 mottakId = sykmeldingId,
@@ -69,7 +76,12 @@ class SendPapirsykmeldingService(
                 source = "api"
             )
 
-            if (authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)) {
+            val hasAccess = when (isUpdate) {
+                true -> authorizationService.hasSuperuserAccess(accessToken, smRegistreringManuell.pasientFnr)
+                false -> authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)
+            }
+
+            if (hasAccess) {
                 val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                 if (sykmelderHpr.isNullOrEmpty()) {
@@ -259,7 +271,6 @@ class SendPapirsykmeldingService(
                 val veileder = authorizationService.getVeileder(accessToken)
 
                 handleOKOppgave(
-                    sykmeldingJobService,
                     receivedSykmelding = receivedSykmelding,
                     loggingMeta = loggingMeta,
                     oppgaveClient = oppgaveClient,
@@ -272,8 +283,19 @@ class SendPapirsykmeldingService(
                     oppgaveId = oppgaveId,
                     veileder = veileder,
                     sykmelder = sykmelder,
-                    navEnhet = navEnhet
+                    navEnhet = navEnhet,
                 )
+
+                val sendtSykmeldingHistory = SendtSykmeldingHistory(
+                    UUID.randomUUID().toString(),
+                    sykmeldingId,
+                    veileder.veilederIdent,
+                    OffsetDateTime.now(ZoneOffset.UTC),
+                    receivedSykmelding
+                )
+                sendtSykmeldingService.insertSendtSykmeldingHistory(sendtSykmeldingHistory = sendtSykmeldingHistory)
+                sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
+                sendtSykmeldingService.createJobs(receivedSykmelding)
 
                 manuellOppgaveService.ferdigstillSmRegistering(
                     oppgaveId = oppgaveId,

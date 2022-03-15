@@ -26,12 +26,12 @@ import java.time.OffsetDateTime
 class SykmeldingJobRunnerTest {
     private val testDB = TestDB()
     val applicationState = ApplicationState(true, true)
-    val sykmeldingJobService = spyk(SykmeldingJobService(testDB))
+    val sendtSykmeldingService = spyk(SendtSykmeldingService(testDB))
     val kafkaReceivedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
     val kafkaSyfoserviceProducer = mockk<KafkaProducers.KafkaSyfoserviceProducer>(relaxed = true)
     val service = SykmeldingJobRunner(
         applicationState,
-        sykmeldingJobService,
+        sendtSykmeldingService,
         kafkaReceivedSykmeldingProducer,
         kafkaSyfoserviceProducer
     )
@@ -49,10 +49,10 @@ class SykmeldingJobRunnerTest {
     @Test
     fun processJob() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "1")
-        sykmeldingJobService.upsertSykmelding(sykmelding)
-        sykmeldingJobService.createJobs(sykmelding)
+        sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
+        sendtSykmeldingService.createJobs(sykmelding)
         var jobCount = 0
-        every { sykmeldingJobService.getNextJob() } answers {
+        every { sendtSykmeldingService.getNextJob() } answers {
             if (jobCount++ > 1) {
                 applicationState.ready = false
             }
@@ -71,11 +71,11 @@ class SykmeldingJobRunnerTest {
     @Test
     fun jobFails() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
-        sykmeldingJobService.upsertSykmelding(sykmelding)
-        sykmeldingJobService.createJobs(sykmelding)
+        sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
+        sendtSykmeldingService.createJobs(sykmelding)
         every { kafkaSyfoserviceProducer.producer.send(any()) } throws Exception("Some error")
         var jobCount = 0
-        every { sykmeldingJobService.getNextJob() } answers {
+        every { sendtSykmeldingService.getNextJob() } answers {
             if (jobCount++ > 1) applicationState.ready = false
             callOriginal()
         }
@@ -93,7 +93,7 @@ class SykmeldingJobRunnerTest {
     @Test
     fun runJobsDoNotResetInProgressJobsBeforeTimeout() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
-        sykmeldingJobService.upsertSykmelding(sykmelding)
+        sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         testDB.insertJobs(
             listOf(
                 Job(
@@ -111,7 +111,7 @@ class SykmeldingJobRunnerTest {
             )
         )
         var jobCount = 0
-        every { sykmeldingJobService.getNextJob() } answers {
+        every { sendtSykmeldingService.getNextJob() } answers {
             if (jobCount++ > 5) applicationState.ready = false
             callOriginal()
         }
@@ -128,7 +128,7 @@ class SykmeldingJobRunnerTest {
     @Test
     fun resetAndRunInProgressJobs() {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
-        sykmeldingJobService.upsertSykmelding(sykmelding)
+        sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         testDB.insertJobs(
             listOf(
                 Job(
@@ -146,7 +146,7 @@ class SykmeldingJobRunnerTest {
             )
         )
         var jobCount = 0
-        every { sykmeldingJobService.getNextJob() } answers {
+        every { sendtSykmeldingService.getNextJob() } answers {
             if (jobCount++ > 5) applicationState.ready = false
             callOriginal()
         }

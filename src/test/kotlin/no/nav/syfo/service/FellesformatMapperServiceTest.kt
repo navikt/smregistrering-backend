@@ -1,8 +1,6 @@
 package no.nav.syfo.service
 
-import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
 import no.nav.syfo.model.Arbeidsgiver
@@ -19,15 +17,11 @@ import no.nav.syfo.model.MeldingTilNAV
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SmRegistreringManuell
-import no.nav.syfo.model.Sykmelder
-import no.nav.syfo.model.Sykmelding
 import no.nav.syfo.objectMapper
-import no.nav.syfo.pdl.client.model.IdentInformasjon
-import no.nav.syfo.pdl.model.Navn
-import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getReceivedSykmelding
+import no.nav.syfo.util.getXmleiFellesformat
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -229,9 +223,9 @@ class FellesformatMapperServiceTest {
             LocalTime.NOON
         )
         receivedSykmelding.sykmelding.behandler shouldBeEqualTo Behandler(
-            fornavn = "Billy",
+            fornavn = "Test",
             mellomnavn = "Bob",
-            etternavn = "Thornton",
+            etternavn = "Doctor",
             aktoerId = aktorIdLege,
             fnr = fnrLege,
             hpr = "hpr",
@@ -418,32 +412,3 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOp
 }
 
 const val journalpostId = "123"
-
-fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
-    return mapsmRegistreringManuelltTilFellesformat(
-        smRegistreringManuell = smRegisteringManuellt,
-        pdlPasient = PdlPerson(
-            Navn("Billy", "Bob", "Thornton"),
-            listOf(
-                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
-            )
-        ),
-        sykmelder = Sykmelder(
-            aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-            fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null
-        ),
-        sykmeldingId = sykmeldingId,
-        datoOpprettet = datoOpprettet,
-        journalpostId = journalpostId
-    )
-}
-
-fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: XMLMsgHead, sykmeldingId: String = "1234", aktorId: String = "aktorId", aktorIdLege: String = "aktorIdLege"): Sykmelding {
-    return healthInformation.toSykmelding(
-        sykmeldingId = sykmeldingId,
-        pasientAktoerId = aktorId,
-        legeAktoerId = aktorIdLege,
-        msgId = sykmeldingId,
-        signaturDato = msgHead.msgInfo.genDate
-    )
-}
