@@ -8,6 +8,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
 import no.nav.syfo.log
+import no.nav.syfo.metrics.SYKMELDING_KORRIGERT_COUNTER
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
@@ -59,6 +60,7 @@ fun Route.endreSykmelding(
 
                         when {
                             httpServiceResponse.payload != null -> {
+                                SYKMELDING_KORRIGERT_COUNTER.inc()
                                 call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
                             }
                             else -> {
