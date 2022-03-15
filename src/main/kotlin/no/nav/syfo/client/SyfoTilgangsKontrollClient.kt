@@ -73,6 +73,7 @@ class SyfoTilgangsKontrollClient(
                     append(NAV_PERSONIDENT_HEADER, personFnr)
                 }
             }
+            log.info("syfo-tilgangskontroll svarte $tilgang")
             return tilgang
         } catch (e: Exception) {
             val feilmelding = if (e is ResponseException) {
