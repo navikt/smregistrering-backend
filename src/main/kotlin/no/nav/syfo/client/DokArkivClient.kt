@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import net.logstash.logback.argument.StructuredArguments.fields
+import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.util.LoggingMeta
@@ -20,7 +21,8 @@ import java.io.IOException
 
 class DokArkivClient(
     private val url: String,
-    private val oidcClient: StsOidcClient,
+    private val azureAdV2Client: AzureAdV2Client,
+    private val scope: String,
     private val httpClient: HttpClient
 ) {
 
@@ -51,8 +53,8 @@ class DokArkivClient(
             val httpResponse = httpClient.put<HttpStatement>("$url/$journalpostId") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                val oidcToken = oidcClient.oidcToken()
-                header("Authorization", "Bearer ${oidcToken.access_token}")
+                val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
+                header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
 
                 body = OppdaterJournalpost(
@@ -116,8 +118,8 @@ class DokArkivClient(
             val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                val oidcToken = oidcClient.oidcToken()
-                header("Authorization", "Bearer ${oidcToken.access_token}")
+                val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
+                header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
                 body = FerdigstillJournal(navEnhet)
             }.execute()

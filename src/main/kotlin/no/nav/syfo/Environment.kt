@@ -15,6 +15,7 @@ data class Environment(
     val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL"),
     val kuhrSarApiScope: String = getEnvVar("KUHR_SAR_API_SCOPE"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
+    val dokArkivScope: String = getEnvVar("DOK_ARKIV_SCOPE"),
     val regelEndpointURL: String = getEnvVar("SYFOSMPAPIR_REGLER_ENDPOINT_URL"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL"),
