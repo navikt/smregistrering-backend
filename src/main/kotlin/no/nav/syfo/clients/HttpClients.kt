@@ -86,7 +86,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     val sarClient = SarClient(env.kuhrSarApiUrl, azureAdV2Client, env.kuhrSarApiScope, httpClient)
 
-    val dokArkivClient = DokArkivClient(env.dokArkivUrl, oidcClient, httpClient)
+    val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
 
     val regelClient =
         RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)

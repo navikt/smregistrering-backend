@@ -65,7 +65,9 @@ spec:
     - name: SMREGISTERING_URL
       value: smregistrering.nais.adeo.no
     - name: DOK_ARKIV_URL
-      value: https://dokarkiv.nais.adeo.no/rest/journalpostapi/v1/journalpost
+      value: https://dokarkiv.intern.nav.no/rest/journalpostapi/v1/journalpost
+    - name: DOK_ARKIV_SCOPE
+      value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
     - name: PDL_GRAPHQL_PATH
       value: https://pdl-api.nais.adeo.no/graphql
     - name: PDL_SCOPE
@@ -73,9 +75,9 @@ spec:
     - name: HELSENETT_SCOPE
       value: api://prod-fss.teamsykmelding.syfohelsenettproxy/.default
     - name: HENT_DOKUMENT_URL
-      value: https://saf.nais.adeo.no
+      value: https://saf.intern.nav.no
     - name: SAFJOURNALPOST_GRAPHQL_PATH
-      value: https://saf.nais.adeo.no/graphql
+      value: https://saf.intern.nav.no/graphql
     - name: SAF_SCOPE
       value: api://prod-fss.teamdokumenthandtering.saf/.default
     - name: OPPGAVEBEHANDLING_URL
