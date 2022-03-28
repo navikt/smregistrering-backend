@@ -97,10 +97,7 @@ internal class HentPapirSykmeldingTest {
             start()
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
-                true,
-                null
-            )
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
@@ -396,10 +393,7 @@ internal class HentPapirSykmeldingTest {
                     any()
                 )
             } throws SafNotFoundException("Saf returnerte: httpstatus 200")
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
-                true,
-                null
-            )
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
@@ -542,10 +536,7 @@ internal class HentPapirSykmeldingTest {
                     any(),
                     any()
                 )
-            } returns Tilgang(
-                true,
-                null
-            )
+            } returns Tilgang(true)
 
             coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
             coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
