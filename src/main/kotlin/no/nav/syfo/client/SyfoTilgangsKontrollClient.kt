@@ -28,7 +28,7 @@ class SyfoTilgangsKontrollClient(
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
     }
 
-    suspend fun hasAccess(accessToken: String, personFnr: String): Tilgang? {
+    suspend fun hasAccess(accessToken: String, personFnr: String): Tilgang {
         syfoTilgangskontrollCache.getIfPresent(mapOf(Pair(accessToken, personFnr)))?.let {
             log.debug("Traff cache for syfotilgangskontroll")
             return it
@@ -48,19 +48,18 @@ class SyfoTilgangsKontrollClient(
             syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
             return tilgang
         } catch (e: Exception) {
-            val feilmelding = if (e is ResponseException) {
-                "syfo-tilgangskontroll svarte med ${e.response.status}"
+            if (e is ResponseException) {
+                log.warn("syfo-tilgangskontroll svarte med ${e.response.status}")
             } else {
-                "noe gikk galt ved oppslag mot syfo-tilgangskontroll"
+                log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll")
             }
             return Tilgang(
-                harTilgang = false,
-                begrunnelse = feilmelding
+                harTilgang = false
             )
         }
     }
 
-    suspend fun hasSuperuserAccess(accessToken: String, personFnr: String): Tilgang? {
+    suspend fun hasSuperuserAccess(accessToken: String, personFnr: String): Tilgang {
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)?.accessToken
             ?: throw RuntimeException("Klarte ikke hente nytt accessToken for veileder ved tilgangssjekk")
 
@@ -76,20 +75,18 @@ class SyfoTilgangsKontrollClient(
             log.info("syfo-tilgangskontroll svarte $tilgang")
             return tilgang
         } catch (e: Exception) {
-            val feilmelding = if (e is ResponseException) {
-                "syfo-tilgangskontroll svarte med ${e.response.status} på forespørsel om utvidet tilgang"
+            if (e is ResponseException) {
+                log.warn("syfo-tilgangskontroll svarte med ${e.response.status} på forespørsel om utvidet tilgang")
             } else {
-                "noe gikk galt ved oppslag mot syfo-tilgangskontroll"
+                log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang")
             }
             return Tilgang(
-                harTilgang = false,
-                begrunnelse = feilmelding
+                harTilgang = false
             )
         }
     }
 }
 
 data class Tilgang(
-    val harTilgang: Boolean,
-    val begrunnelse: String?
+    val harTilgang: Boolean
 )

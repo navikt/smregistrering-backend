@@ -8,23 +8,17 @@ class AuthorizationService(
     private val msGraphClient: MSGraphClient
 ) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
-        val harTilgangTilOppgave =
-            syfoTilgangsKontrollClient.hasAccess(
-                accessToken,
-                pasientFnr
-            )?.harTilgang
-
-        return harTilgangTilOppgave != null && harTilgangTilOppgave
+        return syfoTilgangsKontrollClient.hasAccess(
+            accessToken,
+            pasientFnr
+        ).harTilgang
     }
 
     suspend fun hasSuperuserAccess(accessToken: String, pasientFnr: String): Boolean {
-        val harTilgangTilOppgave =
-            syfoTilgangsKontrollClient.hasSuperuserAccess(
-                accessToken,
-                pasientFnr
-            )?.harTilgang
-
-        return harTilgangTilOppgave != null && harTilgangTilOppgave
+        return syfoTilgangsKontrollClient.hasSuperuserAccess(
+            accessToken,
+            pasientFnr
+        ).harTilgang
     }
 
     suspend fun getVeileder(accessToken: String): Veileder {
