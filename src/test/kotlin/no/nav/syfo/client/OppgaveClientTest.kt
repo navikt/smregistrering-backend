@@ -22,12 +22,9 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import no.nav.syfo.model.Oppgave
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
 import java.net.ServerSocket
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
@@ -113,23 +110,5 @@ class OppgaveClientTest {
     @Before
     fun beforeEachTest() {
         coEvery { stsOidcClientMock.oidcToken() } returns OidcToken("token", "type", 300L)
-    }
-
-    @Test
-    fun patchManuellOppgaveOppdatererApenOppgave() {
-        runBlocking {
-            val patchetOppgave = oppgaveClient.patchManuellOppgave(oppgaveId, "msgId")
-
-            patchetOppgave.id shouldBeEqualTo oppgaveId
-        }
-    }
-
-    @Test
-    fun patchManuellOppgaveOppretterNyOppgaveHvisFerdigstilt() {
-        runBlocking {
-            val patchetOppgave = oppgaveClient.patchManuellOppgave(oppgaveIdFerdigstilt, "msgId")
-
-            patchetOppgave.id shouldBeEqualTo oppgaveIdNy
-        }
     }
 }

@@ -25,6 +25,7 @@ import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
+import no.nav.syfo.controllers.AvvisPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AvvisSykmeldingRequest
@@ -43,9 +44,11 @@ import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.avvisOppgave
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.JournalpostService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.testutil.generateJWT
@@ -61,14 +64,17 @@ class AvvisOppgaveRestTest {
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val manuellOppgaveService = mockk<ManuellOppgaveService>()
+    private val manuellOppgaveDAO = mockk<ManuellOppgaveDAO>()
     private val oppgaveClient = mockk<OppgaveClient>()
+    private val oppgaveService = OppgaveService(oppgaveClient)
     private val dokArkivClient = mockk<DokArkivClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val safJournalpostService = mockk<SafJournalpostService>()
+    private val journalpostService = JournalpostService(dokArkivClient, safJournalpostService)
+    private val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(authorizationService, sykmelderService, manuellOppgaveDAO, oppgaveService, journalpostService)
     private val env = mockk<Environment>()
 
     @Test
@@ -81,12 +87,7 @@ class AvvisOppgaveRestTest {
             )
             application.routing {
                 avvisOppgave(
-                    oppgaveClient = oppgaveClient,
-                    dokArkivClient = dokArkivClient,
-                    authorizationService = authorizationService,
-                    manuellOppgaveService = manuellOppgaveService,
-                    sykmelderService = sykmelderService,
-                    safJournalpostService = safJournalpostService
+                    avvisPapirsykmeldingController = avvisPapirsykmeldingController
                 )
             }
 
@@ -128,7 +129,7 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
@@ -197,7 +198,7 @@ class AvvisOppgaveRestTest {
                 pdfPapirSykmelding = null
             )
 
-            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
+            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123, versjon = 1,
@@ -266,12 +267,7 @@ class AvvisOppgaveRestTest {
             )
             application.routing {
                 avvisOppgave(
-                    oppgaveClient = oppgaveClient,
-                    dokArkivClient = dokArkivClient,
-                    authorizationService = authorizationService,
-                    manuellOppgaveService = manuellOppgaveService,
-                    sykmelderService = sykmelderService,
-                    safJournalpostService = safJournalpostService
+                    avvisPapirsykmeldingController = avvisPapirsykmeldingController
                 )
             }
 
@@ -313,11 +309,11 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
-            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns emptyList()
+            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns emptyList()
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123, versjon = 1,

@@ -35,6 +35,7 @@ import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -62,14 +63,15 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.ValidationException
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.JournalpostService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
@@ -94,11 +96,12 @@ class SendPapirSykmeldingTest {
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val manuellOppgaveService = ManuellOppgaveService(database)
+    private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val kafkaSyfoserviceProducer = mockk<KafkaProducers.KafkaSyfoserviceProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
+    private val oppgaveService = OppgaveService(oppgaveClient)
     private val kuhrsarClient = mockk<SarClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val safJournalpostService = mockk<SafJournalpostService>()
@@ -108,6 +111,7 @@ class SendPapirSykmeldingTest {
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
     private val sendtSykmeldingService = mockk<SendtSykmeldingService>(relaxed = true)
+    private val journalpostService = JournalpostService(dokArkivClient, safJournalpostService)
     private val environment = mockk<Environment>()
 
     @After
@@ -125,17 +129,16 @@ class SendPapirSykmeldingTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingService(
+                    SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
-                        oppgaveClient,
-                        dokArkivClient,
-                        safJournalpostService,
-                        manuellOppgaveService
+                        oppgaveService,
+                        journalpostService,
+                        manuellOppgaveDAO
                     )
                 )
             }
@@ -398,17 +401,16 @@ class SendPapirSykmeldingTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingService(
+                    SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
-                        oppgaveClient,
-                        dokArkivClient,
-                        safJournalpostService,
-                        manuellOppgaveService
+                        oppgaveService,
+                        journalpostService,
+                        manuellOppgaveDAO
                     )
                 )
             }
@@ -618,17 +620,16 @@ class SendPapirSykmeldingTest {
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingService(
+                    SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
                         kuhrsarClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
-                        oppgaveClient,
-                        dokArkivClient,
-                        safJournalpostService,
-                        manuellOppgaveService
+                        oppgaveService,
+                        journalpostService,
+                        manuellOppgaveDAO
                     )
                 )
             }

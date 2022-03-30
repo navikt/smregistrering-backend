@@ -25,38 +25,36 @@ import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
-import no.nav.syfo.client.DokArkivClient
-import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.controllers.AvvisPapirsykmeldingController
+import no.nav.syfo.controllers.SendPapirsykmeldingController
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
 import no.nav.syfo.pdl.service.PdlPersonService
-import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.endreSykmelding
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
 import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
-import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 
 @InternalAPI
 fun createApplicationEngine(
     env: Environment,
-    sendPapirsykmeldingService: SendPapirsykmeldingService,
+    sendPapirsykmeldingController: SendPapirsykmeldingController,
     applicationState: ApplicationState,
     jwkProvider: JwkProvider,
-    manuellOppgaveService: ManuellOppgaveService,
+    manuellOppgaveDAO: ManuellOppgaveDAO,
     safDokumentClient: SafDokumentClient,
-    oppgaveClient: OppgaveClient,
-    dokArkivClient: DokArkivClient,
-    safJournalpostService: SafJournalpostService,
+    sendTilGosysController: SendTilGosysController,
+    avvisPapirsykmeldingController: AvvisPapirsykmeldingController,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
-    authorizationService: AuthorizationService
+    authorizationService: AuthorizationService,
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
         // Increase timeout of Netty to handle large content bodies
@@ -92,21 +90,21 @@ fun createApplicationEngine(
         routing {
             registerNaisApi(applicationState)
             authenticate("jwt") {
-                hentPapirSykmeldingManuellOppgave(manuellOppgaveService, safDokumentClient, oppgaveClient, authorizationService)
-                hentFerdigstiltSykmelding(manuellOppgaveService, safDokumentClient, authorizationService)
-                sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingService)
-                endreSykmelding(sendPapirsykmeldingService)
+                hentPapirSykmeldingManuellOppgave(
+                    manuellOppgaveDAO,
+                    safDokumentClient,
+                    sendTilGosysController,
+                    authorizationService
+                )
+                hentFerdigstiltSykmelding(manuellOppgaveDAO, safDokumentClient, authorizationService)
+                sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingController)
+                endreSykmelding(sendPapirsykmeldingController)
                 avvisOppgave(
-                    manuellOppgaveService,
-                    authorizationService,
-                    safJournalpostService,
-                    sykmelderService,
-                    dokArkivClient,
-                    oppgaveClient
+                    avvisPapirsykmeldingController
                 )
                 pasientApi(pdlService, authorizationService)
                 sykmelderApi(sykmelderService)
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

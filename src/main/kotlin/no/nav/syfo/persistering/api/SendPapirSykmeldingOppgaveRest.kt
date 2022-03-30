@@ -7,16 +7,16 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
-import no.nav.syfo.persistering.SendPapirsykmeldingService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
 fun Route.sendPapirSykmeldingManuellOppgave(
-    sendPapirsykmeldingService: SendPapirsykmeldingService
+    sendPapirsykmeldingController: SendPapirsykmeldingController
 ) {
     route("/api/v1") {
         post("/oppgave/{oppgaveid}/send") {
@@ -48,7 +48,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 else -> {
                     try {
-                        val httpServiceResponse = sendPapirsykmeldingService.handleRegistration(
+                        val httpServiceResponse = sendPapirsykmeldingController.sendPapirsykmelding(
                             smRegistreringManuell,
                             accessToken,
                             callId,

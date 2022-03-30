@@ -12,7 +12,6 @@ import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.service.getSmRegistreringManuell
 import no.nav.syfo.service.journalpostId
-import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.service.toSykmelding
 import java.time.LocalDateTime
 

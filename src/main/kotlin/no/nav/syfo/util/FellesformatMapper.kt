@@ -1,4 +1,4 @@
-package no.nav.syfo.service
+package no.nav.syfo.util
 
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLCS

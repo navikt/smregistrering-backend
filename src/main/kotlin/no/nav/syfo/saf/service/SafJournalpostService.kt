@@ -6,6 +6,9 @@ import no.nav.syfo.saf.SafJournalpostClient
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
 
+/***
+ * Service for å fasilitere GrahpQL-oppslag mot SAF
+ */
 class SafJournalpostService(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,

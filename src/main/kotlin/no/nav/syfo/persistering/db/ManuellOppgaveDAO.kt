@@ -1,4 +1,4 @@
-package no.nav.syfo.service
+package no.nav.syfo.persistering.db
 
 import no.nav.syfo.aksessering.db.hentManuellOppgaveForSykmelding
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -6,10 +6,9 @@ import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Utfall
-import no.nav.syfo.persistering.db.ferdigstillSmRegistering
 import no.nav.syfo.sykmelding.db.getSykmelding
 
-class ManuellOppgaveService(private val database: DatabaseInterface) {
+class ManuellOppgaveDAO(private val database: DatabaseInterface) {
 
     fun hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean = false): List<ManuellOppgaveDTO> =
         database.hentManuellOppgaver(oppgaveId, ferdigstilt)

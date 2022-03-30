@@ -10,14 +10,14 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.hentFerdigstiltSykmelding(
-    manuellOppgaveService: ManuellOppgaveService,
+    manuellOppgaveDAO: ManuellOppgaveDAO,
     safDokumentClient: SafDokumentClient,
     authorizationService: AuthorizationService
 ) {
@@ -29,7 +29,7 @@ fun Route.hentFerdigstiltSykmelding(
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val ferdigstilteOppgaver = sykmeldingId?.let {
-                manuellOppgaveService.hentFerdigstiltManuellOppgave(it)
+                manuellOppgaveDAO.hentFerdigstiltManuellOppgave(it)
             } ?: emptyList()
             when {
                 accessToken == null -> {
@@ -70,7 +70,7 @@ fun Route.hentFerdigstiltSykmelding(
                             return@get
                         }
 
-                        val receivedSykmelding = manuellOppgaveService.hentSykmelding(sykmeldingId)
+                        val receivedSykmelding = manuellOppgaveDAO.hentSykmelding(sykmeldingId)
 
                         if (receivedSykmelding == null) {
                             call.respond(

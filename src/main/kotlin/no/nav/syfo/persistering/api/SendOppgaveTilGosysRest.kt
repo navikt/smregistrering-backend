@@ -7,19 +7,18 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
-import no.nav.syfo.persistering.handleSendOppgaveTilGosys
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
 fun Route.sendOppgaveTilGosys(
-    manuellOppgaveService: ManuellOppgaveService,
-    authorizationService: AuthorizationService,
-    oppgaveClient: OppgaveClient
+    manuellOppgaveDAO: ManuellOppgaveDAO,
+    sendTilGosysController: SendTilGosysController,
+    authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
         post("oppgave/{oppgaveId}/tilgosys") {
@@ -44,7 +43,7 @@ fun Route.sendOppgaveTilGosys(
                 }
                 else -> {
 
-                    val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId)
+                    val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId)
 
                     if (manuellOppgaveDTOList.isEmpty()) {
                         log.info("Oppgave med id $oppgaveId er allerede ferdigstilt")
@@ -66,14 +65,7 @@ fun Route.sendOppgaveTilGosys(
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
 
-                            handleSendOppgaveTilGosys(
-                                authorizationService,
-                                oppgaveClient,
-                                manuellOppgaveService,
-                                loggingMeta,
-                                oppgaveId,
-                                accessToken
-                            )
+                            sendTilGosysController.sendOppgaveTilGosys(oppgaveId, accessToken, loggingMeta)
 
                             call.respond(HttpStatusCode.NoContent)
                         } else {

@@ -15,8 +15,6 @@ import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OpprettOppgave
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 class OppgaveClient(
     private val url: String,
@@ -95,7 +93,7 @@ class OppgaveClient(
         }
     }
 
-    private suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
+    internal suspend fun oppdaterOppgave(oppgave: Oppgave, msgId: String): Oppgave {
 
         log.info("Oppdaterer oppgave med oppgaveId {} msgId {}", oppgave.id, msgId)
 
@@ -118,61 +116,4 @@ class OppgaveClient(
             }
         }
     }
-
-    suspend fun sendOppgaveTilGosys(oppgaveId: Int, msgId: String, tilordnetRessurs: String): Oppgave {
-        val oppgave = hentOppgave(oppgaveId, msgId)
-        val oppdatertOppgave = oppgave.copy(
-            behandlesAvApplikasjon = "FS22",
-            tilordnetRessurs = tilordnetRessurs,
-            mappeId = null
-        )
-        return oppdaterOppgave(oppdatertOppgave, msgId)
-    }
-
-    suspend fun patchManuellOppgave(oppgaveId: Int, msgId: String): Oppgave {
-        val oppgave = hentOppgave(oppgaveId, msgId)
-        if (oppgave.status == "FERDIGSTILT") {
-            log.warn("Oppgave med id $oppgaveId er allerede ferdigstilt. Oppretter ny oppgave for msgId $msgId")
-            return opprettOppgave(
-                OpprettOppgave(
-                    aktoerId = oppgave.aktoerId,
-                    opprettetAvEnhetsnr = "9999",
-                    behandlesAvApplikasjon = "SMR",
-                    beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
-                    tema = "SYM",
-                    oppgavetype = "JFR",
-                    aktivDato = LocalDate.now(),
-                    fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                        LocalDate.now().plusDays(4)
-                    ),
-                    prioritet = "HOY",
-                    journalpostId = oppgave.journalpostId
-                ),
-                msgId
-            )
-        } else {
-            val patch = oppgave.copy(
-                behandlesAvApplikasjon = "SMR",
-                beskrivelse = "Manuell registrering av sykmelding mottatt på papir",
-                mappeId = null,
-                aktivDato = LocalDate.now(),
-                fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                    LocalDate.now().plusDays(4)
-                ),
-                prioritet = "HOY"
-            )
-            return oppdaterOppgave(patch, msgId)
-        }
-    }
 }
-
-fun finnFristForFerdigstillingAvOppgave(ferdistilleDato: LocalDate): LocalDate {
-    return setToWorkDay(ferdistilleDato)
-}
-
-fun setToWorkDay(ferdistilleDato: LocalDate): LocalDate =
-    when (ferdistilleDato.dayOfWeek) {
-        DayOfWeek.SATURDAY -> ferdistilleDato.plusDays(2)
-        DayOfWeek.SUNDAY -> ferdistilleDato.plusDays(1)
-        else -> ferdistilleDato
-    }
