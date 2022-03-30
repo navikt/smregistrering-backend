@@ -159,10 +159,7 @@ class SendPapirSykmeldingTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
-                true,
-                null
-            )
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
@@ -431,10 +428,7 @@ class SendPapirSykmeldingTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
-                true,
-                null
-            )
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
@@ -655,10 +649,7 @@ class SendPapirSykmeldingTest {
             }
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(
-                true,
-                null
-            )
+            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 

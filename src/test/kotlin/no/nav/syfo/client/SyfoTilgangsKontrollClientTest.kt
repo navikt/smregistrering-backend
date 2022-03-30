@@ -59,27 +59,27 @@ class SyfoTilgangsKontrollClientTest {
                 AzureAdV2TokenResponse("token", 1000000, "token_type")
             )
         )
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            tilgang?.harTilgang shouldBeEqualTo true
+            tilgang.harTilgang shouldBeEqualTo true
         }
     }
 
     @Test
     internal fun `Skal returnere harTilgang false hvis syfotilgangskontroll svarer med feilmelding`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.InternalServerError, objectMapper.writeValueAsString(Tilgang(false, "har ikke tilgang")))
+        httpClient.responseData = ResponseData(HttpStatusCode.InternalServerError, objectMapper.writeValueAsString(Tilgang(false)))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            tilgang?.harTilgang shouldBeEqualTo false
+            tilgang.harTilgang shouldBeEqualTo false
         }
     }
 
     @Test
     internal fun `Henter fra cache hvis kallet er cachet`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
             syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
@@ -91,7 +91,7 @@ class SyfoTilgangsKontrollClientTest {
     @Test
     internal fun `Henter ikke fra cache hvis samme accesstoken men ulikt fnr`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
             syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", "987654")
@@ -103,7 +103,7 @@ class SyfoTilgangsKontrollClientTest {
     @Test
     internal fun `Henter ikke fra cache hvis samme fnr men ulikt accesstoken`() {
         httpClient.responseDataOboToken = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(AzureAdV2TokenResponse("token", 1000000, "token_type")))
-        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true, "")))
+        httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
             syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
             syfoTilgangsKontrollClient.hasAccess("xxxxxxxxx", pasientFnr)
