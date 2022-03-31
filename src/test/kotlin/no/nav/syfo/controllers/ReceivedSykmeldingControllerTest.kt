@@ -31,7 +31,7 @@ class ReceivedSykmeldingControllerTest {
     private val oppgaveService = OppgaveService(oppgaveClient)
     private val controller = ReceivedSykmeldingController(database, oppgaveService)
 
-    private val loggingMeta = LoggingMeta("", "", "", "", "", "")
+    private val loggingMeta = LoggingMeta("", "", "", "", "")
 
     @BeforeEach
     fun beforeEachTest() {

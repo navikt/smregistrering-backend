@@ -140,8 +140,7 @@ fun main() {
         applicationState,
         env.papirSmRegistreringTopic,
         kafkaConsumers.kafkaConsumerPapirSmRegistering,
-        receivedSykmeldingController,
-        "aiven"
+        receivedSykmeldingController
     )
 }
 
@@ -150,13 +149,12 @@ fun startConsumer(
     applicationState: ApplicationState,
     topic: String,
     kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
-    receivedSykmeldingController: ReceivedSykmeldingController,
-    source: String,
+    receivedSykmeldingController: ReceivedSykmeldingController
 ) {
     GlobalScope.launch(Dispatchers.Unbounded) {
         while (applicationState.ready) {
             try {
-                log.info("$source: Starting consuming topic $topic")
+                log.info("Starting consuming topic $topic")
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
@@ -167,8 +165,7 @@ fun startConsumer(
                             dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
                             msgId = receivedPapirSmRegistering.sykmeldingId,
                             sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                            journalpostId = receivedPapirSmRegistering.journalpostId,
-                            source = source
+                            journalpostId = receivedPapirSmRegistering.journalpostId
                         )
                         receivedSykmeldingController.handleReceivedSykmelding(
                             papirSmRegistering = receivedPapirSmRegistering,

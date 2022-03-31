@@ -49,8 +49,7 @@ class AvvisPapirsykmeldingController(
                 dokumentInfoId = dokumentInfoId,
                 msgId = callId,
                 sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId,
-                source = "api"
+                journalpostId = journalpostId
             )
 
             /***

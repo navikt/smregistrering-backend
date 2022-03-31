@@ -70,8 +70,7 @@ class SendPapirsykmeldingController(
                 dokumentInfoId = dokumentInfoId,
                 msgId = sykmeldingId,
                 sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId,
-                source = "api"
+                journalpostId = journalpostId
             )
 
             val hasAccess = when (isUpdate) {

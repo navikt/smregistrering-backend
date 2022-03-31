@@ -5,8 +5,7 @@ data class LoggingMeta(
     val journalpostId: String?,
     val dokumentInfoId: String?,
     val msgId: String,
-    val sykmeldingId: String,
-    val source: String
+    val sykmeldingId: String
 )
 
 class TrackableException(override val cause: Throwable, val loggingMeta: LoggingMeta) : RuntimeException()

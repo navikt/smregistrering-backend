@@ -59,8 +59,7 @@ fun Route.sendOppgaveTilGosys(
                             dokumentInfoId = dokumentInfoId,
                             msgId = callId,
                             sykmeldingId = sykmeldingId,
-                            journalpostId = journalpostId,
-                            source = "api"
+                            journalpostId = journalpostId
                         )
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {

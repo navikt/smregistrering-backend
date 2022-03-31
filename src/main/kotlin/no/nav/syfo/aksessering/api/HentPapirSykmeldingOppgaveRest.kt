@@ -98,8 +98,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = dokumentInfoId,
                                     msgId = sykmeldingId,
                                     sykmeldingId = sykmeldingId,
-                                    journalpostId = journalpostId,
-                                    source = "api"
+                                    journalpostId = journalpostId
                                 )
 
                                 sendTilGosysController.sendOppgaveTilGosys(oppgaveId, accessToken, loggingMeta)
