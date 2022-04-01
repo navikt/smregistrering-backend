@@ -22,6 +22,8 @@ import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getReceivedSykmelding
 import no.nav.syfo.util.getXmleiFellesformat
+import no.nav.syfo.util.tilHelseOpplysningerArbeidsuforhetPeriode
+import no.nav.syfo.util.tilSyketilfelleStartDato
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEqualTo

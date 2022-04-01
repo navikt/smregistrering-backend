@@ -38,11 +38,11 @@ import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.SmRegistreringManuell
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.persistering.db.ferdigstillSmRegistering
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.testutil.TestDB
@@ -60,7 +60,7 @@ internal class HentFerdigstiltSykmeldingTest {
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val manuellOppgaveService = ManuellOppgaveService(database)
+    private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val env = mockk<Environment>() {
@@ -197,7 +197,7 @@ internal class HentFerdigstiltSykmeldingTest {
             )
             application.routing {
                 hentFerdigstiltSykmelding(
-                    manuellOppgaveService,
+                    manuellOppgaveDAO,
                     safDokumentClient,
                     authorizationService
                 )

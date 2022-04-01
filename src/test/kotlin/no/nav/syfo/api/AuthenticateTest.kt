@@ -26,6 +26,7 @@ import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -40,10 +41,11 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBeEqualTo
@@ -60,11 +62,14 @@ internal class AuthenticateTest {
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
 
-    private val manuellOppgaveService = ManuellOppgaveService(database)
+    private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val authorization = mockk<AuthorizationService>()
+    private val authorizationService = mockk<AuthorizationService>()
     private val oppgaveClient = mockk<OppgaveClient>()
+    private val oppgaveService = OppgaveService(oppgaveClient)
+    private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+
     private val pdlService = mockk<PdlPersonService>()
     private val env = mockk<Environment>() {
         coEvery { azureAppClientId } returns "clientId"
@@ -82,7 +87,7 @@ internal class AuthenticateTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
-            coEvery { authorization.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
@@ -153,10 +158,10 @@ internal class AuthenticateTest {
             application.routing {
                 authenticate("jwt") {
                     hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveService,
+                        manuellOppgaveDAO,
                         safDokumentClient,
-                        oppgaveClient,
-                        authorization
+                        sendTilGosysController,
+                        authorizationService
                     )
                 }
             }
@@ -256,10 +261,10 @@ internal class AuthenticateTest {
             application.routing {
                 authenticate("jwt") {
                     hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveService,
+                        manuellOppgaveDAO,
                         safDokumentClient,
-                        oppgaveClient,
-                        authorization
+                        sendTilGosysController,
+                        authorizationService
                     )
                 }
             }

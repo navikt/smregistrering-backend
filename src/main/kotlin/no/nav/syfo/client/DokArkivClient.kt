@@ -19,6 +19,9 @@ import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.padHpr
 import java.io.IOException
 
+/**
+ * REST-klient for å utføre operasjoner mot DokArkiv
+ */
 class DokArkivClient(
     private val url: String,
     private val azureAdV2Client: AzureAdV2Client,

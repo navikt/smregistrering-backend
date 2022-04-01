@@ -7,22 +7,21 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import net.logstash.logback.argument.StructuredArguments
-import no.nav.syfo.client.OppgaveClient
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
-import no.nav.syfo.persistering.handleSendOppgaveTilGosys
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.hentPapirSykmeldingManuellOppgave(
-    manuellOppgaveService: ManuellOppgaveService,
+    manuellOppgaveDAO: ManuellOppgaveDAO,
     safDokumentClient: SafDokumentClient,
-    oppgaveClient: OppgaveClient,
+    sendTilGosysController: SendTilGosysController,
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
@@ -33,7 +32,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val manuellOppgaveDTOList = oppgaveId?.let {
-                manuellOppgaveService.hentManuellOppgaver(it)
+                manuellOppgaveDAO.hentManuellOppgaver(it)
             } ?: emptyList()
             when {
                 accessToken == null -> {
@@ -99,18 +98,10 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = dokumentInfoId,
                                     msgId = sykmeldingId,
                                     sykmeldingId = sykmeldingId,
-                                    journalpostId = journalpostId,
-                                    source = "api"
+                                    journalpostId = journalpostId
                                 )
 
-                                handleSendOppgaveTilGosys(
-                                    authorizationService = authorizationService,
-                                    oppgaveClient = oppgaveClient,
-                                    manuellOppgaveService = manuellOppgaveService,
-                                    loggingMeta = loggingMeta,
-                                    oppgaveId = oppgaveId,
-                                    accessToken = accessToken
-                                )
+                                sendTilGosysController.sendOppgaveTilGosys(oppgaveId, accessToken, loggingMeta)
 
                                 call.respond(HttpStatusCode.Gone, "SENT_TO_GOSYS")
                             }

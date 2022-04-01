@@ -1,31 +1,29 @@
-package no.nav.syfo.persistering
+package no.nav.syfo.controllers
 
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.Godkjenning
-import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.findBestSamhandlerPraksis
 import no.nav.syfo.log
+import no.nav.syfo.model.FerdigstillRegistrering
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.Merknad
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
-import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.model.Sykmelding
 import no.nav.syfo.model.Utfall
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.checkValidState
-import no.nav.syfo.saf.service.SafJournalpostService
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
-import no.nav.syfo.service.mapsmRegistreringManuelltTilFellesformat
+import no.nav.syfo.service.JournalpostService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
@@ -34,25 +32,25 @@ import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
+import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.util.toString
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
-class SendPapirsykmeldingService(
+class SendPapirsykmeldingController(
     private val sykmelderService: SykmelderService,
     private val pdlService: PdlPersonService,
     private val kuhrsarClient: SarClient,
     private val regelClient: RegelClient,
     private val authorizationService: AuthorizationService,
     private val sendtSykmeldingService: SendtSykmeldingService,
-    private val oppgaveClient: OppgaveClient,
-    private val dokArkivClient: DokArkivClient,
-    private val safJournalpostService: SafJournalpostService,
-    private val manuellOppgaveService: ManuellOppgaveService
+    private val oppgaveService: OppgaveService,
+    private val journalpostService: JournalpostService,
+    private val manuellOppgaveDAO: ManuellOppgaveDAO
 ) {
 
-    suspend fun handleRegistration(
+    suspend fun sendPapirsykmelding(
         smRegistreringManuell: SmRegistreringManuell,
         accessToken: String,
         callId: String,
@@ -60,7 +58,7 @@ class SendPapirsykmeldingService(
         navEnhet: String,
         isUpdate: Boolean = false
     ): HttpServiceResponse {
-        val manuellOppgaveDTOList = manuellOppgaveService.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
+        val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
             val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
             val sykmeldingId = manuellOppgave.sykmeldingId
@@ -72,8 +70,7 @@ class SendPapirsykmeldingService(
                 dokumentInfoId = dokumentInfoId,
                 msgId = sykmeldingId,
                 sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId,
-                source = "api"
+                journalpostId = journalpostId
             )
 
             val hasAccess = when (isUpdate) {
@@ -176,17 +173,26 @@ class SendPapirsykmeldingService(
                 if (!validationResult.ruleHits.isWhitelisted()) {
                     return handleBrokenRule(validationResult, oppgaveId)
                 } else {
+
+                    val ferdigstillRegistrering = FerdigstillRegistrering(
+                        oppgaveId = oppgaveId,
+                        journalpostId = journalpostId,
+                        dokumentInfoId = dokumentInfoId,
+                        pasientFnr = receivedSykmelding.personNrPasient,
+                        sykmeldingId = sykmeldingId,
+                        sykmelder = sykmelder,
+                        navEnhet = navEnhet,
+                        veileder = authorizationService.getVeileder(accessToken),
+                        avvist = false,
+                        oppgave = null
+                    )
+
                     return handleOK(
                         validationResult,
-                        accessToken,
                         receivedSykmelding,
+                        ferdigstillRegistrering,
                         loggingMeta,
-                        sykmeldingId,
-                        journalpostId,
-                        dokumentInfoId,
-                        oppgaveId,
-                        sykmelder,
-                        navEnhet
+                        accessToken,
                     )
                 }
             } else {
@@ -256,39 +262,21 @@ class SendPapirsykmeldingService(
 
     private suspend fun handleOK(
         validationResult: ValidationResult,
-        accessToken: String,
         receivedSykmelding: ReceivedSykmelding,
+        ferdigstillRegistrering: FerdigstillRegistrering,
         loggingMeta: LoggingMeta,
-        sykmeldingId: String,
-        journalpostId: String,
-        dokumentInfoId: String?,
-        oppgaveId: Int,
-        sykmelder: Sykmelder,
-        navEnhet: String
+        accessToken: String,
     ): HttpServiceResponse {
         when (validationResult.status) {
             Status.OK, Status.MANUAL_PROCESSING -> {
                 val veileder = authorizationService.getVeileder(accessToken)
 
-                handleOKOppgave(
-                    receivedSykmelding = receivedSykmelding,
-                    loggingMeta = loggingMeta,
-                    oppgaveClient = oppgaveClient,
-                    dokArkivClient = dokArkivClient,
-                    safJournalpostService = safJournalpostService,
-                    accessToken = accessToken,
-                    sykmeldingId = sykmeldingId,
-                    journalpostId = journalpostId,
-                    dokumentInfoId = dokumentInfoId,
-                    oppgaveId = oppgaveId,
-                    veileder = veileder,
-                    sykmelder = sykmelder,
-                    navEnhet = navEnhet,
-                )
+                journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
+                oppgaveService.ferdigstillOppgave(ferdigstillRegistrering, null, loggingMeta)
 
                 val sendtSykmeldingHistory = SendtSykmeldingHistory(
                     UUID.randomUUID().toString(),
-                    sykmeldingId,
+                    ferdigstillRegistrering.sykmeldingId,
                     veileder.veilederIdent,
                     OffsetDateTime.now(ZoneOffset.UTC),
                     receivedSykmelding
@@ -297,8 +285,8 @@ class SendPapirsykmeldingService(
                 sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
                 sendtSykmeldingService.createJobs(receivedSykmelding)
 
-                manuellOppgaveService.ferdigstillSmRegistering(
-                    oppgaveId = oppgaveId,
+                manuellOppgaveDAO.ferdigstillSmRegistering(
+                    oppgaveId = ferdigstillRegistrering.oppgaveId,
                     utfall = Utfall.OK,
                     ferdigstiltAv = veileder.veilederIdent
                 ).let {
@@ -307,9 +295,9 @@ class SendPapirsykmeldingService(
                     } else {
                         log.error(
                             "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
-                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            StructuredArguments.keyValue("oppgaveId", ferdigstillRegistrering.oppgaveId)
                         )
-                        HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ingen uløst oppgave for oppgaveId $oppgaveId")
+                        HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ingen uløst oppgave for oppgaveId ${ferdigstillRegistrering.oppgaveId}")
                     }
                 }
             }

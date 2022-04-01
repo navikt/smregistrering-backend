@@ -16,17 +16,23 @@ import kotlinx.coroutines.launch
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
-import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.controllers.AvvisPapirsykmeldingController
+import no.nav.syfo.controllers.ReceivedSykmeldingController
+import no.nav.syfo.controllers.SendPapirsykmeldingController
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
-import no.nav.syfo.persistering.SendPapirsykmeldingService
-import no.nav.syfo.persistering.handleRecivedMessage
+import no.nav.syfo.pdl.service.PdlPersonService
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.JournalpostService
+import no.nav.syfo.service.OppgaveService
+import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import no.nav.syfo.util.LoggingMeta
@@ -64,13 +70,41 @@ fun main() {
 
     val applicationState = ApplicationState()
 
-    val manuellOppgaveService = ManuellOppgaveService(database)
+    val manuellOppgaveDAO = ManuellOppgaveDAO(database)
 
     val kafkaConsumers = KafkaConsumers(env)
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env, vaultSecrets)
 
     val sendtSykmeldingService = SendtSykmeldingService(databaseInterface = database)
+    val authorizationService = AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
+    val pdlService = PdlPersonService(httpClients.pdlClient, httpClients.azureAdV2Client, env.pdlScope)
+    val sykmelderService = SykmelderService(httpClients.norskHelsenettClient, pdlService)
+    val safJournalpostService = SafJournalpostService(env, httpClients.azureAdV2Client, httpClients.safJournalpostClient)
+    val journalpostService = JournalpostService(httpClients.dokArkivClient, safJournalpostService)
+    val oppgaveService = OppgaveService(httpClients.oppgaveClient)
+
+    val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(
+        authorizationService,
+        sykmelderService,
+        manuellOppgaveDAO,
+        oppgaveService,
+        journalpostService
+    )
+    val receivedSykmeldingController = ReceivedSykmeldingController(database, oppgaveService)
+    val sendPapirsykmeldingController = SendPapirsykmeldingController(
+        sykmelderService,
+        pdlService,
+        httpClients.sarClient,
+        httpClients.regelClient,
+        authorizationService,
+        sendtSykmeldingService,
+        oppgaveService,
+        journalpostService,
+        manuellOppgaveDAO
+    )
+    val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
         sendtSykmeldingService,
@@ -78,38 +112,21 @@ fun main() {
         kafkaProducers.kafkaSyfoserviceProducer
     )
 
-    val authorizationService = AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
-
-    val sendPapirsykmeldingService = SendPapirsykmeldingService(
-        httpClients.sykmelderService,
-        httpClients.pdlService,
-        httpClients.sarClient,
-        httpClients.regelClient,
-        authorizationService,
-        sendtSykmeldingService,
-        httpClients.oppgaveClient,
-        httpClients.dokArkivClient,
-        httpClients.safJournalpostService,
-        manuellOppgaveService
-    )
-
     val applicationEngine = createApplicationEngine(
         env,
-        sendPapirsykmeldingService,
+        sendPapirsykmeldingController,
         applicationState,
         jwkProvider,
-        manuellOppgaveService,
+        manuellOppgaveDAO,
         httpClients.safClient,
-        httpClients.oppgaveClient,
-        httpClients.dokArkivClient,
-        httpClients.safJournalpostService,
-        httpClients.pdlService,
-        httpClients.sykmelderService,
+        sendTilGosysController,
+        avvisPapirsykmeldingController,
+        pdlService,
+        sykmelderService,
         authorizationService
     )
 
     ApplicationServer(applicationEngine, applicationState).start()
-
     RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
 
     applicationState.ready = true
@@ -120,7 +137,10 @@ fun main() {
     }
 
     startConsumer(
-        applicationState, env.papirSmRegistreringTopic, kafkaConsumers.kafkaConsumerPapirSmRegistering, database, httpClients.oppgaveClient, "aiven"
+        applicationState,
+        env.papirSmRegistreringTopic,
+        kafkaConsumers.kafkaConsumerPapirSmRegistering,
+        receivedSykmeldingController
     )
 }
 
@@ -129,14 +149,12 @@ fun startConsumer(
     applicationState: ApplicationState,
     topic: String,
     kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
-    database: Database,
-    oppgaveClient: OppgaveClient,
-    source: String
+    receivedSykmeldingController: ReceivedSykmeldingController
 ) {
     GlobalScope.launch(Dispatchers.Unbounded) {
         while (applicationState.ready) {
             try {
-                log.info("$source: Starting consuming topic $topic")
+                log.info("Starting consuming topic $topic")
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
@@ -147,10 +165,12 @@ fun startConsumer(
                             dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
                             msgId = receivedPapirSmRegistering.sykmeldingId,
                             sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                            journalpostId = receivedPapirSmRegistering.journalpostId,
-                            source = source
+                            journalpostId = receivedPapirSmRegistering.journalpostId
                         )
-                        handleRecivedMessage(receivedPapirSmRegistering, database, oppgaveClient, loggingMeta)
+                        receivedSykmeldingController.handleReceivedSykmelding(
+                            papirSmRegistering = receivedPapirSmRegistering,
+                            loggingMeta = loggingMeta
+                        )
                     }
                 }
             } catch (ex: Exception) {

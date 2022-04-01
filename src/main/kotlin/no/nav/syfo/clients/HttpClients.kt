@@ -26,11 +26,8 @@ import no.nav.syfo.client.StsOidcClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.exception.ServiceUnavailableException
 import no.nav.syfo.pdl.client.PdlClient
-import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.SafJournalpostClient
-import no.nav.syfo.saf.service.SafJournalpostService
-import no.nav.syfo.sykmelder.service.SykmelderService
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 import java.net.ProxySelector
 
@@ -72,7 +69,7 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
 
     private val httpClient = HttpClient(Apache, config)
 
-    private val azureAdV2Client = AzureAdV2Client(
+    internal val azureAdV2Client = AzureAdV2Client(
         environment = env,
         httpClient = httpClientWithProxy
     )
@@ -80,45 +77,40 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
     private val oidcClient =
         StsOidcClient(vaultSecrets.serviceuserUsername, vaultSecrets.serviceuserPassword, env.securityTokenUrl)
 
-    val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
+    internal val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, oidcClient, httpClient)
 
-    val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
+    internal val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
-    val sarClient = SarClient(env.kuhrSarApiUrl, azureAdV2Client, env.kuhrSarApiScope, httpClient)
+    internal val sarClient = SarClient(env.kuhrSarApiUrl, azureAdV2Client, env.kuhrSarApiScope, httpClient)
 
-    val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
+    internal val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
 
-    val regelClient =
+    internal val regelClient =
         RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)
 
-    val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
+    internal val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
         httpClient = httpClientWithProxy
     )
 
-    val msGraphClient = MSGraphClient(
+    internal val msGraphClient = MSGraphClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
         httpClient = httpClientWithProxy
     )
 
-    private val pdlClient = PdlClient(
+    internal val pdlClient = PdlClient(
         httpClient,
         env.pdlGraphqlPath,
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), "")
     )
 
-    val pdlService = PdlPersonService(pdlClient, azureAdV2Client, env.pdlScope)
+    internal val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
 
-    private val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
-
-    val sykmelderService = SykmelderService(norskHelsenettClient, pdlService)
-
-    private val safJournalpostClient = SafJournalpostClient(
+    internal val safJournalpostClient = SafJournalpostClient(
         httpClient,
         env.safJournalpostGraphqlPath,
         SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
     )
-    val safJournalpostService = SafJournalpostService(env, azureAdV2Client, safJournalpostClient)
 }

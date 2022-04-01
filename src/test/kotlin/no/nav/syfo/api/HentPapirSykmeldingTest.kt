@@ -32,6 +32,7 @@ import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -46,12 +47,13 @@ import no.nav.syfo.model.Prognose
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
@@ -72,16 +74,19 @@ internal class HentPapirSykmeldingTest {
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val manuellOppgaveService = ManuellOppgaveService(database)
+    private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
+    private val oppgaveService = mockk<OppgaveService>()
     private val kuhrsarClient = mockk<SarClient>()
     private val aktoerIdClient = mockk<AktoerIdClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val regelClient = mockk<RegelClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
-    private val syfoTilgangsKontrollService = mockk<AuthorizationService>()
+    private val authorizationService = mockk<AuthorizationService>()
+    private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+
     private val env = mockk<Environment>() {
         coEvery { azureAppClientId } returns "clientId"
     }
@@ -99,8 +104,8 @@ internal class HentPapirSykmeldingTest {
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -163,10 +168,10 @@ internal class HentPapirSykmeldingTest {
             )
             application.routing {
                 hentPapirSykmeldingManuellOppgave(
-                    manuellOppgaveService,
+                    manuellOppgaveDAO,
                     safDokumentClient,
-                    oppgaveClient,
-                    syfoTilgangsKontrollService
+                    sendTilGosysController,
+                    authorizationService
                 )
             }
 
@@ -380,7 +385,7 @@ internal class HentPapirSykmeldingTest {
     }
 
     @Test
-    fun `Hent oppgave - hentDokument() kaster feilmelding`() {
+    fun `Hent oppgave - Hvis hentDokument() kaster feilmelding skal oppgaven sendes tilbake til GOSYS`() {
         with(TestApplicationEngine()) {
             start()
 
@@ -395,8 +400,8 @@ internal class HentPapirSykmeldingTest {
             } throws SafNotFoundException("Saf returnerte: httpstatus 200")
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -460,10 +465,10 @@ internal class HentPapirSykmeldingTest {
             application.routing {
                 authenticate("jwt") {
                     hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveService,
+                        manuellOppgaveDAO,
                         safDokumentClient,
-                        oppgaveClient,
-                        syfoTilgangsKontrollService
+                        sendTilGosysController,
+                        authorizationService
                     )
                 }
             }
@@ -483,7 +488,7 @@ internal class HentPapirSykmeldingTest {
                 }
             }
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = 123, versjon = 2,
                 tilordnetRessurs = "",
                 tildeltEnhetsnr = "",
@@ -513,7 +518,7 @@ internal class HentPapirSykmeldingTest {
                 response.content shouldBeEqualTo "SENT_TO_GOSYS"
             }
 
-            coVerify(exactly = 1) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }
+            coVerify(exactly = 1) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
         }
     }
 
@@ -538,8 +543,8 @@ internal class HentPapirSykmeldingTest {
                 )
             } returns Tilgang(true)
 
-            coEvery { syfoTilgangsKontrollService.hasAccess(any(), any()) } returns true
-            coEvery { syfoTilgangsKontrollService.getVeileder(any()) } returns Veileder("U1337")
+            coEvery { authorizationService.hasAccess(any(), any()) } returns true
+            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val oppgaveid = 308076319
 
@@ -603,10 +608,10 @@ internal class HentPapirSykmeldingTest {
             application.routing {
                 authenticate("jwt") {
                     hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveService,
+                        manuellOppgaveDAO,
                         safDokumentClient,
-                        oppgaveClient,
-                        syfoTilgangsKontrollService
+                        sendTilGosysController,
+                        authorizationService
                     )
                 }
             }
@@ -626,7 +631,7 @@ internal class HentPapirSykmeldingTest {
                 }
             }
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = 123, versjon = 2,
                 tilordnetRessurs = "",
                 tildeltEnhetsnr = "",
@@ -655,7 +660,7 @@ internal class HentPapirSykmeldingTest {
                 response.status() shouldBeEqualTo HttpStatusCode.Forbidden
             }
 
-            coVerify(exactly = 0) { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) }
+            coVerify(exactly = 0) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
         }
     }
 

@@ -20,9 +20,9 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
+import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -34,8 +34,9 @@ import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
 import no.nav.syfo.persistering.api.sendOppgaveTilGosys
+import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.service.ManuellOppgaveService
+import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.generateJWT
 import org.amshove.kluent.shouldBe
@@ -50,10 +51,12 @@ class SendOppgaveTilGosysRestTest {
     private val path = "src/test/resources/jwkset.json"
     private val uri = Paths.get(path).toUri().toURL()
     private val jwkProvider = JwkProviderBuilder(uri).build()
-    private val manuellOppgaveService = mockk<ManuellOppgaveService>()
-    private val oppgaveClient = mockk<OppgaveClient>()
+    private val manuellOppgaveDAO = mockk<ManuellOppgaveDAO>()
+    private val oppgaveService = mockk<OppgaveService>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
+    private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+
     private val env = mockk<Environment>()
 
     @Test
@@ -65,7 +68,7 @@ class SendOppgaveTilGosysRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
             }
 
             application.install(ContentNegotiation) {
@@ -87,7 +90,7 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
@@ -156,9 +159,9 @@ class SendOppgaveTilGosysRestTest {
                 pdfPapirSykmelding = null
             )
 
-            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
+            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = oppgaveid,
                 versjon = 1,
                 tilordnetRessurs = "",
@@ -201,7 +204,7 @@ class SendOppgaveTilGosysRestTest {
                 env, jwkProvider, "https://sts.issuer.net/myid"
             )
             application.routing {
-                sendOppgaveTilGosys(manuellOppgaveService, authorizationService, oppgaveClient)
+                sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
             }
 
             application.install(ContentNegotiation) {
@@ -223,13 +226,13 @@ class SendOppgaveTilGosysRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { manuellOppgaveService.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any()) } returns 1
 
             val oppgaveid = 308076319
 
-            coEvery { manuellOppgaveService.hentManuellOppgaver(any()) } returns emptyList()
+            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns emptyList()
 
-            coEvery { oppgaveClient.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
                 id = oppgaveid,
                 versjon = 1,
                 tilordnetRessurs = "",

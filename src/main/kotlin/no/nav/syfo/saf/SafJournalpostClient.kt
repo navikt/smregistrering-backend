@@ -11,6 +11,9 @@ import no.nav.syfo.saf.model.GetJournalpostRequest
 import no.nav.syfo.saf.model.GetJournalpostVariables
 import no.nav.syfo.saf.model.JournalpostResponse
 
+/**
+ * GraphQL-klient for oppslag mot SAF
+ */
 class SafJournalpostClient(
     private val httpClient: HttpClient,
     private val basePath: String,
