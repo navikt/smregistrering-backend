@@ -100,3 +100,5 @@ spec:
       value: api://dev-fss.teamkuhr.kuhr-sar-api/.default
     - name: KUHR_SAR_API_URL
       value: https://kuhr-sar-api.dev.adeo.no
+    - name: SYFOSMREGISTER_SCOPE
+      value: "api://dev-fss.teamsykmelding.syfosmregister/.default"

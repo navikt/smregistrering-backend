@@ -14,11 +14,13 @@ import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.hentFerdigstiltSykmelding(
     manuellOppgaveDAO: ManuellOppgaveDAO,
     safDokumentClient: SafDokumentClient,
+    syfosmregisterService: SyfosmregisterService,
     authorizationService: AuthorizationService
 ) {
     route("/api/v1") {
@@ -28,9 +30,15 @@ fun Route.hentFerdigstiltSykmelding(
             log.info("Mottok kall til GET /api/v1/sykmelding/$sykmeldingId/ferdigstilt")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
+
             val ferdigstilteOppgaver = sykmeldingId?.let {
                 manuellOppgaveDAO.hentFerdigstiltManuellOppgave(it)
             } ?: emptyList()
+
+            // TODO: Hook opp SyfosmRegister-kall her i egen metode?
+            val hentSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId!!)
+            log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding?.id}")
+
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -40,6 +48,7 @@ fun Route.hentFerdigstiltSykmelding(
                     log.info("Ugyldig path parameter: sykmeldingId")
                     call.respond(HttpStatusCode.BadRequest)
                 }
+
                 ferdigstilteOppgaver.isEmpty() -> {
                     log.info(
                         "Fant ingen ferdigstilte manuelloppgaver for sykmledingId {}",

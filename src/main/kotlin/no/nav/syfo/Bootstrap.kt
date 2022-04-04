@@ -32,6 +32,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
+import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
@@ -83,6 +84,7 @@ fun main() {
     val safJournalpostService = SafJournalpostService(env, httpClients.azureAdV2Client, httpClients.safJournalpostClient)
     val journalpostService = JournalpostService(httpClients.dokArkivClient, safJournalpostService)
     val oppgaveService = OppgaveService(httpClients.oppgaveClient)
+    val syfosmregisterService = SyfosmregisterService(httpClients.azureAdV2Client, httpClients.syfoSmregisterClient, env.syfoSmregisterScope)
 
     val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(
         authorizationService,
@@ -123,6 +125,7 @@ fun main() {
         avvisPapirsykmeldingController,
         pdlService,
         sykmelderService,
+        syfosmregisterService,
         authorizationService
     )
 

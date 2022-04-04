@@ -44,10 +44,12 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.Veileder
+import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.util.getReceivedSykmelding
+import no.nav.syfo.util.getSykmelding
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.Test
@@ -62,6 +64,7 @@ internal class HentFerdigstiltSykmeldingTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
+    private val syfosmregisterService = mockk<SyfosmregisterService>()
     private val authorizationService = mockk<AuthorizationService>()
     private val env = mockk<Environment>() {
         coEvery { azureAppClientId } returns "clientId"
@@ -83,6 +86,8 @@ internal class HentFerdigstiltSykmeldingTest {
 
             val sykmeldingId = "sykmeldingId"
             val oppgaveid = 308076319
+
+            coEvery { syfosmregisterService.hentSykmelding(any()) } returns getSykmelding(sykmeldingId = sykmeldingId)
 
             val papirSmRegistering = PapirSmRegistering(
                 journalpostId = "134",
@@ -199,6 +204,7 @@ internal class HentFerdigstiltSykmeldingTest {
                 hentFerdigstiltSykmelding(
                     manuellOppgaveDAO,
                     safDokumentClient,
+                    syfosmregisterService,
                     authorizationService
                 )
             }
