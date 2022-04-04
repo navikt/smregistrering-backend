@@ -102,3 +102,5 @@ spec:
       value: https://kuhr-sar-api.nais.adeo.no
     - name: SYFOSMREGISTER_SCOPE
       value: "api://prod-fss.teamsykmelding.syfosmregister/.default"
+    - name: SYFOSMREGISTER_ENDPOINT_URL
+      value: "https://syfosmregister.intern.nav.no"
