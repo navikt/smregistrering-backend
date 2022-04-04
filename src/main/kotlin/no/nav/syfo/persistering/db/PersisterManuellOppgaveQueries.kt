@@ -84,3 +84,45 @@ fun DatabaseInterface.ferdigstillSmRegistering(
         connection.commit()
         return status
     }
+
+fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
+    connection.use { connection ->
+        val statusSendtSykmeldingHistory = connection.prepareStatement(
+            """
+            DELETE FROM sendt_sykmelding_history
+            WHERE sykmelding_id = ?;
+            """
+        ).use {
+            it.setString(1, sykmeldingId)
+            it.executeUpdate()
+        }
+        val statusManuellOppgave = connection.prepareStatement(
+            """
+            DELETE FROM MANUELLOPPGAVE
+            WHERE id = ?;
+            """
+        ).use {
+            it.setString(1, sykmeldingId)
+            it.executeUpdate()
+        }
+        val statusJob = connection.prepareStatement(
+            """
+            DELETE FROM job
+            WHERE sykmelding_id = ?;
+            """
+        ).use {
+            it.setString(1, sykmeldingId)
+            it.executeUpdate()
+        }
+        val statusSendtSykmelding = connection.prepareStatement(
+            """
+            DELETE FROM sendt_sykmelding
+            WHERE sykmelding_id = ?;
+            """
+        ).use {
+            it.setString(1, sykmeldingId)
+            it.executeUpdate()
+        }
+        connection.commit()
+        return statusSendtSykmelding + statusSendtSykmeldingHistory + statusJob + statusManuellOppgave
+    }

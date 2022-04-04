@@ -158,19 +158,24 @@ fun startConsumer(
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
-                        val receivedPapirSmRegistering: PapirSmRegistering =
-                            objectMapper.readValue(consumerRecord.value())
-                        val loggingMeta = LoggingMeta(
-                            mottakId = receivedPapirSmRegistering.sykmeldingId,
-                            dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
-                            msgId = receivedPapirSmRegistering.sykmeldingId,
-                            sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                            journalpostId = receivedPapirSmRegistering.journalpostId
-                        )
-                        receivedSykmeldingController.handleReceivedSykmelding(
-                            papirSmRegistering = receivedPapirSmRegistering,
-                            loggingMeta = loggingMeta
-                        )
+                        if (consumerRecord.value() == null) {
+                            log.info("Mottatt tombstone for sykmelding med id ${consumerRecord.key()}")
+                            receivedSykmeldingController.slettSykmelding(consumerRecord.key())
+                        } else {
+                            val receivedPapirSmRegistering: PapirSmRegistering =
+                                objectMapper.readValue(consumerRecord.value())
+                            val loggingMeta = LoggingMeta(
+                                mottakId = receivedPapirSmRegistering.sykmeldingId,
+                                dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
+                                msgId = receivedPapirSmRegistering.sykmeldingId,
+                                sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
+                                journalpostId = receivedPapirSmRegistering.journalpostId
+                            )
+                            receivedSykmeldingController.handleReceivedSykmelding(
+                                papirSmRegistering = receivedPapirSmRegistering,
+                                loggingMeta = loggingMeta
+                            )
+                        }
                     }
                 }
             } catch (ex: Exception) {

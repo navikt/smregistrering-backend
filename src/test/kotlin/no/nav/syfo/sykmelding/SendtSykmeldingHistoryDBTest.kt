@@ -48,32 +48,6 @@ class SendtSykmeldingHistoryDBTest {
         sendtSykmeldingHistory1.receivedSykmelding shouldBeEqualTo sendtSykmeldingHistory.receivedSykmelding
     }
 
-    fun DatabaseInterface.getSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory? {
-        return connection.use {
-            it.prepareStatement(
-                """
-           select * from sendt_sykmelding_history where sykmelding_id = ? 
-        """
-            ).use {
-                it.setString(1, sykmeldingId)
-                it.executeQuery().toSendtSykmeldingHistory()
-            }
-        }
-    }
-
-    private fun ResultSet.toSendtSykmeldingHistory(): SendtSykmeldingHistory? {
-        return when (next()) {
-            true -> SendtSykmeldingHistory(
-                id = getString("id").trim(),
-                sykmeldingId = getString("sykmelding_id").trim(),
-                ferdigstiltAv = getString("ferdigstilt_av").trim(),
-                datoFerdigstilt = OffsetDateTime.ofInstant(getTimestamp("dato_ferdigstilt").toInstant(), ZoneId.of("UTC")),
-                receivedSykmelding = objectMapper.readValue(getString("sykmelding"))
-            )
-            else -> null
-        }
-    }
-
     private fun createSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory {
 
         return SendtSykmeldingHistory(
@@ -142,5 +116,31 @@ class SendtSykmeldingHistoryDBTest {
             perioder = null,
             skjermesForPasient = false
         )
+    }
+}
+
+fun DatabaseInterface.getSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory? {
+    return connection.use {
+        it.prepareStatement(
+            """
+           select * from sendt_sykmelding_history where sykmelding_id = ? 
+        """
+        ).use {
+            it.setString(1, sykmeldingId)
+            it.executeQuery().toSendtSykmeldingHistory()
+        }
+    }
+}
+
+private fun ResultSet.toSendtSykmeldingHistory(): SendtSykmeldingHistory? {
+    return when (next()) {
+        true -> SendtSykmeldingHistory(
+            id = getString("id").trim(),
+            sykmeldingId = getString("sykmelding_id").trim(),
+            ferdigstiltAv = getString("ferdigstilt_av").trim(),
+            datoFerdigstilt = OffsetDateTime.ofInstant(getTimestamp("dato_ferdigstilt").toInstant(), ZoneId.of("UTC")),
+            receivedSykmelding = objectMapper.readValue(getString("sykmelding"))
+        )
+        else -> null
     }
 }
