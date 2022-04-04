@@ -12,16 +12,16 @@ class SyfosmregisterClient(
     private val endpointUrl: String,
     private val httpClient: HttpClient
 ) {
-    suspend fun getSykmelding(token: String, sykmeldingid: String): Sykmelding? {
+    suspend fun getSykmelding(token: String, sykmeldingId: String): Sykmelding? {
         try {
-            return httpClient.get("$endpointUrl/api/v2/sykmelding/$sykmeldingid") {
+            return httpClient.get("$endpointUrl/api/v2/sykmelding/$sykmeldingId") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", token)
                 }
             }
         } catch (e: Exception) {
-            log.error("Noe gikk galt ved kall getSykmelding $sykmeldingid", e)
+            log.error("Noe gikk galt ved kall getSykmelding $sykmeldingId", e)
             throw e
         }
     }
