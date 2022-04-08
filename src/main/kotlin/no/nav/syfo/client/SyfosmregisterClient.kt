@@ -17,7 +17,7 @@ class SyfosmregisterClient(
             return httpClient.get("$endpointUrl/api/v2/sykmelding/$sykmeldingId") {
                 accept(ContentType.Application.Json)
                 headers {
-                    append("Authorization", token)
+                    append("Authorization", "Bearer $token")
                 }
             }
         } catch (e: Exception) {
