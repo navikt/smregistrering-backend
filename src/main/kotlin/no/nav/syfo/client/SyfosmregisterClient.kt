@@ -6,13 +6,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.ContentType
 import no.nav.syfo.log
-import no.nav.syfo.model.Sykmelding
+import no.nav.syfo.syfosmregister.sykmelding.model.SykmeldingDTO
 
 class SyfosmregisterClient(
     private val endpointUrl: String,
     private val httpClient: HttpClient
 ) {
-    suspend fun getSykmelding(token: String, sykmeldingId: String): Sykmelding? {
+    suspend fun getSykmelding(token: String, sykmeldingId: String): SykmeldingDTO? {
         try {
             return httpClient.get("$endpointUrl/api/v2/sykmelding/$sykmeldingId") {
                 accept(ContentType.Application.Json)
