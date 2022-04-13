@@ -3,6 +3,7 @@ package no.nav.syfo.syfosmregister.sykmelding.model
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
+// TODO: Bytt ut denne og avhengigheter med ny modell PapirsykmeldingDTO fra syfosmregister
 data class SykmeldingDTO(
     val id: String,
     val mottattTidspunkt: OffsetDateTime,

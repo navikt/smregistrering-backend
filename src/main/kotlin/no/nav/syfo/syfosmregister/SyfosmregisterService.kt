@@ -10,6 +10,8 @@ class SyfosmregisterService(
     private val syfosmregisterClient: SyfosmregisterClient,
     private val scope: String
 ) {
+
+    // TODO: Oppdatert URL til nytt endepunkt for papirsykmeldinger i syfosmregister
     suspend fun hentSykmelding(sykmeldingId: String): SykmeldingDTO? {
         log.info("Fetching accesstoken for scope $scope")
         val accessToken = accessTokenClientV2.getAccessToken(scope)

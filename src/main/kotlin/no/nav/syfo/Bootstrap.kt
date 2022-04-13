@@ -20,6 +20,7 @@ import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
+import no.nav.syfo.controllers.FerdigstiltSykmeldingController
 import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
@@ -106,6 +107,10 @@ fun main() {
         manuellOppgaveDAO
     )
     val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+    val ferdigstiltSykmeldingController = FerdigstiltSykmeldingController(
+        manuellOppgaveDAO,
+        httpClients.safClient, syfosmregisterService, authorizationService
+    )
 
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
@@ -123,6 +128,7 @@ fun main() {
         httpClients.safClient,
         sendTilGosysController,
         avvisPapirsykmeldingController,
+        ferdigstiltSykmeldingController,
         pdlService,
         sykmelderService,
         syfosmregisterService,
