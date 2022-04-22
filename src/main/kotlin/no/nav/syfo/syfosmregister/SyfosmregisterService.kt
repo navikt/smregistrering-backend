@@ -1,9 +1,9 @@
 package no.nav.syfo.syfosmregister
 
 import no.nav.syfo.azuread.v2.AzureAdV2Client
-import no.nav.syfo.client.SyfosmregisterClient
 import no.nav.syfo.log
-import no.nav.syfo.syfosmregister.sykmelding.model.SykmeldingDTO
+import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
+import no.nav.syfo.syfosmregister.papirsykmelding.model.PapirsykmeldingDTO
 
 class SyfosmregisterService(
     private val accessTokenClientV2: AzureAdV2Client,
@@ -11,8 +11,7 @@ class SyfosmregisterService(
     private val scope: String
 ) {
 
-    // TODO: Oppdatert URL til nytt endepunkt for papirsykmeldinger i syfosmregister
-    suspend fun hentSykmelding(sykmeldingId: String): SykmeldingDTO? {
+    suspend fun hentSykmelding(sykmeldingId: String): PapirsykmeldingDTO? {
         log.info("Fetching accesstoken for scope $scope")
         val accessToken = accessTokenClientV2.getAccessToken(scope)
         if (accessToken?.accessToken == null) {

@@ -43,21 +43,18 @@ class FerdigstiltSykmeldingController(
 
     private suspend fun fetchFromSyfosmregister(sykmeldingId: String, accessToken: String): HttpServiceResponse {
 
-        val hentSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId!!)
-        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding?.id}")
+        val hentSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
+        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding.sykmelding.id}")
 
-        TODO("Må implementeres")
-//        // TODO: Trenger FNR for å sjekke tilgang
-//        if (!authorizationService.hasSuperuserAccess(accessToken, hentSykmelding.)) {
-//            log.warn(
-//                "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
-//                StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
-//            )
-//            return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
-//        } else {
-//            TODO("")
-//            // TODO: map til internt format
-//        }
+        if (!authorizationService.hasSuperuserAccess(accessToken, hentSykmelding.pasientFnr)) {
+            log.warn(
+                "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
+                StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
+            )
+            return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
+        } else {
+
+        }
 
         return HttpServiceResponse(HttpStatusCode.InternalServerError)
     }
@@ -90,11 +87,12 @@ class FerdigstiltSykmeldingController(
 
             val sykmelding = receivedSykmelding!!.sykmelding
 
+            val ferdigstilteOppgaver = ferdigstilteOppgaver.first()
             try {
                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                    journalpostId = ferdigstilteOppgaver.first().journalpostId,
-                    dokumentInfoId = ferdigstilteOppgaver.first().dokumentInfoId ?: "",
-                    msgId = ferdigstilteOppgaver.first().sykmeldingId,
+                    journalpostId = ferdigstilteOppgaver.journalpostId,
+                    dokumentInfoId = ferdigstilteOppgaver.dokumentInfoId ?: "",
+                    msgId = ferdigstilteOppgaver.sykmeldingId,
                     accessToken = accessToken,
                     oppgaveId = manuellOppgave.oppgaveid
                 )
