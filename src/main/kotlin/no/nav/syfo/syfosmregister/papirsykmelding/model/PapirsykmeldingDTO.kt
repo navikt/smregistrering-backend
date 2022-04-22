@@ -1,7 +1,7 @@
 package no.nav.syfo.syfosmregister.papirsykmelding.model
 
-import java.time.OffsetDateTime
 import no.nav.syfo.model.Sykmelding
+import java.time.OffsetDateTime
 
 data class PapirsykmeldingDTO(
     val pasientFnr: String,

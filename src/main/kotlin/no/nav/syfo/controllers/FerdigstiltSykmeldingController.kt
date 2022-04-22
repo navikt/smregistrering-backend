@@ -44,7 +44,7 @@ class FerdigstiltSykmeldingController(
     private suspend fun fetchFromSyfosmregister(sykmeldingId: String, accessToken: String): HttpServiceResponse {
 
         val hentSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
-        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding.sykmelding.id}")
+        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding!!.sykmelding.id}")
 
         if (!authorizationService.hasSuperuserAccess(accessToken, hentSykmelding.pasientFnr)) {
             log.warn(
@@ -53,7 +53,7 @@ class FerdigstiltSykmeldingController(
             )
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
-
+            TODO()
         }
 
         return HttpServiceResponse(HttpStatusCode.InternalServerError)
@@ -123,9 +123,9 @@ class FerdigstiltSykmeldingController(
                     )
 
                     val papirManuellOppgave = PapirManuellOppgave(
-                        fnr = ferdigstilteOppgaver.first().fnr,
-                        sykmeldingId = ferdigstilteOppgaver.first().sykmeldingId,
-                        oppgaveid = ferdigstilteOppgaver.first().oppgaveid,
+                        fnr = ferdigstilteOppgaver.fnr,
+                        sykmeldingId = ferdigstilteOppgaver.sykmeldingId,
+                        oppgaveid = ferdigstilteOppgaver.oppgaveid,
                         pdfPapirSykmelding = pdfPapirSykmelding,
                         papirSmRegistering = papirSmRegistering
                     )

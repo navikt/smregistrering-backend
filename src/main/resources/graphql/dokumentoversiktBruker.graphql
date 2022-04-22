@@ -1,0 +1,8 @@
+query($fnr: String!) {
+	dokumentoversiktBruker(brukerId: {id: $fnr, type: FNR}, foerste: 99999) {
+		journalposter {
+			eksternReferanseId
+			journalpostId
+		}
+	}
+}

@@ -21,6 +21,7 @@ import io.mockk.mockk
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.controllers.FerdigstiltSykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -204,10 +205,12 @@ internal class HentFerdigstiltSykmeldingTest {
             )
             application.routing {
                 hentFerdigstiltSykmelding(
-                    manuellOppgaveDAO,
-                    safDokumentClient,
-                    syfosmregisterService,
-                    authorizationService
+                    FerdigstiltSykmeldingController(
+                        manuellOppgaveDAO,
+                        safDokumentClient,
+                        syfosmregisterService,
+                        authorizationService
+                    )
                 )
             }
 
