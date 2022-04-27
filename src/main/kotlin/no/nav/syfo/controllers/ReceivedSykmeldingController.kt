@@ -41,6 +41,13 @@ class ReceivedSykmeldingController(
         }
     }
 
+    suspend fun handlePapirsykmeldingFromSyfosmregister(papirSmRegistering: PapirSmRegistering, loggingMeta: LoggingMeta) {
+        wrapExceptions(loggingMeta) {
+            log.info("Mottok ein manuell papirsykmelding registerings from syfosmregister, {}", StructuredArguments.fields(loggingMeta))
+            database.opprettManuellOppgave(papirSmRegistering = papirSmRegistering, oppgaveId = null, ferdigstilt = true)
+        }
+    }
+
     fun slettSykmelding(sykmeldingId: String) {
         val antallSlettedeRader = database.slettSykmelding(sykmeldingId)
         if (antallSlettedeRader > 0) {

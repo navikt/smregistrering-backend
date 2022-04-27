@@ -9,14 +9,18 @@ import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
+import no.nav.syfo.util.LoggingMeta
 
 class FerdigstiltSykmeldingController(
     val manuellOppgaveDAO: ManuellOppgaveDAO,
     val safDokumentClient: SafDokumentClient,
     val syfosmregisterService: SyfosmregisterService,
-    val authorizationService: AuthorizationService
+    val authorizationService: AuthorizationService,
+    val safJournalpostService: SafJournalpostService,
+    val receivedSykmeldingController: ReceivedSykmeldingController
 ) {
 
     suspend fun hentFerdigstiltOppgave(accessToken: String?, sykmeldingId: String?): HttpServiceResponse {
@@ -37,26 +41,90 @@ class FerdigstiltSykmeldingController(
             ferdigstilteOppgaver.isEmpty() -> {
                 return fetchFromSyfosmregister(sykmeldingId, accessToken)
             }
+            ferdigstilteOppgaver.first().ferdigstilt -> {
+                return HttpServiceResponse(HttpStatusCode.NotFound, "Oppgaven er ikke ferdigstilt")
+            }
             else -> return handleLocalOppgave(sykmeldingId, accessToken, ferdigstilteOppgaver)
         }
     }
 
     private suspend fun fetchFromSyfosmregister(sykmeldingId: String, accessToken: String): HttpServiceResponse {
 
-        val hentSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
-        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${hentSykmelding!!.sykmelding.id}")
+        val papirSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
+        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${papirSykmelding!!.sykmelding.id}")
 
-        if (!authorizationService.hasSuperuserAccess(accessToken, hentSykmelding.pasientFnr)) {
+        if (!authorizationService.hasSuperuserAccess(accessToken, papirSykmelding.pasientFnr)) {
             log.warn(
                 "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
             )
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
-            TODO()
-        }
+            val journalpostId = papirSykmelding.sykmelding.avsenderSystem.versjon
+            val journalPost = safJournalpostService.getJournalPostDokumentInfo(journalpostId, accessToken)
+            val dokuments = journalPost.data.journalpost.dokumenter
+            if (dokuments.size != 1) {
+                log.error("Journalpost for papirsykmelding har ${dokuments.size} dokumenter")
+                return HttpServiceResponse(HttpStatusCode.UnprocessableEntity, "Det ser ut som det er feil antall dokumenter på journalposten")
+            }
 
-        return HttpServiceResponse(HttpStatusCode.InternalServerError)
+            val dokumentInfoId = dokuments.first()
+            val dokument = safDokumentClient.hentDokument(
+                journalpostId, dokumentInfoId.dokumentInfoId,
+                papirSykmelding.sykmelding.id, accessToken, sykmeldingId
+            )
+
+            if (dokument == null) {
+                log.error("Fant ikke PDF for sykmeldingId $sykmeldingId")
+                return HttpServiceResponse(HttpStatusCode.InternalServerError)
+            }
+
+            val papirSmRegistering = PapirSmRegistering(
+                journalpostId = journalpostId,
+                oppgaveId = Int.MAX_VALUE.toString(),
+                fnr = papirSykmelding.pasientFnr,
+                aktorId = papirSykmelding.pasientAktoerId,
+                dokumentInfoId = dokumentInfoId.dokumentInfoId,
+                datoOpprettet = papirSykmelding.mottattTidspunkt,
+                sykmeldingId = papirSykmelding.sykmelding.id,
+                syketilfelleStartDato = papirSykmelding.sykmelding.syketilfelleStartDato,
+                arbeidsgiver = papirSykmelding.sykmelding.arbeidsgiver,
+                medisinskVurdering = papirSykmelding.sykmelding.medisinskVurdering,
+                skjermesForPasient = papirSykmelding.sykmelding.skjermesForPasient,
+                perioder = papirSykmelding.sykmelding.perioder,
+                prognose = papirSykmelding.sykmelding.prognose,
+                utdypendeOpplysninger = papirSykmelding.sykmelding.utdypendeOpplysninger,
+                tiltakNAV = papirSykmelding.sykmelding.tiltakNAV,
+                tiltakArbeidsplassen = papirSykmelding.sykmelding.tiltakArbeidsplassen,
+                andreTiltak = papirSykmelding.sykmelding.andreTiltak,
+                meldingTilNAV = papirSykmelding.sykmelding.meldingTilNAV,
+                meldingTilArbeidsgiver = papirSykmelding.sykmelding.meldingTilArbeidsgiver,
+                kontaktMedPasient = papirSykmelding.sykmelding.kontaktMedPasient,
+                behandletTidspunkt = papirSykmelding.sykmelding.behandletTidspunkt.toLocalDate(),
+                behandler = papirSykmelding.sykmelding.behandler
+            )
+
+            receivedSykmeldingController.handlePapirsykmeldingFromSyfosmregister(
+                papirSmRegistering,
+                LoggingMeta(
+                    mottakId = sykmeldingId,
+                    journalpostId = journalpostId,
+                    dokumentInfoId = dokumentInfoId.dokumentInfoId,
+                    msgId = papirSykmelding.sykmelding.msgId,
+                    sykmeldingId = sykmeldingId
+                )
+            )
+
+            val papirManuellOppgave = PapirManuellOppgave(
+                fnr = papirSykmelding.pasientFnr,
+                sykmeldingId = papirSykmelding.sykmelding.id,
+                oppgaveid = Int.MAX_VALUE,
+                pdfPapirSykmelding = dokument,
+                papirSmRegistering = papirSmRegistering
+            )
+
+            return HttpServiceResponse(HttpStatusCode.OK, papirManuellOppgave)
+        }
     }
 
     private suspend fun handleLocalOppgave(
@@ -94,7 +162,7 @@ class FerdigstiltSykmeldingController(
                     dokumentInfoId = ferdigstilteOppgaver.dokumentInfoId ?: "",
                     msgId = ferdigstilteOppgaver.sykmeldingId,
                     accessToken = accessToken,
-                    oppgaveId = manuellOppgave.oppgaveid
+                    sykmeldingId = manuellOppgave.sykmeldingId
                 )
                 if (pdfPapirSykmelding != null) {
                     val papirSmRegistering = PapirSmRegistering(
@@ -125,7 +193,7 @@ class FerdigstiltSykmeldingController(
                     val papirManuellOppgave = PapirManuellOppgave(
                         fnr = ferdigstilteOppgaver.fnr,
                         sykmeldingId = ferdigstilteOppgaver.sykmeldingId,
-                        oppgaveid = ferdigstilteOppgaver.oppgaveid,
+                        oppgaveid = ferdigstilteOppgaver.oppgaveid!!,
                         pdfPapirSykmelding = pdfPapirSykmelding,
                         papirSmRegistering = papirSmRegistering
                     )

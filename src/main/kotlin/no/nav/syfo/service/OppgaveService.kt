@@ -64,13 +64,18 @@ class OppgaveService(
         }
     }
 
-    suspend fun ferdigstillOppgave(ferdigstillRegistrering: FerdigstillRegistrering, beskrivelse: String?, loggingMeta: LoggingMeta) {
+    suspend fun ferdigstillOppgave(
+        ferdigstillRegistrering: FerdigstillRegistrering,
+        beskrivelse: String?,
+        loggingMeta: LoggingMeta,
+        oppgaveId: Int
+    ) {
         val oppgave = when {
             ferdigstillRegistrering.oppgave != null -> {
                 ferdigstillRegistrering.oppgave
             }
             else -> {
-                oppgaveClient.hentOppgave(ferdigstillRegistrering.oppgaveId, ferdigstillRegistrering.sykmeldingId)
+                oppgaveClient.hentOppgave(oppgaveId, ferdigstillRegistrering.sykmeldingId)
             }
         }
 
@@ -78,7 +83,7 @@ class OppgaveService(
             val ferdigstillOppgave = FerdigstillOppgave(
                 versjon = oppgave.versjon
                     ?: throw RuntimeException("Fant ikke versjon for oppgave ${oppgave.id}, sykmeldingId ${ferdigstillRegistrering.sykmeldingId}"),
-                id = ferdigstillRegistrering.oppgaveId,
+                id = oppgaveId,
                 status = OppgaveStatus.FERDIGSTILT,
                 tildeltEnhetsnr = ferdigstillRegistrering.navEnhet,
                 tilordnetRessurs = ferdigstillRegistrering.veileder.veilederIdent,
@@ -93,7 +98,7 @@ class OppgaveService(
                 StructuredArguments.fields(loggingMeta)
             )
         } else {
-            log.info("Hopper over ferdigstillOppgave, oppgaveId ${ferdigstillRegistrering.oppgaveId} er allerede ${oppgave.status}")
+            log.info("Hopper over ferdigstillOppgave, oppgaveId $oppgaveId er allerede ${oppgave.status}")
         }
     }
 

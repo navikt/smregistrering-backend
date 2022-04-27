@@ -70,7 +70,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId ?: "",
                                     msgId = manuellOppgaveDTOList.first().sykmeldingId,
                                     accessToken = accessToken,
-                                    oppgaveId = oppgaveId
+                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
                                 )
                                 if (pdfPapirSykmelding == null) {
                                     call.respond(HttpStatusCode.InternalServerError)
@@ -78,7 +78,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     val papirManuellOppgave = PapirManuellOppgave(
                                         fnr = manuellOppgaveDTOList.first().fnr,
                                         sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                                        oppgaveid = manuellOppgaveDTOList.first().oppgaveid,
+                                        oppgaveid = oppgaveId,
                                         pdfPapirSykmelding = pdfPapirSykmelding,
                                         papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
                                     )
@@ -101,7 +101,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     journalpostId = journalpostId
                                 )
 
-                                sendTilGosysController.sendOppgaveTilGosys(oppgaveId, accessToken, loggingMeta)
+                                sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
 
                                 call.respond(HttpStatusCode.Gone, "SENT_TO_GOSYS")
                             }

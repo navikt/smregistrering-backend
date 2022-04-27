@@ -19,6 +19,43 @@ fun Route.sendPapirSykmeldingManuellOppgave(
     sendPapirsykmeldingController: SendPapirsykmeldingController
 ) {
     route("/api/v1") {
+        post("/sykmelding/{sykmeldingId}") {
+            val sykmeldingId = call.parameters["sykmeldingId"]
+            log.info("sender sykmelding: $sykmeldingId")
+
+            val accessToken = getAccessTokenFromAuthHeader(call.request)
+            val callId = UUID.randomUUID().toString()
+            val navEnhet = call.request.headers["X-Nav-Enhet"]
+
+            val smRegistreringManuell: SmRegistreringManuell = call.receive()
+
+            when {
+                sykmeldingId == null -> {
+                    log.error("Path parameter mangler eller er feil formattert: sykmeldingId")
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Path parameter mangler eller er feil formattert: sykmeldingId"
+                    )
+                }
+                accessToken == null -> {
+                    log.error("Mangler JWT Bearer token i HTTP header")
+                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
+                }
+                navEnhet == null -> {
+                    log.error("Mangler X-Nav-Enhet i http header")
+                    call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
+                }
+                else -> {
+                    sendPapirsykmeldingController.sendPapirsykmelding(
+                        smRegistreringManuell,
+                        accessToken,
+                        callId,
+                        sykmeldingId,
+                        navEnhet
+                    )
+                }
+            }
+        }
         post("/oppgave/{oppgaveid}/send") {
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
 

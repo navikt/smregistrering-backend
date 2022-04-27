@@ -9,7 +9,7 @@ data class ManuellOppgaveDTO(
     val dokumentInfoId: String?,
     val datoOpprettet: OffsetDateTime?,
     val sykmeldingId: String,
-    val oppgaveid: Int,
+    val oppgaveid: Int?,
     val ferdigstilt: Boolean,
     val papirSmRegistering: PapirSmRegistering?,
     var pdfPapirSykmelding: ByteArray?

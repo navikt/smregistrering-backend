@@ -64,7 +64,7 @@ fun Route.sendOppgaveTilGosys(
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
 
-                            sendTilGosysController.sendOppgaveTilGosys(oppgaveId, accessToken, loggingMeta)
+                            sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
 
                             call.respond(HttpStatusCode.NoContent)
                         } else {

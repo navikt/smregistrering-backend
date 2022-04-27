@@ -79,6 +79,7 @@ class AvvisPapirsykmeldingController(
 
                 journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
                 oppgaveService.ferdigstillOppgave(
+                    oppgaveId = oppgaveId,
                     ferdigstillRegistrering = ferdigstillRegistrering,
                     beskrivelse = lagOppgavebeskrivelse(
                         avvisSykmeldingReason,
@@ -90,7 +91,7 @@ class AvvisPapirsykmeldingController(
                 )
 
                 manuellOppgaveDAO.ferdigstillSmRegistering(
-                    oppgaveId = oppgaveId,
+                    sykmeldingId = sykmeldingId,
                     utfall = Utfall.AVVIST,
                     ferdigstiltAv = veileder.veilederIdent,
                     avvisningsgrunn = avvisSykmeldingReason

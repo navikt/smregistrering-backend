@@ -22,6 +22,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.controllers.FerdigstiltSykmeldingController
+import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -43,6 +44,7 @@ import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.persistering.db.ferdigstillSmRegistering
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.syfosmregister.SyfosmregisterService
@@ -67,6 +69,8 @@ internal class HentFerdigstiltSykmeldingTest {
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val syfosmregisterService = mockk<SyfosmregisterService>()
     private val authorizationService = mockk<AuthorizationService>()
+    private val safJournalpostService = mockk<SafJournalpostService>()
+    private val receivedSykmeldingController = mockk<ReceivedSykmeldingController>()
     private val env = mockk<Environment>() {
         coEvery { azureAppClientId } returns "clientId"
     }
@@ -91,6 +95,7 @@ internal class HentFerdigstiltSykmeldingTest {
 
             // TODO
             // coEvery { syfosmregisterService.hentSykmelding(any()) } returns SykmeldingDTO(id = sykmeldingId,
+            coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
 
             val papirSmRegistering = PapirSmRegistering(
                 journalpostId = "134",
@@ -198,7 +203,7 @@ internal class HentFerdigstiltSykmeldingTest {
 
             database.opprettManuellOppgave(papirSmRegistering, oppgaveid)
             database.upsertSendtSykmelding(receivedSykmelding)
-            database.ferdigstillSmRegistering(oppgaveid, "OK", "ferdigstiltAv", null)
+            database.ferdigstillSmRegistering(sykmeldingId, "OK", "ferdigstiltAv", null)
 
             application.setupAuth(
                 env, jwkProvider, "https://sts.issuer.net/myid"
@@ -209,7 +214,9 @@ internal class HentFerdigstiltSykmeldingTest {
                         manuellOppgaveDAO,
                         safDokumentClient,
                         syfosmregisterService,
-                        authorizationService
+                        authorizationService,
+                        safJournalpostService,
+                        receivedSykmeldingController
                     )
                 )
             }

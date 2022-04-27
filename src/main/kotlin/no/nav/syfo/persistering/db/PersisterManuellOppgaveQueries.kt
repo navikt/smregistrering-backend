@@ -7,7 +7,7 @@ import java.sql.Timestamp
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int) {
+fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int?, ferdigstilt: Boolean = false) {
     connection.use { connection ->
         connection.prepareStatement(
             """
@@ -31,8 +31,8 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
             it.setString(4, papirSmRegistering.aktorId)
             it.setString(5, papirSmRegistering.dokumentInfoId)
             it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
-            it.setInt(7, oppgaveId)
-            it.setBoolean(8, false)
+            it.setObject(7, oppgaveId)
+            it.setBoolean(8, ferdigstilt)
             it.setObject(9, toPGObject(papirSmRegistering)) // Store it all so frontend can present whatever is present
             it.executeUpdate()
         }
@@ -56,7 +56,7 @@ fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
     }
 
 fun DatabaseInterface.ferdigstillSmRegistering(
-    oppgaveId: Int,
+    sykmeldingId: String,
     utfall: String,
     ferdigstiltAv: String,
     avvisningsgrunn: String? = null
@@ -70,7 +70,7 @@ fun DatabaseInterface.ferdigstillSmRegistering(
                 ferdigstilt_av = ?,
                 dato_ferdigstilt = ?,
                 avvisningsgrunn = ?
-            WHERE oppgave_id = ?;
+            WHERE id = ?;
             """
         ).use {
             it.setBoolean(1, true)
@@ -78,7 +78,7 @@ fun DatabaseInterface.ferdigstillSmRegistering(
             it.setString(3, ferdigstiltAv)
             it.setTimestamp(4, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()))
             it.setString(5, avvisningsgrunn)
-            it.setInt(6, oppgaveId)
+            it.setString(6, sykmeldingId)
             it.executeUpdate()
         }
         connection.commit()

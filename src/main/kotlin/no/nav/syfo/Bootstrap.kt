@@ -109,7 +109,7 @@ fun main() {
     val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
     val ferdigstiltSykmeldingController = FerdigstiltSykmeldingController(
         manuellOppgaveDAO,
-        httpClients.safClient, syfosmregisterService, authorizationService
+        httpClients.safClient, syfosmregisterService, authorizationService, safJournalpostService, receivedSykmeldingController
     )
 
     val sykmeldingJobRunner = SykmeldingJobRunner(
