@@ -41,7 +41,7 @@ class FerdigstiltSykmeldingController(
             ferdigstilteOppgaver.isEmpty() -> {
                 return fetchFromSyfosmregister(sykmeldingId, accessToken)
             }
-            ferdigstilteOppgaver.first().ferdigstilt -> {
+            !ferdigstilteOppgaver.first().ferdigstilt -> {
                 return HttpServiceResponse(HttpStatusCode.NotFound, "Oppgaven er ikke ferdigstilt")
             }
             else -> return handleLocalOppgave(sykmeldingId, accessToken, ferdigstilteOppgaver)
