@@ -36,7 +36,7 @@ data class Environment(
     val okSykmeldingTopic: String = "teamsykmelding.ok-sykmelding",
     val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
     val syfoserviceMqKafkaTopic: String = "teamsykmelding.syfoservice-mq",
-    val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL", "http://syfosmregister"),
+    val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),
 )
 
