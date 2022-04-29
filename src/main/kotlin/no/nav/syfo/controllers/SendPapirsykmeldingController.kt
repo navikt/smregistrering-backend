@@ -154,7 +154,7 @@ class SendPapirsykmeldingController(
                     pdlPasient = pasient,
                     sykmelder = sykmelder,
                     sykmeldingId = sykmeldingId,
-                    datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime(),
+                    datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
                     journalpostId = journalpostId
                 )
 
@@ -180,7 +180,7 @@ class SendPapirsykmeldingController(
                     legekontorOrgName = "",
                     legekontorHerId = null,
                     legekontorReshId = null,
-                    mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
+                    mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
                         ?: msgHead.msgInfo.genDate,
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),

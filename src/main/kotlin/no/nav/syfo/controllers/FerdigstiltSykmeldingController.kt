@@ -51,7 +51,9 @@ class FerdigstiltSykmeldingController(
     private suspend fun fetchFromSyfosmregister(sykmeldingId: String, accessToken: String): HttpServiceResponse {
 
         val papirSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
-        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${papirSykmelding!!.sykmelding.id}")
+            ?: return HttpServiceResponse(HttpStatusCode.NotFound, "Fant ikke sykmelding $sykmeldingId")
+
+        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${papirSykmelding.sykmelding.id}")
 
         if (!authorizationService.hasSuperuserAccess(accessToken, papirSykmelding.pasientFnr)) {
             log.warn(
@@ -105,6 +107,7 @@ class FerdigstiltSykmeldingController(
             )
 
             receivedSykmeldingController.handlePapirsykmeldingFromSyfosmregister(
+                papirSykmelding,
                 papirSmRegistering,
                 LoggingMeta(
                     mottakId = sykmeldingId,
@@ -153,14 +156,13 @@ class FerdigstiltSykmeldingController(
             val receivedSykmelding = manuellOppgaveDAO.hentSykmelding(sykmeldingId)
                 ?: return HttpServiceResponse(HttpStatusCode.NotFound, "Fant ingen ferdigstilte manuelloppgaver med sykmeldingId $sykmeldingId")
 
-            val sykmelding = receivedSykmelding!!.sykmelding
+            val sykmelding = receivedSykmelding.sykmelding
 
-            val ferdigstilteOppgaver = ferdigstilteOppgaver.first()
             try {
                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                    journalpostId = ferdigstilteOppgaver.journalpostId,
-                    dokumentInfoId = ferdigstilteOppgaver.dokumentInfoId ?: "",
-                    msgId = ferdigstilteOppgaver.sykmeldingId,
+                    journalpostId = manuellOppgave.journalpostId,
+                    dokumentInfoId = manuellOppgave.dokumentInfoId ?: "",
+                    msgId = manuellOppgave.sykmeldingId,
                     accessToken = accessToken,
                     sykmeldingId = manuellOppgave.sykmeldingId
                 )
@@ -191,9 +193,9 @@ class FerdigstiltSykmeldingController(
                     )
 
                     val papirManuellOppgave = PapirManuellOppgave(
-                        fnr = ferdigstilteOppgaver.fnr,
-                        sykmeldingId = ferdigstilteOppgaver.sykmeldingId,
-                        oppgaveid = ferdigstilteOppgaver.oppgaveid!!,
+                        fnr = manuellOppgave.fnr,
+                        sykmeldingId = manuellOppgave.sykmeldingId,
+                        oppgaveid = manuellOppgave.oppgaveid!!,
                         pdfPapirSykmelding = pdfPapirSykmelding,
                         papirSmRegistering = papirSmRegistering
                     )
