@@ -1,5 +1,6 @@
 package no.nav.syfo.persistering.api
 
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -7,6 +8,8 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.pipeline.PipelineContext
+import no.nav.syfo.controllers.HttpServiceResponse
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
@@ -46,13 +49,15 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
-                    sendPapirsykmeldingController.sendPapirsykmelding(
+                    val httpRespons = sendPapirsykmeldingController.sendPapirsykmelding(
                         smRegistreringManuell,
                         accessToken,
                         callId,
                         sykmeldingId,
                         navEnhet
                     )
+
+                    respond(httpRespons)
                 }
             }
         }
@@ -93,14 +98,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             navEnhet
                         )
 
-                        when {
-                            httpServiceResponse.payload != null -> {
-                                call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
-                            }
-                            else -> {
-                                call.respond(httpServiceResponse.httpStatusCode)
-                            }
-                        }
+                        respond(httpServiceResponse)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
@@ -119,6 +117,19 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     }
                 }
             }
+        }
+    }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.respond(
+    httpServiceResponse: HttpServiceResponse
+) {
+    when {
+        httpServiceResponse.payload != null -> {
+            call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+        }
+        else -> {
+            call.respond(httpServiceResponse.httpStatusCode)
         }
     }
 }

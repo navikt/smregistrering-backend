@@ -89,7 +89,7 @@ class SendPapirsykmeldingController(
         )
     }
 
-    private suspend fun SendPapirsykmeldingController.handleSendPapirsykmelding(
+    private suspend fun handleSendPapirsykmelding(
         manuellOppgaveDTOList: List<ManuellOppgaveDTO>,
         isUpdate: Boolean,
         accessToken: String,
