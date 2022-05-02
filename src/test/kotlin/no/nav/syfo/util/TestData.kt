@@ -16,7 +16,6 @@ import no.nav.syfo.service.toSykmelding
 import java.time.LocalDateTime
 
 fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"), fnrPasient: String, sykmelderFnr: String, datoOpprettet: LocalDateTime = LocalDateTime.now(), sykmeldingId: String = "1234"): ReceivedSykmelding {
-
     val fellesformat = getXmleiFellesformat(manuell, sykmeldingId, datoOpprettet)
     val sykmelding = getSykmelding(extractHelseOpplysningerArbeidsuforhet(fellesformat), fellesformat.get(), sykmeldingId = sykmeldingId)
     val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
@@ -40,6 +39,11 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
         legeHelsepersonellkategori = "LE",
         legeHprNr = "hpr"
     )
+}
+
+fun getSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"), datoOpprettet: LocalDateTime = LocalDateTime.now(), sykmeldingId: String = "1234"): Sykmelding {
+    val fellesformat = getXmleiFellesformat(manuell, sykmeldingId, datoOpprettet)
+    return getSykmelding(extractHelseOpplysningerArbeidsuforhet(fellesformat), fellesformat.get(), sykmeldingId = sykmeldingId)
 }
 
 fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {

@@ -26,6 +26,7 @@ import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
+import no.nav.syfo.controllers.FerdigstiltSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
@@ -39,6 +40,7 @@ import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 
@@ -52,8 +54,10 @@ fun createApplicationEngine(
     safDokumentClient: SafDokumentClient,
     sendTilGosysController: SendTilGosysController,
     avvisPapirsykmeldingController: AvvisPapirsykmeldingController,
+    ferdigstiltSykmeldingController: FerdigstiltSykmeldingController,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
+    syfosmregisterService: SyfosmregisterService,
     authorizationService: AuthorizationService,
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
@@ -96,7 +100,7 @@ fun createApplicationEngine(
                     sendTilGosysController,
                     authorizationService
                 )
-                hentFerdigstiltSykmelding(manuellOppgaveDAO, safDokumentClient, authorizationService)
+                hentFerdigstiltSykmelding(ferdigstiltSykmeldingController)
                 sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingController)
                 endreSykmelding(sendPapirsykmeldingController)
                 avvisOppgave(

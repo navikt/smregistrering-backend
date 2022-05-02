@@ -24,6 +24,7 @@ import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
+import no.nav.syfo.service.Veileder
 import no.nav.syfo.service.toSykmelding
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
@@ -49,6 +50,24 @@ class SendPapirsykmeldingController(
     private val journalpostService: JournalpostService,
     private val manuellOppgaveDAO: ManuellOppgaveDAO
 ) {
+    suspend fun sendPapirsykmelding(
+        smRegistreringManuell: SmRegistreringManuell,
+        accessToken: String,
+        callId: String,
+        sykmeldingId: String,
+        navEnhet: String
+    ): HttpServiceResponse {
+        val manueoppgaveDTOList = manuellOppgaveDAO.hentFerdigstiltManuellOppgave(sykmeldingId)
+        return handleSendPapirsykmelding(
+            manuellOppgaveDTOList = manueoppgaveDTOList,
+            isUpdate = true,
+            accessToken = accessToken,
+            smRegistreringManuell = smRegistreringManuell,
+            callId = callId,
+            navEnhet = navEnhet,
+            oppgaveId = null
+        )
+    }
 
     suspend fun sendPapirsykmelding(
         smRegistreringManuell: SmRegistreringManuell,
@@ -59,6 +78,26 @@ class SendPapirsykmeldingController(
         isUpdate: Boolean = false
     ): HttpServiceResponse {
         val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
+        return handleSendPapirsykmelding(
+            manuellOppgaveDTOList,
+            isUpdate,
+            accessToken,
+            smRegistreringManuell,
+            callId,
+            oppgaveId,
+            navEnhet
+        )
+    }
+
+    private suspend fun handleSendPapirsykmelding(
+        manuellOppgaveDTOList: List<ManuellOppgaveDTO>,
+        isUpdate: Boolean,
+        accessToken: String,
+        smRegistreringManuell: SmRegistreringManuell,
+        callId: String,
+        oppgaveId: Int?,
+        navEnhet: String
+    ): HttpServiceResponse {
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
             val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
             val sykmeldingId = manuellOppgave.sykmeldingId
@@ -115,7 +154,7 @@ class SendPapirsykmeldingController(
                     pdlPasient = pasient,
                     sykmelder = sykmelder,
                     sykmeldingId = sykmeldingId,
-                    datoOpprettet = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime(),
+                    datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
                     journalpostId = journalpostId
                 )
 
@@ -141,7 +180,7 @@ class SendPapirsykmeldingController(
                     legekontorOrgName = "",
                     legekontorHerId = null,
                     legekontorReshId = null,
-                    mottattDato = manuellOppgaveDTOList.firstOrNull()?.datoOpprettet?.toLocalDateTime()
+                    mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
                         ?: msgHead.msgInfo.genDate,
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
@@ -170,22 +209,22 @@ class SendPapirsykmeldingController(
 
                 checkValidState(smRegistreringManuell, sykmelder, validationResult)
 
+                val ferdigstillRegistrering = FerdigstillRegistrering(
+                    oppgaveId = oppgaveId,
+                    journalpostId = journalpostId,
+                    dokumentInfoId = dokumentInfoId,
+                    pasientFnr = receivedSykmelding.personNrPasient,
+                    sykmeldingId = sykmeldingId,
+                    sykmelder = sykmelder,
+                    navEnhet = navEnhet,
+                    veileder = authorizationService.getVeileder(accessToken),
+                    avvist = false,
+                    oppgave = null
+                )
+
                 if (!validationResult.ruleHits.isWhitelisted()) {
                     return handleBrokenRule(validationResult, oppgaveId)
                 } else {
-
-                    val ferdigstillRegistrering = FerdigstillRegistrering(
-                        oppgaveId = oppgaveId,
-                        journalpostId = journalpostId,
-                        dokumentInfoId = dokumentInfoId,
-                        pasientFnr = receivedSykmelding.personNrPasient,
-                        sykmeldingId = sykmeldingId,
-                        sykmelder = sykmelder,
-                        navEnhet = navEnhet,
-                        veileder = authorizationService.getVeileder(accessToken),
-                        avvist = false,
-                        oppgave = null
-                    )
 
                     return handleOK(
                         validationResult,
@@ -271,22 +310,15 @@ class SendPapirsykmeldingController(
             Status.OK, Status.MANUAL_PROCESSING -> {
                 val veileder = authorizationService.getVeileder(accessToken)
 
-                journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
-                oppgaveService.ferdigstillOppgave(ferdigstillRegistrering, null, loggingMeta)
+                if (ferdigstillRegistrering.oppgaveId != null) {
+                    journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
+                    oppgaveService.ferdigstillOppgave(ferdigstillRegistrering, null, loggingMeta, ferdigstillRegistrering.oppgaveId)
+                }
 
-                val sendtSykmeldingHistory = SendtSykmeldingHistory(
-                    UUID.randomUUID().toString(),
-                    ferdigstillRegistrering.sykmeldingId,
-                    veileder.veilederIdent,
-                    OffsetDateTime.now(ZoneOffset.UTC),
-                    receivedSykmelding
-                )
-                sendtSykmeldingService.insertSendtSykmeldingHistory(sendtSykmeldingHistory = sendtSykmeldingHistory)
-                sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
-                sendtSykmeldingService.createJobs(receivedSykmelding)
+                insertSykmeldingAndCreateJobs(receivedSykmelding, ferdigstillRegistrering, veileder)
 
                 manuellOppgaveDAO.ferdigstillSmRegistering(
-                    oppgaveId = ferdigstillRegistrering.oppgaveId,
+                    sykmeldingId = ferdigstillRegistrering.sykmeldingId,
                     utfall = Utfall.OK,
                     ferdigstiltAv = veileder.veilederIdent
                 ).let {
@@ -297,7 +329,10 @@ class SendPapirsykmeldingController(
                             "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
                             StructuredArguments.keyValue("oppgaveId", ferdigstillRegistrering.oppgaveId)
                         )
-                        HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ingen uløst oppgave for oppgaveId ${ferdigstillRegistrering.oppgaveId}")
+                        HttpServiceResponse(
+                            HttpStatusCode.InternalServerError,
+                            "Fant ingen uløst oppgave for oppgaveId ${ferdigstillRegistrering.oppgaveId}"
+                        )
                     }
                 }
             }
@@ -306,6 +341,23 @@ class SendPapirsykmeldingController(
                 return HttpServiceResponse(HttpStatusCode.InternalServerError)
             }
         }
+    }
+
+    private fun insertSykmeldingAndCreateJobs(
+        receivedSykmelding: ReceivedSykmelding,
+        ferdigstillRegistrering: FerdigstillRegistrering,
+        veileder: Veileder,
+    ) {
+        val sendtSykmeldingHistory = SendtSykmeldingHistory(
+            UUID.randomUUID().toString(),
+            ferdigstillRegistrering.sykmeldingId,
+            veileder.veilederIdent,
+            OffsetDateTime.now(ZoneOffset.UTC),
+            receivedSykmelding
+        )
+        sendtSykmeldingService.insertSendtSykmeldingHistory(sendtSykmeldingHistory = sendtSykmeldingHistory)
+        sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
+        sendtSykmeldingService.createJobs(receivedSykmelding)
     }
 }
 
@@ -333,6 +385,7 @@ fun List<Godkjenning>.getHelsepersonellKategori(): String? = when {
         verdi
     }
 }
+
 data class HttpServiceResponse(
     val httpStatusCode: HttpStatusCode,
     val payload: Any? = null

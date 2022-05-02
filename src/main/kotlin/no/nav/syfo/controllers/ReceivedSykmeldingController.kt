@@ -6,10 +6,13 @@ import no.nav.syfo.log
 import no.nav.syfo.metrics.INCOMING_MESSAGE_COUNTER
 import no.nav.syfo.metrics.MESSAGE_STORED_IN_DB_COUNTER
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.persistering.db.erOpprettManuellOppgave
 import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.persistering.db.slettSykmelding
 import no.nav.syfo.service.OppgaveService
+import no.nav.syfo.syfosmregister.papirsykmelding.model.PapirsykmeldingDTO
+import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.wrapExceptions
 
@@ -41,10 +44,45 @@ class ReceivedSykmeldingController(
         }
     }
 
+    suspend fun handlePapirsykmeldingFromSyfosmregister(
+        papirSykmelding: PapirsykmeldingDTO,
+        papirSmRegistering: PapirSmRegistering,
+        loggingMeta: LoggingMeta
+    ) {
+        wrapExceptions(loggingMeta) {
+            log.info("Mottok ein manuell papirsykmelding registerings from syfosmregister, {}", StructuredArguments.fields(loggingMeta))
+            database.opprettManuellOppgave(papirSmRegistering = papirSmRegistering, oppgaveId = null, ferdigstilt = true)
+            database.upsertSendtSykmelding(papirSmRegistering.toReceveidSykmelding(papirSykmelding))
+        }
+    }
+
     fun slettSykmelding(sykmeldingId: String) {
         val antallSlettedeRader = database.slettSykmelding(sykmeldingId)
         if (antallSlettedeRader > 0) {
             log.info("Slettet sykmelding med id $sykmeldingId og tilhørende historikk")
         }
     }
+}
+
+private fun PapirSmRegistering.toReceveidSykmelding(papirSykmelding: PapirsykmeldingDTO): ReceivedSykmelding {
+    return ReceivedSykmelding(
+        sykmelding = papirSykmelding.sykmelding,
+        personNrPasient = papirSykmelding.pasientFnr,
+        personNrLege = papirSykmelding.sykmelding.behandler.fnr,
+        tlfPasient = null,
+        legeHelsepersonellkategori = null,
+        legeHprNr = null,
+        navLogId = sykmeldingId,
+        msgId = sykmeldingId,
+        legekontorOrgNr = null,
+        legekontorHerId = null,
+        legekontorReshId = null,
+        legekontorOrgName = "",
+        mottattDato = papirSykmelding.mottattTidspunkt.toLocalDateTime(),
+        rulesetVersion = "",
+        merknader = emptyList(),
+        partnerreferanse = "",
+        fellesformat = "",
+        tssid = ""
+    )
 }

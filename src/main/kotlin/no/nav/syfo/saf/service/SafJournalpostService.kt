@@ -2,7 +2,9 @@ package no.nav.syfo.saf.service
 
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
+import no.nav.syfo.graphql.model.GraphQLResponse
 import no.nav.syfo.saf.SafJournalpostClient
+import no.nav.syfo.saf.model.JournalpostResponse
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
 
@@ -22,7 +24,11 @@ class SafJournalpostService(
     }
 
     suspend fun erJournalfoert(journalpostId: String, token: String): Boolean {
+        val journalPost = getJournalPostDokumentInfo(journalpostId, token)
+        return erJournalfoert(journalPost.data.journalpost.journalstatus)
+    }
 
+    suspend fun getJournalPostDokumentInfo(journalpostId: String, token: String): GraphQLResponse<JournalpostResponse> {
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token, scope)?.accessToken
             ?: throw RuntimeException("Klarte ikke hente OBO-token for SafJournalpostService")
 
@@ -42,8 +48,7 @@ class SafJournalpostService(
             log.error("Klarte ikke hente data fra SAF {}", journalpostId)
             throw RuntimeException("Klarte ikke hente data fra SAF")
         }
-
-        return erJournalfoert(graphQLResponse.data.journalpost.journalstatus)
+        return graphQLResponse
     }
 
     private fun erJournalfoert(journalstatus: String?): Boolean {

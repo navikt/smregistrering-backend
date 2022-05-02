@@ -18,6 +18,7 @@ class SendTilGosysController(
 
     suspend fun sendOppgaveTilGosys(
         oppgaveId: Int,
+        sykmeldingId: String,
         accessToken: String,
         loggingMeta: LoggingMeta,
     ): Oppgave {
@@ -30,7 +31,7 @@ class SendTilGosysController(
             msgId = loggingMeta.msgId,
             tilordnetRessurs = veileder.veilederIdent
         )
-        manuellOppgaveDAO.ferdigstillSmRegistering(oppgaveId = oppgaveId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
+        manuellOppgaveDAO.ferdigstillSmRegistering(sykmeldingId = sykmeldingId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
 
         SENT_TO_GOSYS_COUNTER.inc()
 

@@ -25,18 +25,16 @@ fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean =
         }
     }
 
-fun DatabaseInterface.hentManuellOppgaveForSykmelding(sykmeldingId: String, ferdigstilt: Boolean = false): List<ManuellOppgaveDTO> =
+fun DatabaseInterface.hentManuellOppgaveForSykmelding(sykmeldingId: String): List<ManuellOppgaveDTO> =
     connection.use { connection ->
         connection.prepareStatement(
             """
                 SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering
                 FROM MANUELLOPPGAVE  
                 WHERE id=? 
-                AND ferdigstilt=?;
                 """
         ).use {
             it.setString(1, sykmeldingId)
-            it.setBoolean(2, ferdigstilt)
             it.executeQuery().toList { toManuellOppgaveDTO() }
         }
     }

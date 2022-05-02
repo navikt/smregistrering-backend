@@ -28,6 +28,7 @@ import no.nav.syfo.clients.exception.ServiceUnavailableException
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.SafJournalpostClient
+import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner
 import java.net.ProxySelector
 
@@ -113,4 +114,6 @@ class HttpClients(env: Environment, vaultSecrets: VaultSecrets) {
         env.safJournalpostGraphqlPath,
         SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
     )
+
+    internal val syfoSmregisterClient = SyfosmregisterClient(env.syfoSmregisterEndpointURL, httpClient)
 }

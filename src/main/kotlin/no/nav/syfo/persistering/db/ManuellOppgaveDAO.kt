@@ -13,16 +13,16 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
     fun hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean = false): List<ManuellOppgaveDTO> =
         database.hentManuellOppgaver(oppgaveId, ferdigstilt)
 
-    fun ferdigstillSmRegistering(oppgaveId: Int, utfall: Utfall, ferdigstiltAv: String, avvisningsgrunn: String? = null): Int =
+    fun ferdigstillSmRegistering(sykmeldingId: String, utfall: Utfall, ferdigstiltAv: String, avvisningsgrunn: String? = null): Int =
         database.ferdigstillSmRegistering(
-            oppgaveId = oppgaveId,
+            sykmeldingId = sykmeldingId,
             utfall = utfall.toString(),
             ferdigstiltAv = ferdigstiltAv,
             avvisningsgrunn = avvisningsgrunn
         )
 
     fun hentFerdigstiltManuellOppgave(sykmeldingId: String): List<ManuellOppgaveDTO> =
-        database.hentManuellOppgaveForSykmelding(sykmeldingId, true)
+        database.hentManuellOppgaveForSykmelding(sykmeldingId)
 
     fun hentSykmelding(sykmeldingId: String): ReceivedSykmelding? =
         database.getSykmelding(sykmeldingId)

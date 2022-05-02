@@ -304,7 +304,7 @@ class ReceivedSykmeldingControllerTest {
         database.opprettManuellOppgave(papirSmRegistering, oppgaveid)
         database.upsertSendtSykmelding(receivedSykmelding)
         database.insertSendtSykmeldingHistory(SendtSykmeldingHistory(UUID.randomUUID().toString(), sykmeldingId, "noen", OffsetDateTime.now(ZoneOffset.UTC), receivedSykmelding))
-        database.ferdigstillSmRegistering(oppgaveid, "OK", "ferdigstiltAv", null)
+        database.ferdigstillSmRegistering(sykmeldingId, "OK", "ferdigstiltAv", null)
         database.insertJobs(listOf(Job(sykmeldingId, JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.DONE, OffsetDateTime.now(ZoneOffset.UTC))))
 
         return sykmeldingId

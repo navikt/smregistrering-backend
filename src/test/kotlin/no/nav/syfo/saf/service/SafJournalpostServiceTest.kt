@@ -47,7 +47,7 @@ internal class SafJournalpostServiceTest {
     @Test
     fun erJournalfoert_journalStatusNull() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns
-            GraphQLResponse(JournalpostResponse(journalpost = Journalpost(null)), errors = null)
+            GraphQLResponse(JournalpostResponse(journalpost = Journalpost(null, dokumenter = emptyList())), errors = null)
         coEvery { azureAdV2Client.getOnBehalfOfToken(any(), any()) } returns AzureAdV2Token(
             "token",
             OffsetDateTime.now().plusHours(1)
@@ -62,7 +62,7 @@ internal class SafJournalpostServiceTest {
     @Test
     fun erJournalfoert_TRUE() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns
-            GraphQLResponse(JournalpostResponse(journalpost = Journalpost("JOURNALFOERT")), errors = null)
+            GraphQLResponse(JournalpostResponse(journalpost = Journalpost("JOURNALFOERT", dokumenter = emptyList())), errors = null)
         coEvery { azureAdV2Client.getOnBehalfOfToken(any(), any()) } returns AzureAdV2Token(
             "token",
             OffsetDateTime.now().plusHours(1)
@@ -75,7 +75,7 @@ internal class SafJournalpostServiceTest {
     @Test
     fun erJournalfoert_FALSE() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns
-            GraphQLResponse(JournalpostResponse(journalpost = Journalpost("MOTTATT")), errors = null)
+            GraphQLResponse(JournalpostResponse(journalpost = Journalpost("MOTTATT", dokumenter = emptyList())), errors = null)
         coEvery { azureAdV2Client.getOnBehalfOfToken(any(), any()) } returns AzureAdV2Token(
             "token",
             OffsetDateTime.now().plusHours(1)

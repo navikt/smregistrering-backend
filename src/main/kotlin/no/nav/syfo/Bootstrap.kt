@@ -20,6 +20,7 @@ import no.nav.syfo.clients.HttpClients
 import no.nav.syfo.clients.KafkaConsumers
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
+import no.nav.syfo.controllers.FerdigstiltSykmeldingController
 import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
@@ -32,6 +33,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
+import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
@@ -83,6 +85,7 @@ fun main() {
     val safJournalpostService = SafJournalpostService(env, httpClients.azureAdV2Client, httpClients.safJournalpostClient)
     val journalpostService = JournalpostService(httpClients.dokArkivClient, safJournalpostService)
     val oppgaveService = OppgaveService(httpClients.oppgaveClient)
+    val syfosmregisterService = SyfosmregisterService(httpClients.azureAdV2Client, httpClients.syfoSmregisterClient, env.syfoSmregisterScope)
 
     val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(
         authorizationService,
@@ -104,6 +107,10 @@ fun main() {
         manuellOppgaveDAO
     )
     val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+    val ferdigstiltSykmeldingController = FerdigstiltSykmeldingController(
+        manuellOppgaveDAO,
+        httpClients.safClient, syfosmregisterService, authorizationService, safJournalpostService, receivedSykmeldingController
+    )
 
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
@@ -121,8 +128,10 @@ fun main() {
         httpClients.safClient,
         sendTilGosysController,
         avvisPapirsykmeldingController,
+        ferdigstiltSykmeldingController,
         pdlService,
         sykmelderService,
+        syfosmregisterService,
         authorizationService
     )
 

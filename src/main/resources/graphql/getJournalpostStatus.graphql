@@ -1,5 +1,9 @@
 query FindJournalpost($id: String!) {
   journalpost(journalpostId: $id) {
     journalstatus
+    dokumenter {
+        dokumentInfoId
+        tittel
+    }
   }
 }
