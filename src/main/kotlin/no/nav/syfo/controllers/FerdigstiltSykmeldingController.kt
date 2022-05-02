@@ -85,7 +85,7 @@ class FerdigstiltSykmeldingController(
                 journalpostId = journalpostId,
                 oppgaveId = Int.MAX_VALUE.toString(),
                 fnr = papirSykmelding.pasientFnr,
-                aktorId = papirSykmelding.pasientAktoerId,
+                aktorId = papirSykmelding.sykmelding.pasientAktoerId,
                 dokumentInfoId = dokumentInfoId.dokumentInfoId,
                 datoOpprettet = papirSykmelding.mottattTidspunkt,
                 sykmeldingId = papirSykmelding.sykmelding.id,
