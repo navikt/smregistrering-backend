@@ -37,7 +37,7 @@ class SafJournalpostClient(
             if (e is ResponseException) {
                 log.error("SAF svarte noe annet enn OK ved henting av journalpostmetadata for journalpostid $journalpostId: ${e.response.status} ${e.response.content}")
             } else {
-                log.error("Noe gikk galt ved henting av journalpostmetadata for journalpostid $journalpostId mot SAF")
+                log.error("Noe gikk galt ved henting av journalpostmetadata for journalpostid $journalpostId mot SAF: ${e.message}")
             }
             null
         }
