@@ -3,13 +3,10 @@ package no.nav.syfo
 data class Environment(
     val applicationPort: Int = getEnvVar("APPLICATION_PORT", "8080").toInt(),
     val applicationName: String = getEnvVar("NAIS_APP_NAME", "smregistrering-backend"),
-    val serviceuserUsernamePath: String = getEnvVar("SERVICE_USER_USERNAME"),
-    val serviceuserPasswordPath: String = getEnvVar("SERVICE_USER_PASSWORD"),
     val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
     val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
     val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend"),
     val smregistreringUrl: String = getEnvVar("SMREGISTERING_URL"),
-    val securityTokenUrl: String = getEnvVar("SECURITY_TOKEN_SERVICE_URL", "http://security-token-service.default/rest/v1/sts/token"),
     val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL"),
     val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
     val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL"),
@@ -38,11 +35,7 @@ data class Environment(
     val syfoserviceMqKafkaTopic: String = "teamsykmelding.syfoservice-mq",
     val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),
-)
-
-data class VaultSecrets(
-    val serviceuserUsername: String,
-    val serviceuserPassword: String
+    val oppgaveScope: String = getEnvVar("OPPGAVE_SCOPE")
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =

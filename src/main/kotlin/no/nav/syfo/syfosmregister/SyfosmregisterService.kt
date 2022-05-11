@@ -14,9 +14,6 @@ class SyfosmregisterService(
     suspend fun hentSykmelding(sykmeldingId: String): PapirsykmeldingDTO? {
         log.info("Fetching accesstoken for scope $scope")
         val accessToken = accessTokenClientV2.getAccessToken(scope)
-        if (accessToken?.accessToken == null) {
-            throw RuntimeException("Klarte ikke hente ut accessToken for smregister")
-        }
-        return syfosmregisterClient.getSykmelding(token = accessToken.accessToken, sykmeldingId = sykmeldingId)
+        return syfosmregisterClient.getSykmelding(token = accessToken, sykmeldingId = sykmeldingId)
     }
 }

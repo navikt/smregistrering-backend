@@ -1,6 +1,7 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -19,13 +20,12 @@ class SarClient(
     private val httpClient: HttpClient
 ) {
     suspend fun getSamhandler(ident: String): List<Samhandler> {
-        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for kuhr-sar")
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)
         return httpClient.get("$endpointUrl/sar/rest/v2/samh") {
             accept(ContentType.Application.Json)
             header("Authorization", "Bearer $accessToken")
             parameter("ident", ident)
-        }
+        }.body()
     }
 }
 

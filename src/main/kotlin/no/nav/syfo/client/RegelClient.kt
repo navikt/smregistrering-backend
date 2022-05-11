@@ -1,9 +1,11 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import no.nav.syfo.azuread.v2.AzureAdV2Client
@@ -21,14 +23,13 @@ class RegelClient(
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
 
-            val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-                ?: throw RuntimeException("Klarte ikke hente accessToken for syfosmpapirregler")
+            val accessToken = azureAdV2Client.getAccessToken(resourceId)
 
             headers {
                 append("Authorization", "Bearer $accessToken")
                 append("Nav-CallId", msgId)
             }
-            body = sykmelding
-        }
+            setBody(sykmelding)
+        }.body<ValidationResult>()
     }
 }

@@ -5,21 +5,20 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.authenticate
-import io.ktor.features.CORS
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.jackson.jackson
-import io.ktor.response.respond
-import io.ktor.routing.routing
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.CORS
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.routing.routing
 import io.ktor.util.InternalAPI
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
@@ -40,7 +39,6 @@ import no.nav.syfo.persistering.api.sendPapirSykmeldingManuellOppgave
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
-import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 
@@ -57,7 +55,6 @@ fun createApplicationEngine(
     ferdigstiltSykmeldingController: FerdigstiltSykmeldingController,
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
-    syfosmregisterService: SyfosmregisterService,
     authorizationService: AuthorizationService,
 ): ApplicationEngine =
     embeddedServer(Netty, env.applicationPort, configure = {
@@ -74,7 +71,7 @@ fun createApplicationEngine(
             }
         }
         install(StatusPages) {
-            exception<Throwable> { cause ->
+            exception<Throwable> { call, cause ->
                 call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                 log.error("Caught exception", cause)
                 throw cause
@@ -82,12 +79,12 @@ fun createApplicationEngine(
         }
 
         install(CORS) {
-            method(HttpMethod.Get)
-            method(HttpMethod.Post)
-            method(HttpMethod.Put)
-            method(HttpMethod.Options)
-            header("Content-Type")
-            host(env.smregistreringUrl, schemes = listOf("http", "https"))
+            allowMethod(HttpMethod.Get)
+            allowMethod(HttpMethod.Post)
+            allowMethod(HttpMethod.Put)
+            allowMethod(HttpMethod.Options)
+            allowHeader("Content-Type")
+            allowHost(env.smregistreringUrl, schemes = listOf("http", "https"))
             allowCredentials = true
         }
 
@@ -103,9 +100,7 @@ fun createApplicationEngine(
                 hentFerdigstiltSykmelding(ferdigstiltSykmeldingController)
                 sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingController)
                 endreSykmelding(sendPapirsykmeldingController)
-                avvisOppgave(
-                    avvisPapirsykmeldingController
-                )
+                avvisOppgave(avvisPapirsykmeldingController)
                 pasientApi(pdlService, authorizationService)
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)

@@ -188,7 +188,8 @@ class SendPapirsykmeldingController(
                     merknader = createMerknad(sykmelding),
                     partnerreferanse = null,
                     legeHelsepersonellkategori = sykmelder.godkjenninger?.getHelsepersonellKategori(),
-                    legeHprNr = sykmelder.hprNummer
+                    legeHprNr = sykmelder.hprNummer,
+                    vedlegg = null
                 )
 
                 log.info(

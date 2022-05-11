@@ -29,8 +29,7 @@ class SafJournalpostService(
     }
 
     suspend fun getJournalPostDokumentInfo(journalpostId: String, token: String): GraphQLResponse<JournalpostResponse> {
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(token, scope)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente OBO-token for SafJournalpostService")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(token, scope)
 
         val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, oboToken)
 

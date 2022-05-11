@@ -1,13 +1,12 @@
 package no.nav.syfo.azuread.v2
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.ResponseException
-import io.ktor.client.features.ServerResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
@@ -28,16 +27,16 @@ class AzureAdV2Client(
      */
     suspend fun getAccessToken(
         scope: String
-    ): AzureAdV2Token? {
-        return azureAdV2Cache.getAccessToken(scope)
-            ?: getClientSecretAccessToken(scope)?.let {
+    ): String {
+        return azureAdV2Cache.getAccessToken(scope)?.accessToken
+            ?: getClientSecretAccessToken(scope).let {
                 azureAdV2Cache.putValue(scope, it)
-            }
+            }.accessToken
     }
 
     private suspend fun getClientSecretAccessToken(
         scope: String
-    ): AzureAdV2Token? {
+    ): AzureAdV2Token {
         return getAccessToken(
             Parameters.build {
                 append("client_id", azureAppClientId)
@@ -45,7 +44,7 @@ class AzureAdV2Client(
                 append("scope", scope)
                 append("grant_type", "client_credentials")
             }
-        )?.toAzureAdV2Token()
+        ).toAzureAdV2Token()
     }
 
     /**
@@ -54,17 +53,17 @@ class AzureAdV2Client(
     suspend fun getOnBehalfOfToken(
         token: String,
         scope: String
-    ): AzureAdV2Token? {
-        return azureAdV2Cache.getOboToken(token, scope)
-            ?: getOboAccessToken(token, scope)?.let {
+    ): String {
+        return azureAdV2Cache.getOboToken(token, scope)?.accessToken
+            ?: getOboAccessToken(token, scope).let {
                 azureAdV2Cache.putValue(token, scope, it)
-            }
+            }.accessToken
     }
 
     private suspend fun getOboAccessToken(
         token: String,
         scope: String
-    ): AzureAdV2Token? {
+    ): AzureAdV2Token {
         return getAccessToken(
             Parameters.build {
                 append("client_id", azureAppClientId)
@@ -75,33 +74,25 @@ class AzureAdV2Client(
                 append("scope", scope)
                 append("requested_token_use", "on_behalf_of")
             }
-        )?.toAzureAdV2Token()
+        ).toAzureAdV2Token()
     }
 
     private suspend fun getAccessToken(
         formParameters: Parameters
-    ): AzureAdV2TokenResponse? {
+    ): AzureAdV2TokenResponse {
         return try {
             val response: HttpResponse = httpClient.post(azureTokenEndpoint) {
                 accept(ContentType.Application.Json)
-                body = FormDataContent(formParameters)
+                setBody(FormDataContent(formParameters))
             }
-            response.receive<AzureAdV2TokenResponse>()
-        } catch (e: ClientRequestException) {
-            handleUnexpectedResponseException(e)
-        } catch (e: ServerResponseException) {
-            handleUnexpectedResponseException(e)
+            response.body<AzureAdV2TokenResponse>()
+        } catch (e: ResponseException) {
+            log.error("Error while requesting AzureAdAccessToken with statusCode=${e.response.status.value}", e)
+            throw RuntimeException("Noe gikk galt ved henting av AAD-token", e)
+        } catch (e: Exception) {
+            log.error("Error while requesting AzureAdAccessToken", e)
+            throw RuntimeException("Noe gikk galt ved henting av AAD-token", e)
         }
-    }
-
-    private fun handleUnexpectedResponseException(
-        responseException: ResponseException
-    ): AzureAdV2TokenResponse? {
-        log.error(
-            "Error while requesting AzureAdAccessToken with statusCode=${responseException.response.status.value}",
-            responseException
-        )
-        return null
     }
 
     companion object {

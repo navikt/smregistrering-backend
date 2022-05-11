@@ -1,7 +1,7 @@
 package no.nav.syfo.metrics
 
-import io.ktor.application.ApplicationCall
-import io.ktor.request.path
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.path
 import io.ktor.util.pipeline.PipelineContext
 
 val REGEX = """(\d{2,9})""".toRegex()

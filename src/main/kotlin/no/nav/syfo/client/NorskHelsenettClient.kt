@@ -1,7 +1,8 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -25,19 +26,16 @@ class NorskHelsenettClient(
 
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
-
-        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for syfohelsenettproxy")
-
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)
         try {
-            return httpClient.get<Behandler>("$endpointUrl/api/v2/behandlerMedHprNummer") {
+            return httpClient.get("$endpointUrl/api/v2/behandlerMedHprNummer") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $accessToken")
                     append("Nav-CallId", callId)
                     append("hprNummer", padHpr(hprNummer)!!)
                 }
-            }.also { log.info("Hentet behandler for callId {}", callId) }
+            }.body<Behandler>().also { log.info("Hentet behandler for callId {}", callId) }
         } catch (e: Exception) {
             if (e is ResponseException) {
                 when (e.response.status) {
