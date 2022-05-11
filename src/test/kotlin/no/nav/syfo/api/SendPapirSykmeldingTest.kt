@@ -5,18 +5,16 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.withCharset
-import io.ktor.jackson.jackson
-import io.ktor.response.respond
-import io.ktor.routing.routing
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.install
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.contentType
 import io.ktor.server.testing.handleRequest
@@ -151,7 +149,7 @@ class SendPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause
@@ -420,7 +418,7 @@ class SendPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause
@@ -636,12 +634,12 @@ class SendPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<ValidationException> { cause ->
+                exception<ValidationException> { call, cause ->
                     call.respond(HttpStatusCode.BadRequest, cause.validationResult)
                     log.error("Caught ValidationException", cause)
                 }
 
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause
@@ -802,7 +800,7 @@ class SendPapirSykmeldingTest {
                 }
             ) {
                 response.status() shouldBeEqualTo HttpStatusCode.BadRequest
-                response.contentType() shouldBeEqualTo ContentType.Application.Json.withCharset(Charsets.UTF_8)
+                response.contentType() shouldBeEqualTo ContentType.Application.Json
                 response.content shouldNotBe null
                 response.content!!.lines() shouldBeEqualTo listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
             }

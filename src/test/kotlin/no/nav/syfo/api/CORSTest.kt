@@ -1,11 +1,11 @@
 package no.nav.syfo.api
 
-import io.ktor.application.install
-import io.ktor.features.CORS
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.routing.routing
+import io.ktor.server.application.install
+import io.ktor.server.plugins.cors.CORS
+import io.ktor.server.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.util.InternalAPI
@@ -22,7 +22,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("https"))
                 allowCredentials = true
             }
             val applicationState = ApplicationState()
@@ -44,7 +44,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("https"))
                 allowCredentials = true
             }
             val applicationState = ApplicationState()
@@ -70,7 +70,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("https"))
                 allowCredentials = true
             }
             val applicationState = ApplicationState()
@@ -96,7 +96,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("http", "https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("http", "https"))
             }
             val applicationState = ApplicationState()
             applicationState.ready = true
@@ -146,7 +146,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("http", "https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("http", "https"))
                 allowNonSimpleContentTypes = true
             }
             val applicationState = ApplicationState()
@@ -174,7 +174,7 @@ internal class CORSTest {
         with(TestApplicationEngine()) {
             start()
             application.install(CORS) {
-                host("smregistrering.nais.preprod.local", schemes = listOf("https"))
+                allowHost("smregistrering.nais.preprod.local", schemes = listOf("https"))
                 allowCredentials = true
             }
             val applicationState = ApplicationState()

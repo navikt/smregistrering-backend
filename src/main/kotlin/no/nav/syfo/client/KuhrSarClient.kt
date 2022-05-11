@@ -1,6 +1,7 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -25,7 +26,7 @@ class SarClient(
             accept(ContentType.Application.Json)
             header("Authorization", "Bearer $accessToken")
             parameter("ident", ident)
-        }
+        }.body()
     }
 }
 

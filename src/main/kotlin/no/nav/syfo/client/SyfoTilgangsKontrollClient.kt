@@ -3,7 +3,8 @@ package no.nav.syfo.client
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -38,13 +39,13 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker tilgang for veileder på person")
-            val tilgang = httpClient.get<Tilgang>("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person") {
+            val tilgang = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $oboToken")
                     append(NAV_PERSONIDENT_HEADER, personFnr)
                 }
-            }
+            }.body<Tilgang>()
             syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
             return tilgang
         } catch (e: Exception) {
@@ -65,13 +66,13 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
-            val tilgang = httpClient.get<Tilgang>("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
+            val tilgang = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $oboToken")
                     append(NAV_PERSONIDENT_HEADER, personFnr)
                 }
-            }
+            }.body<Tilgang>()
             log.info("syfo-tilgangskontroll svarte $tilgang")
             return tilgang
         } catch (e: Exception) {

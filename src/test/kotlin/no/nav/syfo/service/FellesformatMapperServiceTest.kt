@@ -174,7 +174,8 @@ class FellesformatMapperServiceTest {
             merknader = null,
             partnerreferanse = null,
             legeHelsepersonellkategori = "LE",
-            legeHprNr = "hpr"
+            legeHprNr = "hpr",
+            vedlegg = null
         )
 
         receivedSykmelding.personNrPasient shouldBeEqualTo fnrPasient

@@ -4,17 +4,16 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.authenticate
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.StatusPages
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.jackson.jackson
-import io.ktor.response.respond
-import io.ktor.routing.routing
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.mockk.coEvery
@@ -24,7 +23,6 @@ import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.AktoerIdClient
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
@@ -38,8 +36,6 @@ import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
 import no.nav.syfo.model.Diagnose
 import no.nav.syfo.model.ErIArbeid
-import no.nav.syfo.model.IdentInfo
-import no.nav.syfo.model.IdentInfoResult
 import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
@@ -80,7 +76,6 @@ internal class HentPapirSykmeldingTest {
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = mockk<OppgaveService>()
     private val kuhrsarClient = mockk<SarClient>()
-    private val aktoerIdClient = mockk<AktoerIdClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val regelClient = mockk<RegelClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
@@ -183,7 +178,7 @@ internal class HentPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause
@@ -209,22 +204,6 @@ internal class HentPapirSykmeldingTest {
                 saksreferanse = "",
                 tema = "",
                 status = "OPPRETTET"
-            )
-            coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-                Pair(
-                    "143242345",
-                    IdentInfoResult(
-                        identer = listOf(IdentInfo("645514141444", "asd", true)),
-                        feilmelding = null
-                    )
-                ),
-                Pair(
-                    "18459123134",
-                    IdentInfoResult(
-                        identer = listOf(IdentInfo("6455142134", "asd", true)),
-                        feilmelding = null
-                    )
-                )
             )
             coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
                 Samhandler(
@@ -361,22 +340,6 @@ internal class HentPapirSykmeldingTest {
             tema = "",
             status = "OPPRETTET"
         )
-        coEvery { aktoerIdClient.getAktoerIds(any(), any(), any()) } returns mapOf(
-            Pair(
-                "143242345",
-                IdentInfoResult(
-                    identer = listOf(IdentInfo("645514141444", "asd", true)),
-                    feilmelding = null
-                )
-            ),
-            Pair(
-                "18459123134",
-                IdentInfoResult(
-                    identer = listOf(IdentInfo("6455142134", "asd", true)),
-                    feilmelding = null
-                )
-            )
-        )
 
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
 
@@ -481,7 +444,7 @@ internal class HentPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause
@@ -624,7 +587,7 @@ internal class HentPapirSykmeldingTest {
                 }
             }
             application.install(StatusPages) {
-                exception<Throwable> { cause ->
+                exception<Throwable> { call, cause ->
                     call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
                     log.error("Caught exception", cause)
                     throw cause

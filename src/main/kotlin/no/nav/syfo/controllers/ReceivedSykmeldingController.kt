@@ -83,6 +83,7 @@ private fun PapirSmRegistering.toReceveidSykmelding(papirSykmelding: Papirsykmel
         merknader = emptyList(),
         partnerreferanse = "",
         fellesformat = "",
-        tssid = ""
+        tssid = "",
+        vedlegg = null
     )
 }

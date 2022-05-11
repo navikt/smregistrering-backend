@@ -1,13 +1,13 @@
 package no.nav.syfo.persistering.api
 
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.syfo.controllers.HttpServiceResponse
 import no.nav.syfo.controllers.SendPapirsykmeldingController

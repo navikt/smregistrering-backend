@@ -1,13 +1,13 @@
 package no.nav.syfo.client
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.put
-import io.ktor.client.statement.HttpStatement
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -53,28 +53,30 @@ class DokArkivClient(
         loggingMeta: LoggingMeta
     ) {
         try {
-            val httpResponse = httpClient.put<HttpStatement>("$url/$journalpostId") {
+            val httpResponse = httpClient.put("$url/$journalpostId") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
                 header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
 
-                body = OppdaterJournalpost(
-                    avsenderMottaker = AvsenderMottaker(
-                        id = padHpr(sykmelder.hprNummer),
-                        navn = finnNavn(sykmelder)
-                    ),
-                    bruker = Bruker(id = pasientFnr),
-                    sak = Sak(),
-                    tittel = getTittel(avvist),
-                    dokumenter = if (dokumentInfoId != null) {
-                        listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
-                    } else {
-                        null
-                    }
+                setBody(
+                    OppdaterJournalpost(
+                        avsenderMottaker = AvsenderMottaker(
+                            id = padHpr(sykmelder.hprNummer),
+                            navn = finnNavn(sykmelder)
+                        ),
+                        bruker = Bruker(id = pasientFnr),
+                        sak = Sak(),
+                        tittel = getTittel(avvist),
+                        dokumenter = if (dokumentInfoId != null) {
+                            listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
+                        } else {
+                            null
+                        }
+                    )
                 )
-            }.execute()
+            }
             log.info("Oppdatering av journalpost ok for journalpostid {}, msgId {}, http status {} , {}", journalpostId, msgId, httpResponse.status.value, fields(loggingMeta))
         } catch (e: Exception) {
             if (e is ResponseException) {
@@ -118,16 +120,16 @@ class DokArkivClient(
         navEnhet: String
     ): String {
         try {
-            val httpResponse = httpClient.patch<HttpStatement>("$url/$journalpostId/ferdigstill") {
+            val httpResponse = httpClient.patch("$url/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
                 header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
-                body = FerdigstillJournal(navEnhet)
-            }.execute()
+                setBody(FerdigstillJournal(navEnhet))
+            }
             log.info("ferdigstilling av journalpost ok for journalpostid {}, msgId {}, http status {} , {}", journalpostId, msgId, httpResponse.status.value, fields(loggingMeta))
-            return httpResponse.call.response.receive<String>()
+            return httpResponse.body<String>()
         } catch (e: Exception) {
             if (e is ResponseException) {
                 when (e.response.status) {

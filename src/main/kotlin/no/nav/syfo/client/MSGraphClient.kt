@@ -3,7 +3,8 @@ package no.nav.syfo.client
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import no.nav.syfo.Environment
@@ -48,14 +49,14 @@ class MSGraphClient(
 
     private suspend fun callMsGraphApi(oboToken: String): String {
         try {
-            return httpClient.get<GraphResponse>(msGraphApiAccountNameQuery) {
+            return httpClient.get(msGraphApiAccountNameQuery) {
                 headers {
                     append("Authorization", "Bearer $oboToken")
                 }
-            }.onPremisesSamAccountName
+            }.body<GraphResponse>().onPremisesSamAccountName
         } catch (e: Exception) {
             val feilmelding = if (e is ResponseException) {
-                "Noe gikk galt ved henting av veilederIdent fra Ms Graph ${e.response.status} ${e.response.content}"
+                "Noe gikk galt ved henting av veilederIdent fra Ms Graph ${e.response.status} ${e.response.body<String>()}"
             } else {
                 "Noe gikk galt ved henting av veilederIdent fra Ms Graph"
             }

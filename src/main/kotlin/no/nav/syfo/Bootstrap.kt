@@ -131,7 +131,6 @@ fun main() {
         ferdigstiltSykmeldingController,
         pdlService,
         sykmelderService,
-        syfosmregisterService,
         authorizationService
     )
 
