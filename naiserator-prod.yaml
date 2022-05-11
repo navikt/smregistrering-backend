@@ -45,19 +45,12 @@ spec:
           cluster: prod-fss
   vault:
     enabled: true
-    paths:
-      - kvPath: serviceuser/data/prod/srvregpapirsm
-        mountPath: /secrets/serviceuser
   webproxy: true
   ingresses:
     - "https://smregistrering-backend.nais.adeo.no"
   kafka:
     pool: nav-prod
   env:
-    - name: SERVICE_USER_USERNAME
-      value: /secrets/serviceuser/username
-    - name: SERVICE_USER_PASSWORD
-      value: /secrets/serviceuser/password
     - name: SMREGISTERINGB_BACKEND_DB_URL
       value: jdbc:postgresql://A01DBVL009.adeo.no:5432/smregistrering-backend
     - name: MOUNT_PATH_VAULT
@@ -104,3 +97,5 @@ spec:
       value: "api://prod-fss.teamsykmelding.syfosmregister/.default"
     - name: SYFOSMREGISTER_ENDPOINT_URL
       value: "https://syfosmregister.intern.nav.no"
+    - name: OPPGAVE_SCOPE
+      value: api://prod-fss.oppgavehandtering.oppgave/.default

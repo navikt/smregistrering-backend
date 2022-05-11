@@ -39,7 +39,6 @@ import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.Unbounded
-import no.nav.syfo.util.getFileAsString
 import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
@@ -58,10 +57,6 @@ val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 @InternalAPI
 fun main() {
     val env = Environment()
-    val vaultSecrets = VaultSecrets(
-        serviceuserUsername = getFileAsString(env.serviceuserUsernamePath),
-        serviceuserPassword = getFileAsString(env.serviceuserPasswordPath)
-    )
 
     val jwkProvider =
         JwkProviderBuilder(URL(env.jwkKeysUrl)).cached(10, 24, TimeUnit.HOURS).rateLimited(10, 1, TimeUnit.MINUTES)
@@ -76,7 +71,7 @@ fun main() {
 
     val kafkaConsumers = KafkaConsumers(env)
     val kafkaProducers = KafkaProducers(env)
-    val httpClients = HttpClients(env, vaultSecrets)
+    val httpClients = HttpClients(env)
 
     val sendtSykmeldingService = SendtSykmeldingService(databaseInterface = database)
     val authorizationService = AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
