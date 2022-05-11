@@ -20,8 +20,7 @@ class SarClient(
     private val httpClient: HttpClient
 ) {
     suspend fun getSamhandler(ident: String): List<Samhandler> {
-        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for kuhr-sar")
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)
         return httpClient.get("$endpointUrl/sar/rest/v2/samh") {
             accept(ContentType.Application.Json)
             header("Authorization", "Bearer $accessToken")

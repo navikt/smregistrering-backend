@@ -23,8 +23,7 @@ class RegelClient(
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
 
-            val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-                ?: throw RuntimeException("Klarte ikke hente accessToken for syfosmpapirregler")
+            val accessToken = azureAdV2Client.getAccessToken(resourceId)
 
             headers {
                 append("Authorization", "Bearer $accessToken")

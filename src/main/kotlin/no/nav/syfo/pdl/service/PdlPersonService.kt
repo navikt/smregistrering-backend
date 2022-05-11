@@ -7,7 +7,6 @@ import no.nav.syfo.pdl.error.PersonNotFoundInPdl
 import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
 
 class PdlPersonService(
     private val pdlClient: PdlClient,
@@ -19,8 +18,7 @@ class PdlPersonService(
     }
 
     suspend fun getPdlPerson(fnr: String, callId: String): PdlPerson {
-        val token = azureAdV2Client.getAccessToken(pdlScope)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for PDL")
+        val token = azureAdV2Client.getAccessToken(pdlScope)
         val pdlResponse = pdlClient.getPerson(fnr, token)
 
         if (pdlResponse.errors != null) {

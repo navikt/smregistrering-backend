@@ -26,10 +26,7 @@ class NorskHelsenettClient(
 
     suspend fun finnBehandler(hprNummer: String, callId: String): Behandler? {
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
-
-        val accessToken = azureAdV2Client.getAccessToken(resourceId)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for syfohelsenettproxy")
-
+        val accessToken = azureAdV2Client.getAccessToken(resourceId)
         try {
             return httpClient.get("$endpointUrl/api/v2/behandlerMedHprNummer") {
                 accept(ContentType.Application.Json)

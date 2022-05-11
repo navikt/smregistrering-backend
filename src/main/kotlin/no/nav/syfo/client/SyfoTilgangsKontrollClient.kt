@@ -34,8 +34,7 @@ class SyfoTilgangsKontrollClient(
             log.debug("Traff cache for syfotilgangskontroll")
             return it
         }
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente nytt accessToken for veileder ved tilgangssjekk")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
 
         try {
             log.info("Sjekker tilgang for veileder på person")
@@ -61,8 +60,7 @@ class SyfoTilgangsKontrollClient(
     }
 
     suspend fun hasSuperuserAccess(accessToken: String, personFnr: String): Tilgang {
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente nytt accessToken for veileder ved tilgangssjekk")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")

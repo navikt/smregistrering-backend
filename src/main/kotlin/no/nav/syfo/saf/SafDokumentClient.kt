@@ -30,8 +30,7 @@ class SafDokumentClient constructor(
         sykmeldingId: String
     ): ByteArray {
 
-        val oboToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)?.accessToken
-            ?: throw RuntimeException("Klarte ikke hente accessToken for SAF")
+        val oboToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)
 
         try {
             val httpResponse =

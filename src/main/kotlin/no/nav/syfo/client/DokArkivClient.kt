@@ -56,7 +56,7 @@ class DokArkivClient(
             val httpResponse = httpClient.put("$url/$journalpostId") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
+                val token = azureAdV2Client.getAccessToken(scope)
                 header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
 
@@ -123,7 +123,7 @@ class DokArkivClient(
             val httpResponse = httpClient.patch("$url/$journalpostId/ferdigstill") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                val token = azureAdV2Client.getAccessToken(scope)?.accessToken ?: throw RuntimeException("Kunne ikke hente AAD-token")
+                val token = azureAdV2Client.getAccessToken(scope)
                 header("Authorization", "Bearer $token")
                 header("Nav-Callid", msgId)
                 setBody(FerdigstillJournal(navEnhet))

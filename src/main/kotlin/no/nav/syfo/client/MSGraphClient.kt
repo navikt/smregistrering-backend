@@ -36,9 +36,7 @@ class MSGraphClient(
         }
 
         return try {
-            val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = oboScope)?.accessToken
-                ?: throw RuntimeException("Klarte ikke hente nytt accessToken for veileder for MS Graph")
-
+            val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = oboScope)
             val subject = callMsGraphApi(oboToken)
             subjectCache.put(accessToken, subject)
             subject
