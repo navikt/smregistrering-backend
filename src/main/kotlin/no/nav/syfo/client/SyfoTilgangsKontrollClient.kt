@@ -4,11 +4,11 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
@@ -38,21 +38,28 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker tilgang for veileder på person")
-            val tilgang = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person") {
+            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $oboToken")
                     append(NAV_PERSONIDENT_HEADER, personFnr)
                 }
-            }.body<Tilgang>()
-            syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
-            return tilgang
-        } catch (e: Exception) {
-            if (e is ResponseException) {
-                log.warn("syfo-tilgangskontroll svarte med ${e.response.status}")
-            } else {
-                log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll")
             }
+            return when (httpResponse.status) {
+                HttpStatusCode.OK -> {
+                    val tilgang = httpResponse.body<Tilgang>()
+                    syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
+                    tilgang
+                }
+                else -> {
+                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status}")
+                    Tilgang(
+                        harTilgang = false
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll")
             return Tilgang(
                 harTilgang = false
             )
@@ -64,21 +71,28 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
-            val tilgang = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
+            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $oboToken")
                     append(NAV_PERSONIDENT_HEADER, personFnr)
                 }
-            }.body<Tilgang>()
-            log.info("syfo-tilgangskontroll svarte $tilgang")
-            return tilgang
-        } catch (e: Exception) {
-            if (e is ResponseException) {
-                log.warn("syfo-tilgangskontroll svarte med ${e.response.status} på forespørsel om utvidet tilgang")
-            } else {
-                log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang")
             }
+            return when (httpResponse.status) {
+                HttpStatusCode.OK -> {
+                    val tilgang = httpResponse.body<Tilgang>()
+                    syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
+                    tilgang
+                }
+                else -> {
+                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status}  på forespørsel om utvidet tilgang")
+                    Tilgang(
+                        harTilgang = false
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang")
             return Tilgang(
                 harTilgang = false
             )
