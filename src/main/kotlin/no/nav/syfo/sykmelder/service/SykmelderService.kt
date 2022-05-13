@@ -19,7 +19,7 @@ class SykmelderService(
 
         val behandler = norskHelsenettClient.finnBehandler(hprNummer, callId)
 
-        if (behandler == null || behandler.fnr.isNullOrEmpty()) {
+        if (behandler.fnr.isNullOrEmpty()) {
             log.warn("Kunne ikke hente fnr for hpr {}", hprNummer)
             throw SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
         }

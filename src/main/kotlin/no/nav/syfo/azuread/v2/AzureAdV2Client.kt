@@ -2,7 +2,6 @@ package no.nav.syfo.azuread.v2
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
@@ -37,7 +36,7 @@ class AzureAdV2Client(
     private suspend fun getClientSecretAccessToken(
         scope: String
     ): AzureAdV2Token {
-        return getAccessToken(
+        return getAccessTokenFromAzure(
             Parameters.build {
                 append("client_id", azureAppClientId)
                 append("client_secret", azureAppClientSecret)
@@ -64,7 +63,7 @@ class AzureAdV2Client(
         token: String,
         scope: String
     ): AzureAdV2Token {
-        return getAccessToken(
+        return getAccessTokenFromAzure(
             Parameters.build {
                 append("client_id", azureAppClientId)
                 append("client_secret", azureAppClientSecret)
@@ -77,7 +76,7 @@ class AzureAdV2Client(
         ).toAzureAdV2Token()
     }
 
-    private suspend fun getAccessToken(
+    private suspend fun getAccessTokenFromAzure(
         formParameters: Parameters
     ): AzureAdV2TokenResponse {
         return try {
@@ -86,9 +85,6 @@ class AzureAdV2Client(
                 setBody(FormDataContent(formParameters))
             }
             response.body<AzureAdV2TokenResponse>()
-        } catch (e: ResponseException) {
-            log.error("Error while requesting AzureAdAccessToken with statusCode=${e.response.status.value}", e)
-            throw RuntimeException("Noe gikk galt ved henting av AAD-token", e)
         } catch (e: Exception) {
             log.error("Error while requesting AzureAdAccessToken", e)
             throw RuntimeException("Noe gikk galt ved henting av AAD-token", e)

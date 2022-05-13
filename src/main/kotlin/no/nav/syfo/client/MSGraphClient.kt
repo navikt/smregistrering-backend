@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import no.nav.syfo.Environment
@@ -53,15 +52,9 @@ class MSGraphClient(
                 }
             }.body<GraphResponse>().onPremisesSamAccountName
         } catch (e: Exception) {
-            val feilmelding = if (e is ResponseException) {
-                "Noe gikk galt ved henting av veilederIdent fra Ms Graph ${e.response.status} ${e.response.body<String>()}"
-            } else {
-                "Noe gikk galt ved henting av veilederIdent fra Ms Graph"
-            }
-            throw RuntimeException(feilmelding)
+            throw RuntimeException("Noe gikk galt ved henting av veilederIdent fra Ms Graph", e)
         }
     }
 }
 
-data class GraphOboToken(val access_token: String)
 data class GraphResponse(val onPremisesSamAccountName: String) : Serializable

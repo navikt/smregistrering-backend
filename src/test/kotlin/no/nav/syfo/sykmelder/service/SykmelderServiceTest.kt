@@ -95,7 +95,7 @@ class SykmelderServiceTest {
 
     @InternalAPI
     @Test
-    internal fun `Feiler når hpr returnerer null`() {
+    internal fun `Feiler når sykmelder ikke finnes i hpr`() {
         val hprNummer = "1234567"
         val fornavn = "Ola"
         val mellomnavn = "Mellomnavn"
@@ -108,7 +108,7 @@ class SykmelderServiceTest {
                 IdentInformasjon("ident", false, "AKTORID")
             )
         )
-        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns null
+        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } throws SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
 
         runBlocking {
             val exception = assertFailsWith<SykmelderNotFoundException> {

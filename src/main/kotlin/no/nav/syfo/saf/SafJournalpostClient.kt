@@ -2,7 +2,6 @@ package no.nav.syfo.saf
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -36,11 +35,7 @@ class SafJournalpostClient(
                 }
             }.body<GraphQLResponse<JournalpostResponse>>()
         } catch (e: Exception) {
-            if (e is ResponseException) {
-                log.error("SAF svarte noe annet enn OK ved henting av journalpostmetadata for journalpostid $journalpostId: ${e.response.status} ${e.response.body<String>()}")
-            } else {
-                log.error("Noe gikk galt ved henting av journalpostmetadata for journalpostid $journalpostId mot SAF: ${e.message}")
-            }
+            log.error("Noe gikk galt ved henting av journalpostmetadata for journalpostid $journalpostId mot SAF: ${e.message}")
             null
         }
     }
