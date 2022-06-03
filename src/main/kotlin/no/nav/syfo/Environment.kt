@@ -32,7 +32,6 @@ data class Environment(
     val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER"),
     val okSykmeldingTopic: String = "teamsykmelding.ok-sykmelding",
     val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
-    val syfoserviceMqKafkaTopic: String = "teamsykmelding.syfoservice-mq",
     val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),
     val oppgaveScope: String = getEnvVar("OPPGAVE_SCOPE")

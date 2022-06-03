@@ -97,7 +97,6 @@ class SendPapirSykmeldingTest {
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
-    private val kafkaSyfoserviceProducer = mockk<KafkaProducers.KafkaSyfoserviceProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
     private val kuhrsarClient = mockk<SarClient>()
@@ -274,8 +273,6 @@ class SendPapirSykmeldingTest {
 
             val future = mockk<Future<RecordMetadata>>()
             coEvery { future.get() } returns mockk()
-            coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns future
-            coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns Oppgave(
@@ -483,8 +480,6 @@ class SendPapirSykmeldingTest {
                 )
             )
 
-            coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>(relaxed = true)
-            coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
 
@@ -714,8 +709,6 @@ class SendPapirSykmeldingTest {
                 )
             )
 
-            coEvery { kafkaSyfoserviceProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>(relaxed = true)
-            coEvery { kafkaSyfoserviceProducer.syfoserviceKafkaTopic } returns "syfoservicetopic"
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
             coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(

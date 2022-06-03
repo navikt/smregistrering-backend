@@ -28,12 +28,10 @@ class SykmeldingJobRunnerTest {
     val applicationState = ApplicationState(true, true)
     val sendtSykmeldingService = spyk(SendtSykmeldingService(testDB))
     val kafkaReceivedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
-    val kafkaSyfoserviceProducer = mockk<KafkaProducers.KafkaSyfoserviceProducer>(relaxed = true)
     val service = SykmeldingJobRunner(
         applicationState,
         sendtSykmeldingService,
-        kafkaReceivedSykmeldingProducer,
-        kafkaSyfoserviceProducer
+        kafkaReceivedSykmeldingProducer
     )
 
     init {
@@ -63,9 +61,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        verify(exactly = 1) { kafkaSyfoserviceProducer.producer.send(any()) }
         jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.DONE
-        jobs.first { it?.name == JOB_NAME.SENDT_TO_SYFOSERVICE }?.status shouldBeEqualTo JOB_STATUS.DONE
     }
 
     @Test
@@ -73,7 +69,7 @@ class SykmeldingJobRunnerTest {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
         sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         sendtSykmeldingService.createJobs(sykmelding)
-        every { kafkaSyfoserviceProducer.producer.send(any()) } throws Exception("Some error")
+        every { kafkaReceivedSykmeldingProducer.producer.send(any()) } throws Exception("Some error")
         var jobCount = 0
         every { sendtSykmeldingService.getNextJob() } answers {
             if (jobCount++ > 1) applicationState.ready = false
@@ -85,9 +81,7 @@ class SykmeldingJobRunnerTest {
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
 
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        verify(exactly = 1) { kafkaSyfoserviceProducer.producer.send(any()) }
-        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.DONE
-        jobs.first { it?.name == JOB_NAME.SENDT_TO_SYFOSERVICE }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
+        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
     }
 
     @Test
@@ -96,12 +90,6 @@ class SykmeldingJobRunnerTest {
         sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         testDB.insertJobs(
             listOf(
-                Job(
-                    sykmelding.sykmelding.id,
-                    JOB_NAME.SENDT_TO_SYFOSERVICE,
-                    JOB_STATUS.IN_PROGRESS,
-                    OffsetDateTime.now().minusMinutes(59)
-                ),
                 Job(
                     sykmelding.sykmelding.id,
                     JOB_NAME.SENDT_SYKMELDING,
@@ -120,9 +108,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 0) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        verify(exactly = 0) { kafkaSyfoserviceProducer.producer.send(any()) }
         jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
-        jobs.first { it?.name == JOB_NAME.SENDT_TO_SYFOSERVICE }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
     }
 
     @Test
@@ -131,12 +117,6 @@ class SykmeldingJobRunnerTest {
         sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         testDB.insertJobs(
             listOf(
-                Job(
-                    sykmelding.sykmelding.id,
-                    JOB_NAME.SENDT_TO_SYFOSERVICE,
-                    JOB_STATUS.IN_PROGRESS,
-                    OffsetDateTime.now().minusMinutes(61)
-                ),
                 Job(
                     sykmelding.sykmelding.id,
                     JOB_NAME.SENDT_SYKMELDING,
@@ -155,8 +135,6 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        verify(exactly = 1) { kafkaSyfoserviceProducer.producer.send(any()) }
         jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.DONE
-        jobs.first { it?.name == JOB_NAME.SENDT_TO_SYFOSERVICE }?.status shouldBeEqualTo JOB_STATUS.DONE
     }
 }

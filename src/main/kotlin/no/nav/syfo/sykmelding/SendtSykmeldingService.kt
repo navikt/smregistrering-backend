@@ -35,10 +35,9 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
     }
 
     fun createJobs(receivedSykmelding: ReceivedSykmelding) {
-        val syfoserviceJob = Job(sykmeldingId = receivedSykmelding.sykmelding.id, status = JOB_STATUS.NEW, updated = OffsetDateTime.now(), name = JOB_NAME.SENDT_TO_SYFOSERVICE)
         val sendSykmeldingJob = Job(sykmeldingId = receivedSykmelding.sykmelding.id, status = JOB_STATUS.NEW, updated = OffsetDateTime.now(), name = JOB_NAME.SENDT_SYKMELDING)
-        log.info("Creating jobs:\n$syfoserviceJob\n$sendSykmeldingJob")
-        databaseInterface.insertJobs(listOf(syfoserviceJob, sendSykmeldingJob))
+        log.info("Creating jobs:\n$sendSykmeldingJob")
+        databaseInterface.insertJobs(listOf(sendSykmeldingJob))
     }
 
     fun getReceivedSykmelding(sykmeldingId: String): ReceivedSykmelding? {
