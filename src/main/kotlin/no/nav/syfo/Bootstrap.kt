@@ -110,8 +110,7 @@ fun main() {
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
         sendtSykmeldingService,
-        kafkaProducers.kafkaRecievedSykmeldingProducer,
-        kafkaProducers.kafkaSyfoserviceProducer
+        kafkaProducers.kafkaRecievedSykmeldingProducer
     )
 
     val applicationEngine = createApplicationEngine(
