@@ -7,13 +7,13 @@ class ApplicationServer(private val applicationServer: ApplicationEngine, privat
     init {
         Runtime.getRuntime().addShutdownHook(
             Thread {
+                applicationState.ready = false
                 this.applicationServer.stop(TimeUnit.SECONDS.toMillis(10), TimeUnit.SECONDS.toMillis(10))
             }
         )
     }
 
     fun start() {
-        applicationServer.start(false)
-        applicationState.alive = true
+        applicationServer.start(true)
     }
 }

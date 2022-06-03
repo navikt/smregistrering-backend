@@ -129,10 +129,7 @@ fun main() {
         authorizationService
     )
 
-    ApplicationServer(applicationEngine, applicationState).start()
     RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
-
-    applicationState.ready = true
 
     GlobalScope.launch {
         sykmeldingJobRunner.startJobRunner()
@@ -145,6 +142,8 @@ fun main() {
         kafkaConsumers.kafkaConsumerPapirSmRegistering,
         receivedSykmeldingController
     )
+
+    ApplicationServer(applicationEngine, applicationState).start()
 }
 
 @DelicateCoroutinesApi
