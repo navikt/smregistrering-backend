@@ -43,6 +43,11 @@ spec:
         - application: smregistrering
           namespace: teamsykmelding
           cluster: dev-fss
+    outbound:
+      rules:
+        - application: syfosmregister
+          namespace: teamsykmelding
+          cluster: dev-gcp
   vault:
     enabled: true
   webproxy: true
@@ -94,8 +99,8 @@ spec:
     - name: KUHR_SAR_API_URL
       value: https://kuhr-sar-api.dev.adeo.no
     - name: SYFOSMREGISTER_SCOPE
-      value: "api://dev-fss.teamsykmelding.syfosmregister/.default"
+      value: api://dev-gcp.teamsykmelding.syfosmregister/.default
     - name: SYFOSMREGISTER_ENDPOINT_URL
-      value: "https://syfosmregister.dev.intern.nav.no"
+      value: https://smregister.dev.nav.no
     - name: OPPGAVE_SCOPE
       value: api://dev-fss.oppgavehandtering.oppgave-q1/.default
