@@ -53,6 +53,8 @@ val objectMapper: ObjectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
+private val sikkerlogg = LoggerFactory.getLogger("tjenestekall")
+
 @DelicateCoroutinesApi
 @InternalAPI
 fun main() {
@@ -156,6 +158,7 @@ fun startConsumer(
         while (applicationState.ready) {
             try {
                 log.info("Starting consuming topic $topic")
+                sikkerlogg.warn("Hei fra sikkerlogg")
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->

@@ -51,6 +51,8 @@ spec:
   vault:
     enabled: true
   webproxy: true
+  secureLogs:
+    enabled: true
   ingresses:
     - "https://smregistrering-backend.nais.adeo.no"
   kafka:
