@@ -106,6 +106,11 @@ class OppgaveClient(
             HttpStatusCode.OK -> {
                 httpResponse.body<Oppgave>()
             }
+            HttpStatusCode.Conflict -> {
+                val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}, response: ${httpResponse.body<String>()}"
+                log.warn(msg)
+                throw RuntimeException(msg)
+            }
             else -> {
                 val msg = "OppgaveClient oppdaterOppgave kastet feil ${httpResponse.status} ved oppdatering av oppgave med id ${oppgave.id}, response: ${httpResponse.body<String>()}"
                 log.error(msg)
