@@ -47,13 +47,13 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.syfosmregister.SyfosmregisterService
+import no.nav.syfo.syfosmregister.papirsykmelding.model.PapirsykmeldingDTO
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.util.getReceivedSykmelding
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -70,7 +70,7 @@ internal class HentFerdigstiltSykmeldingTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val receivedSykmeldingController = mockk<ReceivedSykmeldingController>()
-    private val env = mockk<Environment>() {
+    private val env = mockk<Environment> {
         coEvery { azureAppClientId } returns "clientId"
     }
 
@@ -79,21 +79,32 @@ internal class HentFerdigstiltSykmeldingTest {
         database.dropData()
     }
 
-    @Ignore
     @Test
     fun `Hent sykmelding`() {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns "stringy string".toByteArray()
+            coEvery {
+                safDokumentClient.hentDokument(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns "stringy string".toByteArray()
             coEvery { authorizationService.hasSuperuserAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
             val sykmeldingId = "sykmeldingId"
             val oppgaveid = 308076319
 
-            // TODO
-            // coEvery { syfosmregisterService.hentSykmelding(any()) } returns SykmeldingDTO(id = sykmeldingId,
+            coEvery { syfosmregisterService.hentSykmelding(any()) } returns PapirsykmeldingDTO(
+                pasientFnr = "12345678912",
+                mottattTidspunkt = OffsetDateTime.now(),
+                sykmelding = getReceivedSykmelding(fnrPasient = "41424", sykmelderFnr = "12345678912").sykmelding
+            )
+
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
 
             val papirSmRegistering = PapirSmRegistering(
