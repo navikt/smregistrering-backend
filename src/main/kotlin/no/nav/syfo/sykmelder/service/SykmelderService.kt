@@ -5,6 +5,7 @@ import no.nav.syfo.log
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
+import no.nav.syfo.util.changeHelsepersonellkategoriVerdiFromFAToFA1
 
 class SykmelderService(
     private val norskHelsenettClient: NorskHelsenettClient,
@@ -18,6 +19,10 @@ class SykmelderService(
         }
 
         val behandler = norskHelsenettClient.finnBehandler(hprNummer, callId)
+
+        // Helsedir har ikke migriert alle med Helsepersonellkategori(OID=9060) Verdien FA over til FA1 eller FA2,
+        // da det var mulighet at noe måtte ligge igjen for historiske årsaker
+        val godkjenninger = changeHelsepersonellkategoriVerdiFromFAToFA1(behandler.godkjenninger)
 
         if (behandler.fnr.isNullOrEmpty()) {
             log.warn("Kunne ikke hente fnr for hpr {}", hprNummer)
@@ -38,7 +43,7 @@ class SykmelderService(
             fornavn = pdlPerson.navn.fornavn,
             mellomnavn = pdlPerson.navn.mellomnavn,
             etternavn = pdlPerson.navn.etternavn,
-            godkjenninger = behandler.godkjenninger
+            godkjenninger = godkjenninger
         )
     }
 }
