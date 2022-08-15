@@ -5,7 +5,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.6.4"
-val ktorVersion = "2.0.1"
+val ktorVersion = "2.1.0"
 val logbackVersion = "1.2.11"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
@@ -166,7 +166,7 @@ tasks {
 
     withType<Test> {
         dependsOn("lintKotlin")
-        useJUnit()
+        useJUnitPlatform()
         testLogging {
             events("skipped", "failed")
             showStackTraces = true
