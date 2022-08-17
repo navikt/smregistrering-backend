@@ -5,8 +5,6 @@ import io.mockk.mockk
 import no.nav.syfo.Environment
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.db.VaultCredentialService
-import no.nav.syfo.db.VaultCredentials
 import no.nav.syfo.log
 import org.testcontainers.containers.PostgreSQLContainer
 import java.sql.Connection
@@ -27,7 +25,6 @@ class TestDB : DatabaseInterface {
 
     companion object {
         var database: DatabaseInterface
-        val vaultCredentialService = mockk<VaultCredentialService>()
         private val psqlContainer: PsqlContainer = PsqlContainer()
             .withExposedPorts(5432)
             .withUsername("username")
@@ -38,20 +35,15 @@ class TestDB : DatabaseInterface {
         init {
             psqlContainer.start()
             val mockEnv = mockk<Environment>(relaxed = true)
-            every { mockEnv.mountPathVault } returns ""
-            every { mockEnv.databaseName } returns "database"
-            every { mockEnv.smregistreringbackendDBURL } returns psqlContainer.jdbcUrl
-            every { vaultCredentialService.renewCredentialsTaskData = any() } returns Unit
-            every { vaultCredentialService.getNewCredentials(any(), any(), any()) } returns VaultCredentials(
-                "1",
-                "username",
-                "password"
-            )
+            every { mockEnv.databaseUsername } returns "username"
+            every { mockEnv.databasePassword } returns "password"
+            every { mockEnv.dbName } returns "database"
+            every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
             try {
-                database = Database(mockEnv, vaultCredentialService)
+                database = Database(mockEnv)
             } catch (ex: Exception) {
                 log.error("error", ex)
-                database = Database(mockEnv, vaultCredentialService)
+                database = Database(mockEnv)
             }
         }
     }

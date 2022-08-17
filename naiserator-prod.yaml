@@ -6,6 +6,20 @@ metadata:
   labels:
     team: teamsykmelding
 spec:
+  gcp:
+    sqlInstances:
+      - name: smregistrering-instance
+        type: POSTGRES_14
+        tier: db-custom-2-5120
+        diskSize: 100
+        databases:
+          - name: smregistrering
+            envVarPrefix: NAIS_DATABASE
+        diskAutoresize: true
+        highAvailability: true
+        diskType: SSD
+        insights:
+          enabled: true
   image: {{ image }}
   replicas:
     min: 2
@@ -13,19 +27,19 @@ spec:
     cpuThresholdPercentage: 90
   port: 8080
   liveness:
-    path: /is_alive
+    path: /internal/is_alive
     initialDelay: 10
     timeout: 5
     periodSeconds: 5
     failureThreshold: 30
   readiness:
-    path: /is_ready
+    path: /internal/is_ready
     initialDelay: 30
     periodSeconds: 5
     timeout: 5
   prometheus:
     enabled: true
-    path: /prometheus
+    path: /internal/prometheus
   resources:
     limits:
       cpu: 2048m
@@ -43,66 +57,63 @@ spec:
         - application: smregistrering
           namespace: teamsykmelding
           cluster: prod-fss
+        - application: smregistrering
+          namespace: teamsykmelding
+          cluster: prod-gcp
     outbound:
       rules:
         - application: syfosmregister
           namespace: teamsykmelding
           cluster: prod-gcp
   vault:
-    enabled: true
-  webproxy: true
+    enabled: false
+  webproxy: false
   secureLogs:
     enabled: true
   ingresses:
-    - "https://smregistrering-backend.nais.adeo.no"
+    - "https://smregistrering-backend.intern.nav.no"
   kafka:
     pool: nav-prod
   env:
-    - name: SMREGISTERINGB_BACKEND_DB_URL
-      value: jdbc:postgresql://A01DBVL009.adeo.no:5432/smregistrering-backend
-    - name: MOUNT_PATH_VAULT
-      value: /postgresql/prod-fss
     - name: SMREGISTERING_URL
       value: smregistrering.nais.adeo.no
     - name: DOK_ARKIV_URL
-      value: https://dokarkiv.intern.nav.no/rest/journalpostapi/v1/journalpost
+      value: https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
     - name: DOK_ARKIV_SCOPE
       value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
     - name: PDL_GRAPHQL_PATH
-      value: https://pdl-api.nais.adeo.no/graphql
+      value: https://pdl-api.prod-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
       value: api://prod-fss.pdl.pdl-api/.default
+    - name: HELSENETT_ENDPOINT_URL
+      value: https://syfohelsenettproxy.prod-fss-pub.nais.io
     - name: HELSENETT_SCOPE
       value: api://prod-fss.teamsykmelding.syfohelsenettproxy/.default
-    - name: HENT_DOKUMENT_URL
-      value: https://saf.intern.nav.no
-    - name: SAFJOURNALPOST_GRAPHQL_PATH
-      value: https://saf.intern.nav.no/graphql
+    - name: SAF_URL
+      value: https://saf.prod-fss-pub.nais.io
     - name: SAF_SCOPE
       value: api://prod-fss.teamdokumenthandtering.saf/.default
-    - name: OPPGAVEBEHANDLING_URL
-      value: https://oppgave.nais.adeo.no/api/v1/oppgaver
+    - name: OPPGAVE_URL
+      value: https://oppgave.prod-fss-pub.nais.io/api/v1/oppgaver
+    - name: OPPGAVE_SCOPE
+      value: api://prod-fss.oppgavehandtering.oppgave/.default
     - name: SYFOTILGANGSKONTROLL_URL
-      value: https://syfo-tilgangskontroll.nais.adeo.no/syfo-tilgangskontroll
+      value: https://syfo-tilgangskontroll.prod-fss-pub.nais.io/syfo-tilgangskontroll
     - name: SYFOTILGANGSKONTROLL_SCOPE
       value: api://prod-fss.teamsykefravr.syfo-tilgangskontroll/.default
     - name: MS_GRAPH_API_URL
       value: https://graph.microsoft.com/v1.0
     - name: MS_GRAPH_API_SCOPE
       value: https://graph.microsoft.com/.default
-    - name: HELSENETT_ENDPOINT_URL
-      value: https://syfohelsenettproxy.nais.adeo.no
-    - name: SYFOSMPAPIR_REGLER_ENDPOINT_URL
-      value: https://syfosmpapirregler.nais.adeo.no
+    - name: SYFOSMPAPIRREGLER_URL
+      value: https://syfosmpapirregler.intern.nav.no
     - name: SYFOSMPAPIRREGLER_SCOPE
-      value: api://prod-fss.teamsykmelding.syfosmpapirregler/.default
-    - name: KUHR_SAR_API_SCOPE
-      value: api://prod-fss.teamkuhr.kuhr-sar-api/.default
-    - name: KUHR_SAR_API_URL
-      value: https://kuhr-sar-api.nais.adeo.no
-    - name: SYFOSMREGISTER_SCOPE
-      value: api://prod-gcp.teamsykmelding.syfosmregister/.default
+      value: api://prod-gcp.teamsykmelding.syfosmpapirregler/.default
+    - name: SMGCP_PROXY_SCOPE
+      value: api://prod-fss.teamsykmelding.smgcp-proxy/.default
+    - name: SMGCP_PROXY_URL
+      value: https://smgcp-proxy.prod-fss-pub.nais.io
     - name: SYFOSMREGISTER_ENDPOINT_URL
       value: https://smregister.intern.nav.no
-    - name: OPPGAVE_SCOPE
-      value: api://prod-fss.oppgavehandtering.oppgave/.default
+    - name: SYFOSMREGISTER_SCOPE
+      value: api://prod-gcp.teamsykmelding.syfosmregister/.default
