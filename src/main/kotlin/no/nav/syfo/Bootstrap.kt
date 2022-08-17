@@ -25,7 +25,6 @@ import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.db.Database
-import no.nav.syfo.db.VaultCredentialService
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
@@ -39,7 +38,6 @@ import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.Unbounded
-import no.nav.syfo.vault.RenewVaultService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -64,8 +62,7 @@ fun main() {
         JwkProviderBuilder(URL(env.jwkKeysUrl)).cached(10, 24, TimeUnit.HOURS).rateLimited(10, 1, TimeUnit.MINUTES)
             .build()
 
-    val vaultCredentialService = VaultCredentialService()
-    val database = Database(env, vaultCredentialService)
+    val database = Database(env)
 
     val applicationState = ApplicationState()
 
@@ -130,9 +127,7 @@ fun main() {
         authorizationService
     )
 
-    RenewVaultService(vaultCredentialService, applicationState).startRenewTasks()
-
-    GlobalScope.launch {
+    /*GlobalScope.launch {
         sykmeldingJobRunner.startJobRunner()
         log.info("Started SykmeldingJobRunner")
     }
@@ -142,7 +137,7 @@ fun main() {
         env.papirSmRegistreringTopic,
         kafkaConsumers.kafkaConsumerPapirSmRegistering,
         receivedSykmeldingController
-    )
+    )*/
 
     ApplicationServer(applicationEngine, applicationState).start()
 }

@@ -18,7 +18,7 @@ class SafDokumentClient constructor(
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient
 ) {
-    private val url: String = environment.hentDokumentUrl
+    private val url: String = environment.safV1Url
     private val scope: String = environment.safScope
 
     private suspend fun hentDokumentFraSaf(

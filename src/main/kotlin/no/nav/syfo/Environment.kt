@@ -3,24 +3,21 @@ package no.nav.syfo
 data class Environment(
     val applicationPort: Int = getEnvVar("APPLICATION_PORT", "8080").toInt(),
     val applicationName: String = getEnvVar("NAIS_APP_NAME", "smregistrering-backend"),
-    val smregistreringbackendDBURL: String = getEnvVar("SMREGISTERINGB_BACKEND_DB_URL"),
-    val mountPathVault: String = getEnvVar("MOUNT_PATH_VAULT"),
-    val databaseName: String = getEnvVar("DATABASE_NAME", "smregistrering-backend"),
     val smregistreringUrl: String = getEnvVar("SMREGISTERING_URL"),
-    val oppgavebehandlingUrl: String = getEnvVar("OPPGAVEBEHANDLING_URL"),
-    val hentDokumentUrl: String = getEnvVar("HENT_DOKUMENT_URL"),
-    val kuhrSarApiUrl: String = getEnvVar("KUHR_SAR_API_URL"),
-    val kuhrSarApiScope: String = getEnvVar("KUHR_SAR_API_SCOPE"),
+    val oppgavebehandlingUrl: String = getEnvVar("OPPGAVE_URL"),
+    val oppgaveScope: String = getEnvVar("OPPGAVE_SCOPE"),
+    val safV1Url: String = getEnvVar("SAF_URL"),
+    val safScope: String = getEnvVar("SAF_SCOPE"),
+    val smgcpProxyUrl: String = getEnvVar("SMGCP_PROXY_URL"),
+    val smgcpProxyScope: String = getEnvVar("SMGCP_PROXY_SCOPE"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val dokArkivScope: String = getEnvVar("DOK_ARKIV_SCOPE"),
-    val regelEndpointURL: String = getEnvVar("SYFOSMPAPIR_REGLER_ENDPOINT_URL"),
+    val regelEndpointURL: String = getEnvVar("SYFOSMPAPIRREGLER_URL"),
+    val syfosmpapirregelScope: String = getEnvVar("SYFOSMPAPIRREGLER_SCOPE"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
+    val pdlScope: String = getEnvVar("PDL_SCOPE"),
     val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL"),
     val helsenettproxyScope: String = getEnvVar("HELSENETT_SCOPE"),
-    val safJournalpostGraphqlPath: String = getEnvVar("SAFJOURNALPOST_GRAPHQL_PATH"),
-    val safScope: String = getEnvVar("SAF_SCOPE"),
-    val pdlScope: String = getEnvVar("PDL_SCOPE"),
-    val syfosmpapirregelScope: String = getEnvVar("SYFOSMPAPIRREGLER_SCOPE"),
     val syfoTilgangsKontrollClientUrl: String = getEnvVar("SYFOTILGANGSKONTROLL_URL"),
     val syfoTilgangsKontrollScope: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE"),
     val msGraphApiScope: String = getEnvVar("MS_GRAPH_API_SCOPE"),
@@ -34,8 +31,16 @@ data class Environment(
     val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
     val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),
-    val oppgaveScope: String = getEnvVar("OPPGAVE_SCOPE")
-)
+    val databaseUsername: String = getEnvVar("NAIS_DATABASE_USERNAME"),
+    val databasePassword: String = getEnvVar("NAIS_DATABASE_PASSWORD"),
+    val dbHost: String = getEnvVar("NAIS_DATABASE_HOST"),
+    val dbPort: String = getEnvVar("NAIS_DATABASE_PORT"),
+    val dbName: String = getEnvVar("NAIS_DATABASE_DATABASE")
+) {
+    fun jdbcUrl(): String {
+        return "jdbc:postgresql://$dbHost:$dbPort/$dbName"
+    }
+}
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
     System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")

@@ -77,7 +77,7 @@ class HttpClients(env: Environment) {
 
     internal val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
-    internal val sarClient = SarClient(env.kuhrSarApiUrl, azureAdV2Client, env.kuhrSarApiScope, httpClient)
+    internal val sarClient = SarClient(env.smgcpProxyUrl, azureAdV2Client, env.smgcpProxyScope, httpClient)
 
     internal val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
 
@@ -106,7 +106,7 @@ class HttpClients(env: Environment) {
 
     internal val safJournalpostClient = SafJournalpostClient(
         httpClient,
-        env.safJournalpostGraphqlPath,
+        "${env.safV1Url}/graphql",
         SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
     )
 
