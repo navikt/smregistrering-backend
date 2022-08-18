@@ -68,7 +68,7 @@ spec:
     enabled: false
   webproxy: false
   secureLogs:
-    enabled: true
+    enabled: false
   ingresses:
     - "https://smregistrering-backend.dev.intern.nav.no"
   kafka:

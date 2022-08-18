@@ -17,7 +17,6 @@ val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.4.1"
 val flywayVersion = "9.0.4"
 val hikariVersion = "5.0.1"
-val vaultJavaDriveVersion = "3.1.0"
 val nimbusdsVersion = "9.23"
 val mockkVersion = "1.12.5"
 val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
@@ -110,7 +109,6 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("com.bettercloud:vault-java-driver:$vaultJavaDriveVersion")
 
     implementation ("javax.xml.bind:jaxb-api:$jaxbApiVersion")
     implementation ("org.glassfish.jaxb:jaxb-runtime:$jaxbVersion")
