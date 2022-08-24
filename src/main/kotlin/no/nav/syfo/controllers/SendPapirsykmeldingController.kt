@@ -143,7 +143,7 @@ class SendPapirsykmeldingController(
                 }
 
                 val samhandlerPraksis = findBestSamhandlerPraksis(
-                    kuhrsarClient.getSamhandler(sykmelder.fnr!!)
+                    kuhrsarClient.getSamhandler(sykmelder.fnr!!, sykmeldingId)
                 )
                 if (samhandlerPraksis == null) {
                     log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")

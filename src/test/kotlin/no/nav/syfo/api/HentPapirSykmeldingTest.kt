@@ -205,7 +205,7 @@ internal class HentPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET"
             )
-            coEvery { kuhrsarClient.getSamhandler(any()) } returns listOf(
+            coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
                 Samhandler(
                     samh_id = "12341",
                     navn = "Perhansen",
