@@ -76,7 +76,7 @@ spec:
     pool: nav-prod
   env:
     - name: SMREGISTERING_URL
-      value: smregistrering.nais.adeo.no
+      value: smregistrering.intern.nav.no
     - name: DOK_ARKIV_URL
       value: https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
     - name: DOK_ARKIV_SCOPE
