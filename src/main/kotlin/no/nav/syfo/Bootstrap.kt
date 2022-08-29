@@ -127,7 +127,7 @@ fun main() {
         authorizationService
     )
 
-    /*GlobalScope.launch {
+    GlobalScope.launch {
         sykmeldingJobRunner.startJobRunner()
         log.info("Started SykmeldingJobRunner")
     }
@@ -137,7 +137,7 @@ fun main() {
         env.papirSmRegistreringTopic,
         kafkaConsumers.kafkaConsumerPapirSmRegistering,
         receivedSykmeldingController
-    )*/
+    )
 
     ApplicationServer(applicationEngine, applicationState).start()
 }

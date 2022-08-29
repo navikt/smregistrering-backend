@@ -27,8 +27,6 @@ import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner
-import java.net.ProxySelector
 
 class HttpClients(env: Environment) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
@@ -55,22 +53,11 @@ class HttpClients(env: Environment) {
         }
     }
 
-    private val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
-        config()
-        engine {
-            customizeClient {
-                setRoutePlanner(SystemDefaultRoutePlanner(ProxySelector.getDefault()))
-            }
-        }
-    }
-
-    private val httpClientWithProxy = HttpClient(Apache, proxyConfig)
-
     private val httpClient = HttpClient(Apache, config)
 
     internal val azureAdV2Client = AzureAdV2Client(
         environment = env,
-        httpClient = httpClientWithProxy
+        httpClient = httpClient
     )
 
     internal val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, azureAdV2Client, httpClient, env.oppgaveScope)
@@ -87,13 +74,13 @@ class HttpClients(env: Environment) {
     internal val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
-        httpClient = httpClientWithProxy
+        httpClient = httpClient
     )
 
     internal val msGraphClient = MSGraphClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
-        httpClient = httpClientWithProxy
+        httpClient = httpClient
     )
 
     internal val pdlClient = PdlClient(

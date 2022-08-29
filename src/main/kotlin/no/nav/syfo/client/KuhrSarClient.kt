@@ -19,11 +19,12 @@ class SarClient(
     private val resourceId: String,
     private val httpClient: HttpClient
 ) {
-    suspend fun getSamhandler(ident: String): List<Samhandler> {
+    suspend fun getSamhandler(ident: String, sykmeldingId: String): List<Samhandler> {
         val accessToken = azureAdV2Client.getAccessToken(resourceId)
-        return httpClient.get("$endpointUrl/sar/rest/v2/samh") {
+        return httpClient.get("$endpointUrl/kuhrsar/sar/rest/v2/samh") {
             accept(ContentType.Application.Json)
             header("Authorization", "Bearer $accessToken")
+            header("Nav-Call-Id", sykmeldingId)
             parameter("ident", ident)
         }.body()
     }
