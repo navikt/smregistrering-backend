@@ -103,7 +103,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
                     } catch (e: UnauthorizedException) {
-                        log.warn("Caught UnauthorizedException", "Noe gikk galt ved uthenting av behandler")
+                        log.warn("Caught UnauthorizedException", e)
                         call.respond(
                             HttpStatusCode.Forbidden,
                             "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll"
@@ -112,7 +112,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         log.warn("Caught ValidationException", e)
                         call.respond(HttpStatusCode.BadRequest, e.validationResult)
                     } catch (e: Exception) {
-                        log.warn("Caught unexpected exception", e)
+                        log.error("Caught unexpected exception", e)
                         call.respond(HttpStatusCode.InternalServerError, "En ukjent feil har oppstått.")
                     }
                 }
