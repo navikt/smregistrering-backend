@@ -131,36 +131,21 @@ Creating a docker image should be as simple as `docker build -t smregistrering-b
 
 For utfyllende dokumentasjon se [Postgres i NAV](https://github.com/navikt/utvikling/blob/master/PostgreSQL.md)
 
-#### Tldr
+### Access to the Postgres database
 
-The application uses dynamically generated user / passwords for the database.
-To connect to the database one must generate user / password (which lasts for one hour)
-as follows:
+For information on connecting to dev og prod DB see: [Postgres GCP](https://doc.nais.io/cli/commands/postgres/)
 
-Use The Vault Browser CLI that is build in https://vault.adeo.no
-
-
-Preprod credentials:
-
-```
-read postgresql/preprod-fss/creds/smregistrering-backend-admin
-
-```
-
-Prod credentials:
-
-```
-read postgresql/prod-fss/creds/smregistrering-backend-readonly
-
-```
 
 ### Upgrading the gradle wrapper
 Find the newest version of gradle here: https://gradle.org/releases/ Then run this command:
 
 ```./gradlew wrapper --gradle-version $gradleVersjon```
 
-### Inquiries
-Questions related to the code or the project can be asked as issues here on GitHub
+### Contact
 
-### For NAV employees
-We are available at the Slack channel #team-sykmelding
+This project is maintained by navikt/teamsykmelding
+
+Questions and/or feature requests? Please create an [issue](https://github.com/navikt/smregistrering-backend/issues).
+
+If you work in [@navikt](https://github.com/navikt) you can reach us at the Slack
+channel [#team-sykmelding](https://nav-it.slack.com/archives/CMA3XV997).
