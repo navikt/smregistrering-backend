@@ -1,5 +1,6 @@
 package no.nav.syfo.client
 
+import com.auth0.jwt.JWT
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.HttpClient
@@ -13,6 +14,7 @@ import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.sikkerlogg
 
 class SyfoTilgangsKontrollClient(
     environment: Environment,
@@ -68,6 +70,9 @@ class SyfoTilgangsKontrollClient(
 
     suspend fun hasSuperuserAccess(accessToken: String, personFnr: String): Tilgang {
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
+        sikkerlogg.info("Logger ut oboToken i dev: {}", oboToken)
+
+        //sikkerlogg.info("Logger ut navIdentFromToken i dev: {}", getNAVIdentFromOBOToken(oboToken))
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
@@ -103,3 +108,8 @@ class SyfoTilgangsKontrollClient(
 data class Tilgang(
     val harTilgang: Boolean
 )
+
+fun getNAVIdentFromOBOToken(token: String): String? {
+    val decodedJWT = JWT.decode(token)
+    return decodedJWT.claims["NAVident"]?.asString()
+}
