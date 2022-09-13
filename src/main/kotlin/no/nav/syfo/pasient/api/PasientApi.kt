@@ -10,6 +10,7 @@ import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
 import java.util.UUID
 
 fun Route.pasientApi(
@@ -31,6 +32,7 @@ fun Route.pasientApi(
                         call.respond(pdlPerson.navn)
                     } else {
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
+                        logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
                         call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til pasienten")
                     }
                 }

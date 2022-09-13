@@ -33,6 +33,7 @@ import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
 import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.util.toString
 import java.time.OffsetDateTime
@@ -236,6 +237,7 @@ class SendPapirsykmeldingController(
                     )
                 }
             } else {
+                logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
                 return handleAccessDenied(oppgaveId, loggingMeta)
             }
         }
@@ -281,7 +283,7 @@ class SendPapirsykmeldingController(
             }
             Status.OK -> {
                 log.error(
-                    "ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet",
+                    "ValidationResult har status OK, men inneholder ruleHits som ikke er hvitelistet, {}",
                     StructuredArguments.keyValue("oppgaveId", oppgaveId)
                 )
                 HttpServiceResponse(
