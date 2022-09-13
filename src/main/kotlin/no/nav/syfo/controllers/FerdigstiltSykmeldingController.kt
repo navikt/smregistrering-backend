@@ -1,5 +1,6 @@
 package no.nav.syfo.controllers
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.log
@@ -11,6 +12,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
@@ -64,6 +66,14 @@ class FerdigstiltSykmeldingController(
             logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
+            try {
+                val decodedJWT = JWT.decode(accessToken)
+                val navIdent = decodedJWT.claims["NAVident"]?.asString()
+                sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navIdent)
+            } catch (exception: Exception) {
+                sikkerlogg.info("Fikk ikkje hentet ut navIdent", exception)
+            }
+
             val journalpostId = papirSykmelding.sykmelding.avsenderSystem.versjon
             val journalPost = safJournalpostService.getJournalPostDokumentInfo(journalpostId, accessToken)
             val dokuments = journalPost.data.journalpost.dokumenter
