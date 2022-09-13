@@ -13,8 +13,8 @@ import io.ktor.http.HttpStatusCode
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
-import java.util.concurrent.TimeUnit
 import no.nav.syfo.sikkerlogg
+import java.util.concurrent.TimeUnit
 
 class SyfoTilgangsKontrollClient(
     environment: Environment,
@@ -72,7 +72,7 @@ class SyfoTilgangsKontrollClient(
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
         sikkerlogg.info("Logger ut oboToken i dev: {}", oboToken)
 
-        //sikkerlogg.info("Logger ut navIdentFromToken i dev: {}", getNAVIdentFromOBOToken(oboToken))
+        // sikkerlogg.info("Logger ut navIdentFromToken i dev: {}", getNAVIdentFromOBOToken(oboToken))
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
