@@ -66,6 +66,7 @@ fun logNAVIdentTokenToSecureLogs(token: String, harTilgang: Boolean) {
         val decodedJWT = JWT.decode(token)
         val navIdent = decodedJWT.claims["NAVident"]?.asString()
         if (harTilgang) {
+            sikkerlogg.info("Logger ut token: {}", token)
             sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navIdent)
         } else {
             sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navIdent)
