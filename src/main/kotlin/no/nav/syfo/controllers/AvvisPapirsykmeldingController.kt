@@ -13,7 +13,7 @@ import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -58,7 +58,7 @@ class AvvisPapirsykmeldingController(
              * for å bli routet til smregistrering-backend (håndtert av syfosmpapirmottak)
              */
             if (authorizationService.hasAccess(accessToken, pasientFnr)) {
-
+                logNAVIdentTokenToSecureLogs(accessToken, true)
                 val veileder = authorizationService.getVeileder(accessToken)
 
                 val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
@@ -108,7 +108,7 @@ class AvvisPapirsykmeldingController(
                 return HttpServiceResponse(HttpStatusCode.NoContent)
             } else {
                 log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
+                logNAVIdentTokenToSecureLogs(accessToken, false)
                 return HttpServiceResponse(HttpStatusCode.Forbidden)
             }
         }

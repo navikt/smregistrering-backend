@@ -13,7 +13,7 @@ import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
 import java.util.UUID
 
 fun Route.sendOppgaveTilGosys(
@@ -64,6 +64,7 @@ fun Route.sendOppgaveTilGosys(
                         )
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
+                            logNAVIdentTokenToSecureLogs(accessToken, true)
 
                             sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
 
@@ -73,7 +74,7 @@ fun Route.sendOppgaveTilGosys(
                                 "Veileder har ikke tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
+                            logNAVIdentTokenToSecureLogs(accessToken, false)
                             call.respond(HttpStatusCode.Forbidden)
                         }
                     }

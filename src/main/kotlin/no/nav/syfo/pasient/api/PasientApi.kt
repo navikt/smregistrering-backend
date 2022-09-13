@@ -10,7 +10,7 @@ import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
 import java.util.UUID
 
 fun Route.pasientApi(
@@ -28,11 +28,12 @@ fun Route.pasientApi(
                     val accessToken = getAccessTokenFromAuthHeader(call.request)!!
                     val callId = UUID.randomUUID().toString()
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
+                        logNAVIdentTokenToSecureLogs(accessToken, true)
                         val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, callId = callId)
                         call.respond(pdlPerson.navn)
                     } else {
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
-                        logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
+                        logNAVIdentTokenToSecureLogs(accessToken, false)
                         call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til pasienten")
                     }
                 }
