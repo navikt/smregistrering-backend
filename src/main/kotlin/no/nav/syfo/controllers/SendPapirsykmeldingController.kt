@@ -33,7 +33,7 @@ import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.isWhitelisted
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
+import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogs
 import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.util.toString
 import java.time.OffsetDateTime
@@ -119,7 +119,7 @@ class SendPapirsykmeldingController(
             }
 
             if (hasAccess) {
-                logNAVIdentTokenToSecureLogs(accessToken, true)
+                logNAVEpostFromTokenToSecureLogs(accessToken, true)
                 val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                 if (sykmelderHpr.isNullOrEmpty()) {
@@ -238,7 +238,7 @@ class SendPapirsykmeldingController(
                     )
                 }
             } else {
-                logNAVIdentTokenToSecureLogs(accessToken, false)
+                logNAVEpostFromTokenToSecureLogs(accessToken, false)
                 return handleAccessDenied(oppgaveId, loggingMeta)
             }
         }

@@ -17,7 +17,7 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
+import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogs
 
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -64,7 +64,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         val fnr = manuellOppgaveDTOList.first().fnr!!
 
                         if (authorizationService.hasAccess(accessToken, fnr)) {
-                            logNAVIdentTokenToSecureLogs(accessToken, true)
+                            logNAVEpostFromTokenToSecureLogs(accessToken, true)
                             try {
                                 val pdfPapirSykmelding = safDokumentClient.hentDokument(
                                     journalpostId = manuellOppgaveDTOList.first().journalpostId,
@@ -111,7 +111,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
-                            logNAVIdentTokenToSecureLogs(accessToken, false)
+                            logNAVEpostFromTokenToSecureLogs(accessToken, false)
                             call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
                         }
                     }

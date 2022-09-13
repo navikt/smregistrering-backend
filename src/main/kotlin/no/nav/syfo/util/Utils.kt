@@ -61,15 +61,14 @@ fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning
     }
 }
 
-fun logNAVIdentTokenToSecureLogs(token: String, harTilgang: Boolean) {
+fun logNAVEpostFromTokenToSecureLogs(token: String, harTilgang: Boolean) {
     try {
         val decodedJWT = JWT.decode(token)
-        val navIdent = decodedJWT.claims["NAVident"]?.asString()
+        val navEpost= decodedJWT.claims["preferred_username"]?.asString()
         if (harTilgang) {
-            sikkerlogg.info("Logger ut token: {}", token)
-            sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navIdent)
+            sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navEpost)
         } else {
-            sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navIdent)
+            sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navEpost)
         }
     } catch (exception: Exception) {
         sikkerlogg.info("Fikk ikkje hentet ut navIdent", exception)

@@ -13,7 +13,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.logNAVIdentTokenToSecureLogs
+import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogs
 
 class FerdigstiltSykmeldingController(
     val manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -61,7 +61,7 @@ class FerdigstiltSykmeldingController(
                 "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
             )
-            logNAVIdentTokenToSecureLogs(accessToken, false)
+            logNAVEpostFromTokenToSecureLogs(accessToken, false)
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
 
@@ -153,10 +153,10 @@ class FerdigstiltSykmeldingController(
                     "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                     StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
                 )
-                logNAVIdentTokenToSecureLogs(accessToken, false)
+                logNAVEpostFromTokenToSecureLogs(accessToken, false)
                 return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
             }
-            logNAVIdentTokenToSecureLogs(accessToken, true)
+            logNAVEpostFromTokenToSecureLogs(accessToken, true)
 
             val receivedSykmelding = manuellOppgaveDAO.hentSykmelding(sykmeldingId)
                 ?: return HttpServiceResponse(HttpStatusCode.NotFound, "Fant ingen ferdigstilte manuelloppgaver med sykmeldingId $sykmeldingId")
