@@ -51,7 +51,7 @@ val objectMapper: ObjectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
-private val sikkerlogg = LoggerFactory.getLogger("securelog")
+val sikkerlogg = LoggerFactory.getLogger("securelog")
 
 @DelicateCoroutinesApi
 @InternalAPI

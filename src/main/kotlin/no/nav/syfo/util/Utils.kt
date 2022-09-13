@@ -1,10 +1,12 @@
 package no.nav.syfo.util
 
+import com.auth0.jwt.JWT
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.server.auth.parseAuthorizationHeader
 import io.ktor.server.request.ApplicationRequest
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
+import no.nav.syfo.sikkerlogg
 import java.io.IOException
 import java.net.URISyntaxException
 import java.nio.charset.StandardCharsets
@@ -56,5 +58,15 @@ fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning
         }
     } else {
         godkjenninger
+    }
+}
+
+fun logNAVIdentTokenToSecureLogsWhenNoAccess(token: String) {
+    try {
+        val decodedJWT = JWT.decode(token)
+        val navIdent = decodedJWT.claims["NAVident"]?.asString()
+        sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navIdent)
+    } catch (exception: Exception) {
+        sikkerlogg.info("Fikk ikkje hentet ut navIdent", exception)
     }
 }

@@ -13,6 +13,7 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
 
 class FerdigstiltSykmeldingController(
     val manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -60,6 +61,7 @@ class FerdigstiltSykmeldingController(
                 "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
             )
+            logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
             val journalpostId = papirSykmelding.sykmelding.avsenderSystem.versjon
@@ -150,6 +152,7 @@ class FerdigstiltSykmeldingController(
                     "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                     StructuredArguments.keyValue("sykmeldingId", sykmeldingId)
                 )
+                logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
                 return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
             }
 

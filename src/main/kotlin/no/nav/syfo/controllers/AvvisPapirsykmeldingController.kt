@@ -13,6 +13,7 @@ import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -107,6 +108,7 @@ class AvvisPapirsykmeldingController(
                 return HttpServiceResponse(HttpStatusCode.NoContent)
             } else {
                 log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
+                logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
                 return HttpServiceResponse(HttpStatusCode.Forbidden)
             }
         }

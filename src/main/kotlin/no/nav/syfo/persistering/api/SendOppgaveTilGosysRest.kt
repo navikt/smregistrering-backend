@@ -13,6 +13,7 @@ import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
+import no.nav.syfo.util.logNAVIdentTokenToSecureLogsWhenNoAccess
 import java.util.UUID
 
 fun Route.sendOppgaveTilGosys(
@@ -72,6 +73,7 @@ fun Route.sendOppgaveTilGosys(
                                 "Veileder har ikke tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId)
                             )
+                            logNAVIdentTokenToSecureLogsWhenNoAccess(accessToken)
                             call.respond(HttpStatusCode.Forbidden)
                         }
                     }
