@@ -64,7 +64,7 @@ fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning
 fun logNAVEpostFromTokenToSecureLogs(token: String, harTilgang: Boolean) {
     try {
         val decodedJWT = JWT.decode(token)
-        val navEpost= decodedJWT.claims["preferred_username"]?.asString()
+        val navEpost = decodedJWT.claims["preferred_username"]?.asString()
         if (harTilgang) {
             sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navEpost)
         } else {
