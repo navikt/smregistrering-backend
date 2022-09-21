@@ -84,6 +84,7 @@ private fun PapirSmRegistering.toReceveidSykmelding(papirSykmelding: Papirsykmel
         partnerreferanse = "",
         fellesformat = "",
         tssid = "",
-        vedlegg = null
+        vedlegg = null,
+        utenlandskSykmelding = null
     )
 }

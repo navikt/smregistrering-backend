@@ -175,7 +175,8 @@ class FellesformatMapperServiceTest {
             partnerreferanse = null,
             legeHelsepersonellkategori = "LE",
             legeHprNr = "hpr",
-            vedlegg = null
+            vedlegg = null,
+            utenlandskSykmelding = null
         )
 
         receivedSykmelding.personNrPasient shouldBeEqualTo fnrPasient

@@ -7,9 +7,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.engine.apache.ApacheEngineConfig
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.CIOEngineConfig
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.jackson.jackson
@@ -23,17 +25,18 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SarClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.exception.ServiceUnavailableException
+import no.nav.syfo.log
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
 
 class HttpClients(env: Environment) {
-    private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
-        engine {
-            socketTimeout = 40_000
-            connectTimeout = 40_000
-            connectionRequestTimeout = 40_000
+    private val config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {
+        install(HttpTimeout) {
+            socketTimeoutMillis = 40_000L
+            connectTimeoutMillis = 40_000L
+            requestTimeoutMillis = 40_000L
         }
         install(ContentNegotiation) {
             jackson {
@@ -51,9 +54,24 @@ class HttpClients(env: Environment) {
                 }
             }
         }
+        install(HttpRequestRetry) {
+            constantDelay(100, 0, false)
+            retryOnExceptionIf(3) { request, throwable ->
+                log.warn("Caught exception ${throwable.message}, for url ${request.url}")
+                true
+            }
+            retryIf(maxRetries) { request, response ->
+                if (response.status.value.let { it in 500..599 }) {
+                    log.warn("Retrying for statuscode ${response.status.value}, for url ${request.url}")
+                    true
+                } else {
+                    false
+                }
+            }
+        }
     }
 
-    private val httpClient = HttpClient(Apache, config)
+    private val httpClient = HttpClient(CIO, config)
 
     internal val azureAdV2Client = AzureAdV2Client(
         environment = env,
@@ -89,12 +107,14 @@ class HttpClients(env: Environment) {
         PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), "")
     )
 
-    internal val norskHelsenettClient = NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
+    internal val norskHelsenettClient =
+        NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
 
     internal val safJournalpostClient = SafJournalpostClient(
         httpClient,
         "${env.safV1Url}/graphql",
-        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText().replace(Regex("[\n\t]"), "")
+        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText()
+            .replace(Regex("[\n\t]"), "")
     )
 
     internal val syfoSmregisterClient = SyfosmregisterClient(env.syfoSmregisterEndpointURL, httpClient)
