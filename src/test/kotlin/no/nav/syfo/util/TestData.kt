@@ -38,7 +38,8 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
         partnerreferanse = null,
         legeHelsepersonellkategori = "LE",
         legeHprNr = "hpr",
-        vedlegg = null
+        vedlegg = null,
+        utenlandskSykmelding = null
     )
 }
 

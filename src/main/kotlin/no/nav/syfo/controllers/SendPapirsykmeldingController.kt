@@ -191,7 +191,8 @@ class SendPapirsykmeldingController(
                     partnerreferanse = null,
                     legeHelsepersonellkategori = sykmelder.godkjenninger?.getHelsepersonellKategori(),
                     legeHprNr = sykmelder.hprNummer,
-                    vedlegg = null
+                    vedlegg = null,
+                    utenlandskSykmelding = null
                 )
 
                 log.info(
