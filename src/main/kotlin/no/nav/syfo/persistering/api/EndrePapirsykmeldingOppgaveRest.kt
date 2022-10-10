@@ -69,9 +69,9 @@ fun Route.endreSykmelding(
                         }
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
-                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
+                        call.respond(HttpStatusCode.NotFound, "Kunne ikke hente behandler")
                     } catch (e: UnauthorizedException) {
-                        log.warn("Caught UnauthorizedException", "Noe gikk galt ved uthenting av behandler")
+                        log.warn("Caught UnauthorizedException", e)
                         call.respond(
                             HttpStatusCode.Forbidden,
                             "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll"
