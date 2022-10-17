@@ -7,8 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.cio.CIOEngineConfig
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.apache.ApacheEngineConfig
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
@@ -32,7 +32,7 @@ import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
 
 class HttpClients(env: Environment) {
-    private val config: HttpClientConfig<CIOEngineConfig>.() -> Unit = {
+    private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         install(HttpTimeout) {
             socketTimeoutMillis = 40_000L
             connectTimeoutMillis = 40_000L
@@ -71,7 +71,7 @@ class HttpClients(env: Environment) {
         }
     }
 
-    private val httpClient = HttpClient(CIO, config)
+    private val httpClient = HttpClient(Apache, config)
 
     internal val azureAdV2Client = AzureAdV2Client(
         environment = env,
