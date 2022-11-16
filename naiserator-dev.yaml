@@ -14,6 +14,8 @@ spec:
         databases:
           - name: smregistrering
             envVarPrefix: NAIS_DATABASE
+            users:
+              - name: macgyver
         diskAutoresize: true
         highAvailability: false
         diskType: SSD
@@ -91,7 +93,7 @@ spec:
     - name: SAF_URL
       value: https://saf.dev-fss-pub.nais.io
     - name: SAF_SCOPE
-      value: api://dev-fss.teamdokumenthandtering.saf/.default
+      value: api://dev-fss.teamdokumenthandtering.saf-q1/.default
     - name: OPPGAVE_URL
       value: https://oppgave-q1.dev-fss-pub.nais.io/api/v1/oppgaver
     - name: OPPGAVE_SCOPE
