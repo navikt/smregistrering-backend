@@ -82,7 +82,7 @@ internal class HentPapirSykmeldingTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
 
-    private val env = mockk<Environment>() {
+    private val env = mockk<Environment> {
         coEvery { azureAppClientId } returns "clientId"
     }
 
@@ -135,10 +135,10 @@ internal class HentPapirSykmeldingTest {
                     true,
                     "Nei",
                     ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now()
+                        egetArbeidPaSikt = true,
+                        annetArbeidPaSikt = false,
+                        arbeidFOM = LocalDate.now(),
+                        vurderingsdato = LocalDate.now()
                     ),
                     null
                 ),
@@ -297,10 +297,10 @@ internal class HentPapirSykmeldingTest {
                 true,
                 "Nei",
                 ErIArbeid(
-                    true,
-                    false,
-                    LocalDate.now(),
-                    LocalDate.now()
+                    egetArbeidPaSikt = true,
+                    annetArbeidPaSikt = false,
+                    arbeidFOM = LocalDate.now(),
+                    vurderingsdato = LocalDate.now()
                 ),
                 null
             ),
@@ -399,10 +399,10 @@ internal class HentPapirSykmeldingTest {
                     true,
                     "Nei",
                     ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now()
+                        egetArbeidPaSikt = true,
+                        annetArbeidPaSikt = false,
+                        arbeidFOM = LocalDate.now(),
+                        vurderingsdato = LocalDate.now()
                     ),
                     null
                 ),
@@ -542,10 +542,10 @@ internal class HentPapirSykmeldingTest {
                     true,
                     "Nei",
                     ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now()
+                        egetArbeidPaSikt = true,
+                        annetArbeidPaSikt = false,
+                        arbeidFOM = LocalDate.now(),
+                        vurderingsdato = LocalDate.now()
                     ),
                     null
                 ),
@@ -628,11 +628,11 @@ internal class HentPapirSykmeldingTest {
     }
 
     private fun opprettManuellOppgaveNullPapirsm(
-        connection: Connection,
+        databaseConnection: Connection,
         papirSmRegistering: PapirSmRegistering,
         oppgaveId: Int
     ) {
-        connection.use { connection ->
+        databaseConnection.use { connection ->
             connection.prepareStatement(
                 """
             INSERT INTO manuelloppgave(

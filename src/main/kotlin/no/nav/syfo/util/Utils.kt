@@ -7,15 +7,6 @@ import io.ktor.server.request.ApplicationRequest
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
 import no.nav.syfo.sikkerlogg
-import java.io.IOException
-import java.net.URISyntaxException
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-
-@Throws(IOException::class, URISyntaxException::class)
-
-fun getFileAsString(filePath: String) = String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8)
 
 fun getAccessTokenFromAuthHeader(request: ApplicationRequest): String? {
     val authHeader = request.parseAuthorizationHeader()
@@ -61,15 +52,11 @@ fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning
     }
 }
 
-fun logNAVEpostFromTokenToSecureLogs(token: String, harTilgang: Boolean) {
+fun logNAVEpostFromTokenToSecureLogsNoAccess(token: String) {
     try {
         val decodedJWT = JWT.decode(token)
         val navEpost = decodedJWT.claims["preferred_username"]?.asString()
-        if (harTilgang) {
-            sikkerlogg.info("Logger ut navIdent: {}, har tilgang", navEpost)
-        } else {
-            sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navEpost)
-        }
+        sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navEpost)
     } catch (exception: Exception) {
         sikkerlogg.info("Fikk ikkje hentet ut navIdent", exception)
     }
