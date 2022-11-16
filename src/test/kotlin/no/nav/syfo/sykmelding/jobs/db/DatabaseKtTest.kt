@@ -2,6 +2,7 @@ package no.nav.syfo.sykmelding.jobs.db
 
 import io.mockk.coEvery
 import io.mockk.mockkStatic
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -120,6 +121,7 @@ class DatabaseKtTest {
         inprogressJob!!.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun getDifferentJobThreads() {
         insertSykmelding()

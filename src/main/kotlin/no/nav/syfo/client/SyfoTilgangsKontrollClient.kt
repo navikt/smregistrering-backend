@@ -85,7 +85,7 @@ class SyfoTilgangsKontrollClient(
                     tilgang
                 }
                 else -> {
-                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status}  på forespørsel om utvidet tilgang")
+                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang")
                     Tilgang(
                         harTilgang = false
                     )
