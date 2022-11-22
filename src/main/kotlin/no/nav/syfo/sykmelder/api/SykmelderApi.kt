@@ -10,6 +10,7 @@ import no.nav.syfo.log
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.util.padHpr
 import java.util.UUID
 
 fun Route.sykmelderApi(
@@ -28,7 +29,11 @@ fun Route.sykmelderApi(
                 else -> {
                     val callId = UUID.randomUUID().toString()
                     try {
-                        val sykmelder = sykmelderService.hentSykmelder(hprNummer.toString(), callId)
+                        val sykmelder = sykmelderService.hentSykmelder(
+                            padHpr(hprNummer.toString())
+                                ?: hprNummer.toString(),
+                            callId
+                        )
                         call.respond(sykmelder)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
