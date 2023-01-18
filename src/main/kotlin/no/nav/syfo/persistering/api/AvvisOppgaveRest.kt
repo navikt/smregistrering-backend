@@ -2,7 +2,7 @@ package no.nav.syfo.persistering.api
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.request.receiveOrNull
+import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -24,7 +24,7 @@ fun Route.avvisOppgave(
             val accessToken = getAccessTokenFromAuthHeader(call.request)
             val navEnhet = call.request.headers["X-Nav-Enhet"]
 
-            val avvisSykmeldingRequest: AvvisSykmeldingRequest? = call.receiveOrNull()
+            val avvisSykmeldingRequest: AvvisSykmeldingRequest? = call.receiveNullable()
 
             when {
                 oppgaveId == null -> {
