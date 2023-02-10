@@ -56,7 +56,7 @@ class AvvisPapirsykmeldingControllerTest {
         coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
         coEvery { oppgaveService.hentOppgave(any(), any()) } returns getOppgave(1)
         coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
-        coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+        coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
         coEvery { oppgaveClient.hentOppgave(any(), any()) } returns getOppgave()
         coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns getOppgave()
         coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1

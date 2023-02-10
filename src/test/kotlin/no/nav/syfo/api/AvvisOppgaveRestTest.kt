@@ -217,7 +217,7 @@ class AvvisOppgaveRestTest {
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123, versjon = 1,
@@ -329,7 +329,7 @@ class AvvisOppgaveRestTest {
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123, versjon = 1,

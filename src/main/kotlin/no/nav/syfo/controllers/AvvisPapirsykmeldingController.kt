@@ -77,7 +77,7 @@ class AvvisPapirsykmeldingController(
                     oppgave = hentOppgave
                 )
 
-                journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
+                journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, null, loggingMeta)
                 oppgaveService.ferdigstillOppgave(
                     oppgaveId = oppgaveId,
                     ferdigstillRegistrering = ferdigstillRegistrering,

@@ -315,7 +315,7 @@ class SendPapirsykmeldingController(
                 val veileder = authorizationService.getVeileder(accessToken)
 
                 if (ferdigstillRegistrering.oppgaveId != null) {
-                    journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, loggingMeta)
+                    journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, receivedSykmelding, loggingMeta)
                     oppgaveService.ferdigstillOppgave(ferdigstillRegistrering, null, loggingMeta, ferdigstillRegistrering.oppgaveId)
                 }
 

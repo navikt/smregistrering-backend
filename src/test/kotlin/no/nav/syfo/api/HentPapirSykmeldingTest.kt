@@ -230,6 +230,7 @@ internal class HentPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns ""

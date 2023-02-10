@@ -338,6 +338,7 @@ class SendPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns ""
@@ -546,6 +547,7 @@ class SendPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns ""
@@ -747,6 +749,7 @@ class SendPapirSykmeldingTest {
             )
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
+                    any(),
                     any(),
                     any(),
                     any(),
