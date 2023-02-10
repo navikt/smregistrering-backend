@@ -57,13 +57,13 @@ spec:
       rules:
         - application: smregistrering
           namespace: teamsykmelding
-          cluster: dev-fss
-        - application: smregistrering
-          namespace: teamsykmelding
           cluster: dev-gcp
     outbound:
       rules:
         - application: syfosmregister
+          namespace: teamsykmelding
+          cluster: dev-gcp
+        - application: syfosmpapirregler
           namespace: teamsykmelding
           cluster: dev-gcp
   vault:
@@ -106,15 +106,11 @@ spec:
       value: https://graph.microsoft.com/v1.0
     - name: MS_GRAPH_API_SCOPE
       value: https://graph.microsoft.com/.default
-    - name: SYFOSMPAPIRREGLER_URL
-      value: https://syfosmpapirregler.dev.intern.nav.no
     - name: SYFOSMPAPIRREGLER_SCOPE
       value: api://dev-gcp.teamsykmelding.syfosmpapirregler/.default
     - name: SMGCP_PROXY_SCOPE
       value: api://dev-fss.teamsykmelding.smgcp-proxy/.default
     - name: SMGCP_PROXY_URL
       value: https://smgcp-proxy.dev-fss-pub.nais.io
-    - name: SYFOSMREGISTER_ENDPOINT_URL
-      value: https://smregister.dev.nav.no
     - name: SYFOSMREGISTER_SCOPE
       value: api://dev-gcp.teamsykmelding.syfosmregister/.default
