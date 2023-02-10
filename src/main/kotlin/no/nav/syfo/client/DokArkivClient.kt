@@ -13,10 +13,14 @@ import io.ktor.http.contentType
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
+import no.nav.syfo.model.Periode
+import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Sykmelder
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.padHpr
 import java.io.IOException
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * REST-klient for å utføre operasjoner mot DokArkiv
@@ -36,10 +40,18 @@ class DokArkivClient(
         sykmelder: Sykmelder,
         loggingMeta: LoggingMeta,
         navEnhet: String,
-        avvist: Boolean
+        avvist: Boolean,
+        receivedSykmelding: ReceivedSykmelding?
     ): String? {
-        oppdaterJournalpost(journalpostId = journalpostId, dokumentInfoId = dokumentInfoId, pasientFnr = pasientFnr, sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, loggingMeta = loggingMeta)
-        return ferdigstillJournalpost(journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta, navEnhet = navEnhet)
+        oppdaterJournalpost(
+            journalpostId = journalpostId, dokumentInfoId = dokumentInfoId, pasientFnr = pasientFnr,
+            sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, receivedSykmelding = receivedSykmelding,
+            loggingMeta = loggingMeta
+        )
+        return ferdigstillJournalpost(
+            journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta,
+            navEnhet = navEnhet
+        )
     }
 
     private suspend fun oppdaterJournalpost(
@@ -49,6 +61,7 @@ class DokArkivClient(
         sykmelder: Sykmelder,
         avvist: Boolean,
         msgId: String,
+        receivedSykmelding: ReceivedSykmelding?,
         loggingMeta: LoggingMeta
     ) {
         val httpResponse = httpClient.put("$url/$journalpostId") {
@@ -66,9 +79,9 @@ class DokArkivClient(
                     ),
                     bruker = Bruker(id = pasientFnr),
                     sak = Sak(),
-                    tittel = getTittel(avvist),
+                    tittel = getTittel(avvist, receivedSykmelding),
                     dokumenter = if (dokumentInfoId != null) {
-                        listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist)))
+                        listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist, receivedSykmelding)))
                     } else {
                         null
                     }
@@ -156,12 +169,34 @@ class DokArkivClient(
         return "${sykmelder.fornavn} ${sykmelder.etternavn}"
     }
 
-    fun getTittel(avvist: Boolean): String {
+    fun getTittel(avvist: Boolean, receivedSykmelding: ReceivedSykmelding?): String {
         return if (avvist) {
-            "Avvist papirsykmelding"
+            if (receivedSykmelding != null) {
+                "Avvist papirsykmelding ${getFomTomTekst(receivedSykmelding)}"
+            } else {
+                "Avvist papirsykmelding"
+            }
         } else {
-            "Papirsykmelding"
+            if (receivedSykmelding != null) {
+                "Papirsykmelding ${getFomTomTekst(receivedSykmelding)}"
+            } else {
+                "Papirsykmelding"
+            }
         }
+    }
+
+    private fun getFomTomTekst(receivedSykmelding: ReceivedSykmelding) =
+        "${formaterDato(receivedSykmelding.sykmelding.perioder.sortedSykmeldingPeriodeFOMDate().first().fom)} -" +
+            " ${formaterDato(receivedSykmelding.sykmelding.perioder.sortedSykmeldingPeriodeTOMDate().last().tom)}"
+
+    fun List<Periode>.sortedSykmeldingPeriodeFOMDate(): List<Periode> =
+        sortedBy { it.fom }
+    fun List<Periode>.sortedSykmeldingPeriodeTOMDate(): List<Periode> =
+        sortedBy { it.tom }
+
+    fun formaterDato(dato: LocalDate): String {
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        return dato.format(formatter)
     }
 
     data class FerdigstillJournal(
