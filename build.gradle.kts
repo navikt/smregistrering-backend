@@ -5,14 +5,14 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.6.4"
-val ktorVersion = "2.2.2"
+val ktorVersion = "2.2.3"
 val logbackVersion = "1.4.4"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
 val kluentVersion = "1.72"
 val junitJupiterVersion = "5.9.0"
-val jacksonVersion = "2.14.1"
-val smCommonVersion = "1.d6548c5"
+val jacksonVersion = "2.14.2"
+val smCommonVersion = "1.fbf33a9"
 val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.5.1"
 val flywayVersion = "9.4.0"
@@ -35,11 +35,12 @@ val commonsTextVersion = "1.10.0"
 val kafkaVersion = "3.3.1"
 val caffeineVersion = "3.1.1"
 val postgresContainerVersion = "1.17.4"
-val kotlinVersion = "1.8.0"
+val kotlinVersion = "1.8.10"
+val commonsCodecVersion = "1.15"
 
 
 plugins {
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.8.10"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("com.diffplug.spotless") version "6.5.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -82,6 +83,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    // override transient version from io.ktor:ktor-client-apache
+    implementation("commons-codec:commons-codec:$commonsCodecVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
