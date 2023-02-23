@@ -34,9 +34,9 @@ import no.nav.syfo.syfosmregister.client.SyfosmregisterClient
 class HttpClients(env: Environment) {
     private val config: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
         install(HttpTimeout) {
-            socketTimeoutMillis = 40_000L
-            connectTimeoutMillis = 40_000L
-            requestTimeoutMillis = 40_000L
+            socketTimeoutMillis = 50_000L
+            connectTimeoutMillis = 50_000L
+            requestTimeoutMillis = 50_000L
         }
         install(ContentNegotiation) {
             jackson {
@@ -104,7 +104,7 @@ class HttpClients(env: Environment) {
     internal val pdlClient = PdlClient(
         httpClient,
         env.pdlGraphqlPath,
-        PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), "")
+        PdlClient::class.java.getResource("/graphql/getPerson.graphql")!!.readText().replace(Regex("[\n\t]"), "")
     )
 
     internal val norskHelsenettClient =
@@ -113,7 +113,7 @@ class HttpClients(env: Environment) {
     internal val safJournalpostClient = SafJournalpostClient(
         httpClient,
         "${env.safV1Url}/graphql",
-        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql").readText()
+        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql")!!.readText()
             .replace(Regex("[\n\t]"), "")
     )
 
