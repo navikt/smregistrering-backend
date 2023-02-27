@@ -62,7 +62,10 @@ class OppgaveClient(
                 httpResponse.body<Oppgave>()
             }
             else -> {
-                val msg = "OppgaveClient ferdigstillOppgave kastet feil ${httpResponse.status} ved ferdigstillOppgave av oppgave, response: ${httpResponse.body<String>()}"
+                val msg = "OppgaveClient ferdigstillOppgave kastet feil ${httpResponse.status} " +
+                    "ved ferdigstillOppgave av oppgave, response: ${httpResponse.body<String>()}" +
+                    "oppgaveId: ${ferdigstilloppgave.id}" +
+                    "tilordnetRessurs: ${ferdigstilloppgave.tilordnetRessurs}"
                 log.error(msg)
                 throw RuntimeException(msg)
             }
