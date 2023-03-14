@@ -8,8 +8,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SamhandlerPraksis
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class KuhrSarClientTest {
     val objectMapper = ObjectMapper()
@@ -34,7 +34,7 @@ class KuhrSarClientTest {
             )
         )
         val samhandlerPraksis = findBestSamhandlerPraksis(samhandlere)
-        samhandlerPraksis?.tss_ident shouldBeEqualTo "123456789101112"
+        assertEquals("123456789101112", samhandlerPraksis?.tss_ident)
     }
 
     @Test
@@ -46,7 +46,7 @@ class KuhrSarClientTest {
         every { samhandlerPraksis.samh_praksis_status_kode } returns "aktiv"
         val samhandlere = getSamhandler("KI", samhandlerPraksis2, samhandlerPraksis)
         val samhandlerPraksis = findBestSamhandlerPraksis(samhandlere)
-        samhandlerPraksis?.tss_ident shouldBeEqualTo "123456789101112"
+        assertEquals("123456789101112", samhandlerPraksis?.tss_ident)
     }
 
     private fun getSamhandler(type: String, vararg samhandlerPraksis: SamhandlerPraksis): MutableList<Samhandler> {
@@ -70,7 +70,8 @@ class KuhrSarClientTest {
         every { samhandlerPraksis2.samh_praksis_status_kode } returns "aktiv"
         val samhandlere = getSamhandler("LE", samhandlerPraksis2)
         val samhandlerPraksis = findBestSamhandlerPraksis(samhandlere)
-        samhandlerPraksis?.tss_ident shouldBeEqualTo "2"
+
+        assertEquals("2", samhandlerPraksis?.tss_ident)
     }
 
     @Test
@@ -79,6 +80,7 @@ class KuhrSarClientTest {
         every { samhandlerPraksis.samh_praksis_status_kode } returns "inaktiv"
         val samhandlere = getSamhandler("ANY", samhandlerPraksis)
         val samhandlerPraksis = findBestSamhandlerPraksis(samhandlere)
-        samhandlerPraksis?.tss_ident shouldBeEqualTo "1"
+
+        assertEquals("1", samhandlerPraksis?.tss_ident)
     }
 }

@@ -15,9 +15,9 @@ import no.nav.syfo.persistering.db.opprettManuellOppgave
 import no.nav.syfo.sykmelding.db.insertSendtSykmeldingHistory
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.util.getReceivedSykmelding
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -27,8 +27,8 @@ import java.util.UUID
 class SendtSykmeldingHistoryDBTest {
     private val testDb = TestDB()
 
-    @After
-    fun beforeEach() {
+    @AfterEach
+    fun afterEach() {
         testDb.dropData()
     }
 
@@ -42,10 +42,10 @@ class SendtSykmeldingHistoryDBTest {
         testDb.opprettManuellOppgave(manuellOppgave, 123)
         testDb.insertSendtSykmeldingHistory(sendtSykmeldingHistory)
         val sendtSykmeldingHistory1 = testDb.getSendtSykmeldingHistory(sykmeldingId = sykmeldingId)!!
-        sendtSykmeldingHistory1.id shouldBeEqualTo sendtSykmeldingHistory.id
-        sendtSykmeldingHistory1.sykmeldingId shouldBeEqualTo sendtSykmeldingHistory.sykmeldingId
-        sendtSykmeldingHistory1.ferdigstiltAv shouldBeEqualTo sendtSykmeldingHistory.ferdigstiltAv
-        sendtSykmeldingHistory1.receivedSykmelding shouldBeEqualTo sendtSykmeldingHistory.receivedSykmelding
+        assertEquals(sendtSykmeldingHistory.id, sendtSykmeldingHistory1.id)
+        assertEquals(sendtSykmeldingHistory.sykmeldingId, sendtSykmeldingHistory1.sykmeldingId)
+        assertEquals(sendtSykmeldingHistory.ferdigstiltAv, sendtSykmeldingHistory1.ferdigstiltAv)
+        assertEquals(sendtSykmeldingHistory.receivedSykmelding, sendtSykmeldingHistory1.receivedSykmelding)
     }
 
     private fun createSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory {

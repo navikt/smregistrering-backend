@@ -53,10 +53,10 @@ import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.Timestamp
@@ -86,7 +86,7 @@ internal class HentPapirSykmeldingTest {
         coEvery { azureAppClientId } returns "clientId"
     }
 
-    @After
+    @AfterEach
     fun after() {
         database.dropData()
     }
@@ -246,9 +246,9 @@ internal class HentPapirSykmeldingTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.OK
-                response.content?.contains("\"aktorId\":\"1314\"") shouldBeEqualTo true
-                response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\"") shouldBeEqualTo true
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(true, response.content?.contains("\"aktorId\":\"1314\""))
+                assertEquals(true, response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\""))
             }
 
             with(
@@ -257,7 +257,7 @@ internal class HentPapirSykmeldingTest {
                     addHeader("Content-Type", "application/json")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
         }
     }
@@ -344,8 +344,8 @@ internal class HentPapirSykmeldingTest {
 
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
 
-        hentManuellOppgaver.size shouldBeEqualTo 1
-        hentManuellOppgaver[0].papirSmRegistering shouldBeEqualTo null
+        assertEquals(1, hentManuellOppgaver.size)
+        assertEquals(null, hentManuellOppgaver[0].papirSmRegistering)
     }
 
     @Test
@@ -478,8 +478,8 @@ internal class HentPapirSykmeldingTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.Gone
-                response.content shouldBeEqualTo "SENT_TO_GOSYS"
+                assertEquals(HttpStatusCode.Gone, response.status())
+                assertEquals("SENT_TO_GOSYS", response.content)
             }
 
             coVerify(exactly = 1) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
@@ -621,7 +621,7 @@ internal class HentPapirSykmeldingTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.Forbidden
+                assertEquals(HttpStatusCode.Forbidden, response.status())
             }
 
             coVerify(exactly = 0) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }

@@ -52,9 +52,9 @@ import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import no.nav.syfo.util.getReceivedSykmelding
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -74,7 +74,7 @@ internal class HentFerdigstiltSykmeldingTest {
         coEvery { azureAppClientId } returns "clientId"
     }
 
-    @After
+    @AfterEach
     fun after() {
         database.dropData()
     }
@@ -253,11 +253,11 @@ internal class HentFerdigstiltSykmeldingTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.OK
-                response.content?.contains("journalpostId\":\"134") shouldBeEqualTo true
-                response.content?.contains("sykmeldingId\":\"sykmeldingId") shouldBeEqualTo true
-                response.content?.contains("\"aktorId\":\"1314\"") shouldBeEqualTo true
-                response.content?.contains("fnr\":\"12345678912") shouldBeEqualTo true
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(true, response.content?.contains("journalpostId\":\"134"))
+                assertEquals(true, response.content?.contains("sykmeldingId\":\"sykmeldingId"))
+                assertEquals(true, response.content?.contains("\"aktorId\":\"1314\""))
+                assertEquals(true, response.content?.contains("fnr\":\"12345678912"))
             }
         }
     }

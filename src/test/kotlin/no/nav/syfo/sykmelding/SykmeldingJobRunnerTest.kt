@@ -18,9 +18,9 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
 class SykmeldingJobRunnerTest {
@@ -39,7 +39,7 @@ class SykmeldingJobRunnerTest {
         coEvery { delay(3_000) } returns Unit
     }
 
-    @After
+    @AfterEach
     fun afterTest() {
         testDB.connection.dropData()
     }
@@ -61,7 +61,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.DONE
+        assertEquals(JOB_STATUS.DONE, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -81,7 +81,7 @@ class SykmeldingJobRunnerTest {
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
 
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
+        assertEquals(JOB_STATUS.IN_PROGRESS, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -108,7 +108,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 0) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
+        assertEquals(JOB_STATUS.IN_PROGRESS, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -135,6 +135,6 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status shouldBeEqualTo JOB_STATUS.DONE
+        assertEquals(JOB_STATUS.DONE, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
     }
 }

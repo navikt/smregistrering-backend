@@ -14,9 +14,9 @@ import no.nav.syfo.azuread.v2.AzureAdV2TokenResponse
 import no.nav.syfo.objectMapper
 import no.nav.syfo.testutil.HttpClientTest
 import no.nav.syfo.testutil.ResponseData
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
 class SyfoTilgangsKontrollClientTest {
@@ -62,7 +62,7 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            tilgang.harTilgang shouldBeEqualTo true
+            assertEquals(true, tilgang.harTilgang)
         }
     }
 
@@ -72,7 +72,7 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData = ResponseData(HttpStatusCode.InternalServerError, objectMapper.writeValueAsString(Tilgang(false)))
         runBlocking {
             val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            tilgang.harTilgang shouldBeEqualTo false
+            assertEquals(false, tilgang.harTilgang)
         }
     }
 

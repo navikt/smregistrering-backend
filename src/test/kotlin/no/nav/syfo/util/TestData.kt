@@ -43,11 +43,6 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
     )
 }
 
-fun getSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"), datoOpprettet: LocalDateTime = LocalDateTime.now(), sykmeldingId: String = "1234"): Sykmelding {
-    val fellesformat = getXmleiFellesformat(manuell, sykmeldingId, datoOpprettet)
-    return getSykmelding(extractHelseOpplysningerArbeidsuforhet(fellesformat), fellesformat.get(), sykmeldingId = sykmeldingId)
-}
-
 fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
     return mapsmRegistreringManuelltTilFellesformat(
         smRegistreringManuell = smRegisteringManuellt,

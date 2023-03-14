@@ -47,9 +47,9 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -74,7 +74,7 @@ internal class AuthenticateTest {
         coEvery { azureAppClientId } returns "clientId"
     }
 
-    @After
+    @AfterEach
     fun after() {
         database.dropData()
     }
@@ -185,8 +185,8 @@ internal class AuthenticateTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.OK
-                objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid shouldBeEqualTo oppgaveid
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals(oppgaveid, objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid)
             }
         }
     }
@@ -288,8 +288,8 @@ internal class AuthenticateTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.Unauthorized
-                response.content shouldBeEqualTo null
+                assertEquals(HttpStatusCode.Unauthorized, response.status())
+                assertEquals(null, response.content)
             }
         }
     }

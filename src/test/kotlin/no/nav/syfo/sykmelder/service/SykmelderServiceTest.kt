@@ -13,8 +13,8 @@ import no.nav.syfo.pdl.model.Navn
 import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 class SykmelderServiceTest {
@@ -51,17 +51,17 @@ class SykmelderServiceTest {
         runBlocking {
             val sykmelder = sykmelderService.hentSykmelder(hprNummer, "callid")
 
-            sykmelder.hprNummer shouldBeEqualTo hprNummer
-            sykmelder.fnr shouldBeEqualTo fnr
-            sykmelder.fornavn shouldBeEqualTo fornavn
-            sykmelder.mellomnavn shouldBeEqualTo mellomnavn
-            sykmelder.etternavn shouldBeEqualTo etternavn
+            assertEquals(hprNummer, sykmelder.hprNummer)
+            assertEquals(fnr, sykmelder.fnr)
+            assertEquals(fornavn, sykmelder.fornavn)
+            assertEquals(mellomnavn, sykmelder.mellomnavn)
+            assertEquals(etternavn, sykmelder.etternavn)
         }
     }
 
     @InternalAPI
     @Test
-    internal fun `Feiler når hprNummer er tomt`() {
+    internal fun `Feiler naar hprNummer er tomt`() {
         val hprNummer = ""
         val fnr = "12345678910"
         val fornavn = "Ola"
@@ -89,13 +89,13 @@ class SykmelderServiceTest {
             val exception = assertFailsWith<IllegalStateException> {
                 sykmelderService.hentSykmelder(hprNummer, "callid")
             }
-            exception.message shouldBeEqualTo "HPR-nummer mangler"
+            assertEquals("HPR-nummer mangler", exception.message)
         }
     }
 
     @InternalAPI
     @Test
-    internal fun `Feiler når sykmelder ikke finnes i hpr`() {
+    internal fun `Feiler naar sykmelder ikke finnes i hpr`() {
         val hprNummer = "1234567"
         val fornavn = "Ola"
         val mellomnavn = "Mellomnavn"
@@ -114,13 +114,13 @@ class SykmelderServiceTest {
             val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "callid")
             }
-            exception.message shouldBeEqualTo "Kunne ikke hente fnr for hpr $hprNummer"
+            assertEquals("Kunne ikke hente fnr for hpr $hprNummer", exception.message)
         }
     }
 
     @InternalAPI
     @Test
-    internal fun `Feiler når aktørid er null`() {
+    internal fun `Feiler naar aktorid er null`() {
         val hprNummer = "1234567"
         val fnr = "12345678910"
         val fornavn = "Ola"
@@ -148,7 +148,7 @@ class SykmelderServiceTest {
             val exception = assertFailsWith<SykmelderNotFoundException> {
                 sykmelderService.hentSykmelder(hprNummer, "callid")
             }
-            exception.message shouldBeEqualTo "Kunne ikke hente aktorId for hpr $hprNummer"
+            assertEquals("Kunne ikke hente aktorId for hpr $hprNummer", exception.message)
         }
     }
 }

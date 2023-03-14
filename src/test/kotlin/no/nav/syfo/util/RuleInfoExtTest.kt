@@ -3,8 +3,8 @@ package no.nav.syfo.util
 import no.nav.syfo.model.RuleInfo
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.WhitelistedRuleHit
-import org.amshove.kluent.shouldBe
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 internal class RuleInfoExtTest {
     @Test
@@ -36,11 +36,11 @@ internal class RuleInfoExtTest {
             )
         )
 
-        ruleHits.isWhitelisted() shouldBe true
+        assertEquals(true, ruleHits.isWhitelisted())
     }
 
     @Test
-    internal fun `Returnerer false hvis én av reglene ikke finnes i WhitelistedRuleHits`() {
+    internal fun `Returnerer false hvis en av reglene ikke finnes i WhitelistedRuleHits`() {
         val ruleHits: List<RuleInfo> = listOf(
             RuleInfo(
                 messageForSender = "",
@@ -62,6 +62,6 @@ internal class RuleInfoExtTest {
             )
         )
 
-        ruleHits.isWhitelisted() shouldBe false
+        assertEquals(false, ruleHits.isWhitelisted())
     }
 }

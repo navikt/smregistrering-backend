@@ -75,11 +75,10 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBe
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -111,7 +110,7 @@ class SendPapirSykmeldingTest {
     private val journalpostService = JournalpostService(dokArkivClient, safJournalpostService)
     private val environment = mockk<Environment>()
 
-    @After
+    @AfterEach
     fun after() {
         database.dropData()
     }
@@ -375,7 +374,7 @@ class SendPapirSykmeldingTest {
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                assertEquals(HttpStatusCode.NoContent, response.status())
             }
 
             verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
@@ -580,7 +579,7 @@ class SendPapirSykmeldingTest {
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.NoContent
+                assertEquals(HttpStatusCode.NoContent, response.status())
             }
 
             with(
@@ -591,7 +590,7 @@ class SendPapirSykmeldingTest {
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.BadRequest
+                assertEquals(HttpStatusCode.BadRequest, response.status())
             }
 
             verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
@@ -795,10 +794,10 @@ class SendPapirSykmeldingTest {
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.BadRequest
-                response.contentType() shouldBeEqualTo ContentType.Application.Json
-                response.content shouldNotBe null
-                response.content!!.lines() shouldBeEqualTo listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}")
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                assertEquals(ContentType.Application.Json, response.contentType())
+                assertEquals(false, response.content.isNullOrEmpty())
+                assertEquals(listOf("{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}"), response.content!!.lines())
             }
         }
     }

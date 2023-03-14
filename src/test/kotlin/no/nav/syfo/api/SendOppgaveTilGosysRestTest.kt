@@ -38,9 +38,8 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.generateJWT
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -188,8 +187,8 @@ class SendOppgaveTilGosysRestTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                response.content shouldBe null
+                assertEquals(HttpStatusCode.NoContent, response.status())
+                assertEquals(null, response.content)
             }
         }
     }
@@ -259,8 +258,8 @@ class SendOppgaveTilGosysRestTest {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                 }
             ) {
-                response.status() shouldBeEqualTo HttpStatusCode.NoContent
-                response.content shouldBe null
+                assertEquals(HttpStatusCode.NoContent, response.status())
+                assertEquals(null, response.content)
             }
         }
     }

@@ -10,8 +10,8 @@ import no.nav.syfo.graphql.model.GraphQLResponse
 import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.saf.model.Journalpost
 import no.nav.syfo.saf.model.JournalpostResponse
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.lang.RuntimeException
 import kotlin.test.assertFailsWith
 
@@ -57,7 +57,7 @@ internal class SafJournalpostServiceTest {
             GraphQLResponse(JournalpostResponse(journalpost = Journalpost("JOURNALFOERT", dokumenter = emptyList())), errors = null)
         coEvery { azureAdV2Client.getOnBehalfOfToken(any(), any()) } returns "token"
 
-        runBlocking { safJournalpostService.erJournalfoert("foo", "bar") } shouldBeEqualTo true
+        runBlocking { assertEquals(true, safJournalpostService.erJournalfoert("foo", "bar")) }
     }
 
     @InternalAPI
@@ -67,6 +67,8 @@ internal class SafJournalpostServiceTest {
             GraphQLResponse(JournalpostResponse(journalpost = Journalpost("MOTTATT", dokumenter = emptyList())), errors = null)
         coEvery { azureAdV2Client.getOnBehalfOfToken(any(), any()) } returns "token"
 
-        runBlocking { safJournalpostService.erJournalfoert("foo", "bar") } shouldBeEqualTo false
+        runBlocking {
+            assertEquals(false, safJournalpostService.erJournalfoert("foo", "bar"))
+        }
     }
 }

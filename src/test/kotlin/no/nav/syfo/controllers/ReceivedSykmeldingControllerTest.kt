@@ -40,11 +40,11 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getReceivedSykmelding
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -66,7 +66,7 @@ class ReceivedSykmeldingControllerTest {
         coEvery { oppgaveClient.oppdaterOppgave(any(), any()) } returns Oppgave(id = 2, oppgavetype = "JFR", aktivDato = LocalDate.now(), prioritet = "")
     }
 
-    @After
+    @AfterEach
     fun after() {
         database.dropData()
     }
@@ -115,17 +115,18 @@ class ReceivedSykmeldingControllerTest {
     fun sletterSykmelding() {
         val sykmeldingId = opprettFerdigstiltPapirsykmelding()
 
-        database.erOpprettManuellOppgave(sykmeldingId) shouldBeEqualTo true
-        database.getSykmelding(sykmeldingId) shouldNotBeEqualTo null
-        database.getJobForSykmeldingId(sykmeldingId) shouldNotBeEqualTo emptyList()
-        database.getSendtSykmeldingHistory(sykmeldingId) shouldNotBeEqualTo null
+        assertEquals(true, database.erOpprettManuellOppgave(sykmeldingId))
+        assertNotNull(database.getSykmelding(sykmeldingId))
+        assertNotNull(database.getSykmelding(sykmeldingId))
+        assertEquals(database.getJobForSykmeldingId(sykmeldingId).isNotEmpty(), true)
+        assertNotNull(database.getSendtSykmeldingHistory(sykmeldingId))
 
         controller.slettSykmelding(sykmeldingId)
 
-        database.erOpprettManuellOppgave(sykmeldingId) shouldBeEqualTo false
-        database.getSykmelding(sykmeldingId) shouldBeEqualTo null
-        database.getJobForSykmeldingId(sykmeldingId) shouldBeEqualTo emptyList()
-        database.getSendtSykmeldingHistory(sykmeldingId) shouldBeEqualTo null
+        assertEquals(false, database.erOpprettManuellOppgave(sykmeldingId))
+        assertEquals(null, database.getSykmelding(sykmeldingId))
+        assertEquals(emptyList<Job>(), database.getJobForSykmeldingId(sykmeldingId))
+        assertEquals(null, database.getSendtSykmeldingHistory(sykmeldingId))
     }
 
     @Test
@@ -134,10 +135,10 @@ class ReceivedSykmeldingControllerTest {
 
         controller.slettSykmelding(UUID.randomUUID().toString())
 
-        database.erOpprettManuellOppgave(sykmeldingId) shouldBeEqualTo true
-        database.getSykmelding(sykmeldingId) shouldNotBeEqualTo null
-        database.getJobForSykmeldingId(sykmeldingId) shouldNotBeEqualTo emptyList()
-        database.getSendtSykmeldingHistory(sykmeldingId) shouldNotBeEqualTo null
+        assertEquals(true, database.erOpprettManuellOppgave(sykmeldingId))
+        assertNotNull(database.getSykmelding(sykmeldingId))
+        assertEquals(true, database.getJobForSykmeldingId(sykmeldingId).isNotEmpty())
+        assertNotNull(database.getSendtSykmeldingHistory(sykmeldingId))
     }
 
     fun opprettPapirSmRegistrering(oppgaveId: String): PapirSmRegistering =

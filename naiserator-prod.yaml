@@ -73,8 +73,6 @@ spec:
   webproxy: false
   secureLogs:
     enabled: true
-  ingresses:
-    - "https://smregistrering-backend.intern.nav.no"
   kafka:
     pool: nav-prod
   env:

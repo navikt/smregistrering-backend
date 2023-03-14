@@ -13,8 +13,8 @@ import no.nav.syfo.pdl.client.model.Navn
 import no.nav.syfo.pdl.client.model.PdlResponse
 import no.nav.syfo.pdl.error.AktoerNotFoundException
 import no.nav.syfo.pdl.error.PersonNotFoundInPdl
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 internal class PdlServiceTest {
@@ -30,15 +30,15 @@ internal class PdlServiceTest {
 
         runBlocking {
             val person = pdlService.getPdlPerson("01245678901", "callId")
-            person.navn.fornavn shouldBeEqualTo "fornavn"
-            person.navn.mellomnavn shouldBeEqualTo null
-            person.navn.etternavn shouldBeEqualTo "etternavn"
-            person.aktorId shouldBeEqualTo "987654321"
+            assertEquals("fornavn", person.navn.fornavn)
+            assertEquals(null, person.navn.mellomnavn)
+            assertEquals("etternavn", person.navn.etternavn)
+            assertEquals("987654321", person.aktorId)
         }
     }
 
     @Test
-    internal fun `Skal feile når person ikke finnes`() {
+    internal fun `Skal feile naar person ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(null, null),
@@ -50,11 +50,11 @@ internal class PdlServiceTest {
                 pdlService.getPdlPerson("123", "callId")
             }
         }
-        exception.message shouldBeEqualTo "Klarte ikke hente ut person fra PDL"
+        assertEquals("Klarte ikke hente ut person fra PDL", exception.message)
     }
 
     @Test
-    internal fun `Skal feile når navn er tom liste`() {
+    internal fun `Skal feile naar navn er tom liste`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
@@ -70,11 +70,11 @@ internal class PdlServiceTest {
                 pdlService.getPdlPerson("123", "callId")
             }
         }
-        exception.message shouldBeEqualTo "Fant ikke navn på person i PDL"
+        assertEquals("Fant ikke navn på person i PDL", exception.message)
     }
 
     @Test
-    internal fun `Skal feile når navn ikke finnes`() {
+    internal fun `Skal feile naar navn ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
@@ -98,11 +98,11 @@ internal class PdlServiceTest {
                 pdlService.getPdlPerson("123", "callId")
             }
         }
-        exception.message shouldBeEqualTo "Fant ikke navn på person i PDL"
+        assertEquals("Fant ikke navn på person i PDL", exception.message)
     }
 
     @Test
-    internal fun `Skal feile når aktørid ikke finnes`() {
+    internal fun `Skal feile naar aktorid ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
@@ -118,6 +118,6 @@ internal class PdlServiceTest {
                 pdlService.getPdlPerson("123", "callId")
             }
         }
-        exception.message shouldBeEqualTo "Fant ikke aktørId i PDL"
+        assertEquals("Fant ikke aktørId i PDL", exception.message)
     }
 }

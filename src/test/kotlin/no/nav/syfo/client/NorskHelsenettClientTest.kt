@@ -9,9 +9,9 @@ import no.nav.syfo.objectMapper
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.testutil.HttpClientTest
 import no.nav.syfo.testutil.ResponseData
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 internal class NorskHelsenettClientTest {
@@ -24,7 +24,7 @@ internal class NorskHelsenettClientTest {
         httpClient.httpClient
     )
 
-    @Before
+    @BeforeEach
     internal fun beforeTest() {
         coEvery { azureAdV2Client.getAccessToken(any()) } returns "token"
     }
@@ -40,7 +40,7 @@ internal class NorskHelsenettClientTest {
         runBlocking {
             val behandler = norskHelsenettClient.finnBehandler("hpr", "callid")
 
-            behandler.fnr shouldBeEqualTo "12345678910"
+            assertEquals("12345678910", behandler.fnr)
         }
     }
 

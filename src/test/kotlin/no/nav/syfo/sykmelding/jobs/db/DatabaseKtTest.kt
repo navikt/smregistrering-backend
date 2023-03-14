@@ -16,12 +16,11 @@ import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.util.getReceivedSykmelding
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBe
-import org.amshove.kluent.shouldNotBeEqualTo
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
 import java.time.Clock
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -38,7 +37,7 @@ class DatabaseKtTest {
         coEvery { delay(3_000) } returns Unit
     }
 
-    @After
+    @AfterEach
     fun beforeEach() {
         testDb.dropData()
     }
@@ -55,13 +54,13 @@ class DatabaseKtTest {
         testDb.insertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
-        job shouldBe null
+        assertNull(job)
 
         val updated = testDb.resetJobs()
-        updated shouldBe 0
+        assertEquals(0, updated)
 
         val nextJob = testDb.getNextJob()
-        nextJob shouldBe null
+        assertNull(nextJob)
     }
 
     @Test
@@ -76,13 +75,13 @@ class DatabaseKtTest {
         testDb.insertJobs(listOf(inProgress))
 
         val job = testDb.getNextJob()
-        job shouldBe null
+        assertNull(job)
 
         val updated = testDb.resetJobs()
-        updated shouldBe 1
+        assertEquals(1, updated)
 
         val nextJob = testDb.getNextJob()
-        nextJob shouldNotBe null
+        assertNotNull(nextJob)
     }
 
     @Test
@@ -100,8 +99,8 @@ class DatabaseKtTest {
         )
         val savedSykmelding = testDb.getSykmelding(sykmeldingId.toString())
         val savedNotUpdatedSykmelding = testDb.getSykmelding(notUpdated.sykmelding.id)
-        savedSykmelding?.personNrPasient shouldBeEqualTo "3"
-        savedNotUpdatedSykmelding?.personNrPasient shouldBeEqualTo "4"
+        assertEquals("3", savedSykmelding?.personNrPasient)
+        assertEquals("4", savedNotUpdatedSykmelding?.personNrPasient)
     }
 
     @Test
@@ -110,7 +109,7 @@ class DatabaseKtTest {
         val jobs = listOf(newJob)
         testDb.insertJobs(jobs)
         val savedJob = testDb.getJob(JOB_STATUS.NEW).first()
-        savedJob shouldBeEqualTo newJob
+        assertEquals(newJob, savedJob)
     }
 
     @Test
@@ -118,7 +117,7 @@ class DatabaseKtTest {
         insertSykmelding()
         testDb.insertJobs(listOf(newJob))
         val inprogressJob = testDb.getNextJob()
-        inprogressJob!!.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
+        assertEquals(JOB_STATUS.IN_PROGRESS, inprogressJob!!.status)
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -140,7 +139,7 @@ class DatabaseKtTest {
 
             job.join()
             job2.join()
-            firstJob shouldNotBeEqualTo secondJob
+            assertEquals(secondJob?.equals(firstJob) ?: false, false)
         }
     }
 
@@ -149,13 +148,13 @@ class DatabaseKtTest {
         insertSykmelding()
         testDb.insertJobs(listOf(newJob))
         val job = testDb.getNextJob()
-        job?.status shouldBeEqualTo JOB_STATUS.IN_PROGRESS
+        assertEquals(JOB_STATUS.IN_PROGRESS, job?.status)
 
         testDb.updateJob(job!!.copy(updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)), status = JOB_STATUS.DONE))
 
         val doneJob = testDb.getJobForSykmeldingId(sykmeldingId = sykmeldingId.toString())
 
-        doneJob.size shouldBeEqualTo 1
+        assertEquals(1, doneJob.size)
     }
 
     private fun insertSykmelding() {

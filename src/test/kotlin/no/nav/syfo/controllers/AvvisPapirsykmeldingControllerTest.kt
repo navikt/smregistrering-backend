@@ -22,8 +22,8 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -63,7 +63,7 @@ class AvvisPapirsykmeldingControllerTest {
 
         runBlocking {
             val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, "token", "123", "reason")
-            avvisPapirsykmelding.httpStatusCode shouldBeEqualTo HttpStatusCode.NoContent
+            assertEquals(HttpStatusCode.NoContent, avvisPapirsykmelding.httpStatusCode)
         }
     }
 
@@ -75,7 +75,7 @@ class AvvisPapirsykmeldingControllerTest {
 
         runBlocking {
             val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, "token", "123", "reason")
-            avvisPapirsykmelding.httpStatusCode shouldBeEqualTo HttpStatusCode.Forbidden
+            assertEquals(HttpStatusCode.Forbidden, avvisPapirsykmelding.httpStatusCode)
         }
     }
 
@@ -104,13 +104,16 @@ class AvvisPapirsykmeldingControllerTest {
     fun lagOppgavebeskrivelseLagerRiktigBeskrivelseMedAvvisningsarsak() {
         val avvisSykmeldingReason = "Feil avventende periode"
         val oppdatertBeskrivelse = avvisPapirsykmeldingController.lagOppgavebeskrivelse(avvisSykmeldingReason, opprinneligBeskrivelse, veileder, enhet, timestamp)
-        oppdatertBeskrivelse shouldBeEqualTo "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
-            "Avvist papirsykmelding med årsak: Feil avventende periode\n" +
-            "\n" +
-            "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
-            "Viktig beskrivelse!\n" +
-            "\n" +
-            "Manuell registrering av sykmelding mottatt på papir"
+        assertEquals(
+            "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
+                "Avvist papirsykmelding med årsak: Feil avventende periode\n" +
+                "\n" +
+                "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
+                "Viktig beskrivelse!\n" +
+                "\n" +
+                "Manuell registrering av sykmelding mottatt på papir",
+            oppdatertBeskrivelse
+        )
     }
 
     @Test
@@ -125,13 +128,16 @@ class AvvisPapirsykmeldingControllerTest {
             timestamp
         )
 
-        oppdatertBeskrivelse shouldBeEqualTo "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
-            "Avvist papirsykmelding uten oppgitt årsak.\n" +
-            "\n" +
-            "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
-            "Viktig beskrivelse!\n" +
-            "\n" +
-            "Manuell registrering av sykmelding mottatt på papir"
+        assertEquals(
+            "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
+                "Avvist papirsykmelding uten oppgitt årsak.\n" +
+                "\n" +
+                "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
+                "Viktig beskrivelse!\n" +
+                "\n" +
+                "Manuell registrering av sykmelding mottatt på papir",
+            oppdatertBeskrivelse
+        )
     }
 
     fun getManuellOppgaveDTO(oppgaveId: Int): ManuellOppgaveDTO {

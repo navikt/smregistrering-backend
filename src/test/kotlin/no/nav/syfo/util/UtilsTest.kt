@@ -2,8 +2,8 @@ package no.nav.syfo.util
 
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
-import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class UtilsTest {
 
@@ -23,9 +23,9 @@ class UtilsTest {
 
         val changedGodkjenninger = changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger)
 
-        godkjenninger.zip(changedGodkjenninger).all { (x, y) -> x == y } shouldBeEqualTo false
-        changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA" }?.helsepersonellkategori?.verdi shouldBeEqualTo null
-        changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA1" }?.helsepersonellkategori?.verdi shouldBeEqualTo "FA1"
+        assertEquals(false, godkjenninger.zip(changedGodkjenninger).all { (x, y) -> x == y })
+        assertEquals(null, changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA" }?.helsepersonellkategori?.verdi)
+        assertEquals("FA1", changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA1" }?.helsepersonellkategori?.verdi)
     }
 
     @Test
@@ -44,8 +44,8 @@ class UtilsTest {
 
         val changedGodkjenninger = changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger)
 
-        godkjenninger.zip(changedGodkjenninger).all { (x, y) -> x == y } shouldBeEqualTo true
-        changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA" }?.helsepersonellkategori?.verdi shouldBeEqualTo null
-        changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA1" }?.helsepersonellkategori?.verdi shouldBeEqualTo "FA1"
+        assertEquals(true, godkjenninger.zip(changedGodkjenninger).all { (x, y) -> x == y })
+        assertEquals(null, changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA" }?.helsepersonellkategori?.verdi)
+        assertEquals("FA1", changedGodkjenninger.firstOrNull { it.helsepersonellkategori?.verdi == "FA1" }?.helsepersonellkategori?.verdi)
     }
 }
