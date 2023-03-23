@@ -26,6 +26,7 @@ class TestDB : DatabaseInterface {
     companion object {
         var database: DatabaseInterface
         private val psqlContainer: PsqlContainer = PsqlContainer()
+            .withCommand("postgres", "-c", "wal_level=logical")
             .withExposedPorts(5432)
             .withUsername("username")
             .withPassword("password")
