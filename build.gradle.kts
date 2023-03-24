@@ -11,9 +11,9 @@ val logstashEncoderVersion = "7.3"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.9.0"
 val jacksonVersion = "2.14.2"
-val smCommonVersion = "1.fbf33a9"
+val smCommonVersion = "1.9df1108"
 val kafkaEmbeddedVersion = "2.8.0"
-val postgresVersion = "42.5.1"
+val postgresVersion = "42.5.2"
 val flywayVersion = "9.4.0"
 val hikariVersion = "5.0.1"
 val nimbusdsVersion = "9.25.6"
@@ -31,7 +31,7 @@ val jaxwsToolsVersion = "2.3.1"
 val javaxJaxwsApiVersion = "2.2.1"
 val javaTimeAdapterVersion = "1.1.3"
 val commonsTextVersion = "1.10.0"
-val kafkaVersion = "3.3.1"
+val kafkaVersion = "3.4.0"
 val caffeineVersion = "3.1.1"
 val postgresContainerVersion = "1.17.4"
 val kotlinVersion = "1.8.10"
@@ -41,14 +41,7 @@ val commonsCodecVersion = "1.15"
 plugins {
     kotlin("jvm") version "1.8.10"
     id("org.jmailen.kotlinter") version "3.10.0"
-    id("com.github.johnrengelman.shadow") version "8.1.0"
-}
-
-buildscript {
-    repositories {
-    }
-    dependencies {
-    }
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 val githubUser: String by project
