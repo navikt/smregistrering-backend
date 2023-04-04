@@ -71,6 +71,14 @@ spec:
         - application: syfosmpapirregler
           namespace: teamsykmelding
           cluster: dev-gcp
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
+        - host: syfohelsenettproxy.dev-fss-pub.nais.io
+        - host: saf.dev-fss-pub.nais.io
+        - host: oppgave-q1.dev-fss-pub.nais.io
+        - host: syfo-tilgangskontroll.dev-fss-pub.nais.io
+        - host: graph.microsoft.com
+        - host: smgcp-proxy.dev-fss-pub.nais.io
   vault:
     enabled: false
   webproxy: false
