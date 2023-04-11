@@ -29,7 +29,7 @@ class DokArkivClient(
     private val url: String,
     private val azureAdV2Client: AzureAdV2Client,
     private val scope: String,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) {
 
     suspend fun oppdaterOgFerdigstillJournalpost(
@@ -41,16 +41,23 @@ class DokArkivClient(
         loggingMeta: LoggingMeta,
         navEnhet: String,
         avvist: Boolean,
-        receivedSykmelding: ReceivedSykmelding?
+        receivedSykmelding: ReceivedSykmelding?,
     ): String? {
         oppdaterJournalpost(
-            journalpostId = journalpostId, dokumentInfoId = dokumentInfoId, pasientFnr = pasientFnr,
-            sykmelder = sykmelder, avvist = avvist, msgId = sykmeldingId, receivedSykmelding = receivedSykmelding,
-            loggingMeta = loggingMeta
+            journalpostId = journalpostId,
+            dokumentInfoId = dokumentInfoId,
+            pasientFnr = pasientFnr,
+            sykmelder = sykmelder,
+            avvist = avvist,
+            msgId = sykmeldingId,
+            receivedSykmelding = receivedSykmelding,
+            loggingMeta = loggingMeta,
         )
         return ferdigstillJournalpost(
-            journalpostId = journalpostId, msgId = sykmeldingId, loggingMeta = loggingMeta,
-            navEnhet = navEnhet
+            journalpostId = journalpostId,
+            msgId = sykmeldingId,
+            loggingMeta = loggingMeta,
+            navEnhet = navEnhet,
         )
     }
 
@@ -62,7 +69,7 @@ class DokArkivClient(
         avvist: Boolean,
         msgId: String,
         receivedSykmelding: ReceivedSykmelding?,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
     ) {
         val httpResponse = httpClient.put("$url/$journalpostId") {
             contentType(ContentType.Application.Json)
@@ -75,7 +82,7 @@ class DokArkivClient(
                 OppdaterJournalpost(
                     avsenderMottaker = AvsenderMottaker(
                         id = padHpr(sykmelder.hprNummer),
-                        navn = finnNavn(sykmelder)
+                        navn = finnNavn(sykmelder),
                     ),
                     bruker = Bruker(id = pasientFnr),
                     sak = Sak(),
@@ -84,8 +91,8 @@ class DokArkivClient(
                         listOf(DokumentInfo(dokumentInfoId = dokumentInfoId, tittel = getTittel(avvist, receivedSykmelding)))
                     } else {
                         null
-                    }
-                )
+                    },
+                ),
             )
         }
         when (httpResponse.status) {
@@ -123,7 +130,7 @@ class DokArkivClient(
         journalpostId: String,
         msgId: String,
         loggingMeta: LoggingMeta,
-        navEnhet: String
+        navEnhet: String,
     ): String {
         val httpResponse = httpClient.patch("$url/$journalpostId/ferdigstill") {
             contentType(ContentType.Application.Json)
@@ -200,7 +207,7 @@ class DokArkivClient(
     }
 
     data class FerdigstillJournal(
-        val journalfoerendeEnhet: String
+        val journalfoerendeEnhet: String,
     )
 
     data class OppdaterJournalpost(
@@ -209,26 +216,26 @@ class DokArkivClient(
         val bruker: Bruker,
         val sak: Sak,
         val tittel: String,
-        val dokumenter: List<DokumentInfo>?
+        val dokumenter: List<DokumentInfo>?,
     )
 
     data class AvsenderMottaker(
         val id: String?,
         val idType: String = "HPRNR",
-        val navn: String
+        val navn: String,
     )
 
     data class Bruker(
         val id: String,
-        val idType: String = "FNR"
+        val idType: String = "FNR",
     )
 
     data class Sak(
-        val sakstype: String = "GENERELL_SAK"
+        val sakstype: String = "GENERELL_SAK",
     )
 
     data class DokumentInfo(
         val dokumentInfoId: String,
-        val tittel: String?
+        val tittel: String?,
     )
 }

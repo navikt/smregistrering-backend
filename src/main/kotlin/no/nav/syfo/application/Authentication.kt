@@ -17,7 +17,7 @@ val ignoreList = listOf("/is_ready", "/is_alive", "/prometheus")
 fun Application.setupAuth(
     environment: Environment,
     jwkProvider: JwkProvider,
-    issuer: String
+    issuer: String,
 ) {
     install(Authentication) {
         jwt(name = "jwt") {
@@ -38,7 +38,7 @@ fun unauthorized(credentials: JWTCredential): Principal? {
     log.warn(
         "Auth: Unexpected audience for jwt {}, {}",
         StructuredArguments.keyValue("issuer", credentials.payload.issuer),
-        StructuredArguments.keyValue("audience", credentials.payload.audience)
+        StructuredArguments.keyValue("audience", credentials.payload.audience),
     )
     return null
 }

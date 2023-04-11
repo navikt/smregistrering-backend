@@ -122,7 +122,7 @@ internal class HentPapirSykmeldingTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -138,9 +138,9 @@ internal class HentPapirSykmeldingTest {
                         egetArbeidPaSikt = true,
                         annetArbeidPaSikt = false,
                         arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now()
+                        vurderingsdato = LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -148,25 +148,27 @@ internal class HentPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 hentPapirSykmeldingManuellOppgave(
                     manuellOppgaveDAO,
                     safDokumentClient,
                     sendTilGosysController,
-                    authorizationService
+                    authorizationService,
                 )
             }
 
@@ -203,7 +205,7 @@ internal class HentPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
             coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
                 Samhandler(
@@ -218,8 +220,8 @@ internal class HentPapirSykmeldingTest {
                     godkjent_for_fil = "0",
                     endringslogg_tidspunkt_siste = Calendar.getInstance().time,
                     samh_praksis = listOf(),
-                    samh_ident = listOf()
-                )
+                    samh_ident = listOf(),
+                ),
             )
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -231,12 +233,12 @@ internal class HentPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
-                ruleHits = emptyList()
+                ruleHits = emptyList(),
             )
 
             with(
@@ -244,7 +246,7 @@ internal class HentPapirSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(true, response.content?.contains("\"aktorId\":\"1314\""))
@@ -255,7 +257,7 @@ internal class HentPapirSykmeldingTest {
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
             }
@@ -264,7 +266,6 @@ internal class HentPapirSykmeldingTest {
 
     @Test
     fun `Hent papirsykmelding papir_sm_registrering = null`() {
-
         val oppgaveid = 308076319
 
         val manuellOppgave = PapirSmRegistering(
@@ -285,7 +286,7 @@ internal class HentPapirSykmeldingTest {
                 null,
                 null,
                 Adresse(null, null, null, null, null),
-                "12345"
+                "12345",
             ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
@@ -301,9 +302,9 @@ internal class HentPapirSykmeldingTest {
                     egetArbeidPaSikt = true,
                     annetArbeidPaSikt = false,
                     arbeidFOM = LocalDate.now(),
-                    vurderingsdato = LocalDate.now()
+                    vurderingsdato = LocalDate.now(),
                 ),
-                null
+                null,
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -311,12 +312,12 @@ internal class HentPapirSykmeldingTest {
                 annenFraversArsak = null,
                 yrkesskadeDato = null,
                 yrkesskade = false,
-                svangerskap = false
+                svangerskap = false,
             ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
-            skjermesForPasient = false
+            skjermesForPasient = false,
         )
 
         opprettManuellOppgaveNullPapirsm(database.connection, manuellOppgave, oppgaveid)
@@ -339,7 +340,7 @@ internal class HentPapirSykmeldingTest {
             prioritet = "",
             saksreferanse = "",
             tema = "",
-            status = "OPPRETTET"
+            status = "OPPRETTET",
         )
 
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
@@ -359,7 +360,7 @@ internal class HentPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } throws SafNotFoundException("Saf returnerte: httpstatus 200")
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
@@ -387,7 +388,7 @@ internal class HentPapirSykmeldingTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -403,9 +404,9 @@ internal class HentPapirSykmeldingTest {
                         egetArbeidPaSikt = true,
                         annetArbeidPaSikt = false,
                         arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now()
+                        vurderingsdato = LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -413,18 +414,20 @@ internal class HentPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 authenticate("jwt") {
@@ -432,7 +435,7 @@ internal class HentPapirSykmeldingTest {
                         manuellOppgaveDAO,
                         safDokumentClient,
                         sendTilGosysController,
-                        authorizationService
+                        authorizationService,
                     )
                 }
             }
@@ -468,7 +471,7 @@ internal class HentPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             with(
@@ -476,7 +479,7 @@ internal class HentPapirSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.Gone, response.status())
                 assertEquals("SENT_TO_GOSYS", response.content)
@@ -497,13 +500,13 @@ internal class HentPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } throws SafForbiddenException("Du har ikke tilgang")
             coEvery {
                 syfoTilgangsKontrollClient.hasAccess(
                     any(),
-                    any()
+                    any(),
                 )
             } returns Tilgang(true)
 
@@ -530,7 +533,7 @@ internal class HentPapirSykmeldingTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -546,9 +549,9 @@ internal class HentPapirSykmeldingTest {
                         egetArbeidPaSikt = true,
                         annetArbeidPaSikt = false,
                         arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now()
+                        vurderingsdato = LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -556,18 +559,20 @@ internal class HentPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 authenticate("jwt") {
@@ -575,7 +580,7 @@ internal class HentPapirSykmeldingTest {
                         manuellOppgaveDAO,
                         safDokumentClient,
                         sendTilGosysController,
-                        authorizationService
+                        authorizationService,
                     )
                 }
             }
@@ -611,7 +616,7 @@ internal class HentPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             with(
@@ -619,7 +624,7 @@ internal class HentPapirSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.Forbidden, response.status())
             }
@@ -631,7 +636,7 @@ internal class HentPapirSykmeldingTest {
     private fun opprettManuellOppgaveNullPapirsm(
         databaseConnection: Connection,
         papirSmRegistering: PapirSmRegistering,
-        oppgaveId: Int
+        oppgaveId: Int,
     ) {
         databaseConnection.use { connection ->
             connection.prepareStatement(
@@ -648,7 +653,7 @@ internal class HentPapirSykmeldingTest {
                 papir_sm_registrering
                 )
             VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+            """,
             ).use {
                 it.setString(1, papirSmRegistering.sykmeldingId)
                 it.setString(2, papirSmRegistering.journalpostId)

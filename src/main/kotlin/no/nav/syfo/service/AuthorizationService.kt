@@ -5,19 +5,19 @@ import no.nav.syfo.client.SyfoTilgangsKontrollClient
 
 class AuthorizationService(
     private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
-    private val msGraphClient: MSGraphClient
+    private val msGraphClient: MSGraphClient,
 ) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
         return syfoTilgangsKontrollClient.hasAccess(
             accessToken,
-            pasientFnr
+            pasientFnr,
         ).harTilgang
     }
 
     suspend fun hasSuperuserAccess(accessToken: String, pasientFnr: String): Boolean {
         return syfoTilgangsKontrollClient.hasSuperuserAccess(
             accessToken,
-            pasientFnr
+            pasientFnr,
         ).harTilgang
     }
 
@@ -29,5 +29,5 @@ class AuthorizationService(
 }
 
 class Veileder(
-    val veilederIdent: String
+    val veilederIdent: String,
 )

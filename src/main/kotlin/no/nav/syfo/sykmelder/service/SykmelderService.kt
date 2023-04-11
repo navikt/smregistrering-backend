@@ -9,7 +9,7 @@ import no.nav.syfo.util.changeHelsepersonellkategoriVerdiFromFAToFA1
 
 class SykmelderService(
     private val norskHelsenettClient: NorskHelsenettClient,
-    private val pdlPersonService: PdlPersonService
+    private val pdlPersonService: PdlPersonService,
 ) {
 
     suspend fun hentSykmelder(hprNummer: String, callId: String): Sykmelder {
@@ -43,7 +43,7 @@ class SykmelderService(
             fornavn = pdlPerson.navn.fornavn,
             mellomnavn = pdlPerson.navn.mellomnavn,
             etternavn = pdlPerson.navn.etternavn,
-            godkjenninger = godkjenninger
+            godkjenninger = godkjenninger,
         )
     }
 }

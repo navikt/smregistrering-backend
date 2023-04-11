@@ -15,7 +15,7 @@ fun DatabaseInterface.upsertSendtSykmelding(receivedSykmelding: ReceivedSykmeldi
         connection.prepareStatement(
             """
            insert into sendt_sykmelding(sykmelding_id, sykmelding, timestamp) values (?, ?, ?) on conflict (sykmelding_id) do update set sykmelding = ?
-        """
+        """,
         ).use { ps ->
             ps.setString(1, receivedSykmelding.sykmelding.id)
             ps.setObject(2, toPGObject(receivedSykmelding))
@@ -33,7 +33,7 @@ fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: Sendt
             """
            INSERT INTO sendt_sykmelding_history(id, sykmelding_id, ferdigstilt_av, dato_ferdigstilt, sykmelding) 
            VALUES (?, ?, ?, ?, ?) 
-        """
+        """,
         ).use { ps ->
             ps.setString(1, sendtSykmeldingHistory.id)
             ps.setString(2, sendtSykmeldingHistory.sykmeldingId)
@@ -51,7 +51,7 @@ fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
         it.prepareStatement(
             """
             select * from sendt_sykmelding where sykmelding_id = ?
-        """
+        """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeQuery().toReceivedSykmelding()

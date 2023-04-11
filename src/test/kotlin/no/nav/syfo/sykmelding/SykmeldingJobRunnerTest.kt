@@ -31,7 +31,7 @@ class SykmeldingJobRunnerTest {
     val service = SykmeldingJobRunner(
         applicationState,
         sendtSykmeldingService,
-        kafkaReceivedSykmeldingProducer
+        kafkaReceivedSykmeldingProducer,
     )
 
     init {
@@ -94,9 +94,9 @@ class SykmeldingJobRunnerTest {
                     sykmelding.sykmelding.id,
                     JOB_NAME.SENDT_SYKMELDING,
                     JOB_STATUS.IN_PROGRESS,
-                    OffsetDateTime.now().minusMinutes(59)
-                )
-            )
+                    OffsetDateTime.now().minusMinutes(59),
+                ),
+            ),
         )
         var jobCount = 0
         every { sendtSykmeldingService.getNextJob() } answers {
@@ -121,9 +121,9 @@ class SykmeldingJobRunnerTest {
                     sykmelding.sykmelding.id,
                     JOB_NAME.SENDT_SYKMELDING,
                     JOB_STATUS.IN_PROGRESS,
-                    OffsetDateTime.now().minusMinutes(61)
-                )
-            )
+                    OffsetDateTime.now().minusMinutes(61),
+                ),
+            ),
         )
         var jobCount = 0
         every { sendtSykmeldingService.getNextJob() } answers {

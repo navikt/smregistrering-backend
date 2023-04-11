@@ -9,14 +9,14 @@ import no.nav.syfo.util.LoggingMeta
 
 class JournalpostService(
     private val dokArkivClient: DokArkivClient,
-    private val safJournalpostService: SafJournalpostService
+    private val safJournalpostService: SafJournalpostService,
 ) {
 
     suspend fun ferdigstillJournalpost(
         accessToken: String,
         ferdigstillRegistrering: FerdigstillRegistrering,
         receivedSykmelding: ReceivedSykmelding?,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
     ) {
         if (!safJournalpostService.erJournalfoert(journalpostId = ferdigstillRegistrering.journalpostId, token = accessToken)) {
             dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -28,12 +28,12 @@ class JournalpostService(
                 loggingMeta = loggingMeta,
                 navEnhet = ferdigstillRegistrering.navEnhet,
                 avvist = ferdigstillRegistrering.avvist,
-                receivedSykmelding = receivedSykmelding
+                receivedSykmelding = receivedSykmelding,
             )
         } else {
             log.info(
                 "Hopper over oppdaterOgFerdigstillJournalpost, " +
-                    "journalpostId ${ferdigstillRegistrering.journalpostId} er allerede journalført"
+                    "journalpostId ${ferdigstillRegistrering.journalpostId} er allerede journalført",
             )
         }
     }

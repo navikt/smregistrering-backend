@@ -63,7 +63,9 @@ class SendOppgaveTilGosysRestTest {
             start()
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
@@ -110,7 +112,7 @@ class SendOppgaveTilGosysRestTest {
                     "hpr",
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -126,9 +128,9 @@ class SendOppgaveTilGosysRestTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -136,12 +138,12 @@ class SendOppgaveTilGosysRestTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             val manuellOppgaveDTO = ManuellOppgaveDTO(
@@ -154,7 +156,7 @@ class SendOppgaveTilGosysRestTest {
                 oppgaveid = oppgaveid,
                 papirSmRegistering = papirSmRegistering,
                 ferdigstilt = false,
-                pdfPapirSykmelding = null
+                pdfPapirSykmelding = null,
             )
 
             coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
@@ -176,7 +178,7 @@ class SendOppgaveTilGosysRestTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             with(
@@ -185,7 +187,7 @@ class SendOppgaveTilGosysRestTest {
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
                 assertEquals(null, response.content)
@@ -199,7 +201,9 @@ class SendOppgaveTilGosysRestTest {
             start()
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
@@ -247,7 +251,7 @@ class SendOppgaveTilGosysRestTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             with(
@@ -256,7 +260,7 @@ class SendOppgaveTilGosysRestTest {
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
                 assertEquals(null, response.content)

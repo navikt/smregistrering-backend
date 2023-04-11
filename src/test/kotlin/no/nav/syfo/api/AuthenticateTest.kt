@@ -91,8 +91,8 @@ internal class AuthenticateTest {
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             val oppgaveid = 308076319
@@ -115,7 +115,7 @@ internal class AuthenticateTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -131,9 +131,9 @@ internal class AuthenticateTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -141,18 +141,20 @@ internal class AuthenticateTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 authenticate("jwt") {
@@ -160,7 +162,7 @@ internal class AuthenticateTest {
                         manuellOppgaveDAO,
                         safDokumentClient,
                         sendTilGosysController,
-                        authorizationService
+                        authorizationService,
                     )
                 }
             }
@@ -183,7 +185,7 @@ internal class AuthenticateTest {
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(oppgaveid, objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid)
@@ -218,7 +220,7 @@ internal class AuthenticateTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -234,9 +236,9 @@ internal class AuthenticateTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -244,18 +246,20 @@ internal class AuthenticateTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 authenticate("jwt") {
@@ -263,7 +267,7 @@ internal class AuthenticateTest {
                         manuellOppgaveDAO,
                         safDokumentClient,
                         sendTilGosysController,
-                        authorizationService
+                        authorizationService,
                     )
                 }
             }
@@ -286,7 +290,7 @@ internal class AuthenticateTest {
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())
                 assertEquals(null, response.content)

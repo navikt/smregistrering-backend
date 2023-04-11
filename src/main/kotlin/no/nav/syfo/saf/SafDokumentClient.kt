@@ -16,7 +16,7 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 class SafDokumentClient constructor(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) {
     private val url: String = environment.safV1Url
     private val scope: String = environment.safScope
@@ -26,9 +26,8 @@ class SafDokumentClient constructor(
         dokumentInfoId: String,
         msgId: String,
         accessToken: String,
-        sykmeldingId: String
+        sykmeldingId: String,
     ): ByteArray {
-
         val oboToken = azureAdV2Client.getOnBehalfOfToken(accessToken, scope)
 
         val httpResponse =
@@ -81,13 +80,13 @@ class SafDokumentClient constructor(
         dokumentInfoId: String,
         msgId: String,
         accessToken: String,
-        sykmeldingId: String
+        sykmeldingId: String,
     ): ByteArray? {
         log.info(
             "Henter dokument fra sykmeldingId {}, journalpostId {}, og dokumentInfoId {}",
             sykmeldingId,
             journalpostId,
-            dokumentInfoId
+            dokumentInfoId,
         )
         return hentDokumentFraSaf(journalpostId, dokumentInfoId, msgId, accessToken, sykmeldingId)
     }

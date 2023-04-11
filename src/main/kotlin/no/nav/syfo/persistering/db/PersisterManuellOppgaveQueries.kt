@@ -23,7 +23,7 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
                 papir_sm_registrering
                 )
             VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+            """,
         ).use {
             it.setString(1, papirSmRegistering.sykmeldingId)
             it.setString(2, papirSmRegistering.journalpostId)
@@ -48,7 +48,7 @@ fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
                 SELECT *
                 FROM MANUELLOPPGAVE
                 WHERE id=?;
-                """
+                """,
         ).use {
             it.setString(1, sykmledingsId)
             it.executeQuery().next()
@@ -59,7 +59,7 @@ fun DatabaseInterface.ferdigstillSmRegistering(
     sykmeldingId: String,
     utfall: String,
     ferdigstiltAv: String,
-    avvisningsgrunn: String? = null
+    avvisningsgrunn: String? = null,
 ): Int =
     connection.use { connection ->
         val status = connection.prepareStatement(
@@ -71,7 +71,7 @@ fun DatabaseInterface.ferdigstillSmRegistering(
                 dato_ferdigstilt = ?,
                 avvisningsgrunn = ?
             WHERE id = ?;
-            """
+            """,
         ).use {
             it.setBoolean(1, true)
             it.setString(2, utfall)
@@ -91,7 +91,7 @@ fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
             """
             DELETE FROM sendt_sykmelding_history
             WHERE sykmelding_id = ?;
-            """
+            """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeUpdate()
@@ -100,7 +100,7 @@ fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
             """
             DELETE FROM MANUELLOPPGAVE
             WHERE id = ?;
-            """
+            """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeUpdate()
@@ -109,7 +109,7 @@ fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
             """
             DELETE FROM job
             WHERE sykmelding_id = ?;
-            """
+            """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeUpdate()
@@ -118,7 +118,7 @@ fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
             """
             DELETE FROM sendt_sykmelding
             WHERE sykmelding_id = ?;
-            """
+            """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeUpdate()

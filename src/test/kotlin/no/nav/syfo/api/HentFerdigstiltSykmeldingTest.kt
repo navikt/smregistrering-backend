@@ -90,7 +90,7 @@ internal class HentFerdigstiltSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns "stringy string".toByteArray()
             coEvery { authorizationService.hasSuperuserAccess(any(), any()) } returns true
@@ -102,7 +102,7 @@ internal class HentFerdigstiltSykmeldingTest {
             coEvery { syfosmregisterService.hentSykmelding(any()) } returns PapirsykmeldingDTO(
                 pasientFnr = "12345678912",
                 mottattTidspunkt = OffsetDateTime.now(),
-                sykmelding = getReceivedSykmelding(fnrPasient = "41424", sykmelderFnr = "12345678912").sykmelding
+                sykmelding = getReceivedSykmelding(fnrPasient = "41424", sykmelderFnr = "12345678912").sykmelding,
             )
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
@@ -125,7 +125,7 @@ internal class HentFerdigstiltSykmeldingTest {
                     null,
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -141,9 +141,9 @@ internal class HentFerdigstiltSykmeldingTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -151,12 +151,12 @@ internal class HentFerdigstiltSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             val smRegisteringManuell = SmRegistreringManuell(
@@ -169,27 +169,27 @@ internal class HentFerdigstiltSykmeldingTest {
                         aktivitetIkkeMulig = AktivitetIkkeMulig(
                             medisinskArsak = MedisinskArsak(
                                 beskrivelse = "test data",
-                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET),
                             ),
-                            arbeidsrelatertArsak = null
+                            arbeidsrelatertArsak = null,
                         ),
                         avventendeInnspillTilArbeidsgiver = null,
                         behandlingsdager = null,
                         gradert = null,
-                        reisetilskudd = false
-                    )
+                        reisetilskudd = false,
+                    ),
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(
                         system = "2.16.578.1.12.4.1.1.7170",
                         kode = "A070",
-                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                     ),
                     biDiagnoser = listOf(),
                     svangerskap = false,
                     yrkesskade = false,
                     yrkesskadeDato = null,
-                    annenFraversArsak = null
+                    annenFraversArsak = null,
                 ),
                 syketilfelleStartDato = LocalDate.of(2020, 4, 1),
                 skjermesForPasient = false,
@@ -200,7 +200,7 @@ internal class HentFerdigstiltSykmeldingTest {
                 meldingTilArbeidsgiver = "Nei",
                 meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
                 navnFastlege = "Per Person",
-                harUtdypendeOpplysninger = false
+                harUtdypendeOpplysninger = false,
             )
 
             val receivedSykmelding = getReceivedSykmelding(
@@ -208,7 +208,7 @@ internal class HentFerdigstiltSykmeldingTest {
                 smRegisteringManuell.pasientFnr,
                 smRegisteringManuell.sykmelderFnr,
                 papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
-                sykmeldingId
+                sykmeldingId,
             )
 
             database.opprettManuellOppgave(papirSmRegistering, oppgaveid)
@@ -216,7 +216,9 @@ internal class HentFerdigstiltSykmeldingTest {
             database.ferdigstillSmRegistering(sykmeldingId, "OK", "ferdigstiltAv", null)
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 hentFerdigstiltSykmelding(
@@ -226,8 +228,8 @@ internal class HentFerdigstiltSykmeldingTest {
                         syfosmregisterService,
                         authorizationService,
                         safJournalpostService,
-                        receivedSykmeldingController
-                    )
+                        receivedSykmeldingController,
+                    ),
                 )
             }
 
@@ -251,7 +253,7 @@ internal class HentFerdigstiltSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(true, response.content?.contains("journalpostId\":\"134"))

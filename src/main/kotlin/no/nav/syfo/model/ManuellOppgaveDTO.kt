@@ -12,5 +12,5 @@ data class ManuellOppgaveDTO(
     val oppgaveid: Int?,
     val ferdigstilt: Boolean,
     val papirSmRegistering: PapirSmRegistering?,
-    var pdfPapirSykmelding: ByteArray?
+    var pdfPapirSykmelding: ByteArray?,
 )

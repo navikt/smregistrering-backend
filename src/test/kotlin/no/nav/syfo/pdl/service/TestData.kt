@@ -11,8 +11,8 @@ fun getPdlResponse(): GraphQLResponse<PdlResponse> {
     return GraphQLResponse<PdlResponse>(
         PdlResponse(
             hentPerson = HentPerson(listOf(Navn("fornavn", null, "etternavn"))),
-            hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "AKTORID", historisk = false)))
+            hentIdenter = Identliste(listOf(IdentInformasjon(ident = "987654321", gruppe = "AKTORID", historisk = false))),
         ),
-        errors = null
+        errors = null,
     )
 }

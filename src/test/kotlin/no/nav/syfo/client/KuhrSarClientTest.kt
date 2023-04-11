@@ -30,8 +30,8 @@ class KuhrSarClientTest {
                 "KI",
                 "",
                 "",
-                "", "", "", "", null, emptyList(), listOf(samhandlerPraksis)
-            )
+                "", "", "", "", null, emptyList(), listOf(samhandlerPraksis),
+            ),
         )
         val samhandlerPraksis = findBestSamhandlerPraksis(samhandlere)
         assertEquals("123456789101112", samhandlerPraksis?.tss_ident)
@@ -57,8 +57,8 @@ class KuhrSarClientTest {
                 type,
                 "",
                 "",
-                "", "", "", "", null, emptyList(), samhandlerPraksis.toList()
-            )
+                "", "", "", "", null, emptyList(), samhandlerPraksis.toList(),
+            ),
         )
         return samhandlere
     }

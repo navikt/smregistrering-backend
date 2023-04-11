@@ -95,7 +95,7 @@ fun createApplicationEngine(
                     manuellOppgaveDAO,
                     safDokumentClient,
                     sendTilGosysController,
-                    authorizationService
+                    authorizationService,
                 )
                 hentFerdigstiltSykmelding(ferdigstiltSykmeldingController)
                 sendPapirSykmeldingManuellOppgave(sendPapirsykmeldingController)

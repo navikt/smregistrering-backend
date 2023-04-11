@@ -75,7 +75,7 @@ class HttpClients(env: Environment) {
 
     internal val azureAdV2Client = AzureAdV2Client(
         environment = env,
-        httpClient = httpClient
+        httpClient = httpClient,
     )
 
     internal val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, azureAdV2Client, httpClient, env.oppgaveScope)
@@ -92,19 +92,19 @@ class HttpClients(env: Environment) {
     internal val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
-        httpClient = httpClient
+        httpClient = httpClient,
     )
 
     internal val msGraphClient = MSGraphClient(
         environment = env,
         azureAdV2Client = azureAdV2Client,
-        httpClient = httpClient
+        httpClient = httpClient,
     )
 
     internal val pdlClient = PdlClient(
         httpClient,
         env.pdlGraphqlPath,
-        PdlClient::class.java.getResource("/graphql/getPerson.graphql")!!.readText().replace(Regex("[\n\t]"), "")
+        PdlClient::class.java.getResource("/graphql/getPerson.graphql")!!.readText().replace(Regex("[\n\t]"), ""),
     )
 
     internal val norskHelsenettClient =
@@ -114,7 +114,7 @@ class HttpClients(env: Environment) {
         httpClient,
         "${env.safV1Url}/graphql",
         SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql")!!.readText()
-            .replace(Regex("[\n\t]"), "")
+            .replace(Regex("[\n\t]"), ""),
     )
 
     internal val syfoSmregisterClient = SyfosmregisterClient(env.syfoSmregisterEndpointURL, httpClient)

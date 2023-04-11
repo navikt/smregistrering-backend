@@ -10,7 +10,7 @@ import no.nav.syfo.log
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.hentFerdigstiltSykmelding(
-    ferdigstiltSykmeldingController: FerdigstiltSykmeldingController
+    ferdigstiltSykmeldingController: FerdigstiltSykmeldingController,
 ) {
     route("/api/v1") {
         get("/sykmelding/{sykmeldingId}/ferdigstilt") {

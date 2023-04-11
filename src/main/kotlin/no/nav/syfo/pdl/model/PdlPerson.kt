@@ -4,7 +4,7 @@ import no.nav.syfo.pdl.client.model.IdentInformasjon
 
 data class PdlPerson(
     val navn: Navn,
-    val identer: List<IdentInformasjon>
+    val identer: List<IdentInformasjon>,
 ) {
     val fnr: String? = identer.firstOrNull { it.gruppe == "FOLKEREGISTERIDENT" }?.ident
     val aktorId: String? = identer.firstOrNull { it.gruppe == "AKTORID" }?.ident
@@ -14,5 +14,5 @@ data class PdlPerson(
 data class Navn(
     val fornavn: String,
     val mellomnavn: String?,
-    val etternavn: String
+    val etternavn: String,
 )

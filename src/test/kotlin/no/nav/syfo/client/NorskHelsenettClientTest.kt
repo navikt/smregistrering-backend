@@ -21,7 +21,7 @@ internal class NorskHelsenettClientTest {
         "https://syfohelsenettproxy",
         azureAdV2Client,
         "resource",
-        httpClient.httpClient
+        httpClient.httpClient,
     )
 
     @BeforeEach
@@ -34,8 +34,8 @@ internal class NorskHelsenettClientTest {
         httpClient.responseData = ResponseData(
             HttpStatusCode.OK,
             objectMapper.writeValueAsString(
-                Behandler(emptyList(), "12345678910", "Fornavn", null, "Etternavn")
-            )
+                Behandler(emptyList(), "12345678910", "Fornavn", null, "Etternavn"),
+            ),
         )
         runBlocking {
             val behandler = norskHelsenettClient.finnBehandler("hpr", "callid")

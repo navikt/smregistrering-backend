@@ -25,5 +25,5 @@ data class PapirSmRegistering(
     val meldingTilArbeidsgiver: String?,
     val kontaktMedPasient: KontaktMedPasient?,
     val behandletTidspunkt: LocalDate?,
-    val behandler: Behandler?
+    val behandler: Behandler?,
 )

@@ -55,7 +55,7 @@ internal class CORSTest {
             with(
                 handleRequest(HttpMethod.Get, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "invalid-host")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(null, response.headers[HttpHeaders.AccessControlAllowOrigin])
@@ -81,7 +81,7 @@ internal class CORSTest {
             with(
                 handleRequest(HttpMethod.Get, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(null, response.headers[HttpHeaders.AccessControlAllowOrigin])
@@ -106,7 +106,7 @@ internal class CORSTest {
             with(
                 handleRequest(HttpMethod.Get, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])
@@ -131,7 +131,7 @@ internal class CORSTest {
             with(
                 handleRequest(HttpMethod.Get, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "null")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("*", response.headers[HttpHeaders.AccessControlAllowOrigin])
@@ -158,7 +158,7 @@ internal class CORSTest {
                 handleRequest(HttpMethod.Options, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
                     addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])
@@ -186,7 +186,7 @@ internal class CORSTest {
                 handleRequest(HttpMethod.Options, "/internal/is_ready") {
                     addHeader(HttpHeaders.Origin, "https://smregistrering.nais.preprod.local")
                     addHeader(HttpHeaders.AccessControlRequestMethod, "GET")
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])

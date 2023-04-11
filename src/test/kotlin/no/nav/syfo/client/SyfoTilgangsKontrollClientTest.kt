@@ -42,7 +42,7 @@ class SyfoTilgangsKontrollClientTest {
         environment = env,
         azureAdV2Client = azureAdV2Client,
         httpClient = httpClient.httpClient,
-        syfoTilgangskontrollCache = syfoTilgangskontrollCache
+        syfoTilgangskontrollCache = syfoTilgangskontrollCache,
     )
 
     @BeforeEach
@@ -56,8 +56,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseDataOboToken = ResponseData(
             HttpStatusCode.OK,
             objectMapper.writeValueAsString(
-                AzureAdV2TokenResponse("token", 1000000, "token_type")
-            )
+                AzureAdV2TokenResponse("token", 1000000, "token_type"),
+            ),
         )
         httpClient.responseData = ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {

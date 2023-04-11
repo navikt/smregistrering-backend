@@ -14,7 +14,7 @@ import java.lang.RuntimeException
 class SafJournalpostService(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
-    private val safJournalpostClient: SafJournalpostClient
+    private val safJournalpostClient: SafJournalpostClient,
 ) {
 
     private val scope: String = environment.safScope

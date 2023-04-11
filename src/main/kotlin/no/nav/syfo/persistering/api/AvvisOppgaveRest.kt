@@ -31,7 +31,7 @@ fun Route.avvisOppgave(
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                        "Path parameter mangler eller er feil formattert: oppgaveid",
                     )
                 }
                 accessToken == null -> {
@@ -43,12 +43,11 @@ fun Route.avvisOppgave(
                     call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
-
                     val httpServiceResponse = avvisPapirsykmeldingController.avvisPapirsykmelding(
                         oppgaveId,
                         accessToken,
                         navEnhet,
-                        avvisSykmeldingRequest?.reason
+                        avvisSykmeldingRequest?.reason,
                     )
 
                     when {

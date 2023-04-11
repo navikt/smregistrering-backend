@@ -14,7 +14,7 @@ import no.nav.syfo.util.padHpr
 import java.util.UUID
 
 fun Route.sykmelderApi(
-    sykmelderService: SykmelderService
+    sykmelderService: SykmelderService,
 ) {
     route("/api/v1") {
         get("/sykmelder/{hprNummer}") {
@@ -32,7 +32,7 @@ fun Route.sykmelderApi(
                         val sykmelder = sykmelderService.hentSykmelder(
                             padHpr(hprNummer.toString())
                                 ?: hprNummer.toString(),
-                            callId
+                            callId,
                         )
                         call.respond(sykmelder)
                     } catch (e: SykmelderNotFoundException) {

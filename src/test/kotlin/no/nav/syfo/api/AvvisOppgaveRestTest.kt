@@ -81,11 +81,13 @@ class AvvisOppgaveRestTest {
             start()
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 avvisOppgave(
-                    avvisPapirsykmeldingController = avvisPapirsykmeldingController
+                    avvisPapirsykmeldingController = avvisPapirsykmeldingController,
                 )
             }
 
@@ -112,14 +114,19 @@ class AvvisOppgaveRestTest {
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
-                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                    aktorId = "aktorid",
+                    etternavn = "Thornton",
+                    fornavn = "Billy",
+                    mellomnavn = "Bob",
+                    fnr = "12345",
+                    hprNummer = "hpr",
+                    godkjenninger = null,
                 )
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
@@ -146,7 +153,7 @@ class AvvisOppgaveRestTest {
                     "hpr",
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -162,9 +169,9 @@ class AvvisOppgaveRestTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -172,12 +179,12 @@ class AvvisOppgaveRestTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             val manuellOppgaveDTO = ManuellOppgaveDTO(
@@ -190,7 +197,7 @@ class AvvisOppgaveRestTest {
                 oppgaveid = oppgaveid,
                 papirSmRegistering = papirSmRegistering,
                 ferdigstilt = false,
-                pdfPapirSykmelding = null
+                pdfPapirSykmelding = null,
             )
 
             coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
@@ -211,7 +218,7 @@ class AvvisOppgaveRestTest {
                     prioritet = "",
                     saksreferanse = "",
                     tema = "",
-                    status = "OPPRETTET"
+                    status = "OPPRETTET",
                 )
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
@@ -234,7 +241,7 @@ class AvvisOppgaveRestTest {
                     prioritet = "",
                     saksreferanse = "",
                     tema = "",
-                    status = "OPPRETTET"
+                    status = "OPPRETTET",
                 )
 
             with(
@@ -244,7 +251,7 @@ class AvvisOppgaveRestTest {
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
                 assertEquals(null, response.content)
@@ -258,11 +265,13 @@ class AvvisOppgaveRestTest {
             start()
 
             application.setupAuth(
-                env, jwkProvider, "https://sts.issuer.net/myid"
+                env,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 avvisOppgave(
-                    avvisPapirsykmeldingController = avvisPapirsykmeldingController
+                    avvisPapirsykmeldingController = avvisPapirsykmeldingController,
                 )
             }
 
@@ -289,14 +298,19 @@ class AvvisOppgaveRestTest {
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
-                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                    aktorId = "aktorid",
+                    etternavn = "Thornton",
+                    fornavn = "Billy",
+                    mellomnavn = "Bob",
+                    fnr = "12345",
+                    hprNummer = "hpr",
+                    godkjenninger = null,
                 )
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
@@ -323,7 +337,7 @@ class AvvisOppgaveRestTest {
                     prioritet = "",
                     saksreferanse = "",
                     tema = "",
-                    status = "OPPRETTET"
+                    status = "OPPRETTET",
                 )
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
@@ -346,7 +360,7 @@ class AvvisOppgaveRestTest {
                     prioritet = "",
                     saksreferanse = "",
                     tema = "",
-                    status = "OPPRETTET"
+                    status = "OPPRETTET",
                 )
 
             with(
@@ -356,7 +370,7 @@ class AvvisOppgaveRestTest {
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
                 assertEquals(null, response.content)

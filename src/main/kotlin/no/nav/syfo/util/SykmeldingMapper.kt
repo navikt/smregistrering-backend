@@ -33,7 +33,7 @@ fun HelseOpplysningerArbeidsuforhet.toSykmelding(
     pasientAktoerId: String,
     legeAktoerId: String,
     msgId: String,
-    signaturDato: LocalDateTime
+    signaturDato: LocalDateTime,
 ) = Sykmelding(
     id = sykmeldingId,
     msgId = msgId,
@@ -55,7 +55,7 @@ fun HelseOpplysningerArbeidsuforhet.toSykmelding(
     avsenderSystem = avsenderSystem.toAvsenderSystem(),
     syketilfelleStartDato = syketilfelleStartDato,
     signaturDato = signaturDato,
-    navnFastlege = pasient?.navnFastlege
+    navnFastlege = pasient?.navnFastlege,
 )
 
 fun HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.toPeriode() = Periode(
@@ -65,24 +65,24 @@ fun HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.toPeriode() = Periode(
     avventendeInnspillTilArbeidsgiver = avventendeSykmelding?.innspillTilArbeidsgiver,
     behandlingsdager = behandlingsdager?.antallBehandlingsdagerUke,
     gradert = gradertSykmelding?.toGradert(),
-    reisetilskudd = isReisetilskudd == true
+    reisetilskudd = isReisetilskudd == true,
 )
 
 fun HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding.toGradert() = Gradert(
     reisetilskudd = isReisetilskudd == true,
-    grad = sykmeldingsgrad
+    grad = sykmeldingsgrad,
 )
 
 fun HelseOpplysningerArbeidsuforhet.Arbeidsgiver.toArbeidsgiver() = Arbeidsgiver(
     harArbeidsgiver = HarArbeidsgiver.values().first { it.codeValue == harArbeidsgiver.v },
     navn = navnArbeidsgiver,
     yrkesbetegnelse = yrkesbetegnelse,
-    stillingsprosent = stillingsprosent
+    stillingsprosent = stillingsprosent,
 )
 
 fun HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AktivitetIkkeMulig.toAktivitetIkkeMulig() = AktivitetIkkeMulig(
     medisinskArsak = medisinskeArsaker?.toMedisinskArsak(),
-    arbeidsrelatertArsak = arbeidsplassen?.toArbeidsrelatertArsak()
+    arbeidsrelatertArsak = arbeidsplassen?.toArbeidsrelatertArsak(),
 )
 
 fun HelseOpplysningerArbeidsuforhet.MedisinskVurdering.toMedisinskVurdering() = MedisinskVurdering(
@@ -91,7 +91,7 @@ fun HelseOpplysningerArbeidsuforhet.MedisinskVurdering.toMedisinskVurdering() = 
     svangerskap = isSvangerskap == true,
     yrkesskade = isYrkesskade == true,
     yrkesskadeDato = yrkesskadeDato,
-    annenFraversArsak = annenFraversArsak?.toAnnenFraversArsak()
+    annenFraversArsak = annenFraversArsak?.toAnnenFraversArsak(),
 )
 
 fun CV.toDiagnose() = Diagnose(s, v, dn)
@@ -105,7 +105,7 @@ fun ArsakType.toAnnenFraversArsak() = AnnenFraversArsak(
         } else {
             AnnenFraverGrunn.values().first { it.codeValue == code.v.trim() }
         }
-    }
+    },
 )
 
 // TODO: Remove if-wrapping whenever the EPJ systems stops sending garbage data
@@ -131,29 +131,29 @@ fun Address.toAdresse() = Adresse(
     postnummer = postalCode?.toIntOrNull(),
     kommune = city,
     postboks = postbox,
-    land = country?.v
+    land = country?.v,
 )
 
 // TODO: Remove mapNotNull whenever the EPJ systems stops sending garbage data
 fun ArsakType.toArbeidsrelatertArsak() = ArbeidsrelatertArsak(
     beskrivelse = beskriv,
-    arsak = arsakskode.mapNotNull(CS::toArbeidsrelatertArsakType)
+    arsak = arsakskode.mapNotNull(CS::toArbeidsrelatertArsakType),
 )
 
 // TODO: Remove mapNotNull whenever the EPJ systems stops sending garbage data
 fun ArsakType.toMedisinskArsak() = MedisinskArsak(
     beskrivelse = beskriv,
-    arsak = arsakskode.mapNotNull(CS::toMedisinskArsakType)
+    arsak = arsakskode.mapNotNull(CS::toMedisinskArsakType),
 )
 
 fun HelseOpplysningerArbeidsuforhet.MeldingTilNav.toMeldingTilNAV() = MeldingTilNAV(
     bistandUmiddelbart = isBistandNAVUmiddelbart,
-    beskrivBistand = beskrivBistandNAV
+    beskrivBistand = beskrivBistandNAV,
 )
 
 fun HelseOpplysningerArbeidsuforhet.KontaktMedPasient.toKontaktMedPasient() = KontaktMedPasient(
     kontaktDato = kontaktDato,
-    begrunnelseIkkeKontakt = begrunnIkkeKontakt
+    begrunnelseIkkeKontakt = begrunnIkkeKontakt,
 )
 
 fun HelseOpplysningerArbeidsuforhet.Behandler.toBehandler(aktoerId: String) = Behandler(
@@ -165,10 +165,10 @@ fun HelseOpplysningerArbeidsuforhet.Behandler.toBehandler(aktoerId: String) = Be
     hpr = id.find { it.typeId.v == "HPR" }?.id,
     her = id.find { it.typeId.v == "HER" }?.id,
     adresse = adresse.toAdresse(),
-    tlf = kontaktInfo.firstOrNull()?.teleAddress?.v
+    tlf = kontaktInfo.firstOrNull()?.teleAddress?.v,
 )
 
 fun HelseOpplysningerArbeidsuforhet.AvsenderSystem.toAvsenderSystem() = AvsenderSystem(
     navn = systemNavn,
-    versjon = systemVersjon
+    versjon = systemVersjon,
 )

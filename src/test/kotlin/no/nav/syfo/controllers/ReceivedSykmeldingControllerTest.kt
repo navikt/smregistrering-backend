@@ -160,7 +160,7 @@ class ReceivedSykmeldingControllerTest {
                 "hpr",
                 null,
                 Adresse(null, null, null, null, null),
-                "12345"
+                "12345",
             ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
@@ -176,9 +176,9 @@ class ReceivedSykmeldingControllerTest {
                     true,
                     false,
                     LocalDate.now(),
-                    LocalDate.now()
+                    LocalDate.now(),
                 ),
-                null
+                null,
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -186,12 +186,12 @@ class ReceivedSykmeldingControllerTest {
                 annenFraversArsak = null,
                 yrkesskadeDato = null,
                 yrkesskade = false,
-                svangerskap = false
+                svangerskap = false,
             ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
-            skjermesForPasient = false
+            skjermesForPasient = false,
         )
 
     fun opprettFerdigstiltPapirsykmelding(): String {
@@ -216,7 +216,7 @@ class ReceivedSykmeldingControllerTest {
                 null,
                 null,
                 Adresse(null, null, null, null, null),
-                "12345"
+                "12345",
             ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
@@ -232,9 +232,9 @@ class ReceivedSykmeldingControllerTest {
                     true,
                     false,
                     LocalDate.now(),
-                    LocalDate.now()
+                    LocalDate.now(),
                 ),
-                null
+                null,
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -242,12 +242,12 @@ class ReceivedSykmeldingControllerTest {
                 annenFraversArsak = null,
                 yrkesskadeDato = null,
                 yrkesskade = false,
-                svangerskap = false
+                svangerskap = false,
             ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
-            skjermesForPasient = false
+            skjermesForPasient = false,
         )
 
         val smRegisteringManuell = SmRegistreringManuell(
@@ -260,27 +260,27 @@ class ReceivedSykmeldingControllerTest {
                     aktivitetIkkeMulig = AktivitetIkkeMulig(
                         medisinskArsak = MedisinskArsak(
                             beskrivelse = "test data",
-                            arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                            arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET),
                         ),
-                        arbeidsrelatertArsak = null
+                        arbeidsrelatertArsak = null,
                     ),
                     avventendeInnspillTilArbeidsgiver = null,
                     behandlingsdager = null,
                     gradert = null,
-                    reisetilskudd = false
-                )
+                    reisetilskudd = false,
+                ),
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(
                     system = "2.16.578.1.12.4.1.1.7170",
                     kode = "A070",
-                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                 ),
                 biDiagnoser = listOf(),
                 svangerskap = false,
                 yrkesskade = false,
                 yrkesskadeDato = null,
-                annenFraversArsak = null
+                annenFraversArsak = null,
             ),
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
@@ -291,7 +291,7 @@ class ReceivedSykmeldingControllerTest {
             meldingTilArbeidsgiver = "Nei",
             meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
             navnFastlege = "Per Person",
-            harUtdypendeOpplysninger = false
+            harUtdypendeOpplysninger = false,
         )
 
         val receivedSykmelding = getReceivedSykmelding(
@@ -299,7 +299,7 @@ class ReceivedSykmeldingControllerTest {
             smRegisteringManuell.pasientFnr,
             smRegisteringManuell.sykmelderFnr,
             papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
-            sykmeldingId
+            sykmeldingId,
         )
 
         database.opprettManuellOppgave(papirSmRegistering, oppgaveid)

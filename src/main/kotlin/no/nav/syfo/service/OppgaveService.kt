@@ -15,7 +15,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 class OppgaveService(
-    private val oppgaveClient: OppgaveClient
+    private val oppgaveClient: OppgaveClient,
 ) {
 
     suspend fun hentOppgave(oppgaveId: Int, sykmeldingId: String): Oppgave {
@@ -24,7 +24,7 @@ class OppgaveService(
 
     suspend fun upsertOppgave(
         papirSmRegistering: PapirSmRegistering,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
     ): Oppgave {
         return if (papirSmRegistering.oppgaveId == null || (papirSmRegistering.oppgaveId.toIntOrNull() == null)) {
             val opprettOppgave = OpprettOppgave(
@@ -36,10 +36,10 @@ class OppgaveService(
                 oppgavetype = "JFR",
                 aktivDato = LocalDate.now(),
                 fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                    LocalDate.now().plusDays(4)
+                    LocalDate.now().plusDays(4),
                 ),
                 prioritet = "HOY",
-                journalpostId = papirSmRegistering.journalpostId
+                journalpostId = papirSmRegistering.journalpostId,
             )
 
             val opprettetOppgave = oppgaveClient.opprettOppgave(opprettOppgave, papirSmRegistering.sykmeldingId)
@@ -47,18 +47,18 @@ class OppgaveService(
             log.info(
                 "Opprettet manuell papirsykmeldingoppgave med {}, {}",
                 StructuredArguments.keyValue("oppgaveId", opprettetOppgave.id),
-                StructuredArguments.fields(loggingMeta)
+                StructuredArguments.fields(loggingMeta),
             )
             opprettetOppgave
         } else {
             val oppdatertOppgave = patchManuellOppgave(
                 papirSmRegistering.oppgaveId.toInt(),
-                loggingMeta.msgId
+                loggingMeta.msgId,
             )
             log.info(
                 "Patchet manuell papirsykmeldingsoppgave med {}, {}",
                 StructuredArguments.keyValue("oppgaveId", oppdatertOppgave.id),
-                StructuredArguments.fields(loggingMeta)
+                StructuredArguments.fields(loggingMeta),
             )
             oppdatertOppgave
         }
@@ -68,7 +68,7 @@ class OppgaveService(
         ferdigstillRegistrering: FerdigstillRegistrering,
         beskrivelse: String?,
         loggingMeta: LoggingMeta,
-        oppgaveId: Int
+        oppgaveId: Int,
     ) {
         val oppgave = when {
             ferdigstillRegistrering.oppgave != null -> {
@@ -88,14 +88,14 @@ class OppgaveService(
                 tildeltEnhetsnr = ferdigstillRegistrering.navEnhet,
                 tilordnetRessurs = ferdigstillRegistrering.veileder.veilederIdent,
                 mappeId = null,
-                beskrivelse = if (beskrivelse?.isNotBlank() == true) beskrivelse else oppgave.beskrivelse
+                beskrivelse = if (beskrivelse?.isNotBlank() == true) beskrivelse else oppgave.beskrivelse,
             )
 
             val ferdigStiltOppgave = oppgaveClient.ferdigstillOppgave(ferdigstillOppgave, ferdigstillRegistrering.sykmeldingId)
             log.info(
                 "Ferdigstiller oppgave med {}, {}",
                 StructuredArguments.keyValue("oppgaveId", ferdigStiltOppgave.id),
-                StructuredArguments.fields(loggingMeta)
+                StructuredArguments.fields(loggingMeta),
             )
         } else {
             log.info("Hopper over ferdigstillOppgave, oppgaveId $oppgaveId er allerede ${oppgave.status}")
@@ -107,7 +107,7 @@ class OppgaveService(
         val oppdatertOppgave = oppgave.copy(
             behandlesAvApplikasjon = "FS22",
             tilordnetRessurs = tilordnetRessurs,
-            mappeId = null
+            mappeId = null,
         )
         return oppgaveClient.oppdaterOppgave(oppdatertOppgave, msgId)
     }
@@ -126,12 +126,12 @@ class OppgaveService(
                     oppgavetype = "JFR",
                     aktivDato = LocalDate.now(),
                     fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                        LocalDate.now().plusDays(4)
+                        LocalDate.now().plusDays(4),
                     ),
                     prioritet = "HOY",
-                    journalpostId = oppgave.journalpostId
+                    journalpostId = oppgave.journalpostId,
                 ),
-                msgId
+                msgId,
             )
         } else {
             val patch = oppgave.copy(
@@ -140,9 +140,9 @@ class OppgaveService(
                 mappeId = null,
                 aktivDato = LocalDate.now(),
                 fristFerdigstillelse = finnFristForFerdigstillingAvOppgave(
-                    LocalDate.now().plusDays(4)
+                    LocalDate.now().plusDays(4),
                 ),
-                prioritet = "HOY"
+                prioritet = "HOY",
             )
             return oppgaveClient.oppdaterOppgave(patch, msgId)
         }

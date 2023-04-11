@@ -15,7 +15,7 @@ import java.util.UUID
 
 fun Route.pasientApi(
     pdlPersonService: PdlPersonService,
-    authorizationService: AuthorizationService
+    authorizationService: AuthorizationService,
 ) {
     route("/api/v1") {
         get("/pasient") {

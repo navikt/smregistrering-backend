@@ -12,9 +12,8 @@ import java.time.LocalDate
 fun checkValidState(
     smRegistreringManuell: SmRegistreringManuell,
     sykmelder: Sykmelder,
-    validationResult: ValidationResult
+    validationResult: ValidationResult,
 ) {
-
     when {
         smRegistreringManuell.perioder.isEmpty() -> {
             val vr = ValidationResult(
@@ -24,9 +23,9 @@ fun checkValidState(
                         ruleName = "periodeValidation",
                         messageForSender = "Sykmeldingen må ha minst én periode oppgitt for å være gyldig",
                         messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }
@@ -38,9 +37,9 @@ fun checkValidState(
                         ruleName = "overlappendePeriodeValidation",
                         messageForSender = "Sykmeldingen har overlappende perioder",
                         messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }
@@ -52,9 +51,9 @@ fun checkValidState(
                         ruleName = "reisetilskuddValidation",
                         messageForSender = "Sykmeldingen inneholder periode som kombinerer reisetilskudd med annen sykmeldingstype",
                         messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }
@@ -66,9 +65,9 @@ fun checkValidState(
                         ruleName = "behandletDatoValidation",
                         messageForSender = "Behandletdato kan ikke være frem i tid.",
                         messageForUser = "Sykmelder har gjort en feil i utfyllingen av sykmeldingen.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }
@@ -80,9 +79,9 @@ fun checkValidState(
                         ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
                         messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
                         messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }
@@ -94,9 +93,9 @@ fun checkValidState(
                         ruleName = RuleHitCustomError.BEHANDLER_SUSPENDERT.name,
                         messageForSender = "Legen har mistet retten til å skrive sykmelding.",
                         messageForUser = "Legen har mistet retten til å skrive sykmelding.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             )
             throw ValidationException(vr)
         }

@@ -29,7 +29,8 @@ class ReceivedSykmeldingController(
             if (database.erOpprettManuellOppgave(papirSmRegistering.sykmeldingId)) {
                 log.warn(
                     "Manuell papirsykmelding registeringsoppgave med sykmeldingsid {}, er allerede lagret i databasen, {}",
-                    papirSmRegistering.sykmeldingId, StructuredArguments.fields(loggingMeta)
+                    papirSmRegistering.sykmeldingId,
+                    StructuredArguments.fields(loggingMeta),
                 )
             } else {
                 val oppgave = oppgaveService.upsertOppgave(papirSmRegistering, loggingMeta)
@@ -37,7 +38,7 @@ class ReceivedSykmeldingController(
                 log.info(
                     "Manuell papirsykmeldingoppgave lagret i databasen, for {}, {}",
                     StructuredArguments.keyValue("oppgaveId", oppgave.id),
-                    StructuredArguments.fields(loggingMeta)
+                    StructuredArguments.fields(loggingMeta),
                 )
                 MESSAGE_STORED_IN_DB_COUNTER.inc()
             }
@@ -47,7 +48,7 @@ class ReceivedSykmeldingController(
     suspend fun handlePapirsykmeldingFromSyfosmregister(
         papirSykmelding: PapirsykmeldingDTO,
         papirSmRegistering: PapirSmRegistering,
-        loggingMeta: LoggingMeta
+        loggingMeta: LoggingMeta,
     ) {
         wrapExceptions(loggingMeta) {
             log.info("Mottok ein manuell papirsykmelding registerings from syfosmregister, {}", StructuredArguments.fields(loggingMeta))
@@ -85,6 +86,6 @@ private fun PapirSmRegistering.toReceveidSykmelding(papirSykmelding: Papirsykmel
         fellesformat = "",
         tssid = "",
         vedlegg = null,
-        utenlandskSykmelding = null
+        utenlandskSykmelding = null,
     )
 }

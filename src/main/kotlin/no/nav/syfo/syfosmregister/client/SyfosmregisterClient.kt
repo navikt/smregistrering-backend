@@ -11,7 +11,7 @@ import no.nav.syfo.syfosmregister.papirsykmelding.model.PapirsykmeldingDTO
 
 class SyfosmregisterClient(
     private val endpointUrl: String,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) {
     suspend fun getSykmelding(token: String, sykmeldingId: String): PapirsykmeldingDTO? {
         try {

@@ -6,5 +6,5 @@ import java.time.Instant
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AadAccessToken(
     val access_token: String,
-    val expires_on: Instant
+    val expires_on: Instant,
 )

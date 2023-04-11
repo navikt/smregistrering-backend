@@ -39,7 +39,7 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
         legeHelsepersonellkategori = "LE",
         legeHprNr = "hpr",
         vedlegg = null,
-        utenlandskSykmelding = null
+        utenlandskSykmelding = null,
     )
 }
 
@@ -49,16 +49,21 @@ fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldin
         pdlPasient = PdlPerson(
             Navn("Test", "Doctor", "Thornton"),
             listOf(
-                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT")
-            )
+                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT"),
+            ),
         ),
         sykmelder = Sykmelder(
-            aktorId = "aktorid", etternavn = "Doctor", fornavn = "Test", mellomnavn = "Bob",
-            fnr = smRegisteringManuellt.sykmelderFnr, hprNummer = "hpr", godkjenninger = null
+            aktorId = "aktorid",
+            etternavn = "Doctor",
+            fornavn = "Test",
+            mellomnavn = "Bob",
+            fnr = smRegisteringManuellt.sykmelderFnr,
+            hprNummer = "hpr",
+            godkjenninger = null,
         ),
         sykmeldingId = sykmeldingId,
         datoOpprettet = datoOpprettet,
-        journalpostId = journalpostId
+        journalpostId = journalpostId,
     )
 }
 
@@ -68,6 +73,6 @@ fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: X
         pasientAktoerId = aktorId,
         legeAktoerId = aktorIdLege,
         msgId = sykmeldingId,
-        signaturDato = msgHead.msgInfo.genDate
+        signaturDato = msgHead.msgInfo.genDate,
     )
 }

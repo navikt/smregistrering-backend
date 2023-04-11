@@ -19,7 +19,7 @@ import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
 fun Route.sendPapirSykmeldingManuellOppgave(
-    sendPapirsykmeldingController: SendPapirsykmeldingController
+    sendPapirsykmeldingController: SendPapirsykmeldingController,
 ) {
     route("/api/v1") {
         post("/sykmelding/{sykmeldingId}") {
@@ -37,7 +37,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     log.error("Path parameter mangler eller er feil formattert: sykmeldingId")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: sykmeldingId"
+                        "Path parameter mangler eller er feil formattert: sykmeldingId",
                     )
                 }
                 accessToken == null -> {
@@ -54,7 +54,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         accessToken,
                         callId,
                         sykmeldingId,
-                        navEnhet
+                        navEnhet,
                     )
 
                     respond(httpRespons)
@@ -77,7 +77,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                        "Path parameter mangler eller er feil formattert: oppgaveid",
                     )
                 }
                 accessToken == null -> {
@@ -95,7 +95,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             accessToken,
                             callId,
                             oppgaveId,
-                            navEnhet
+                            navEnhet,
                         )
 
                         respond(httpServiceResponse)
@@ -106,7 +106,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         log.warn("Caught UnauthorizedException", e)
                         call.respond(
                             HttpStatusCode.Forbidden,
-                            "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll"
+                            "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll",
                         )
                     } catch (e: ValidationException) {
                         log.warn("Caught ValidationException", e)
@@ -122,7 +122,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.respond(
-    httpServiceResponse: HttpServiceResponse
+    httpServiceResponse: HttpServiceResponse,
 ) {
     when {
         httpServiceResponse.payload != null -> {

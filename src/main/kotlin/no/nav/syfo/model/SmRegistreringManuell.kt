@@ -16,5 +16,5 @@ data class SmRegistreringManuell(
     val meldingTilNAV: MeldingTilNAV?,
     val meldingTilArbeidsgiver: String?,
     val navnFastlege: String?,
-    val harUtdypendeOpplysninger: Boolean
+    val harUtdypendeOpplysninger: Boolean,
 )

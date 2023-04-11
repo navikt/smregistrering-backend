@@ -33,19 +33,19 @@ class SykmelderServiceTest {
 
         coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
             Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID"))
+            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID")),
         )
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
             listOf(
                 Godkjenning(
                     Kode(true, 1, null),
-                    Kode(true, 1, null)
-                )
+                    Kode(true, 1, null),
+                ),
             ),
             fnr,
             fornavn,
             mellomnavn,
-            etternavn
+            etternavn,
         )
 
         runBlocking {
@@ -70,19 +70,19 @@ class SykmelderServiceTest {
 
         coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
             Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID"))
+            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID")),
         )
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
             listOf(
                 Godkjenning(
                     Kode(true, 1, null),
-                    Kode(true, 1, null)
-                )
+                    Kode(true, 1, null),
+                ),
             ),
             fnr,
             fornavn,
             mellomnavn,
-            etternavn
+            etternavn,
         )
 
         runBlocking {
@@ -105,8 +105,8 @@ class SykmelderServiceTest {
             Navn(fornavn, mellomnavn, etternavn),
             listOf(
                 IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
-                IdentInformasjon("ident", false, "AKTORID")
-            )
+                IdentInformasjon("ident", false, "AKTORID"),
+            ),
         )
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } throws SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
 
@@ -129,19 +129,19 @@ class SykmelderServiceTest {
 
         coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
             Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"))
+            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT")),
         )
         coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
             listOf(
                 Godkjenning(
                     Kode(true, 1, null),
-                    Kode(true, 1, null)
-                )
+                    Kode(true, 1, null),
+                ),
             ),
             fnr,
             fornavn,
             mellomnavn,
-            etternavn
+            etternavn,
         )
 
         runBlocking {

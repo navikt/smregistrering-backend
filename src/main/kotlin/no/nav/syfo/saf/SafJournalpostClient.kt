@@ -18,11 +18,10 @@ import no.nav.syfo.saf.model.JournalpostResponse
 class SafJournalpostClient(
     private val httpClient: HttpClient,
     private val basePath: String,
-    private val graphQlQuery: String
+    private val graphQlQuery: String,
 ) {
 
     suspend fun getJournalpostMetadata(journalpostId: String, token: String): GraphQLResponse<JournalpostResponse>? {
-
         log.info("Henter journalpostmetadata for $journalpostId")
         val getJournalpostRequest = GetJournalpostRequest(query = graphQlQuery, variables = GetJournalpostVariables(journalpostId))
         return try {

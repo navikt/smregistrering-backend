@@ -86,7 +86,7 @@ fun main() {
         sykmelderService,
         manuellOppgaveDAO,
         oppgaveService,
-        journalpostService
+        journalpostService,
     )
     val receivedSykmeldingController = ReceivedSykmeldingController(database, oppgaveService)
     val sendPapirsykmeldingController = SendPapirsykmeldingController(
@@ -98,18 +98,22 @@ fun main() {
         sendtSykmeldingService,
         oppgaveService,
         journalpostService,
-        manuellOppgaveDAO
+        manuellOppgaveDAO,
     )
     val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
     val ferdigstiltSykmeldingController = FerdigstiltSykmeldingController(
         manuellOppgaveDAO,
-        httpClients.safClient, syfosmregisterService, authorizationService, safJournalpostService, receivedSykmeldingController
+        httpClients.safClient,
+        syfosmregisterService,
+        authorizationService,
+        safJournalpostService,
+        receivedSykmeldingController,
     )
 
     val sykmeldingJobRunner = SykmeldingJobRunner(
         applicationState,
         sendtSykmeldingService,
-        kafkaProducers.kafkaRecievedSykmeldingProducer
+        kafkaProducers.kafkaRecievedSykmeldingProducer,
     )
 
     val applicationEngine = createApplicationEngine(
@@ -124,7 +128,7 @@ fun main() {
         ferdigstiltSykmeldingController,
         pdlService,
         sykmelderService,
-        authorizationService
+        authorizationService,
     )
 
     GlobalScope.launch {
@@ -136,7 +140,7 @@ fun main() {
         applicationState,
         env.papirSmRegistreringTopic,
         kafkaConsumers.kafkaConsumerPapirSmRegistering,
-        receivedSykmeldingController
+        receivedSykmeldingController,
     )
 
     ApplicationServer(applicationEngine, applicationState).start()
@@ -147,7 +151,7 @@ fun startConsumer(
     applicationState: ApplicationState,
     topic: String,
     kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
-    receivedSykmeldingController: ReceivedSykmeldingController
+    receivedSykmeldingController: ReceivedSykmeldingController,
 ) {
     GlobalScope.launch(Dispatchers.Unbounded) {
         while (applicationState.ready) {
@@ -168,11 +172,11 @@ fun startConsumer(
                                 dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
                                 msgId = receivedPapirSmRegistering.sykmeldingId,
                                 sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                                journalpostId = receivedPapirSmRegistering.journalpostId
+                                journalpostId = receivedPapirSmRegistering.journalpostId,
                             )
                             receivedSykmeldingController.handleReceivedSykmelding(
                                 papirSmRegistering = receivedPapirSmRegistering,
-                                loggingMeta = loggingMeta
+                                loggingMeta = loggingMeta,
                             )
                         }
                     }

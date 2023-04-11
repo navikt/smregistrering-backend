@@ -32,7 +32,6 @@ class AvvisPapirsykmeldingController(
         navEnhet: String,
         avvisSykmeldingReason: String?,
     ): HttpServiceResponse {
-
         val callId = UUID.randomUUID().toString()
 
         val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId)
@@ -50,7 +49,7 @@ class AvvisPapirsykmeldingController(
                 dokumentInfoId = dokumentInfoId,
                 msgId = callId,
                 sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId
+                journalpostId = journalpostId,
             )
 
             /***
@@ -74,7 +73,7 @@ class AvvisPapirsykmeldingController(
                     navEnhet = navEnhet,
                     veileder = veileder,
                     avvist = true,
-                    oppgave = hentOppgave
+                    oppgave = hentOppgave,
                 )
 
                 journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, null, loggingMeta)
@@ -85,21 +84,21 @@ class AvvisPapirsykmeldingController(
                         avvisSykmeldingReason,
                         hentOppgave.beskrivelse,
                         veileder,
-                        navEnhet
+                        navEnhet,
                     ),
-                    loggingMeta = loggingMeta
+                    loggingMeta = loggingMeta,
                 )
 
                 manuellOppgaveDAO.ferdigstillSmRegistering(
                     sykmeldingId = sykmeldingId,
                     utfall = Utfall.AVVIST,
                     ferdigstiltAv = veileder.veilederIdent,
-                    avvisningsgrunn = avvisSykmeldingReason
+                    avvisningsgrunn = avvisSykmeldingReason,
                 ).also {
                     if (it < 1) {
                         log.warn(
                             "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
-                            StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                            StructuredArguments.keyValue("oppgaveId", oppgaveId),
                         )
                     }
                 }
@@ -155,6 +154,6 @@ class AvvisPapirsykmeldingController(
             aktorId = null,
             hprNummer = null,
             fnr = null,
-            godkjenninger = null
+            godkjenninger = null,
         )
 }

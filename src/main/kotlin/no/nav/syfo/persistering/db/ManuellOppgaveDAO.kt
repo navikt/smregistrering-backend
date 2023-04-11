@@ -18,7 +18,7 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
             sykmeldingId = sykmeldingId,
             utfall = utfall.toString(),
             ferdigstiltAv = ferdigstiltAv,
-            avvisningsgrunn = avvisningsgrunn
+            avvisningsgrunn = avvisningsgrunn,
         )
 
     fun hentFerdigstiltManuellOppgave(sykmeldingId: String): List<ManuellOppgaveDTO> =

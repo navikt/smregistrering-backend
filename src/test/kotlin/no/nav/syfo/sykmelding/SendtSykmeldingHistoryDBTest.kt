@@ -34,7 +34,6 @@ class SendtSykmeldingHistoryDBTest {
 
     @Test
     fun saveSendtSykmeldingToDB() {
-
         val sykmeldingId = UUID.randomUUID().toString()
         val manuellOppgave = createManuellOppgave(sykmeldingId = sykmeldingId)
         val sendtSykmeldingHistory = createSendtSykmeldingHistory(sykmeldingId = sykmeldingId)
@@ -49,7 +48,6 @@ class SendtSykmeldingHistoryDBTest {
     }
 
     private fun createSendtSykmeldingHistory(sykmeldingId: String): SendtSykmeldingHistory {
-
         return SendtSykmeldingHistory(
             id = UUID.randomUUID().toString(),
             sykmeldingId = sykmeldingId,
@@ -58,13 +56,12 @@ class SendtSykmeldingHistoryDBTest {
             getReceivedSykmelding(
                 fnrPasient = "1",
                 sykmelderFnr = "2",
-                sykmeldingId = sykmeldingId
-            )
+                sykmeldingId = sykmeldingId,
+            ),
         )
     }
 
     private fun createManuellOppgave(sykmeldingId: String): PapirSmRegistering {
-
         return PapirSmRegistering(
             journalpostId = "134",
             oppgaveId = "123",
@@ -83,7 +80,7 @@ class SendtSykmeldingHistoryDBTest {
                 null,
                 null,
                 Adresse(null, null, null, null, null),
-                "12345"
+                "12345",
             ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
@@ -99,9 +96,9 @@ class SendtSykmeldingHistoryDBTest {
                     true,
                     false,
                     LocalDate.now(),
-                    LocalDate.now()
+                    LocalDate.now(),
                 ),
-                null
+                null,
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -109,12 +106,12 @@ class SendtSykmeldingHistoryDBTest {
                 annenFraversArsak = null,
                 yrkesskadeDato = null,
                 yrkesskade = false,
-                svangerskap = false
+                svangerskap = false,
             ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
-            skjermesForPasient = false
+            skjermesForPasient = false,
         )
     }
 }
@@ -124,7 +121,7 @@ fun DatabaseInterface.getSendtSykmeldingHistory(sykmeldingId: String): SendtSykm
         it.prepareStatement(
             """
            select * from sendt_sykmelding_history where sykmelding_id = ? 
-        """
+        """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeQuery().toSendtSykmeldingHistory()
@@ -139,7 +136,7 @@ private fun ResultSet.toSendtSykmeldingHistory(): SendtSykmeldingHistory? {
             sykmeldingId = getString("sykmelding_id").trim(),
             ferdigstiltAv = getString("ferdigstilt_av").trim(),
             datoFerdigstilt = OffsetDateTime.ofInstant(getTimestamp("dato_ferdigstilt").toInstant(), ZoneId.of("UTC")),
-            receivedSykmelding = objectMapper.readValue(getString("sykmelding"))
+            receivedSykmelding = objectMapper.readValue(getString("sykmelding")),
         )
         else -> null
     }

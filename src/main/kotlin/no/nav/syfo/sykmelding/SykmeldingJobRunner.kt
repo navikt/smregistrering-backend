@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException
 class SykmeldingJobRunner(
     private val applicationState: ApplicationState,
     private val sendtSykmeldingService: SendtSykmeldingService,
-    private val receivedSykmeldingKafkaProducer: KafkaProducers.KafkaRecievedSykmeldingProducer
+    private val receivedSykmeldingKafkaProducer: KafkaProducers.KafkaRecievedSykmeldingProducer,
 ) {
     suspend fun startJobRunner() {
         while (applicationState.ready) {
@@ -51,9 +51,10 @@ class SykmeldingJobRunner(
             val receivedSykmelding = sendtSykmeldingService.getReceivedSykmelding(job.sykmeldingId)
             receivedSykmeldingKafkaProducer.producer.send(
                 ProducerRecord(
-                    receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic, job.sykmeldingId,
-                    receivedSykmelding
-                )
+                    receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic,
+                    job.sykmeldingId,
+                    receivedSykmelding,
+                ),
             ).get()
         } catch (ex: Exception) {
             log.error("Error producing sykmelding to kafka for job $job}")

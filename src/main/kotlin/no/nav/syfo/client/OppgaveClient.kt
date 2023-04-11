@@ -21,7 +21,7 @@ class OppgaveClient(
     private val url: String,
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient,
-    private val scope: String
+    private val scope: String,
 ) {
     suspend fun opprettOppgave(oppgave: OpprettOppgave, msgId: String): Oppgave {
         log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)

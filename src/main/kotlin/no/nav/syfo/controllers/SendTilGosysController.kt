@@ -13,7 +13,7 @@ import no.nav.syfo.util.LoggingMeta
 class SendTilGosysController(
     private val authorizationService: AuthorizationService,
     private val manuellOppgaveDAO: ManuellOppgaveDAO,
-    private val oppgaveService: OppgaveService
+    private val oppgaveService: OppgaveService,
 ) {
 
     suspend fun sendOppgaveTilGosys(
@@ -29,7 +29,7 @@ class SendTilGosysController(
         val tilGosys = oppgaveService.sendOppgaveTilGosys(
             oppgaveId = oppgaveId,
             msgId = loggingMeta.msgId,
-            tilordnetRessurs = veileder.veilederIdent
+            tilordnetRessurs = veileder.veilederIdent,
         )
         manuellOppgaveDAO.ferdigstillSmRegistering(sykmeldingId = sykmeldingId, utfall = Utfall.SENDT_TIL_GOSYS, ferdigstiltAv = veileder.veilederIdent)
 

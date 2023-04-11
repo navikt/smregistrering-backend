@@ -19,7 +19,7 @@ import java.util.UUID
 fun Route.sendOppgaveTilGosys(
     manuellOppgaveDAO: ManuellOppgaveDAO,
     sendTilGosysController: SendTilGosysController,
-    authorizationService: AuthorizationService
+    authorizationService: AuthorizationService,
 ) {
     route("/api/v1") {
         post("oppgave/{oppgaveId}/tilgosys") {
@@ -35,7 +35,7 @@ fun Route.sendOppgaveTilGosys(
                     log.error("Path parameter er feilformattert: oppgaveid")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path er feilformattert: oppgaveid"
+                        "Path er feilformattert: oppgaveid",
                     )
                 }
                 accessToken.isNullOrEmpty() -> {
@@ -43,7 +43,6 @@ fun Route.sendOppgaveTilGosys(
                     call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
                 }
                 else -> {
-
                     val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId)
 
                     if (manuellOppgaveDTOList.isEmpty()) {
@@ -60,7 +59,7 @@ fun Route.sendOppgaveTilGosys(
                             dokumentInfoId = dokumentInfoId,
                             msgId = callId,
                             sykmeldingId = sykmeldingId,
-                            journalpostId = journalpostId
+                            journalpostId = journalpostId,
                         )
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
@@ -70,7 +69,7 @@ fun Route.sendOppgaveTilGosys(
                         } else {
                             log.warn(
                                 "Veileder har ikke tilgang, {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
                             logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
                             call.respond(HttpStatusCode.Forbidden)

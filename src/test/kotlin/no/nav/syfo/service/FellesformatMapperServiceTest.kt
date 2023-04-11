@@ -49,7 +49,7 @@ class FellesformatMapperServiceTest {
             manuell = smRegisteringManuellt,
             fnrPasient = fnrPasient,
             sykmelderFnr = smRegisteringManuellt.sykmelderFnr,
-            datoOpprettet = datoOpprettet
+            datoOpprettet = datoOpprettet,
         )
 
         assertEquals(10, receivedSykmelding.sykmelding.perioder.first().behandlingsdager)
@@ -67,17 +67,17 @@ class FellesformatMapperServiceTest {
             Diagnose(
                 system = "2.16.578.1.12.4.1.1.7170",
                 kode = "A070",
-                tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
             ),
-            receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose
+            receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose,
         )
         assertEquals(
             Diagnose(
                 system = "2.16.578.1.12.4.1.1.7170",
                 kode = "U070",
-                tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
+                tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»",
             ),
-            receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first()
+            receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first(),
         )
         assertEquals(false, receivedSykmelding.sykmelding.skjermesForPasient)
         assertEquals(true, receivedSykmelding.sykmelding.arbeidsgiver != null)
@@ -92,16 +92,16 @@ class FellesformatMapperServiceTest {
         assertEquals(
             KontaktMedPasient(
                 LocalDate.of(2020, 6, 23),
-                "Ja nei det."
+                "Ja nei det.",
             ),
-            receivedSykmelding.sykmelding.kontaktMedPasient
+            receivedSykmelding.sykmelding.kontaktMedPasient,
         )
         assertEquals(
             LocalDateTime.of(
                 LocalDate.of(2020, 4, 1),
-                LocalTime.NOON
+                LocalTime.NOON,
             ),
-            receivedSykmelding.sykmelding.behandletTidspunkt
+            receivedSykmelding.sykmelding.behandletTidspunkt,
         )
         assertNotNull(receivedSykmelding.sykmelding.behandler)
         assertEquals(AvsenderSystem("Papirsykmelding", journalpostId), receivedSykmelding.sykmelding.avsenderSystem)
@@ -121,25 +121,25 @@ class FellesformatMapperServiceTest {
                     tom = LocalDate.of(2019, Month.SEPTEMBER, 30),
                     aktivitetIkkeMulig = AktivitetIkkeMulig(
                         medisinskArsak = null,
-                        arbeidsrelatertArsak = null
+                        arbeidsrelatertArsak = null,
                     ),
                     avventendeInnspillTilArbeidsgiver = null,
                     behandlingsdager = null,
                     gradert = null,
-                    reisetilskudd = false
-                )
+                    reisetilskudd = false,
+                ),
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(
                     system = "2.16.578.1.12.4.1.1.7170",
                     kode = "A070",
-                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                 ),
                 biDiagnoser = listOf(),
                 svangerskap = false,
                 yrkesskade = false,
                 yrkesskadeDato = null,
-                annenFraversArsak = null
+                annenFraversArsak = null,
             ),
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
@@ -150,7 +150,7 @@ class FellesformatMapperServiceTest {
             meldingTilNAV = null,
             navnFastlege = "Per Person",
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-            harUtdypendeOpplysninger = false
+            harUtdypendeOpplysninger = false,
         )
 
         val fellesformat = getXmleiFellesformat(smRegisteringManuellt, sykmeldingId, datoOpprettet)
@@ -163,7 +163,7 @@ class FellesformatMapperServiceTest {
             pasientAktoerId = aktorId,
             legeAktoerId = aktorIdLege,
             msgId = sykmeldingId,
-            signaturDato = msgHead.msgInfo.genDate
+            signaturDato = msgHead.msgInfo.genDate,
         )
 
         val receivedSykmelding = ReceivedSykmelding(
@@ -186,7 +186,7 @@ class FellesformatMapperServiceTest {
             legeHelsepersonellkategori = "LE",
             legeHprNr = "hpr",
             vedlegg = null,
-            utenlandskSykmelding = null
+            utenlandskSykmelding = null,
         )
 
         assertEquals(fnrPasient, receivedSykmelding.personNrPasient)
@@ -201,9 +201,9 @@ class FellesformatMapperServiceTest {
             Diagnose(
                 system = "2.16.578.1.12.4.1.1.7170",
                 kode = "A070",
-                tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
             ),
-            receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose
+            receivedSykmelding.sykmelding.medisinskVurdering.hovedDiagnose,
         )
         assertEquals(receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser, emptyList<Diagnose>())
         assertEquals(false, receivedSykmelding.sykmelding.medisinskVurdering.svangerskap)
@@ -216,9 +216,9 @@ class FellesformatMapperServiceTest {
                 HarArbeidsgiver.EN_ARBEIDSGIVER,
                 "NAV ikt",
                 "Utvikler",
-                100
+                100,
             ),
-            receivedSykmelding.sykmelding.arbeidsgiver
+            receivedSykmelding.sykmelding.arbeidsgiver,
         )
         assertEquals(1, receivedSykmelding.sykmelding.perioder.size)
         assertEquals(AktivitetIkkeMulig(null, null), receivedSykmelding.sykmelding.perioder[0].aktivitetIkkeMulig)
@@ -232,24 +232,24 @@ class FellesformatMapperServiceTest {
         assertEquals(
             MeldingTilNAV(
                 bistandUmiddelbart = false,
-                beskrivBistand = ""
+                beskrivBistand = "",
             ),
-            receivedSykmelding.sykmelding.meldingTilNAV
+            receivedSykmelding.sykmelding.meldingTilNAV,
         )
         assertEquals(null, receivedSykmelding.sykmelding.meldingTilArbeidsgiver)
         assertEquals(
             KontaktMedPasient(
                 LocalDate.of(2020, 6, 23),
-                "Ja nei det."
+                "Ja nei det.",
             ),
-            receivedSykmelding.sykmelding.kontaktMedPasient
+            receivedSykmelding.sykmelding.kontaktMedPasient,
         )
         assertEquals(
             LocalDateTime.of(
                 LocalDate.of(2020, 4, 1),
-                LocalTime.NOON
+                LocalTime.NOON,
             ),
-            receivedSykmelding.sykmelding.behandletTidspunkt
+            receivedSykmelding.sykmelding.behandletTidspunkt,
         )
         assertEquals(
             Behandler(
@@ -261,9 +261,9 @@ class FellesformatMapperServiceTest {
                 hpr = "hpr",
                 her = null,
                 adresse = Adresse(null, null, null, null, null),
-                tlf = "tel:55553336"
+                tlf = "tel:55553336",
             ),
-            receivedSykmelding.sykmelding.behandler
+            receivedSykmelding.sykmelding.behandler,
         )
         assertEquals(AvsenderSystem("Papirsykmelding", journalpostId), receivedSykmelding.sykmelding.avsenderSystem)
         assertEquals(LocalDate.of(2020, 4, 1), receivedSykmelding.sykmelding.syketilfelleStartDato)
@@ -282,25 +282,25 @@ class FellesformatMapperServiceTest {
                     tom = LocalDate.of(2019, Month.SEPTEMBER, 30),
                     aktivitetIkkeMulig = AktivitetIkkeMulig(
                         medisinskArsak = null,
-                        arbeidsrelatertArsak = null
+                        arbeidsrelatertArsak = null,
                     ),
                     avventendeInnspillTilArbeidsgiver = null,
                     behandlingsdager = null,
                     gradert = null,
-                    reisetilskudd = false
-                )
+                    reisetilskudd = false,
+                ),
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(
                     system = "2.16.578.1.12.4.1.1.7170",
                     kode = "A070",
-                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                 ),
                 biDiagnoser = listOf(),
                 svangerskap = false,
                 yrkesskade = false,
                 yrkesskadeDato = null,
-                annenFraversArsak = null
+                annenFraversArsak = null,
             ),
             syketilfelleStartDato = LocalDate.of(2020, 4, 1),
             skjermesForPasient = false,
@@ -311,7 +311,7 @@ class FellesformatMapperServiceTest {
             meldingTilNAV = null,
             navnFastlege = "Per Person",
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-            harUtdypendeOpplysninger = false
+            harUtdypendeOpplysninger = false,
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
@@ -329,25 +329,25 @@ class FellesformatMapperServiceTest {
                     tom = LocalDate.of(2019, Month.SEPTEMBER, 30),
                     aktivitetIkkeMulig = AktivitetIkkeMulig(
                         medisinskArsak = null,
-                        arbeidsrelatertArsak = null
+                        arbeidsrelatertArsak = null,
                     ),
                     avventendeInnspillTilArbeidsgiver = null,
                     behandlingsdager = null,
                     gradert = null,
-                    reisetilskudd = false
-                )
+                    reisetilskudd = false,
+                ),
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(
                     system = "2.16.578.1.12.4.1.1.7170",
                     kode = "A070",
-                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                 ),
                 biDiagnoser = listOf(),
                 svangerskap = false,
                 yrkesskade = false,
                 yrkesskadeDato = null,
-                annenFraversArsak = null
+                annenFraversArsak = null,
             ),
             syketilfelleStartDato = null,
             skjermesForPasient = false,
@@ -358,7 +358,7 @@ class FellesformatMapperServiceTest {
             meldingTilNAV = null,
             navnFastlege = "Per Person",
             behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-            harUtdypendeOpplysninger = false
+            harUtdypendeOpplysninger = false,
         )
 
         val tilSyketilfelleStartDato = tilSyketilfelleStartDato(smRegisteringManuell)
@@ -374,7 +374,7 @@ class FellesformatMapperServiceTest {
             avventendeInnspillTilArbeidsgiver = null,
             behandlingsdager = null,
             gradert = Gradert(reisetilskudd = true, grad = 50),
-            reisetilskudd = false
+            reisetilskudd = false,
         )
 
         val periode = tilHelseOpplysningerArbeidsuforhetPeriode(gradertPeriode)
@@ -402,33 +402,33 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOp
                 aktivitetIkkeMulig = AktivitetIkkeMulig(
                     medisinskArsak = MedisinskArsak(
                         beskrivelse = "test data",
-                        arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                        arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET),
                     ),
-                    arbeidsrelatertArsak = null
+                    arbeidsrelatertArsak = null,
                 ),
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = 10,
                 gradert = null,
-                reisetilskudd = false
-            )
+                reisetilskudd = false,
+            ),
         ),
         medisinskVurdering = MedisinskVurdering(
             hovedDiagnose = Diagnose(
                 system = "2.16.578.1.12.4.1.1.7170",
                 kode = "A070",
-                tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
             ),
             biDiagnoser = listOf(
                 Diagnose(
                     system = "2.16.578.1.12.4.1.1.7170",
                     kode = "U070",
-                    tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»"
-                )
+                    tekst = "Forstyrrelse relatert til bruk av e-sigarett «Vaping related disorder»",
+                ),
             ),
             svangerskap = false,
             yrkesskade = false,
             yrkesskadeDato = null,
-            annenFraversArsak = null
+            annenFraversArsak = null,
         ),
         syketilfelleStartDato = LocalDate.of(2020, 4, 1),
         skjermesForPasient = false,
@@ -439,7 +439,7 @@ fun getSmRegistreringManuell(fnrPasient: String, fnrLege: String, harUtdypendeOp
         meldingTilNAV = null,
         navnFastlege = "Per Person",
         behandler = Behandler("Per", "", "Person", "123", "", "", "", Adresse(null, null, null, null, null), ""),
-        harUtdypendeOpplysninger = harUtdypendeOpplysninger
+        harUtdypendeOpplysninger = harUtdypendeOpplysninger,
     )
 }
 

@@ -28,7 +28,7 @@ private fun upsertJobs(connection: Connection, jobs: List<Job>) {
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT (sykmelding_id, name) DO UPDATE SET updated = ?,
                                                             status  = ?;
-            """
+            """,
     ).use {
         for (job in jobs) {
             var i = 1
@@ -88,7 +88,7 @@ fun DatabaseInterface.resetJobs(): Int {
         connection.prepareStatement(
             """
            update job set status = '${JOB_STATUS.NEW.name}', updated = ? where status = '${JOB_STATUS.IN_PROGRESS.name}' and updated < ?
-        """
+        """,
         ).use { ps ->
             ps.setTimestamp(1, Timestamp.from(Instant.now()))
             ps.setTimestamp(2, Timestamp.from(resetTimestamp.toInstant()))
@@ -103,7 +103,7 @@ private fun updateJob(connection: Connection, job: Job): Int {
     return connection.prepareStatement(
         """
                 update job set status=?, updated=? where name=? and sykmelding_id=? 
-            """
+            """,
     ).use {
         var i = 0
         it.setString(++i, job.status.name)
@@ -119,7 +119,7 @@ private fun getJob(connection: Connection, status: JOB_STATUS): Job? {
     return connection.prepareStatement(
         """
             SELECT * from job where status = ? order by created desc limit 1 for update skip locked ;
-        """
+        """,
     ).use {
         it.setString(1, status.name)
         it.executeQuery().toJob()
@@ -132,7 +132,7 @@ private fun ResultSet.toJob(): Job? {
             sykmeldingId = getString("sykmelding_id"),
             updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
             name = JOB_NAME.valueOf(getString("name")),
-            status = JOB_STATUS.valueOf(getString("status"))
+            status = JOB_STATUS.valueOf(getString("status")),
         )
     } else {
         null

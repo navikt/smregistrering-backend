@@ -7,7 +7,6 @@ import io.ktor.util.pipeline.PipelineContext
 val REGEX = """(\d{2,9})""".toRegex()
 
 fun monitorHttpRequests(): suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit {
-
     return {
         val path = context.request.path()
         val label = REGEX.replace(path, ":id")

@@ -121,7 +121,9 @@ class SendPapirSykmeldingTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -134,8 +136,8 @@ class SendPapirSykmeldingTest {
                         sendtSykmeldingService,
                         oppgaveService,
                         journalpostService,
-                        manuellOppgaveDAO
-                    )
+                        manuellOppgaveDAO,
+                    ),
                 )
             }
 
@@ -180,7 +182,7 @@ class SendPapirSykmeldingTest {
                     "hpr",
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -196,9 +198,9 @@ class SendPapirSykmeldingTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -206,12 +208,12 @@ class SendPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
@@ -226,27 +228,27 @@ class SendPapirSykmeldingTest {
                         aktivitetIkkeMulig = AktivitetIkkeMulig(
                             medisinskArsak = MedisinskArsak(
                                 beskrivelse = "test data",
-                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET)
+                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET),
                             ),
-                            arbeidsrelatertArsak = null
+                            arbeidsrelatertArsak = null,
                         ),
                         avventendeInnspillTilArbeidsgiver = null,
                         behandlingsdager = null,
                         gradert = null,
-                        reisetilskudd = false
-                    )
+                        reisetilskudd = false,
+                    ),
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(
                         system = "2.16.578.1.12.4.1.1.7170",
                         kode = "A070",
-                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium"
+                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
                     ),
                     biDiagnoser = listOf(),
                     svangerskap = false,
                     yrkesskade = false,
                     yrkesskadeDato = null,
-                    annenFraversArsak = null
+                    annenFraversArsak = null,
                 ),
                 syketilfelleStartDato = LocalDate.of(2020, 4, 1),
                 skjermesForPasient = false,
@@ -261,13 +263,13 @@ class SendPapirSykmeldingTest {
                     "hpr",
                     "",
                     Adresse(null, null, null, null, null),
-                    ""
+                    "",
                 ),
                 kontaktMedPasient = KontaktMedPasient(LocalDate.MAX, "Ja nei det."),
                 meldingTilArbeidsgiver = "Nei",
                 meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
                 navnFastlege = "Per Person",
-                harUtdypendeOpplysninger = false
+                harUtdypendeOpplysninger = false,
             )
 
             val future = mockk<Future<RecordMetadata>>()
@@ -290,7 +292,7 @@ class SendPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
@@ -309,7 +311,7 @@ class SendPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
             coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
                 Samhandler(
@@ -324,8 +326,8 @@ class SendPapirSykmeldingTest {
                     godkjent_for_fil = "0",
                     endringslogg_tidspunkt_siste = Calendar.getInstance().time,
                     samh_praksis = listOf(),
-                    samh_ident = listOf()
-                )
+                    samh_ident = listOf(),
+                ),
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
@@ -338,31 +340,36 @@ class SendPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
 
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
-                ruleHits = emptyList()
+                ruleHits = emptyList(),
             )
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn(
                     "Billy",
                     "Bob",
-                    "Thornton"
+                    "Thornton",
                 ),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
-                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                    aktorId = "aktorid",
+                    etternavn = "Thornton",
+                    fornavn = "Billy",
+                    mellomnavn = "Bob",
+                    fnr = "12345",
+                    hprNummer = "hpr",
+                    godkjenninger = null,
                 )
 
             with(
@@ -372,7 +379,7 @@ class SendPapirSykmeldingTest {
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
             }
@@ -389,7 +396,9 @@ class SendPapirSykmeldingTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -402,8 +411,8 @@ class SendPapirSykmeldingTest {
                         sendtSykmeldingService,
                         oppgaveService,
                         journalpostService,
-                        manuellOppgaveDAO
-                    )
+                        manuellOppgaveDAO,
+                    ),
                 )
             }
 
@@ -447,7 +456,7 @@ class SendPapirSykmeldingTest {
                     "hpr",
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -463,12 +472,12 @@ class SendPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
@@ -476,8 +485,8 @@ class SendPapirSykmeldingTest {
             val smRegisteringManuell = objectMapper.readValue<SmRegistreringManuell>(
                 String(
                     Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell.json")),
-                    StandardCharsets.UTF_8
-                )
+                    StandardCharsets.UTF_8,
+                ),
             )
 
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -499,7 +508,7 @@ class SendPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
 
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
@@ -518,7 +527,7 @@ class SendPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
             coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
                 Samhandler(
@@ -533,8 +542,8 @@ class SendPapirSykmeldingTest {
                     godkjent_for_fil = "0",
                     endringslogg_tidspunkt_siste = Calendar.getInstance().time,
                     samh_praksis = listOf(),
-                    samh_ident = listOf()
-                )
+                    samh_ident = listOf(),
+                ),
             )
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
@@ -547,27 +556,32 @@ class SendPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
 
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
-                ruleHits = emptyList()
+                ruleHits = emptyList(),
             )
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
-                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = "12345", hprNummer = "hpr", godkjenninger = null
+                    aktorId = "aktorid",
+                    etternavn = "Thornton",
+                    fornavn = "Billy",
+                    mellomnavn = "Bob",
+                    fnr = "12345",
+                    hprNummer = "hpr",
+                    godkjenninger = null,
                 )
 
             with(
@@ -577,7 +591,7 @@ class SendPapirSykmeldingTest {
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.NoContent, response.status())
             }
@@ -588,7 +602,7 @@ class SendPapirSykmeldingTest {
                     addHeader("Content-Type", "application/json")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
@@ -604,7 +618,9 @@ class SendPapirSykmeldingTest {
             start()
 
             application.setupAuth(
-                this@SendPapirSykmeldingTest.environment, jwkProvider, "https://sts.issuer.net/myid"
+                this@SendPapirSykmeldingTest.environment,
+                jwkProvider,
+                "https://sts.issuer.net/myid",
             )
             application.routing {
                 sendPapirSykmeldingManuellOppgave(
@@ -617,8 +633,8 @@ class SendPapirSykmeldingTest {
                         sendtSykmeldingService,
                         oppgaveService,
                         journalpostService,
-                        manuellOppgaveDAO
-                    )
+                        manuellOppgaveDAO,
+                    ),
                 )
             }
 
@@ -667,7 +683,7 @@ class SendPapirSykmeldingTest {
                     "hpr",
                     null,
                     Adresse(null, null, null, null, null),
-                    "12345"
+                    "12345",
                 ),
                 kontaktMedPasient = null,
                 meldingTilArbeidsgiver = null,
@@ -683,9 +699,9 @@ class SendPapirSykmeldingTest {
                         true,
                         false,
                         LocalDate.now(),
-                        LocalDate.now()
+                        LocalDate.now(),
                     ),
-                    null
+                    null,
                 ),
                 medisinskVurdering = MedisinskVurdering(
                     hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -693,12 +709,12 @@ class SendPapirSykmeldingTest {
                     annenFraversArsak = null,
                     yrkesskadeDato = null,
                     yrkesskade = false,
-                    svangerskap = false
+                    svangerskap = false,
                 ),
                 arbeidsgiver = null,
                 behandletTidspunkt = null,
                 perioder = null,
-                skjermesForPasient = false
+                skjermesForPasient = false,
             )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
@@ -706,8 +722,8 @@ class SendPapirSykmeldingTest {
             val smRegisteringManuell = objectMapper.readValue<SmRegistreringManuell>(
                 String(
                     Files.readAllBytes(Paths.get("src/test/resources/sm_registrering_manuell_ugyldig_validering.json")),
-                    StandardCharsets.UTF_8
-                )
+                    StandardCharsets.UTF_8,
+                ),
             )
 
             coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
@@ -728,7 +744,7 @@ class SendPapirSykmeldingTest {
                 prioritet = "",
                 saksreferanse = "",
                 tema = "",
-                status = "OPPRETTET"
+                status = "OPPRETTET",
             )
             coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
                 Samhandler(
@@ -743,8 +759,8 @@ class SendPapirSykmeldingTest {
                     godkjent_for_fil = "0",
                     endringslogg_tidspunkt_siste = Calendar.getInstance().time,
                     samh_praksis = listOf(),
-                    samh_ident = listOf()
-                )
+                    samh_ident = listOf(),
+                ),
             )
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -756,33 +772,37 @@ class SendPapirSykmeldingTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
 
             coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
                 status = Status.OK,
-                ruleHits = emptyList()
+                ruleHits = emptyList(),
             )
 
             coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
                 Navn("Billy", "Bob", "Thornton"),
                 listOf(
                     IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID")
-                )
+                    IdentInformasjon("12345", false, "AKTORID"),
+                ),
             )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
-                    aktorId = "aktorid", etternavn = "Thornton", fornavn = "Billy", mellomnavn = "Bob",
-                    fnr = "12345", hprNummer = "hpr",
+                    aktorId = "aktorid",
+                    etternavn = "Thornton",
+                    fornavn = "Billy",
+                    mellomnavn = "Bob",
+                    fnr = "12345",
+                    hprNummer = "hpr",
                     godkjenninger = listOf(
                         Godkjenning(
                             Kode(aktiv = true, oid = 1, verdi = "FOO"),
-                            Kode(aktiv = true, oid = 1, verdi = "BAR")
-                        )
-                    )
+                            Kode(aktiv = true, oid = 1, verdi = "BAR"),
+                        ),
+                    ),
                 )
 
             with(
@@ -792,7 +812,7 @@ class SendPapirSykmeldingTest {
                     addHeader("X-Nav-Enhet", "1234")
                     addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                }
+                },
             ) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
                 assertEquals(ContentType.Application.Json, response.contentType())

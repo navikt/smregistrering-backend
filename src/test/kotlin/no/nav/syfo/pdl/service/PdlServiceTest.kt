@@ -42,7 +42,7 @@ internal class PdlServiceTest {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(null, null),
-            errors = null
+            errors = null,
         )
 
         val exception = assertFailsWith<PersonNotFoundInPdl> {
@@ -59,11 +59,11 @@ internal class PdlServiceTest {
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
                 hentPerson = HentPerson(
-                    navn = emptyList()
+                    navn = emptyList(),
                 ),
-                hentIdenter = Identliste(emptyList())
+                hentIdenter = Identliste(emptyList()),
             ),
-            errors = null
+            errors = null,
         )
         val exception = assertFailsWith<PersonNotFoundInPdl> {
             runBlocking {
@@ -79,19 +79,19 @@ internal class PdlServiceTest {
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
                 hentPerson = HentPerson(
-                    navn = null
+                    navn = null,
                 ),
                 hentIdenter = Identliste(
                     listOf(
                         IdentInformasjon(
                             ident = "987654321",
                             gruppe = "foo",
-                            historisk = false
-                        )
-                    )
-                )
+                            historisk = false,
+                        ),
+                    ),
+                ),
             ),
-            errors = null
+            errors = null,
         )
         val exception = assertFailsWith<PersonNotFoundInPdl> {
             runBlocking {
@@ -107,11 +107,11 @@ internal class PdlServiceTest {
         coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
             PdlResponse(
                 hentPerson = HentPerson(
-                    navn = listOf(Navn("fornavn", "mellomnavn", "etternavn"))
+                    navn = listOf(Navn("fornavn", "mellomnavn", "etternavn")),
                 ),
-                hentIdenter = Identliste(emptyList())
+                hentIdenter = Identliste(emptyList()),
             ),
-            errors = null
+            errors = null,
         )
         val exception = assertFailsWith<AktoerNotFoundException> {
             runBlocking {

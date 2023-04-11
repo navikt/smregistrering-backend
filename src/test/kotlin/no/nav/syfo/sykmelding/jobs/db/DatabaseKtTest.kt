@@ -49,7 +49,7 @@ class DatabaseKtTest {
             sykmeldingId = sykmeldingId.toString(),
             status = JOB_STATUS.IN_PROGRESS,
             name = JOB_NAME.SENDT_SYKMELDING,
-            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(59)
+            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(59),
         )
         testDb.insertJobs(listOf(inProgress))
 
@@ -70,7 +70,7 @@ class DatabaseKtTest {
             sykmeldingId = sykmeldingId.toString(),
             status = JOB_STATUS.IN_PROGRESS,
             name = JOB_NAME.SENDT_SYKMELDING,
-            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(61)
+            updated = OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC)).minusMinutes(61),
         )
         testDb.insertJobs(listOf(inProgress))
 
@@ -94,8 +94,8 @@ class DatabaseKtTest {
             getReceivedSykmelding(
                 fnrPasient = "3",
                 sykmelderFnr = "2",
-                sykmeldingId = sykmeldingId.toString()
-            )
+                sykmeldingId = sykmeldingId.toString(),
+            ),
         )
         val savedSykmelding = testDb.getSykmelding(sykmeldingId.toString())
         val savedNotUpdatedSykmelding = testDb.getSykmelding(notUpdated.sykmelding.id)
@@ -127,7 +127,6 @@ class DatabaseKtTest {
         testDb.insertJobs(listOf(newJob.copy(name = JOB_NAME.SENDT_TO_SYFOSERVICE), newJob))
 
         runBlocking {
-
             var firstJob: Job? = null
             var secondJob: Job? = null
             val job = GlobalScope.launch {
@@ -162,8 +161,8 @@ class DatabaseKtTest {
             getReceivedSykmelding(
                 fnrPasient = "1",
                 sykmelderFnr = "2",
-                sykmeldingId = sykmeldingId.toString()
-            )
+                sykmeldingId = sykmeldingId.toString(),
+            ),
         )
     }
 }
@@ -173,7 +172,7 @@ fun DatabaseInterface.getJobForSykmeldingId(sykmeldingId: String): List<Job?> {
         it.prepareStatement(
             """
            select * from job where sykmelding_id = ? 
-        """
+        """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeQuery().toList {
@@ -181,7 +180,7 @@ fun DatabaseInterface.getJobForSykmeldingId(sykmeldingId: String): List<Job?> {
                     sykmeldingId = getString("sykmelding_id"),
                     updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
                     name = JOB_NAME.valueOf(getString("name")),
-                    status = JOB_STATUS.valueOf(getString("status"))
+                    status = JOB_STATUS.valueOf(getString("status")),
                 )
             }
         }
@@ -193,7 +192,7 @@ fun DatabaseInterface.getJob(status: JOB_STATUS): List<Job?> {
         it.prepareStatement(
             """
            select * from job where status = ? 
-        """
+        """,
         ).use {
             it.setString(1, status.name)
             it.executeQuery().toList {
@@ -201,7 +200,7 @@ fun DatabaseInterface.getJob(status: JOB_STATUS): List<Job?> {
                     sykmeldingId = getString("sykmelding_id"),
                     updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
                     name = JOB_NAME.valueOf(getString("name")),
-                    status = JOB_STATUS.valueOf(getString("status"))
+                    status = JOB_STATUS.valueOf(getString("status")),
                 )
             }
         }

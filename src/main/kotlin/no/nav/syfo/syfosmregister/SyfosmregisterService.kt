@@ -8,7 +8,7 @@ import no.nav.syfo.syfosmregister.papirsykmelding.model.PapirsykmeldingDTO
 class SyfosmregisterService(
     private val accessTokenClientV2: AzureAdV2Client,
     private val syfosmregisterClient: SyfosmregisterClient,
-    private val scope: String
+    private val scope: String,
 ) {
 
     suspend fun hentSykmelding(sykmeldingId: String): PapirsykmeldingDTO? {

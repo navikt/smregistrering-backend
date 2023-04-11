@@ -17,7 +17,7 @@ fun DatabaseInterface.hentManuellOppgaver(oppgaveId: Int, ferdigstilt: Boolean =
                 FROM MANUELLOPPGAVE  
                 WHERE oppgave_id=? 
                 AND ferdigstilt=?;
-                """
+                """,
         ).use {
             it.setInt(1, oppgaveId)
             it.setBoolean(2, ferdigstilt)
@@ -32,7 +32,7 @@ fun DatabaseInterface.hentManuellOppgaveForSykmelding(sykmeldingId: String): Lis
                 SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering
                 FROM MANUELLOPPGAVE  
                 WHERE id=? 
-                """
+                """,
         ).use {
             it.setString(1, sykmeldingId)
             it.executeQuery().toList { toManuellOppgaveDTO() }
@@ -52,5 +52,5 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         papirSmRegistering = getString("papir_sm_registrering")?.let {
             objectMapper.readValue<PapirSmRegistering>(it)
         },
-        pdfPapirSykmelding = null
+        pdfPapirSykmelding = null,
     )

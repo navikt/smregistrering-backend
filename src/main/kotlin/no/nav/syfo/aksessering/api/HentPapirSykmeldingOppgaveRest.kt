@@ -23,7 +23,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveDAO: ManuellOppgaveDAO,
     safDokumentClient: SafDokumentClient,
     sendTilGosysController: SendTilGosysController,
-    authorizationService: AuthorizationService
+    authorizationService: AuthorizationService,
 ) {
     route("/api/v1") {
         get("/oppgave/{oppgaveid}") {
@@ -47,17 +47,17 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                 manuellOppgaveDTOList.isEmpty() -> {
                     log.info(
                         "Fant ingen uløste manuelloppgaver med oppgaveid {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                        StructuredArguments.keyValue("oppgaveId", oppgaveId),
                     )
                     call.respond(
                         HttpStatusCode.NotFound,
-                        "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId"
+                        "Fant ingen uløste manuelle oppgaver med oppgaveid $oppgaveId",
                     )
                 }
                 else -> {
                     log.info(
                         "Henter ut oppgave med {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                        StructuredArguments.keyValue("oppgaveId", oppgaveId),
                     )
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
@@ -70,7 +70,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId ?: "",
                                     msgId = manuellOppgaveDTOList.first().sykmeldingId,
                                     accessToken = accessToken,
-                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
+                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                 )
                                 if (pdfPapirSykmelding == null) {
                                     call.respond(HttpStatusCode.InternalServerError)
@@ -80,7 +80,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                         sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
                                         oppgaveid = oppgaveId,
                                         pdfPapirSykmelding = pdfPapirSykmelding,
-                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering
+                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering,
                                     )
 
                                     call.respond(papirManuellOppgave)
@@ -88,7 +88,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                             } catch (safForbiddenException: SafForbiddenException) {
                                 call.respond(HttpStatusCode.Forbidden, "Du har ikke tilgang til dokumentet i SAF")
                             } catch (safNotFoundException: SafNotFoundException) {
-
                                 val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
                                 val journalpostId = manuellOppgaveDTOList.first().journalpostId
                                 val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
@@ -98,7 +97,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     dokumentInfoId = dokumentInfoId,
                                     msgId = sykmeldingId,
                                     sykmeldingId = sykmeldingId,
-                                    journalpostId = journalpostId
+                                    journalpostId = journalpostId,
                                 )
 
                                 sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
@@ -108,7 +107,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         } else {
                             log.warn(
                                 "Veileder har ikkje tilgang, {}",
-                                StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
                             logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
                             call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")

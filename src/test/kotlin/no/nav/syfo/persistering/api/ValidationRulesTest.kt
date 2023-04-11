@@ -28,7 +28,7 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
+                reisetilskudd = false,
             ),
             Periode(
                 fom = LocalDate.of(2020, 9, 8),
@@ -37,8 +37,8 @@ class ValidationRulesTest {
                 gradert = Gradert(reisetilskudd = false, grad = 50),
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
-            )
+                reisetilskudd = false,
+            ),
         )
 
         assertEquals(true, harOverlappendePerioder(perioder))
@@ -54,7 +54,7 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
+                reisetilskudd = false,
             ),
             Periode(
                 fom = LocalDate.of(2020, 9, 1),
@@ -63,8 +63,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
-            )
+                reisetilskudd = false,
+            ),
         )
 
         assertEquals(true, harOverlappendePerioder(perioder))
@@ -80,7 +80,7 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
+                reisetilskudd = false,
             ),
             Periode(
                 fom = LocalDate.of(2020, 9, 11),
@@ -89,8 +89,8 @@ class ValidationRulesTest {
                 gradert = Gradert(reisetilskudd = false, grad = 50),
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
-            )
+                reisetilskudd = false,
+            ),
         )
 
         assertEquals(false, harOverlappendePerioder(perioder))
@@ -106,8 +106,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(false, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -123,8 +123,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(true, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -140,8 +140,8 @@ class ValidationRulesTest {
                 gradert = Gradert(reisetilskudd = false, grad = 50),
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(true, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -157,8 +157,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = "Innspill",
                 behandlingsdager = null,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(true, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -174,8 +174,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = 5,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(true, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -191,7 +191,7 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = false
+                reisetilskudd = false,
             ),
             Periode(
                 fom = LocalDate.of(2020, 9, 11),
@@ -200,8 +200,8 @@ class ValidationRulesTest {
                 gradert = null,
                 avventendeInnspillTilArbeidsgiver = null,
                 behandlingsdager = null,
-                reisetilskudd = true
-            )
+                reisetilskudd = true,
+            ),
         )
 
         assertEquals(false, harUlovligKombinasjonMedReisetilskudd(perioder))
@@ -224,22 +224,29 @@ class ValidationRulesTest {
     @Test
     fun `studentLisensSkalKasteFeil`() {
         val smRegistreringManuell = getSmRegistreringManuell(
-            "12345678912", "12345678912",
-            false
+            "12345678912",
+            "12345678912",
+            false,
         )
         val sykmelder = Sykmelder(
-            "hpr", "12345678912", null, null, null,
+            "hpr",
+            "12345678912",
             null,
-            listOf(Godkjenning(helsepersonellkategori = null, autorisasjon = Kode(true, 7704, "3")))
+            null,
+            null,
+            null,
+            listOf(Godkjenning(helsepersonellkategori = null, autorisasjon = Kode(true, 7704, "3"))),
         )
         val validationResult = ValidationResult(
             Status.MANUAL_PROCESSING,
             ruleHits = listOf(
                 RuleInfo(
                     ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
-                    messageForUser = "", messageForSender = "", ruleStatus = Status.MANUAL_PROCESSING
-                )
-            )
+                    messageForUser = "",
+                    messageForSender = "",
+                    ruleStatus = Status.MANUAL_PROCESSING,
+                ),
+            ),
         )
 
         val exception = assertFailsWith<ValidationException> {
@@ -254,11 +261,11 @@ class ValidationRulesTest {
                         ruleName = RuleHitCustomError.BEHANDLER_MANGLER_AUTORISASJON_I_HPR.name,
                         messageForSender = "Studenter har ikke lov til å skrive sykmelding. Sykmelding må avvises.",
                         messageForUser = "Studenter har ikke lov til å skrive sykmelding.",
-                        ruleStatus = Status.MANUAL_PROCESSING
-                    )
-                )
+                        ruleStatus = Status.MANUAL_PROCESSING,
+                    ),
+                ),
             ),
-            exception.validationResult
+            exception.validationResult,
         )
     }
 }

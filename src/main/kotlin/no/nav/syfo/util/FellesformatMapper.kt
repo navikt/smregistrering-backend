@@ -43,7 +43,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
     sykmelder: Sykmelder,
     sykmeldingId: String,
     datoOpprettet: LocalDateTime?,
-    journalpostId: String
+    journalpostId: String,
 ): XMLEIFellesformat {
     return XMLEIFellesformat().apply {
         any.add(
@@ -79,8 +79,8 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                                 s = "2.16.578.1.12.4.1.1.8327"
                                                 v = "FNR"
                                             }
-                                        }
-                                    )
+                                        },
+                                    ),
                                 )
                             }
                         }
@@ -109,8 +109,8 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                             s = "2.16.578.1.12.4.1.1.9051"
                                             v = "ENH"
                                         }
-                                    }
-                                )
+                                    },
+                                ),
                             )
                         }
                     }
@@ -145,7 +145,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                         medisinskVurdering =
                                             tilMedisinskVurdering(
                                                 smRegistreringManuell.medisinskVurdering,
-                                                smRegistreringManuell.skjermesForPasient
+                                                smRegistreringManuell.skjermesForPasient,
                                             )
                                         aktivitet = HelseOpplysningerArbeidsuforhet.Aktivitet().apply {
                                             periode.addAll(tilPeriodeListe(smRegistreringManuell.perioder))
@@ -170,13 +170,13 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                             systemVersjon = journalpostId // Dette er nødvendig for at vi skal slippe å opprette generert PDF for papirsykmeldinger i syfosmsak
                                         }
                                         strekkode = "123456789qwerty"
-                                    }
+                                    },
                                 )
                             }
                         }
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 }
@@ -212,8 +212,8 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
                         s = "2.16.578.1.12.4.1.1.8116"
                         v = "HPR"
                     }
-                }
-            )
+                },
+            ),
         )
         adresse = Address()
         kontaktInfo.add(
@@ -225,7 +225,7 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
                 teleAddress = URL().apply {
                     v = "tel:55553336"
                 }
-            }
+            },
         )
     }
 
@@ -243,14 +243,14 @@ fun flaggScanHarUtdypendeOpplysninger(): HelseOpplysningerArbeidsuforhet.Utdypen
                                 CS().apply {
                                     dn = RestrictionCode.RESTRICTED_FOR_EMPLOYER.text
                                     v = RestrictionCode.RESTRICTED_FOR_EMPLOYER.codeValue
-                                }
+                                },
                             )
                         }
                         spmId = "6.1.1"
                         svarTekst = "Papirsykmeldingen inneholder utdypende opplysninger."
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 }
@@ -260,7 +260,7 @@ fun tilPeriodeListe(perioder: List<Periode>): List<HelseOpplysningerArbeidsuforh
         addAll(
             perioder.map {
                 tilHelseOpplysningerArbeidsuforhetPeriode(it)
-            }
+            },
         )
     }
 }
@@ -280,7 +280,7 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
                                     v = it.codeValue
                                     dn = it.text
                                 }
-                            }.collect(Collectors.toList())
+                            }.collect(Collectors.toList()),
                         )
                     }
                 } else {
@@ -295,7 +295,7 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(periode: Periode): HelseOpplysning
                                     v = it.codeValue
                                     dn = it.text
                                 }
-                            }.collect(Collectors.toList())
+                            }.collect(Collectors.toList()),
                         )
                     }
                 } else {
@@ -360,9 +360,8 @@ fun tilArbeidsgiver(arbeidsgiver: Arbeidsgiver): HelseOpplysningerArbeidsuforhet
 
 fun tilMedisinskVurdering(
     medisinskVurdering: MedisinskVurdering,
-    skjermesForPasient: Boolean
+    skjermesForPasient: Boolean,
 ): HelseOpplysningerArbeidsuforhet.MedisinskVurdering {
-
     val biDiagnoseListe: List<CV>? = medisinskVurdering.biDiagnoser.map {
         toMedisinskVurderingDiagnode(it)
     }

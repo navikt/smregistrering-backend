@@ -17,7 +17,7 @@ class SarClient(
     private val endpointUrl: String,
     private val azureAdV2Client: AzureAdV2Client,
     private val resourceId: String,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) {
     suspend fun getSamhandler(ident: String, sykmeldingId: String): List<Samhandler> {
         val accessToken = azureAdV2Client.getAccessToken(resourceId)
@@ -31,7 +31,7 @@ class SarClient(
 }
 
 fun findBestSamhandlerPraksis(
-    samhandlere: List<Samhandler>
+    samhandlere: List<Samhandler>,
 ): SamhandlerPraksis? {
     return getAktivOrInaktivSamhandlerPraksis(samhandlere).also {
         updateSamhandlerMetrics(it)

@@ -23,7 +23,7 @@ class SyfoTilgangsKontrollClient(
     private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(100)
-        .build()
+        .build(),
 ) {
     companion object {
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
@@ -54,14 +54,14 @@ class SyfoTilgangsKontrollClient(
                 else -> {
                     log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status}")
                     Tilgang(
-                        harTilgang = false
+                        harTilgang = false,
                     )
                 }
             }
         } catch (e: Exception) {
             log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll")
             return Tilgang(
-                harTilgang = false
+                harTilgang = false,
             )
         }
     }
@@ -87,19 +87,19 @@ class SyfoTilgangsKontrollClient(
                 else -> {
                     log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang")
                     Tilgang(
-                        harTilgang = false
+                        harTilgang = false,
                     )
                 }
             }
         } catch (e: Exception) {
             log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang")
             return Tilgang(
-                harTilgang = false
+                harTilgang = false,
             )
         }
     }
 }
 
 data class Tilgang(
-    val harTilgang: Boolean
+    val harTilgang: Boolean,
 )

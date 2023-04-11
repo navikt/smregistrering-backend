@@ -7,5 +7,5 @@ data class SendtSykmeldingHistory(
     val sykmeldingId: String,
     val ferdigstiltAv: String,
     val datoFerdigstilt: OffsetDateTime,
-    val receivedSykmelding: ReceivedSykmelding
+    val receivedSykmelding: ReceivedSykmelding,
 )

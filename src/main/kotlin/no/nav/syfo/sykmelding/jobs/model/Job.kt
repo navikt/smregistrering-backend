@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 
 enum class JOB_NAME {
     SENDT_TO_SYFOSERVICE,
-    SENDT_SYKMELDING
+    SENDT_SYKMELDING,
 }
 
 enum class JOB_STATUS {
@@ -15,5 +15,5 @@ data class Job(
     val sykmeldingId: String,
     val name: JOB_NAME,
     val status: JOB_STATUS,
-    val updated: OffsetDateTime
+    val updated: OffsetDateTime,
 )

@@ -17,7 +17,7 @@ import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
 fun Route.endreSykmelding(
-    sendPapirsykmeldingController: SendPapirsykmeldingController
+    sendPapirsykmeldingController: SendPapirsykmeldingController,
 ) {
     route("/api/v1") {
         post("/oppgave/{oppgaveid}/endre") {
@@ -36,7 +36,7 @@ fun Route.endreSykmelding(
                     log.error("Path parameter mangler eller er feil formattert: oppgaveid")
                     call.respond(
                         HttpStatusCode.BadRequest,
-                        "Path parameter mangler eller er feil formattert: oppgaveid"
+                        "Path parameter mangler eller er feil formattert: oppgaveid",
                     )
                 }
                 accessToken == null -> {
@@ -55,7 +55,7 @@ fun Route.endreSykmelding(
                             callId,
                             oppgaveId,
                             navEnhet,
-                            isUpdate = true
+                            isUpdate = true,
                         )
 
                         when {
@@ -74,7 +74,7 @@ fun Route.endreSykmelding(
                         log.warn("Caught UnauthorizedException", e)
                         call.respond(
                             HttpStatusCode.Forbidden,
-                            "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll"
+                            "Et eller flere av systemene rapporterer feil knyttet til tilgangskontroll",
                         )
                     } catch (e: ValidationException) {
                         log.warn("Caught ValidationException", e)

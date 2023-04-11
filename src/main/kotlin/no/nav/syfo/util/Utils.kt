@@ -12,10 +12,10 @@ fun getAccessTokenFromAuthHeader(request: ApplicationRequest): String? {
     val authHeader = request.parseAuthorizationHeader()
     var accessToken: String? = null
     if (!(
-        authHeader == null ||
-            authHeader !is HttpAuthHeader.Single ||
-            authHeader.authScheme != "Bearer"
-        )
+            authHeader == null ||
+                authHeader !is HttpAuthHeader.Single ||
+                authHeader.authScheme != "Bearer"
+            )
     ) {
         accessToken = authHeader.blob
     }
@@ -30,18 +30,16 @@ fun padHpr(hprnummer: String?): String? {
 }
 
 fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning>): List<Godkjenning> {
-
     return if (godkjenninger.isNotEmpty()) {
-
         return godkjenninger.map {
             if (it.helsepersonellkategori?.verdi == "FA") {
                 Godkjenning(
                     helsepersonellkategori = Kode(
                         aktiv = it.helsepersonellkategori.aktiv,
                         oid = it.helsepersonellkategori.oid,
-                        verdi = "FA1"
+                        verdi = "FA1",
                     ),
-                    autorisasjon = it.autorisasjon
+                    autorisasjon = it.autorisasjon,
                 )
             } else {
                 Godkjenning(helsepersonellkategori = it.helsepersonellkategori, autorisasjon = it.autorisasjon)

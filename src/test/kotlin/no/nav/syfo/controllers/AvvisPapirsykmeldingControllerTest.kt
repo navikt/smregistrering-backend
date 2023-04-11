@@ -50,7 +50,6 @@ class AvvisPapirsykmeldingControllerTest {
 
     @Test
     fun avisPapirsykmeldingHappyCase() {
-
         coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(getManuellOppgaveDTO(1))
         coEvery { authorizationService.hasAccess(any(), any()) } returns true
         coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
@@ -69,7 +68,6 @@ class AvvisPapirsykmeldingControllerTest {
 
     @Test
     fun avisPapirsykmeldingVeilederIkkeTilgang() {
-
         coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(getManuellOppgaveDTO(1))
         coEvery { authorizationService.hasAccess(any(), any()) } returns false
 
@@ -96,7 +94,7 @@ class AvvisPapirsykmeldingControllerTest {
             prioritet = "",
             saksreferanse = "",
             tema = "",
-            status = "OPPRETTET"
+            status = "OPPRETTET",
         )
     }
 
@@ -112,7 +110,7 @@ class AvvisPapirsykmeldingControllerTest {
                 "Viktig beskrivelse!\n" +
                 "\n" +
                 "Manuell registrering av sykmelding mottatt på papir",
-            oppdatertBeskrivelse
+            oppdatertBeskrivelse,
         )
     }
 
@@ -125,7 +123,7 @@ class AvvisPapirsykmeldingControllerTest {
             opprinneligBeskrivelse,
             veileder,
             enhet,
-            timestamp
+            timestamp,
         )
 
         assertEquals(
@@ -136,7 +134,7 @@ class AvvisPapirsykmeldingControllerTest {
                 "Viktig beskrivelse!\n" +
                 "\n" +
                 "Manuell registrering av sykmelding mottatt på papir",
-            oppdatertBeskrivelse
+            oppdatertBeskrivelse,
         )
     }
 
@@ -151,12 +149,11 @@ class AvvisPapirsykmeldingControllerTest {
             oppgaveid = oppgaveId,
             papirSmRegistering = getPapirSm(),
             ferdigstilt = false,
-            pdfPapirSykmelding = null
+            pdfPapirSykmelding = null,
         )
     }
 
     fun getPapirSm(): PapirSmRegistering {
-
         return PapirSmRegistering(
             journalpostId = "134",
             oppgaveId = "123",
@@ -175,7 +172,7 @@ class AvvisPapirsykmeldingControllerTest {
                 "hpr",
                 null,
                 Adresse(null, null, null, null, null),
-                "12345"
+                "12345",
             ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
@@ -191,9 +188,9 @@ class AvvisPapirsykmeldingControllerTest {
                     true,
                     false,
                     LocalDate.now(),
-                    LocalDate.now()
+                    LocalDate.now(),
                 ),
-                null
+                null,
             ),
             medisinskVurdering = MedisinskVurdering(
                 hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
@@ -201,12 +198,12 @@ class AvvisPapirsykmeldingControllerTest {
                 annenFraversArsak = null,
                 yrkesskadeDato = null,
                 yrkesskade = false,
-                svangerskap = false
+                svangerskap = false,
             ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
-            skjermesForPasient = false
+            skjermesForPasient = false,
         )
     }
 
@@ -227,7 +224,7 @@ class AvvisPapirsykmeldingControllerTest {
             prioritet = "",
             saksreferanse = "",
             tema = "",
-            status = "OPPRETTET"
+            status = "OPPRETTET",
         )
     }
 }

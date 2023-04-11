@@ -17,7 +17,7 @@ class MSGraphClient(
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient,
     private val oboScope: String = environment.msGraphApiScope,
-    msGraphApiUrl: String = environment.msGraphApiUrl
+    msGraphApiUrl: String = environment.msGraphApiUrl,
 ) {
 
     private val msGraphApiAccountNameQuery = "$msGraphApiUrl/me/?\$select=onPremisesSamAccountName"
@@ -28,7 +28,6 @@ class MSGraphClient(
         .build<String, String>()
 
     suspend fun getSubjectFromMsGraph(accessToken: String): String {
-
         subjectCache.getIfPresent(accessToken)?.let {
             log.debug("Traff subject cache for MSGraph")
             return it
