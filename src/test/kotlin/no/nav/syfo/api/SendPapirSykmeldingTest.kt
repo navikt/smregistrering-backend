@@ -29,7 +29,7 @@ import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
@@ -51,7 +51,6 @@ import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Periode
 import no.nav.syfo.model.Prognose
-import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.Sykmelder
@@ -85,7 +84,6 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.Calendar
 import java.util.concurrent.Future
 
 class SendPapirSykmeldingTest {
@@ -98,7 +96,7 @@ class SendPapirSykmeldingTest {
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
-    private val kuhrsarClient = mockk<SarClient>()
+    private val smTssClient = mockk<SmtssClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val regelClient = mockk<RegelClient>()
@@ -130,7 +128,7 @@ class SendPapirSykmeldingTest {
                     SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
-                        kuhrsarClient,
+                        smTssClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
@@ -313,22 +311,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
-                Samhandler(
-                    samh_id = "12341",
-                    navn = "Perhansen",
-                    samh_type_kode = "fALE",
-                    behandling_utfall_kode = "auto",
-                    unntatt_veiledning = "1",
-                    godkjent_manuell_krav = "0",
-                    ikke_godkjent_for_refusjon = "0",
-                    godkjent_egenandel_refusjon = "0",
-                    godkjent_for_fil = "0",
-                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
-                    samh_praksis = listOf(),
-                    samh_ident = listOf(),
-                ),
-            )
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -405,7 +388,7 @@ class SendPapirSykmeldingTest {
                     SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
-                        kuhrsarClient,
+                        smTssClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
@@ -529,22 +512,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
-                Samhandler(
-                    samh_id = "12341",
-                    navn = "Perhansen",
-                    samh_type_kode = "fALE",
-                    behandling_utfall_kode = "auto",
-                    unntatt_veiledning = "1",
-                    godkjent_manuell_krav = "0",
-                    ikke_godkjent_for_refusjon = "0",
-                    godkjent_egenandel_refusjon = "0",
-                    godkjent_for_fil = "0",
-                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
-                    samh_praksis = listOf(),
-                    samh_ident = listOf(),
-                ),
-            )
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -627,7 +595,7 @@ class SendPapirSykmeldingTest {
                     SendPapirsykmeldingController(
                         sykmelderService,
                         pdlPersonService,
-                        kuhrsarClient,
+                        smTssClient,
                         regelClient,
                         authorizationService,
                         sendtSykmeldingService,
@@ -746,22 +714,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
-                Samhandler(
-                    samh_id = "12341",
-                    navn = "Perhansen",
-                    samh_type_kode = "fALE",
-                    behandling_utfall_kode = "auto",
-                    unntatt_veiledning = "1",
-                    godkjent_manuell_krav = "0",
-                    ikke_godkjent_for_refusjon = "0",
-                    godkjent_egenandel_refusjon = "0",
-                    godkjent_for_fil = "0",
-                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
-                    samh_praksis = listOf(),
-                    samh_ident = listOf(),
-                ),
-            )
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),

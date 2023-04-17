@@ -26,7 +26,7 @@ import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
@@ -40,7 +40,6 @@ import no.nav.syfo.model.MedisinskVurdering
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.model.Prognose
-import no.nav.syfo.model.Samhandler
 import no.nav.syfo.model.Status
 import no.nav.syfo.model.ValidationResult
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
@@ -62,7 +61,6 @@ import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.Calendar
 import java.util.concurrent.Future
 
 internal class HentPapirSykmeldingTest {
@@ -75,7 +73,7 @@ internal class HentPapirSykmeldingTest {
     private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = mockk<OppgaveService>()
-    private val kuhrsarClient = mockk<SarClient>()
+    private val smTssClient = mockk<SmtssClient>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val regelClient = mockk<RegelClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
@@ -207,22 +205,7 @@ internal class HentPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { kuhrsarClient.getSamhandler(any(), any()) } returns listOf(
-                Samhandler(
-                    samh_id = "12341",
-                    navn = "Perhansen",
-                    samh_type_kode = "fALE",
-                    behandling_utfall_kode = "auto",
-                    unntatt_veiledning = "1",
-                    godkjent_manuell_krav = "0",
-                    ikke_godkjent_for_refusjon = "0",
-                    godkjent_egenandel_refusjon = "0",
-                    godkjent_for_fil = "0",
-                    endringslogg_tidspunkt_siste = Calendar.getInstance().time,
-                    samh_praksis = listOf(),
-                    samh_ident = listOf(),
-                ),
-            )
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),

@@ -92,7 +92,7 @@ fun main() {
     val sendPapirsykmeldingController = SendPapirsykmeldingController(
         sykmelderService,
         pdlService,
-        httpClients.sarClient,
+        httpClients.smTssClient,
         httpClients.regelClient,
         authorizationService,
         sendtSykmeldingService,

@@ -22,7 +22,7 @@ import no.nav.syfo.client.MSGraphClient
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
+import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.exception.ServiceUnavailableException
 import no.nav.syfo.log
@@ -82,7 +82,7 @@ class HttpClients(env: Environment) {
 
     internal val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
-    internal val sarClient = SarClient(env.smgcpProxyUrl, azureAdV2Client, env.smgcpProxyScope, httpClient)
+    internal val smTssClient = SmtssClient(env.smtssApiUrl, azureAdV2Client, env.smtssApiScope, httpClient)
 
     internal val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
 
