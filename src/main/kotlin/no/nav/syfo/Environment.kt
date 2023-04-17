@@ -8,8 +8,6 @@ data class Environment(
     val oppgaveScope: String = getEnvVar("OPPGAVE_SCOPE"),
     val safV1Url: String = getEnvVar("SAF_URL"),
     val safScope: String = getEnvVar("SAF_SCOPE"),
-    val smgcpProxyUrl: String = getEnvVar("SMGCP_PROXY_URL"),
-    val smgcpProxyScope: String = getEnvVar("SMGCP_PROXY_SCOPE"),
     val dokArkivUrl: String = getEnvVar("DOK_ARKIV_URL"),
     val dokArkivScope: String = getEnvVar("DOK_ARKIV_SCOPE"),
     val regelEndpointURL: String = getEnvVar("SYFOSMPAPIRREGLER_URL", "http://syfosmpapirregler"),
@@ -36,6 +34,8 @@ data class Environment(
     val dbHost: String = getEnvVar("NAIS_DATABASE_HOST"),
     val dbPort: String = getEnvVar("NAIS_DATABASE_PORT"),
     val dbName: String = getEnvVar("NAIS_DATABASE_DATABASE"),
+    val smtssApiUrl: String = "http://smtss",
+    val smtssApiScope: String = getEnvVar("SMTSS_API_SCOPE"),
 ) {
     fun jdbcUrl(): String {
         return "jdbc:postgresql://$dbHost:$dbPort/$dbName"

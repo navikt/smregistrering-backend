@@ -71,6 +71,7 @@ spec:
         - application: syfosmpapirregler
           namespace: teamsykmelding
           cluster: dev-gcp
+        - application: smtss
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: syfohelsenettproxy.dev-fss-pub.nais.io
@@ -78,7 +79,6 @@ spec:
         - host: oppgave-q1.dev-fss-pub.nais.io
         - host: syfo-tilgangskontroll.dev-fss-pub.nais.io
         - host: graph.microsoft.com
-        - host: smgcp-proxy.dev-fss-pub.nais.io
   vault:
     enabled: false
   webproxy: false
@@ -119,9 +119,7 @@ spec:
       value: https://graph.microsoft.com/.default
     - name: SYFOSMPAPIRREGLER_SCOPE
       value: api://dev-gcp.teamsykmelding.syfosmpapirregler/.default
-    - name: SMGCP_PROXY_SCOPE
-      value: api://dev-fss.teamsykmelding.smgcp-proxy/.default
-    - name: SMGCP_PROXY_URL
-      value: https://smgcp-proxy.dev-fss-pub.nais.io
     - name: SYFOSMREGISTER_SCOPE
       value: api://dev-gcp.teamsykmelding.syfosmregister/.default
+    - name: SMTSS_API_SCOPE
+      value: api://dev-gcp.teamsykmelding.smtss/.default

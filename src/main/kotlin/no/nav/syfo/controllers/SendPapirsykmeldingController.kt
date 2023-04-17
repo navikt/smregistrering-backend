@@ -5,8 +5,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.RegelClient
-import no.nav.syfo.client.SarClient
-import no.nav.syfo.client.findBestSamhandlerPraksis
+import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillRegistrering
 import no.nav.syfo.model.ManuellOppgaveDTO
@@ -43,7 +42,7 @@ import java.util.UUID
 class SendPapirsykmeldingController(
     private val sykmelderService: SykmelderService,
     private val pdlService: PdlPersonService,
-    private val kuhrsarClient: SarClient,
+    private val smTssClient: SmtssClient,
     private val regelClient: RegelClient,
     private val authorizationService: AuthorizationService,
     private val sendtSykmeldingService: SendtSykmeldingService,
@@ -67,6 +66,7 @@ class SendPapirsykmeldingController(
             callId = callId,
             navEnhet = navEnhet,
             oppgaveId = null,
+            smTssClient = smTssClient,
         )
     }
 
@@ -87,6 +87,7 @@ class SendPapirsykmeldingController(
             callId,
             oppgaveId,
             navEnhet,
+            smTssClient,
         )
     }
 
@@ -98,6 +99,7 @@ class SendPapirsykmeldingController(
         callId: String,
         oppgaveId: Int?,
         navEnhet: String,
+        smTssClient: SmtssClient,
     ): HttpServiceResponse {
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
             val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
@@ -143,10 +145,9 @@ class SendPapirsykmeldingController(
                     return HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ikke pasientens aktørid")
                 }
 
-                val samhandlerPraksis = findBestSamhandlerPraksis(
-                    kuhrsarClient.getSamhandler(sykmelder.fnr!!, sykmeldingId),
-                )
-                if (samhandlerPraksis == null) {
+                val tssId = smTssClient.findBestTssInfotrygdId(sykmelder.fnr!!, "", loggingMeta)
+
+                if (tssId == null) {
                     log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
                 }
 
@@ -185,7 +186,7 @@ class SendPapirsykmeldingController(
                         ?: msgHead.msgInfo.genDate,
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
-                    tssid = samhandlerPraksis?.tss_ident ?: "",
+                    tssid = tssId ?: "",
                     merknader = createMerknad(sykmelding),
                     partnerreferanse = null,
                     legeHelsepersonellkategori = sykmelder.godkjenninger?.getHelsepersonellKategori(),
