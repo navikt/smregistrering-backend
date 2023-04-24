@@ -7,8 +7,3 @@ jobs:
     secrets: inherit
     with:
       app: smregistrering-backend
-      dockerfile_path: Dockerfile
-      docker_context: .
-      subprojects: false
-      naiserator_dev: naiserator-dev.yaml
-      naiserator_prod: naiserator-prod.yaml
