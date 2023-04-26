@@ -145,7 +145,7 @@ class SendPapirsykmeldingController(
                     return HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ikke pasientens aktørid")
                 }
 
-                val tssId = smTssClient.findBestTssInfotrygdId(sykmelder.fnr!!, "", loggingMeta)
+                val tssId = smTssClient.findBestTssInfotrygdId(sykmelder.fnr!!, "", loggingMeta, sykmeldingId)
 
                 if (tssId == null) {
                     log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")

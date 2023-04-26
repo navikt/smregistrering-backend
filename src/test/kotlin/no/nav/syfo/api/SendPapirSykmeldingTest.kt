@@ -311,7 +311,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any(), any()) } returns "12341"
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -512,7 +512,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any(), any()) } returns "12341"
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
@@ -714,7 +714,7 @@ class SendPapirSykmeldingTest {
                 tema = "",
                 status = "OPPRETTET",
             )
-            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any()) } returns "12341"
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any(), any()) } returns "12341"
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),
