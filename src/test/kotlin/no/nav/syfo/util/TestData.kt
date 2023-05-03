@@ -73,6 +73,6 @@ fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: X
         pasientAktoerId = aktorId,
         legeAktoerId = aktorIdLege,
         msgId = sykmeldingId,
-        signaturDato = msgHead.msgInfo.genDate,
+        signaturDato = getLocalDateTime(msgHead.msgInfo.genDate),
     )
 }

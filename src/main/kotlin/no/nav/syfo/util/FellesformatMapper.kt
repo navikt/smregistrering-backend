@@ -54,7 +54,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                         v = "SYKMELD"
                     }
                     miGversion = "v1.2 2006-05-24"
-                    genDate = datoOpprettet ?: LocalDateTime.of(smRegistreringManuell.perioder.first().fom, LocalTime.NOON)
+                    genDate = datoOpprettet?.toString() ?: LocalDateTime.of(smRegistreringManuell.perioder.first().fom, LocalTime.NOON).toString()
                     msgId = sykmeldingId
                     ack = XMLCS().apply {
                         dn = "Ja"

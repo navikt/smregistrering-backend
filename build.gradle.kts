@@ -11,16 +11,14 @@ val logstashEncoderVersion = "7.3"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.9.3"
 val jacksonVersion = "2.15.0"
-val smCommonVersion = "1.9df1108"
+val smCommonVersion = "1.0.1"
 val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.6.0"
 val flywayVersion = "9.17.0"
 val hikariVersion = "5.0.1"
 val nimbusdsVersion = "9.31"
 val mockkVersion = "1.13.5"
-val fellesformatVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
-val sykmelding2013Version = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
-val kithHodemeldingVersion = "2019.07.30-12-26-5c924ef4f04022bbb850aaf299eb8e4464c1ca6a"
+val syfoXmlCodegenVerison = "1.0.4"
 val jaxbApiVersion = "2.1"
 val jaxbVersion = "2.3.0.1"
 val javaxActivationVersion = "1.1.1"
@@ -85,9 +83,9 @@ dependencies {
     implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
     implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
 
-    implementation ("no.nav.helse.xml:xmlfellesformat:$fellesformatVersion")
-    implementation ("no.nav.helse.xml:sm2013:$sykmelding2013Version")
-    implementation ("no.nav.helse.xml:kith-hodemelding:$kithHodemeldingVersion")
+    implementation ("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVerison")
+    implementation ("no.nav.helse.xml:sm2013:$syfoXmlCodegenVerison")
+    implementation ("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVerison")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
