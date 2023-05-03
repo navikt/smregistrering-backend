@@ -20,6 +20,7 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.objectMapper
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.get
+import no.nav.syfo.util.getLocalDateTime
 import no.nav.syfo.util.getReceivedSykmelding
 import no.nav.syfo.util.getXmleiFellesformat
 import no.nav.syfo.util.tilHelseOpplysningerArbeidsuforhetPeriode
@@ -106,7 +107,7 @@ class FellesformatMapperServiceTest {
         assertNotNull(receivedSykmelding.sykmelding.behandler)
         assertEquals(AvsenderSystem("Papirsykmelding", journalpostId), receivedSykmelding.sykmelding.avsenderSystem)
         assertEquals(LocalDate.of(2020, 4, 1), receivedSykmelding.sykmelding.syketilfelleStartDato)
-        assertEquals(datoOpprettet, receivedSykmelding.sykmelding.signaturDato)
+        assertEquals(datoOpprettet.dayOfYear, receivedSykmelding.sykmelding.signaturDato.dayOfYear)
         assertEquals(null, receivedSykmelding.sykmelding.navnFastlege)
     }
 
@@ -163,7 +164,7 @@ class FellesformatMapperServiceTest {
             pasientAktoerId = aktorId,
             legeAktoerId = aktorIdLege,
             msgId = sykmeldingId,
-            signaturDato = msgHead.msgInfo.genDate,
+            signaturDato = getLocalDateTime(msgHead.msgInfo.genDate),
         )
 
         val receivedSykmelding = ReceivedSykmelding(
@@ -267,7 +268,7 @@ class FellesformatMapperServiceTest {
         )
         assertEquals(AvsenderSystem("Papirsykmelding", journalpostId), receivedSykmelding.sykmelding.avsenderSystem)
         assertEquals(LocalDate.of(2020, 4, 1), receivedSykmelding.sykmelding.syketilfelleStartDato)
-        assertEquals(datoOpprettet, receivedSykmelding.sykmelding.signaturDato)
+        assertEquals(datoOpprettet.dayOfYear, receivedSykmelding.sykmelding.signaturDato.dayOfYear)
         assertEquals(null, receivedSykmelding.sykmelding.navnFastlege)
     }
 

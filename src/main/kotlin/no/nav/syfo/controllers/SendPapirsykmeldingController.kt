@@ -31,6 +31,7 @@ import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.extractHelseOpplysningerArbeidsuforhet
 import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
+import no.nav.syfo.util.getLocalDateTime
 import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
@@ -168,7 +169,7 @@ class SendPapirsykmeldingController(
                     pasientAktoerId = pasient.aktorId,
                     legeAktoerId = sykmelder.aktorId!!,
                     msgId = sykmeldingId,
-                    signaturDato = msgHead.msgInfo.genDate,
+                    signaturDato = getLocalDateTime(msgHead.msgInfo.genDate),
                 )
 
                 val receivedSykmelding = ReceivedSykmelding(
@@ -183,7 +184,7 @@ class SendPapirsykmeldingController(
                     legekontorHerId = null,
                     legekontorReshId = null,
                     mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
-                        ?: msgHead.msgInfo.genDate,
+                        ?: getLocalDateTime(msgHead.msgInfo.genDate),
                     rulesetVersion = healthInformation.regelSettVersjon,
                     fellesformat = fellesformatMarshaller.toString(fellesformat),
                     tssid = tssId ?: "",
