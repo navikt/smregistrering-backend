@@ -5,7 +5,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -30,8 +29,8 @@ class SmtssClient(
         val httpResponse = httpClient.get("$endpointUrl/api/v1/samhandler/infotrygd") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            parameter("samhandlerFnr", samhandlerFnr)
-            parameter("samhandlerOrgName", samhandlerOrgName)
+            header("samhandlerFnr", samhandlerFnr)
+            header("samhandlerOrgName", samhandlerOrgName)
             header("Authorization", "Bearer $accessToken")
             header("requestId", sykmeldingId)
         }
