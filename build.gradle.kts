@@ -4,7 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.6.4"
+val coroutinesVersion = "1.7.0"
 val ktorVersion = "2.3.0"
 val logbackVersion = "1.4.7"
 val logstashEncoderVersion = "7.3"
