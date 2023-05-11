@@ -6,11 +6,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 import java.util.UUID
 
 fun Route.pasientApi(
@@ -29,10 +30,29 @@ fun Route.pasientApi(
                     val callId = UUID.randomUUID().toString()
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
                         val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, callId = callId)
+                        auditlogg.info(
+                            AuditLogger().createcCefMessage(
+                                fnr = pasientFnr,
+                                accessToken = accessToken,
+                                operation = AuditLogger.Operation.READ,
+                                requestPath = "/api/v1/pasient",
+                                permit = AuditLogger.Permit.PERMIT,
+                            ),
+                        )
                         call.respond(pdlPerson.navn)
                     } else {
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
-                        logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+
+                        auditlogg.info(
+                            AuditLogger().createcCefMessage(
+                                fnr = pasientFnr,
+                                accessToken = accessToken,
+                                operation = AuditLogger.Operation.READ,
+                                requestPath = "/api/v1/pasient",
+                                permit = AuditLogger.Permit.DENY,
+                            ),
+                        )
+
                         call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til pasienten")
                     }
                 }

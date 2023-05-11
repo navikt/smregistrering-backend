@@ -3,6 +3,8 @@ package no.nav.syfo.controllers
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
@@ -33,7 +35,6 @@ import no.nav.syfo.util.fellesformatMarshaller
 import no.nav.syfo.util.get
 import no.nav.syfo.util.getLocalDateTime
 import no.nav.syfo.util.isWhitelisted
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.util.toString
 import java.time.OffsetDateTime
@@ -57,6 +58,7 @@ class SendPapirsykmeldingController(
         callId: String,
         sykmeldingId: String,
         navEnhet: String,
+        requestPath: String,
     ): HttpServiceResponse {
         val manueoppgaveDTOList = manuellOppgaveDAO.hentFerdigstiltManuellOppgave(sykmeldingId)
         return handleSendPapirsykmelding(
@@ -68,6 +70,7 @@ class SendPapirsykmeldingController(
             navEnhet = navEnhet,
             oppgaveId = null,
             smTssClient = smTssClient,
+            requestPath = requestPath,
         )
     }
 
@@ -77,6 +80,7 @@ class SendPapirsykmeldingController(
         callId: String,
         oppgaveId: Int,
         navEnhet: String,
+        requestPath: String,
         isUpdate: Boolean = false,
     ): HttpServiceResponse {
         val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
@@ -89,6 +93,7 @@ class SendPapirsykmeldingController(
             oppgaveId,
             navEnhet,
             smTssClient,
+            requestPath = requestPath,
         )
     }
 
@@ -101,6 +106,7 @@ class SendPapirsykmeldingController(
         oppgaveId: Int?,
         navEnhet: String,
         smTssClient: SmtssClient,
+        requestPath: String,
     ): HttpServiceResponse {
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
             val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
@@ -226,6 +232,15 @@ class SendPapirsykmeldingController(
                     avvist = false,
                     oppgave = null,
                 )
+                auditlogg.info(
+                    AuditLogger().createcCefMessage(
+                        fnr = smRegistreringManuell.pasientFnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.WRITE,
+                        requestPath = requestPath,
+                        permit = AuditLogger.Permit.PERMIT,
+                    ),
+                )
 
                 if (!validationResult.ruleHits.isWhitelisted()) {
                     return handleBrokenRule(validationResult, oppgaveId)
@@ -239,7 +254,16 @@ class SendPapirsykmeldingController(
                     )
                 }
             } else {
-                logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+                auditlogg.info(
+                    AuditLogger().createcCefMessage(
+                        fnr = smRegistreringManuell.pasientFnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.WRITE,
+                        requestPath = requestPath,
+                        permit = AuditLogger.Permit.DENY,
+                    ),
+                )
+
                 return handleAccessDenied(oppgaveId, loggingMeta)
             }
         }

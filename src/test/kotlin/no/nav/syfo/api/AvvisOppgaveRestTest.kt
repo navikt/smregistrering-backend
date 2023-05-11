@@ -50,6 +50,7 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.generateJWT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -249,7 +250,14 @@ class AvvisOppgaveRestTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
                 },
             ) {
@@ -368,7 +376,14 @@ class AvvisOppgaveRestTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
                 },
             ) {

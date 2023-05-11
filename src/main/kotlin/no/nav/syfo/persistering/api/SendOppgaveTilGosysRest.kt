@@ -7,13 +7,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 import java.util.UUID
 
 fun Route.sendOppgaveTilGosys(
@@ -65,13 +66,32 @@ fun Route.sendOppgaveTilGosys(
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
                             sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
 
+                            auditlogg.info(
+                                AuditLogger().createcCefMessage(
+                                    fnr = null,
+                                    accessToken = accessToken,
+                                    operation = AuditLogger.Operation.WRITE,
+                                    requestPath = "/api/v1/oppgave/$oppgaveId/tilgosys",
+                                    permit = AuditLogger.Permit.PERMIT,
+                                ),
+                            )
+
                             call.respond(HttpStatusCode.NoContent)
                         } else {
                             log.warn(
                                 "Veileder har ikke tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
-                            logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+                            auditlogg.info(
+                                AuditLogger().createcCefMessage(
+                                    fnr = null,
+                                    accessToken = accessToken,
+                                    operation = AuditLogger.Operation.WRITE,
+                                    requestPath = "/api/v1/oppgave/$oppgaveId/tilgosys",
+                                    permit = AuditLogger.Permit.DENY,
+                                ),
+                            )
+
                             call.respond(HttpStatusCode.Forbidden)
                         }
                     }

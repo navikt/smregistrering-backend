@@ -55,6 +55,7 @@ fun Route.endreSykmelding(
                             callId,
                             oppgaveId,
                             navEnhet,
+                            "/api/v1/oppgave/{oppgaveid}/endre",
                             isUpdate = true,
                         )
 

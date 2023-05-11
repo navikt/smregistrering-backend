@@ -53,6 +53,8 @@ val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
 val sikkerlogg = LoggerFactory.getLogger("securelog")
 
+val auditlogg = LoggerFactory.getLogger("auditLogger")
+
 @DelicateCoroutinesApi
 @InternalAPI
 fun main() {
@@ -157,7 +159,6 @@ fun startConsumer(
         while (applicationState.ready) {
             try {
                 log.info("Starting consuming topic $topic")
-                // sikkerlogg.info("Hei fra sikkerlogg")
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
                     kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->

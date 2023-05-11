@@ -72,6 +72,7 @@ import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
+import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -360,7 +361,14 @@ class SendPapirSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 },
             ) {
@@ -557,7 +565,14 @@ class SendPapirSykmeldingTest {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
                     addHeader("X-Nav-Enhet", "1234")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
                 },
             ) {

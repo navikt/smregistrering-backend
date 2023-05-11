@@ -50,11 +50,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 else -> {
                     val httpRespons = sendPapirsykmeldingController.sendPapirsykmelding(
-                        smRegistreringManuell,
-                        accessToken,
-                        callId,
-                        sykmeldingId,
-                        navEnhet,
+                        smRegistreringManuell = smRegistreringManuell,
+                        accessToken = accessToken,
+                        callId = callId,
+                        sykmeldingId = sykmeldingId,
+                        navEnhet = navEnhet,
+                        requestPath = "/api/v1/sykmelding/$sykmeldingId",
                     )
 
                     respond(httpRespons)
@@ -91,11 +92,12 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 else -> {
                     try {
                         val httpServiceResponse = sendPapirsykmeldingController.sendPapirsykmelding(
-                            smRegistreringManuell,
-                            accessToken,
-                            callId,
-                            oppgaveId,
-                            navEnhet,
+                            smRegistreringManuell = smRegistreringManuell,
+                            accessToken = accessToken,
+                            callId = callId,
+                            oppgaveId = oppgaveId,
+                            navEnhet = navEnhet,
+                            requestPath = "/api/v1/oppgave/$oppgaveId/send",
                         )
 
                         respond(httpServiceResponse)

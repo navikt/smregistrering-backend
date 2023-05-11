@@ -50,6 +50,7 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
+import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
 import org.apache.kafka.clients.producer.RecordMetadata
@@ -228,7 +229,14 @@ internal class HentPapirSykmeldingTest {
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                 },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -461,7 +469,14 @@ internal class HentPapirSykmeldingTest {
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
                     addHeader("Accept", "application/json")
                     addHeader("Content-Type", "application/json")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT(
+                            "2",
+                            "clientId",
+                            Claim("preferred_username", "firstname.lastname@nav.no"),
+                        )}",
+                    )
                 },
             ) {
                 assertEquals(HttpStatusCode.Gone, response.status())

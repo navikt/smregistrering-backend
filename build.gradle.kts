@@ -34,6 +34,7 @@ val caffeineVersion = "3.1.6"
 val postgresContainerVersion = "1.18.0"
 val kotlinVersion = "1.8.21"
 val commonsCodecVersion = "1.15"
+val logbacksyslog4jVersion = "1.0.0"
 
 
 plugins {
@@ -118,6 +119,8 @@ dependencies {
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
     implementation ("org.apache.commons:commons-text:$commonsTextVersion")
+
+    implementation("com.papertrailapp:logback-syslog4j:$logbacksyslog4jVersion")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.testcontainers:postgresql:$postgresContainerVersion")
