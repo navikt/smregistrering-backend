@@ -14,7 +14,7 @@
         <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
             <host>audit.nais</host>
             <port>6514</port>
-            <ident>smregisteirn-backend</ident>
+            <ident>smregistering-backend</ident>
             <maxMessageLength>128000</maxMessageLength>
         </syslogConfig>
     </appender>
