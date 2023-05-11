@@ -2,6 +2,8 @@ package no.nav.syfo.controllers
 
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.log
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirManuellOppgave
@@ -13,7 +15,6 @@ import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 
 class FerdigstiltSykmeldingController(
     val manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -59,7 +60,16 @@ class FerdigstiltSykmeldingController(
                 "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
             )
-            logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+            auditlogg.info(
+                AuditLogger().createcCefMessage(
+                    fnr = null,
+                    accessToken = accessToken,
+                    operation = AuditLogger.Operation.READ,
+                    requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                    permit = AuditLogger.Permit.DENY,
+                ),
+            )
+
             return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
         } else {
             val journalpostId = papirSykmelding.sykmelding.avsenderSystem.versjon
@@ -129,6 +139,16 @@ class FerdigstiltSykmeldingController(
                 papirSmRegistering = papirSmRegistering,
             )
 
+            auditlogg.info(
+                AuditLogger().createcCefMessage(
+                    fnr = papirSykmelding.pasientFnr,
+                    accessToken = accessToken,
+                    operation = AuditLogger.Operation.READ,
+                    requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                    permit = AuditLogger.Permit.PERMIT,
+                ),
+            )
+
             return HttpServiceResponse(HttpStatusCode.OK, papirManuellOppgave)
         }
     }
@@ -152,7 +172,16 @@ class FerdigstiltSykmeldingController(
                     "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                     StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
                 )
-                logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+                auditlogg.info(
+                    AuditLogger().createcCefMessage(
+                        fnr = fnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.READ,
+                        requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                        permit = AuditLogger.Permit.DENY,
+                    ),
+                )
+
                 return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
             }
 

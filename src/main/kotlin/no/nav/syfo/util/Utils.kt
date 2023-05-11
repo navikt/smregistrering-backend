@@ -1,12 +1,10 @@
 package no.nav.syfo.util
 
-import com.auth0.jwt.JWT
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.server.auth.parseAuthorizationHeader
 import io.ktor.server.request.ApplicationRequest
 import no.nav.syfo.client.Godkjenning
 import no.nav.syfo.client.Kode
-import no.nav.syfo.sikkerlogg
 
 fun getAccessTokenFromAuthHeader(request: ApplicationRequest): String? {
     val authHeader = request.parseAuthorizationHeader()
@@ -47,15 +45,5 @@ fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning
         }
     } else {
         godkjenninger
-    }
-}
-
-fun logNAVEpostFromTokenToSecureLogsNoAccess(token: String) {
-    try {
-        val decodedJWT = JWT.decode(token)
-        val navEpost = decodedJWT.claims["preferred_username"]?.asString()
-        sikkerlogg.info("Logger ut navIdent: {}, har ikke tilgang", navEpost)
-    } catch (exception: Exception) {
-        sikkerlogg.info("Fikk ikkje hentet ut navIdent", exception)
     }
 }

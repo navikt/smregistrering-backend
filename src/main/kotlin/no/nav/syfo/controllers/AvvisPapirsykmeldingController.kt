@@ -2,6 +2,8 @@ package no.nav.syfo.controllers
 
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.log
 import no.nav.syfo.model.FerdigstillRegistrering
 import no.nav.syfo.model.Sykmelder
@@ -13,7 +15,6 @@ import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -103,10 +104,29 @@ class AvvisPapirsykmeldingController(
                     }
                 }
 
+                auditlogg.info(
+                    AuditLogger().createcCefMessage(
+                        fnr = pasientFnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.WRITE,
+                        requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
+                        permit = AuditLogger.Permit.PERMIT,
+                    ),
+                )
+
                 return HttpServiceResponse(HttpStatusCode.NoContent)
             } else {
                 log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
-                logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+                auditlogg.info(
+                    AuditLogger().createcCefMessage(
+                        fnr = pasientFnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.WRITE,
+                        requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
+                        permit = AuditLogger.Permit.DENY,
+                    ),
+                )
+
                 return HttpServiceResponse(HttpStatusCode.Forbidden)
             }
         }

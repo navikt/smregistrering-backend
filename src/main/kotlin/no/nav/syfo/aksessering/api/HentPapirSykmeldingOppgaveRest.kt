@@ -7,6 +7,8 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.model.PapirManuellOppgave
@@ -17,7 +19,6 @@ import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import no.nav.syfo.util.logNAVEpostFromTokenToSecureLogsNoAccess
 
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -102,6 +103,16 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                                 sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
 
+                                auditlogg.info(
+                                    AuditLogger().createcCefMessage(
+                                        fnr = manuellOppgaveDTOList.first().fnr,
+                                        accessToken = accessToken,
+                                        operation = AuditLogger.Operation.READ,
+                                        requestPath = "/api/v1/oppgave/$oppgaveId",
+                                        permit = AuditLogger.Permit.PERMIT,
+                                    ),
+                                )
+
                                 call.respond(HttpStatusCode.Gone, "SENT_TO_GOSYS")
                             }
                         } else {
@@ -109,7 +120,16 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
-                            logNAVEpostFromTokenToSecureLogsNoAccess(accessToken)
+                            auditlogg.info(
+                                AuditLogger().createcCefMessage(
+                                    fnr = manuellOppgaveDTOList.first().fnr,
+                                    accessToken = accessToken,
+                                    operation = AuditLogger.Operation.READ,
+                                    requestPath = "/api/v1/oppgave/$oppgaveId",
+                                    permit = AuditLogger.Permit.DENY,
+                                ),
+                            )
+
                             call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
                         }
                     }

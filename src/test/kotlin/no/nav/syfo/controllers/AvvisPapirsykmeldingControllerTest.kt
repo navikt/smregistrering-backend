@@ -22,6 +22,8 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.testutil.Claim
+import no.nav.syfo.testutil.generateJWT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -59,9 +61,10 @@ class AvvisPapirsykmeldingControllerTest {
         coEvery { oppgaveClient.hentOppgave(any(), any()) } returns getOppgave()
         coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns getOppgave()
         coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1
+        val accessToken = generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
 
         runBlocking {
-            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, "token", "123", "reason")
+            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
             assertEquals(HttpStatusCode.NoContent, avvisPapirsykmelding.httpStatusCode)
         }
     }
@@ -70,9 +73,10 @@ class AvvisPapirsykmeldingControllerTest {
     fun avisPapirsykmeldingVeilederIkkeTilgang() {
         coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(getManuellOppgaveDTO(1))
         coEvery { authorizationService.hasAccess(any(), any()) } returns false
+        val accessToken = generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
 
         runBlocking {
-            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, "token", "123", "reason")
+            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
             assertEquals(HttpStatusCode.Forbidden, avvisPapirsykmelding.httpStatusCode)
         }
     }

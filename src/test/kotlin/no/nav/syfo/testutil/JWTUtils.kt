@@ -21,6 +21,7 @@ const val keyId = "localhost-signer"
 fun generateJWT(
     consumerClientId: String,
     audience: String,
+    customClaim: Claim? = Claim("fnr", "12313145"),
     expiry: LocalDateTime? = LocalDateTime.now().plusHours(1),
     subject: String = "subject",
     issuer: String = "https://sts.issuer.net/myid",
@@ -38,6 +39,7 @@ fun generateJWT(
         .withClaim("ver", "1.0")
         .withClaim("nonce", "myNonce")
         .withClaim("auth_time", now)
+        .withClaim(customClaim!!.name, customClaim.value)
         .withClaim("nbf", now)
         .withClaim("azp", consumerClientId)
         .withClaim("iat", now)
@@ -48,6 +50,11 @@ fun generateJWT(
 private fun getDefaultRSAKey(): RSAKey {
     return getJWKSet().getKeyByKeyId(keyId) as RSAKey
 }
+
+data class Claim(
+    val name: String,
+    val value: String,
+)
 
 private fun getJWKSet(): JWKSet {
     try {
