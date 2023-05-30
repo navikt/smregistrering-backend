@@ -12,8 +12,8 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.sykmelding.jobs.db.getJobForSykmeldingId
 import no.nav.syfo.sykmelding.jobs.db.insertJobs
-import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
-import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.dropData
@@ -61,7 +61,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOB_STATUS.DONE, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
+        assertEquals(JOBSTATUS.DONE, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -81,7 +81,7 @@ class SykmeldingJobRunnerTest {
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
 
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOB_STATUS.IN_PROGRESS, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
+        assertEquals(JOBSTATUS.IN_PROGRESS, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -92,8 +92,8 @@ class SykmeldingJobRunnerTest {
             listOf(
                 Job(
                     sykmelding.sykmelding.id,
-                    JOB_NAME.SENDT_SYKMELDING,
-                    JOB_STATUS.IN_PROGRESS,
+                    JOBNAME.SENDT_SYKMELDING,
+                    JOBSTATUS.IN_PROGRESS,
                     OffsetDateTime.now().minusMinutes(59),
                 ),
             ),
@@ -108,7 +108,7 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 0) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOB_STATUS.IN_PROGRESS, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
+        assertEquals(JOBSTATUS.IN_PROGRESS, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
     }
 
     @Test
@@ -119,8 +119,8 @@ class SykmeldingJobRunnerTest {
             listOf(
                 Job(
                     sykmelding.sykmelding.id,
-                    JOB_NAME.SENDT_SYKMELDING,
-                    JOB_STATUS.IN_PROGRESS,
+                    JOBNAME.SENDT_SYKMELDING,
+                    JOBSTATUS.IN_PROGRESS,
                     OffsetDateTime.now().minusMinutes(61),
                 ),
             ),
@@ -135,6 +135,6 @@ class SykmeldingJobRunnerTest {
         }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOB_STATUS.DONE, jobs.first { it?.name == JOB_NAME.SENDT_SYKMELDING }?.status)
+        assertEquals(JOBSTATUS.DONE, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
     }
 }

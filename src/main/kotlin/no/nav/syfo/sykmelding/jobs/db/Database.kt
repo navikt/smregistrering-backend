@@ -2,8 +2,8 @@ package no.nav.syfo.sykmelding.jobs.db
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
-import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
-import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import java.sql.Connection
 import java.sql.ResultSet
@@ -48,9 +48,9 @@ private fun upsertJobs(connection: Connection, jobs: List<Job>) {
 fun DatabaseInterface.getNextJob(): Job? {
     return connection.use { connection ->
         try {
-            var job = getJob(connection, JOB_STATUS.NEW)
+            var job = getJob(connection, JOBSTATUS.NEW)
             if (job != null) {
-                job = job.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.IN_PROGRESS)
+                job = job.copy(updated = OffsetDateTime.now(), status = JOBSTATUS.IN_PROGRESS)
                 val updates = updateJob(connection, job)
                 if (updates != 1) {
                     log.error("Error in database")
@@ -68,7 +68,7 @@ fun DatabaseInterface.getNextJob(): Job? {
     }
 }
 
-fun DatabaseInterface.getJobStatus(status: JOB_STATUS): Job? {
+fun DatabaseInterface.getJobStatus(status: JOBSTATUS): Job? {
     return connection.use {
         getJob(connection, status)
     }
@@ -87,7 +87,7 @@ fun DatabaseInterface.resetJobs(): Int {
     connection.use { connection ->
         connection.prepareStatement(
             """
-           update job set status = '${JOB_STATUS.NEW.name}', updated = ? where status = '${JOB_STATUS.IN_PROGRESS.name}' and updated < ?
+           update job set status = '${JOBSTATUS.NEW.name}', updated = ? where status = '${JOBSTATUS.IN_PROGRESS.name}' and updated < ?
         """,
         ).use { ps ->
             ps.setTimestamp(1, Timestamp.from(Instant.now()))
@@ -114,7 +114,7 @@ private fun updateJob(connection: Connection, job: Job): Int {
     }
 }
 
-private fun getJob(connection: Connection, status: JOB_STATUS): Job? {
+private fun getJob(connection: Connection, status: JOBSTATUS): Job? {
     connection.prepareStatement("""SET idle_in_transaction_session_timeout = $TRANSACTION_TIMEOUT""").execute()
     return connection.prepareStatement(
         """
@@ -131,8 +131,8 @@ private fun ResultSet.toJob(): Job? {
         Job(
             sykmeldingId = getString("sykmelding_id"),
             updated = getTimestamp("updated").toInstant().atOffset(ZoneOffset.UTC),
-            name = JOB_NAME.valueOf(getString("name")),
-            status = JOB_STATUS.valueOf(getString("status")),
+            name = JOBNAME.valueOf(getString("name")),
+            status = JOBSTATUS.valueOf(getString("status")),
         )
     } else {
         null

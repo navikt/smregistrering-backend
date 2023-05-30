@@ -2,18 +2,18 @@ package no.nav.syfo.sykmelding.jobs.model
 
 import java.time.OffsetDateTime
 
-enum class JOB_NAME {
+enum class JOBNAME {
     SENDT_TO_SYFOSERVICE,
     SENDT_SYKMELDING,
 }
 
-enum class JOB_STATUS {
+enum class JOBSTATUS {
     NEW, DONE, IN_PROGRESS
 }
 
 data class Job(
     val sykmeldingId: String,
-    val name: JOB_NAME,
-    val status: JOB_STATUS,
+    val name: JOBNAME,
+    val status: JOBSTATUS,
     val updated: OffsetDateTime,
 )

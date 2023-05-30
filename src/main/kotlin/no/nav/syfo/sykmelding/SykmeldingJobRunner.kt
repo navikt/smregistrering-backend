@@ -4,8 +4,8 @@ import kotlinx.coroutines.delay
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.log
-import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
-import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.OffsetDateTime
@@ -40,10 +40,10 @@ class SykmeldingJobRunner(
     private fun runJob(nextJob: Job) {
         log.info("Running job $nextJob")
         when (nextJob.name) {
-            JOB_NAME.SENDT_TO_SYFOSERVICE -> log.info("Sender ikke lenger til syfoservice")
-            JOB_NAME.SENDT_SYKMELDING -> sendSykmelding(nextJob)
+            JOBNAME.SENDT_TO_SYFOSERVICE -> log.info("Sender ikke lenger til syfoservice")
+            JOBNAME.SENDT_SYKMELDING -> sendSykmelding(nextJob)
         }
-        sendtSykmeldingService.finishJob(nextJob.copy(updated = OffsetDateTime.now(), status = JOB_STATUS.DONE))
+        sendtSykmeldingService.finishJob(nextJob.copy(updated = OffsetDateTime.now(), status = JOBSTATUS.DONE))
     }
 
     private fun sendSykmelding(job: Job) {

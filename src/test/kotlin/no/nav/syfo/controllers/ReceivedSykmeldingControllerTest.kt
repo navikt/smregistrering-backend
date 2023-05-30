@@ -34,8 +34,8 @@ import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.sykmelding.getSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.jobs.db.getJobForSykmeldingId
 import no.nav.syfo.sykmelding.jobs.db.insertJobs
-import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
-import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.util.LoggingMeta
@@ -306,7 +306,7 @@ class ReceivedSykmeldingControllerTest {
         database.upsertSendtSykmelding(receivedSykmelding)
         database.insertSendtSykmeldingHistory(SendtSykmeldingHistory(UUID.randomUUID().toString(), sykmeldingId, "noen", OffsetDateTime.now(ZoneOffset.UTC), receivedSykmelding))
         database.ferdigstillSmRegistering(sykmeldingId, "OK", "ferdigstiltAv", null)
-        database.insertJobs(listOf(Job(sykmeldingId, JOB_NAME.SENDT_SYKMELDING, JOB_STATUS.DONE, OffsetDateTime.now(ZoneOffset.UTC))))
+        database.insertJobs(listOf(Job(sykmeldingId, JOBNAME.SENDT_SYKMELDING, JOBSTATUS.DONE, OffsetDateTime.now(ZoneOffset.UTC))))
 
         return sykmeldingId
     }

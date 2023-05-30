@@ -11,8 +11,8 @@ import no.nav.syfo.sykmelding.jobs.db.getNextJob
 import no.nav.syfo.sykmelding.jobs.db.insertJobs
 import no.nav.syfo.sykmelding.jobs.db.resetJobs
 import no.nav.syfo.sykmelding.jobs.db.updateJob
-import no.nav.syfo.sykmelding.jobs.model.JOB_NAME
-import no.nav.syfo.sykmelding.jobs.model.JOB_STATUS
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 import java.time.OffsetDateTime
 
@@ -35,7 +35,7 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
     }
 
     fun createJobs(receivedSykmelding: ReceivedSykmelding) {
-        val sendSykmeldingJob = Job(sykmeldingId = receivedSykmelding.sykmelding.id, status = JOB_STATUS.NEW, updated = OffsetDateTime.now(), name = JOB_NAME.SENDT_SYKMELDING)
+        val sendSykmeldingJob = Job(sykmeldingId = receivedSykmelding.sykmelding.id, status = JOBSTATUS.NEW, updated = OffsetDateTime.now(), name = JOBNAME.SENDT_SYKMELDING)
         log.info("Creating jobs:\n$sendSykmeldingJob")
         databaseInterface.insertJobs(listOf(sendSykmeldingJob))
     }
