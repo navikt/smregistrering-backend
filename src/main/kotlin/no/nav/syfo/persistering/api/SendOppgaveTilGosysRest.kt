@@ -1,5 +1,6 @@
 package no.nav.syfo.persistering.api
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
@@ -13,6 +14,7 @@ import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
@@ -65,6 +67,12 @@ fun Route.sendOppgaveTilGosys(
 
                         if (authorizationService.hasAccess(accessToken, pasientFnr)) {
                             sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
+
+                            sikkerlogg.info(
+                                "Veileder har ikkje tilgang navEmail:" +
+                                    "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                            )
 
                             auditlogg.info(
                                 AuditLogger().createcCefMessage(

@@ -1,16 +1,19 @@
 package no.nav.syfo.pasient.api
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
 import no.nav.syfo.auditlogg
 import no.nav.syfo.log
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 import java.util.UUID
 
@@ -42,6 +45,12 @@ fun Route.pasientApi(
                         call.respond(pdlPerson.navn)
                     } else {
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
+
+                        sikkerlogg.info(
+                            "Veileder har ikkje tilgang navEmail:" +
+                                "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                            StructuredArguments.keyValue("callId", callId),
+                        )
 
                         auditlogg.info(
                             AuditLogger().createcCefMessage(

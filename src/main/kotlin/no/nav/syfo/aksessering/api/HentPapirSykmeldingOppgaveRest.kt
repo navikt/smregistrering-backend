@@ -1,5 +1,6 @@
 package no.nav.syfo.aksessering.api
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
@@ -17,6 +18,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.util.LoggingMeta
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
@@ -120,6 +122,13 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 "Veileder har ikkje tilgang, {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
+
+                            sikkerlogg.info(
+                                "Veileder har ikkje tilgang navEmail:" +
+                                    "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                            )
+
                             auditlogg.info(
                                 AuditLogger().createcCefMessage(
                                     fnr = manuellOppgaveDTOList.first().fnr,

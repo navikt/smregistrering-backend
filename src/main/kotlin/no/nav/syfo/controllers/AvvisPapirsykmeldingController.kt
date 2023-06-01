@@ -1,5 +1,6 @@
 package no.nav.syfo.controllers
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
@@ -13,6 +14,7 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
 import java.time.LocalDateTime
@@ -117,6 +119,13 @@ class AvvisPapirsykmeldingController(
                 return HttpServiceResponse(HttpStatusCode.NoContent)
             } else {
                 log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
+
+                sikkerlogg.info(
+                    "Veileder har ikkje tilgang navEmail:" +
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                    StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                )
+
                 auditlogg.info(
                     AuditLogger().createcCefMessage(
                         fnr = pasientFnr,

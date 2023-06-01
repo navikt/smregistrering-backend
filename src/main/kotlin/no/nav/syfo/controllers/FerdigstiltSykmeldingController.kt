@@ -1,5 +1,6 @@
 package no.nav.syfo.controllers
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
@@ -13,6 +14,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.service.SafJournalpostService
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.util.LoggingMeta
 
@@ -172,6 +174,13 @@ class FerdigstiltSykmeldingController(
                     "Veileder har ikke tilgang til å åpne ferdigstilt oppgave, {}",
                     StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
                 )
+
+                sikkerlogg.info(
+                    "Veileder har ikkje tilgang navEmail:" +
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                    StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
+                )
+
                 auditlogg.info(
                     AuditLogger().createcCefMessage(
                         fnr = fnr,

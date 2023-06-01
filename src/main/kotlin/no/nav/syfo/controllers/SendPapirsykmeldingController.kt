@@ -1,5 +1,6 @@
 package no.nav.syfo.controllers
 
+import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
@@ -27,6 +28,7 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.service.Veileder
 import no.nav.syfo.service.toSykmelding
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.util.LoggingMeta
@@ -254,6 +256,12 @@ class SendPapirsykmeldingController(
                     )
                 }
             } else {
+                sikkerlogg.info(
+                    "Veileder har ikkje tilgang navEmail:" +
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                    StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                )
+
                 auditlogg.info(
                     AuditLogger().createcCefMessage(
                         fnr = smRegistreringManuell.pasientFnr,
