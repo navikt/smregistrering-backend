@@ -47,7 +47,7 @@ fun Route.pasientApi(
                         log.warn("Veileder har ikke tilgang til pasient, $callId")
 
                         sikkerlogg.info(
-                            "Veileder har ikkje tilgang navEmail:" +
+                            "Veileder har ikkje tilgang til pasient navEmail:" +
                                 "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
                             StructuredArguments.keyValue("callId", callId),
                         )
