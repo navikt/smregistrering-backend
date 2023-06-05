@@ -177,7 +177,8 @@ class FerdigstiltSykmeldingController(
 
                 sikkerlogg.info(
                     "Veileder har ikkje tilgang navEmail:" +
-                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}," +
+                        "requestPath \"/api/v1/sykmelding/$sykmeldingId/ferdigstilt\" {}",
                     StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
                 )
 

@@ -48,7 +48,8 @@ fun Route.pasientApi(
 
                         sikkerlogg.info(
                             "Veileder har ikkje tilgang til pasient navEmail:" +
-                                "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                                "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}," +
+                                "requestPath: \"/api/v1/pasient\" {}",
                             StructuredArguments.keyValue("callId", callId),
                         )
 

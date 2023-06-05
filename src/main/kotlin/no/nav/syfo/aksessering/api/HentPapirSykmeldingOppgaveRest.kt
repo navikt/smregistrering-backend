@@ -125,7 +125,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                             sikkerlogg.info(
                                 "Veileder har ikkje tilgang navEmail:" +
-                                    "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                                    "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}," +
+                                    "requestPath \"/api/v1/oppgave/$oppgaveId\" {}",
                                 StructuredArguments.keyValue("oppgaveId", oppgaveId),
                             )
 

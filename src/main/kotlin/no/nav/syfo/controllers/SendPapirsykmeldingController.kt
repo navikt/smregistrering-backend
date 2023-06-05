@@ -258,7 +258,8 @@ class SendPapirsykmeldingController(
             } else {
                 sikkerlogg.info(
                     "Veileder har ikkje tilgang navEmail:" +
-                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}," +
+                        "requestPath: $requestPath {}",
                     StructuredArguments.keyValue("oppgaveId", oppgaveId),
                 )
 

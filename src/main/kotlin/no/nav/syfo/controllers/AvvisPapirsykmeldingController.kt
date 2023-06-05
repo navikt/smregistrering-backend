@@ -122,7 +122,8 @@ class AvvisPapirsykmeldingController(
 
                 sikkerlogg.info(
                     "Veileder har ikkje tilgang navEmail:" +
-                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}, {}",
+                        "${JWT.decode(accessToken).claims["preferred_username"]!!.asString()}," +
+                        "requestPath \"/api/v1/oppgave/$oppgaveId/avvis\" {}",
                     StructuredArguments.keyValue("oppgaveId", oppgaveId),
                 )
 
