@@ -71,7 +71,7 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
-            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/api/tilgang/navident/person/papirsykmelding") {
+            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person/papirsykmelding") {
                 accept(ContentType.Application.Json)
                 headers {
                     append("Authorization", "Bearer $oboToken")
