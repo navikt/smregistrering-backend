@@ -32,7 +32,7 @@ val commonsTextVersion = "1.10.0"
 val kafkaVersion = "3.4.0"
 val caffeineVersion = "3.1.6"
 val postgresContainerVersion = "1.18.3"
-val kotlinVersion = "1.8.21"
+val kotlinVersion = "1.8.22"
 val commonsCodecVersion = "1.15"
 val logbacksyslog4jVersion = "1.0.0"
 
