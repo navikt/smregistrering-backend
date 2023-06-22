@@ -18,7 +18,12 @@ class JournalpostService(
         receivedSykmelding: ReceivedSykmelding?,
         loggingMeta: LoggingMeta,
     ) {
-        if (!safJournalpostService.erJournalfoert(journalpostId = ferdigstillRegistrering.journalpostId, token = accessToken)) {
+        if (
+            !safJournalpostService.erJournalfoert(
+                journalpostId = ferdigstillRegistrering.journalpostId,
+                token = accessToken
+            )
+        ) {
             dokArkivClient.oppdaterOgFerdigstillJournalpost(
                 journalpostId = ferdigstillRegistrering.journalpostId,
                 dokumentInfoId = ferdigstillRegistrering.dokumentInfoId,

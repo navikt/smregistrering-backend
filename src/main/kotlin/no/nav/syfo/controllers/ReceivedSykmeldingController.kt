@@ -21,9 +21,15 @@ class ReceivedSykmeldingController(
     private val oppgaveService: OppgaveService,
 ) {
 
-    suspend fun handleReceivedSykmelding(papirSmRegistering: PapirSmRegistering, loggingMeta: LoggingMeta) {
+    suspend fun handleReceivedSykmelding(
+        papirSmRegistering: PapirSmRegistering,
+        loggingMeta: LoggingMeta
+    ) {
         wrapExceptions(loggingMeta) {
-            log.info("Mottok ein manuell papirsykmelding registerings, {}", StructuredArguments.fields(loggingMeta))
+            log.info(
+                "Mottok ein manuell papirsykmelding registerings, {}",
+                StructuredArguments.fields(loggingMeta)
+            )
             INCOMING_MESSAGE_COUNTER.inc()
 
             if (database.erOpprettManuellOppgave(papirSmRegistering.sykmeldingId)) {
@@ -51,8 +57,15 @@ class ReceivedSykmeldingController(
         loggingMeta: LoggingMeta,
     ) {
         wrapExceptions(loggingMeta) {
-            log.info("Mottok ein manuell papirsykmelding registerings from syfosmregister, {}", StructuredArguments.fields(loggingMeta))
-            database.opprettManuellOppgave(papirSmRegistering = papirSmRegistering, oppgaveId = null, ferdigstilt = true)
+            log.info(
+                "Mottok ein manuell papirsykmelding registerings from syfosmregister, {}",
+                StructuredArguments.fields(loggingMeta)
+            )
+            database.opprettManuellOppgave(
+                papirSmRegistering = papirSmRegistering,
+                oppgaveId = null,
+                ferdigstilt = true
+            )
             database.upsertSendtSykmelding(papirSmRegistering.toReceveidSykmelding(papirSykmelding))
         }
     }
@@ -65,7 +78,9 @@ class ReceivedSykmeldingController(
     }
 }
 
-private fun PapirSmRegistering.toReceveidSykmelding(papirSykmelding: PapirsykmeldingDTO): ReceivedSykmelding {
+private fun PapirSmRegistering.toReceveidSykmelding(
+    papirSykmelding: PapirsykmeldingDTO
+): ReceivedSykmelding {
     return ReceivedSykmelding(
         sykmelding = papirSykmelding.sykmelding,
         personNrPasient = papirSykmelding.pasientFnr,

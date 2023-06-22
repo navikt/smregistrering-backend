@@ -19,6 +19,9 @@ import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
@@ -50,9 +53,6 @@ import no.nav.syfo.testutil.generateJWT
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 
 internal class AuthenticateTest {
 
@@ -67,12 +67,11 @@ internal class AuthenticateTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
-    private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+    private val sendTilGosysController =
+        SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
 
     private val pdlService = mockk<PdlPersonService>()
-    private val env = mockk<Environment>() {
-        coEvery { azureAppClientId } returns "clientId"
-    }
+    private val env = mockk<Environment>() { coEvery { azureAppClientId } returns "clientId" }
 
     @AfterEach
     fun after() {
@@ -84,70 +83,77 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
+                ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
-            coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"),
-                listOf(
-                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID"),
-                ),
-            )
+            coEvery { pdlService.getPdlPerson(any(), any()) } returns
+                PdlPerson(
+                    Navn("Billy", "Bob", "Thornton"),
+                    listOf(
+                        IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                        IdentInformasjon("12345", false, "AKTORID"),
+                    ),
+                )
 
             val oppgaveid = 308076319
 
-            val manuellOppgave = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val manuellOppgave =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                true,
+                                false,
+                                LocalDate.now(),
+                                LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -176,7 +182,10 @@ internal class AuthenticateTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
@@ -188,7 +197,10 @@ internal class AuthenticateTest {
                 },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(oppgaveid, objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid)
+                assertEquals(
+                    oppgaveid,
+                    objectMapper.readValue<PapirManuellOppgave>(response.content!!).oppgaveid
+                )
             }
         }
     }
@@ -198,61 +210,67 @@ internal class AuthenticateTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
+                ByteArray(1)
 
             val oppgaveid = 308076319
 
-            val manuellOppgave = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val manuellOppgave =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                true,
+                                false,
+                                LocalDate.now(),
+                                LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -281,7 +299,10 @@ internal class AuthenticateTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
@@ -289,7 +310,10 @@ internal class AuthenticateTest {
 
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "annenClientId")}")
+                    addHeader(
+                        HttpHeaders.Authorization,
+                        "Bearer ${generateJWT("2", "annenClientId")}"
+                    )
                 },
             ) {
                 assertEquals(HttpStatusCode.Unauthorized, response.status())

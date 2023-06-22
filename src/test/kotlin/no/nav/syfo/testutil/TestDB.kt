@@ -2,12 +2,12 @@ package no.nav.syfo.testutil
 
 import io.mockk.every
 import io.mockk.mockk
+import java.sql.Connection
 import no.nav.syfo.Environment
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
 import org.testcontainers.containers.PostgreSQLContainer
-import java.sql.Connection
 
 fun Connection.dropData() {
     use { connection ->
@@ -25,13 +25,14 @@ class TestDB : DatabaseInterface {
 
     companion object {
         var database: DatabaseInterface
-        private val psqlContainer: PsqlContainer = PsqlContainer()
-            .withCommand("postgres", "-c", "wal_level=logical")
-            .withExposedPorts(5432)
-            .withUsername("username")
-            .withPassword("password")
-            .withDatabaseName("database")
-            .withInitScript("db/testdb-init.sql")
+        private val psqlContainer: PsqlContainer =
+            PsqlContainer()
+                .withCommand("postgres", "-c", "wal_level=logical")
+                .withExposedPorts(5432)
+                .withUsername("username")
+                .withPassword("password")
+                .withDatabaseName("database")
+                .withInitScript("db/testdb-init.sql")
 
         init {
             psqlContainer.start()

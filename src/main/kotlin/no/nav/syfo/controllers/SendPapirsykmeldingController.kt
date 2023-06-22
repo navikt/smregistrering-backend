@@ -2,6 +2,9 @@ package no.nav.syfo.controllers
 
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.auditLogger.AuditLogger
@@ -39,9 +42,6 @@ import no.nav.syfo.util.getLocalDateTime
 import no.nav.syfo.util.isWhitelisted
 import no.nav.syfo.util.mapsmRegistreringManuelltTilFellesformat
 import no.nav.syfo.util.toString
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.UUID
 
 class SendPapirsykmeldingController(
     private val sykmelderService: SykmelderService,
@@ -85,7 +85,8 @@ class SendPapirsykmeldingController(
         requestPath: String,
         isUpdate: Boolean = false,
     ): HttpServiceResponse {
-        val manuellOppgaveDTOList = manuellOppgaveDAO.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
+        val manuellOppgaveDTOList =
+            manuellOppgaveDAO.hentManuellOppgaver(oppgaveId, ferdigstilt = isUpdate)
         return handleSendPapirsykmelding(
             manuellOppgaveDTOList,
             isUpdate,
@@ -116,93 +117,122 @@ class SendPapirsykmeldingController(
             val journalpostId = manuellOppgave.journalpostId
             val dokumentInfoId = manuellOppgave.dokumentInfoId
 
-            val loggingMeta = LoggingMeta(
-                mottakId = sykmeldingId,
-                dokumentInfoId = dokumentInfoId,
-                msgId = sykmeldingId,
-                sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId,
-            )
+            val loggingMeta =
+                LoggingMeta(
+                    mottakId = sykmeldingId,
+                    dokumentInfoId = dokumentInfoId,
+                    msgId = sykmeldingId,
+                    sykmeldingId = sykmeldingId,
+                    journalpostId = journalpostId,
+                )
 
-            val hasAccess = when (isUpdate) {
-                true -> authorizationService.hasSuperuserAccess(accessToken, smRegistreringManuell.pasientFnr)
-                false -> authorizationService.hasAccess(accessToken, smRegistreringManuell.pasientFnr)
-            }
+            val hasAccess =
+                when (isUpdate) {
+                    true ->
+                        authorizationService.hasSuperuserAccess(
+                            accessToken,
+                            smRegistreringManuell.pasientFnr
+                        )
+                    false ->
+                        authorizationService.hasAccess(
+                            accessToken,
+                            smRegistreringManuell.pasientFnr
+                        )
+                }
 
             if (hasAccess) {
                 val sykmelderHpr = smRegistreringManuell.behandler.hpr
 
                 if (sykmelderHpr.isNullOrEmpty()) {
                     log.error("HPR-nummer mangler {}", StructuredArguments.fields(loggingMeta))
-                    return HttpServiceResponse(HttpStatusCode.BadRequest, "Mangler HPR-nummer for behandler")
+                    return HttpServiceResponse(
+                        HttpStatusCode.BadRequest,
+                        "Mangler HPR-nummer for behandler"
+                    )
                 }
 
                 log.info("Henter sykmelder fra HPR og PDL")
-                val sykmelder = sykmelderService.hentSykmelder(
-                    sykmelderHpr,
-                    callId,
-                )
+                val sykmelder =
+                    sykmelderService.hentSykmelder(
+                        sykmelderHpr,
+                        callId,
+                    )
 
                 log.info("Henter pasient fra PDL {} ", loggingMeta)
-                val pasient = pdlService.getPdlPerson(
-                    fnr = smRegistreringManuell.pasientFnr,
-                    callId = callId,
-                )
+                val pasient =
+                    pdlService.getPdlPerson(
+                        fnr = smRegistreringManuell.pasientFnr,
+                        callId = callId,
+                    )
 
                 if (pasient.fnr == null || pasient.aktorId == null) {
                     log.error("Pasientens aktørId eller fnr finnes ikke i PDL")
-                    return HttpServiceResponse(HttpStatusCode.InternalServerError, "Fant ikke pasientens aktørid")
+                    return HttpServiceResponse(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke pasientens aktørid"
+                    )
                 }
 
-                val tssId = smTssClient.findBestTssInfotrygdId(sykmelder.fnr!!, "", loggingMeta, sykmeldingId)
+                val tssId =
+                    smTssClient.findBestTssInfotrygdId(
+                        sykmelder.fnr!!,
+                        "",
+                        loggingMeta,
+                        sykmeldingId
+                    )
 
                 if (tssId == null) {
                     log.info("Samhandlerpraksis ikke funnet for hpr-nummer ${sykmelder.hprNummer}")
                 }
 
-                val fellesformat = mapsmRegistreringManuelltTilFellesformat(
-                    smRegistreringManuell = smRegistreringManuell,
-                    pdlPasient = pasient,
-                    sykmelder = sykmelder,
-                    sykmeldingId = sykmeldingId,
-                    datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
-                    journalpostId = journalpostId,
-                )
+                val fellesformat =
+                    mapsmRegistreringManuelltTilFellesformat(
+                        smRegistreringManuell = smRegistreringManuell,
+                        pdlPasient = pasient,
+                        sykmelder = sykmelder,
+                        sykmeldingId = sykmeldingId,
+                        datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
+                        journalpostId = journalpostId,
+                    )
 
                 val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
                 val msgHead = fellesformat.get<XMLMsgHead>()
 
-                val sykmelding = healthInformation.toSykmelding(
-                    sykmeldingId = sykmeldingId,
-                    pasientAktoerId = pasient.aktorId,
-                    legeAktoerId = sykmelder.aktorId!!,
-                    msgId = sykmeldingId,
-                    signaturDato = getLocalDateTime(msgHead.msgInfo.genDate),
-                )
+                val sykmelding =
+                    healthInformation.toSykmelding(
+                        sykmeldingId = sykmeldingId,
+                        pasientAktoerId = pasient.aktorId,
+                        legeAktoerId = sykmelder.aktorId!!,
+                        msgId = sykmeldingId,
+                        signaturDato = getLocalDateTime(msgHead.msgInfo.genDate),
+                    )
 
-                val receivedSykmelding = ReceivedSykmelding(
-                    sykmelding = sykmelding,
-                    personNrPasient = pasient.fnr,
-                    tlfPasient = healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
-                    personNrLege = sykmelder.fnr,
-                    navLogId = sykmeldingId,
-                    msgId = sykmeldingId,
-                    legekontorOrgNr = null,
-                    legekontorOrgName = "",
-                    legekontorHerId = null,
-                    legekontorReshId = null,
-                    mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
-                        ?: getLocalDateTime(msgHead.msgInfo.genDate),
-                    rulesetVersion = healthInformation.regelSettVersjon,
-                    fellesformat = fellesformatMarshaller.toString(fellesformat),
-                    tssid = tssId ?: "",
-                    merknader = createMerknad(sykmelding),
-                    partnerreferanse = null,
-                    legeHelsepersonellkategori = sykmelder.godkjenninger?.getHelsepersonellKategori(),
-                    legeHprNr = sykmelder.hprNummer,
-                    vedlegg = null,
-                    utenlandskSykmelding = null,
-                )
+                val receivedSykmelding =
+                    ReceivedSykmelding(
+                        sykmelding = sykmelding,
+                        personNrPasient = pasient.fnr,
+                        tlfPasient =
+                            healthInformation.pasient.kontaktInfo.firstOrNull()?.teleAddress?.v,
+                        personNrLege = sykmelder.fnr,
+                        navLogId = sykmeldingId,
+                        msgId = sykmeldingId,
+                        legekontorOrgNr = null,
+                        legekontorOrgName = "",
+                        legekontorHerId = null,
+                        legekontorReshId = null,
+                        mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
+                                ?: getLocalDateTime(msgHead.msgInfo.genDate),
+                        rulesetVersion = healthInformation.regelSettVersjon,
+                        fellesformat = fellesformatMarshaller.toString(fellesformat),
+                        tssid = tssId ?: "",
+                        merknader = createMerknad(sykmelding),
+                        partnerreferanse = null,
+                        legeHelsepersonellkategori =
+                            sykmelder.godkjenninger?.getHelsepersonellKategori(),
+                        legeHprNr = sykmelder.hprNummer,
+                        vedlegg = null,
+                        utenlandskSykmelding = null,
+                    )
 
                 log.info(
                     "Papirsykmelding manuell registering mappet til internt format uten feil {}",
@@ -222,26 +252,28 @@ class SendPapirsykmeldingController(
 
                 checkValidState(smRegistreringManuell, sykmelder, validationResult)
 
-                val ferdigstillRegistrering = FerdigstillRegistrering(
-                    oppgaveId = oppgaveId,
-                    journalpostId = journalpostId,
-                    dokumentInfoId = dokumentInfoId,
-                    pasientFnr = receivedSykmelding.personNrPasient,
-                    sykmeldingId = sykmeldingId,
-                    sykmelder = sykmelder,
-                    navEnhet = navEnhet,
-                    veileder = authorizationService.getVeileder(accessToken),
-                    avvist = false,
-                    oppgave = null,
-                )
+                val ferdigstillRegistrering =
+                    FerdigstillRegistrering(
+                        oppgaveId = oppgaveId,
+                        journalpostId = journalpostId,
+                        dokumentInfoId = dokumentInfoId,
+                        pasientFnr = receivedSykmelding.personNrPasient,
+                        sykmeldingId = sykmeldingId,
+                        sykmelder = sykmelder,
+                        navEnhet = navEnhet,
+                        veileder = authorizationService.getVeileder(accessToken),
+                        avvist = false,
+                        oppgave = null,
+                    )
                 auditlogg.info(
-                    AuditLogger().createcCefMessage(
-                        fnr = smRegistreringManuell.pasientFnr,
-                        accessToken = accessToken,
-                        operation = AuditLogger.Operation.WRITE,
-                        requestPath = requestPath,
-                        permit = AuditLogger.Permit.PERMIT,
-                    ),
+                    AuditLogger()
+                        .createcCefMessage(
+                            fnr = smRegistreringManuell.pasientFnr,
+                            accessToken = accessToken,
+                            operation = AuditLogger.Operation.WRITE,
+                            requestPath = requestPath,
+                            permit = AuditLogger.Permit.PERMIT,
+                        ),
                 )
 
                 if (!validationResult.ruleHits.isWhitelisted()) {
@@ -264,13 +296,14 @@ class SendPapirsykmeldingController(
                 )
 
                 auditlogg.info(
-                    AuditLogger().createcCefMessage(
-                        fnr = smRegistreringManuell.pasientFnr,
-                        accessToken = accessToken,
-                        operation = AuditLogger.Operation.WRITE,
-                        requestPath = requestPath,
-                        permit = AuditLogger.Permit.DENY,
-                    ),
+                    AuditLogger()
+                        .createcCefMessage(
+                            fnr = smRegistreringManuell.pasientFnr,
+                            accessToken = accessToken,
+                            operation = AuditLogger.Operation.WRITE,
+                            requestPath = requestPath,
+                            permit = AuditLogger.Permit.DENY,
+                        ),
                 )
 
                 return handleAccessDenied(oppgaveId, loggingMeta)
@@ -302,7 +335,10 @@ class SendPapirsykmeldingController(
             StructuredArguments.keyValue("oppgaveId", oppgaveId),
             StructuredArguments.fields(loggingMeta),
         )
-        return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
+        return HttpServiceResponse(
+            HttpStatusCode.Forbidden,
+            "Veileder har ikke tilgang til oppgaven"
+        )
     }
 
     private fun handleBrokenRule(
@@ -328,7 +364,9 @@ class SendPapirsykmeldingController(
                 )
             }
             else -> {
-                log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                log.error(
+                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING"
+                )
                 return HttpServiceResponse(
                     HttpStatusCode.InternalServerError,
                     "En uforutsett feil oppsto ved validering av oppgaven",
@@ -346,37 +384,55 @@ class SendPapirsykmeldingController(
         accessToken: String,
     ): HttpServiceResponse {
         when (validationResult.status) {
-            Status.OK, Status.MANUAL_PROCESSING -> {
+            Status.OK,
+            Status.MANUAL_PROCESSING -> {
                 val veileder = authorizationService.getVeileder(accessToken)
 
                 if (ferdigstillRegistrering.oppgaveId != null) {
-                    journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, receivedSykmelding, loggingMeta)
-                    oppgaveService.ferdigstillOppgave(ferdigstillRegistrering, null, loggingMeta, ferdigstillRegistrering.oppgaveId)
+                    journalpostService.ferdigstillJournalpost(
+                        accessToken,
+                        ferdigstillRegistrering,
+                        receivedSykmelding,
+                        loggingMeta
+                    )
+                    oppgaveService.ferdigstillOppgave(
+                        ferdigstillRegistrering,
+                        null,
+                        loggingMeta,
+                        ferdigstillRegistrering.oppgaveId
+                    )
                 }
 
                 insertSykmeldingAndCreateJobs(receivedSykmelding, ferdigstillRegistrering, veileder)
 
-                manuellOppgaveDAO.ferdigstillSmRegistering(
-                    sykmeldingId = ferdigstillRegistrering.sykmeldingId,
-                    utfall = Utfall.OK,
-                    ferdigstiltAv = veileder.veilederIdent,
-                ).let {
-                    return if (it > 0) {
-                        HttpServiceResponse(HttpStatusCode.NoContent)
-                    } else {
-                        log.error(
-                            "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
-                            StructuredArguments.keyValue("oppgaveId", ferdigstillRegistrering.oppgaveId),
-                        )
-                        HttpServiceResponse(
-                            HttpStatusCode.InternalServerError,
-                            "Fant ingen uløst oppgave for oppgaveId ${ferdigstillRegistrering.oppgaveId}",
-                        )
+                manuellOppgaveDAO
+                    .ferdigstillSmRegistering(
+                        sykmeldingId = ferdigstillRegistrering.sykmeldingId,
+                        utfall = Utfall.OK,
+                        ferdigstiltAv = veileder.veilederIdent,
+                    )
+                    .let {
+                        return if (it > 0) {
+                            HttpServiceResponse(HttpStatusCode.NoContent)
+                        } else {
+                            log.error(
+                                "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
+                                StructuredArguments.keyValue(
+                                    "oppgaveId",
+                                    ferdigstillRegistrering.oppgaveId
+                                ),
+                            )
+                            HttpServiceResponse(
+                                HttpStatusCode.InternalServerError,
+                                "Fant ingen uløst oppgave for oppgaveId ${ferdigstillRegistrering.oppgaveId}",
+                            )
+                        }
                     }
-                }
             }
             else -> {
-                log.error("Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING")
+                log.error(
+                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING"
+                )
                 return HttpServiceResponse(HttpStatusCode.InternalServerError)
             }
         }
@@ -387,14 +443,17 @@ class SendPapirsykmeldingController(
         ferdigstillRegistrering: FerdigstillRegistrering,
         veileder: Veileder,
     ) {
-        val sendtSykmeldingHistory = SendtSykmeldingHistory(
-            UUID.randomUUID().toString(),
-            ferdigstillRegistrering.sykmeldingId,
-            veileder.veilederIdent,
-            OffsetDateTime.now(ZoneOffset.UTC),
-            receivedSykmelding,
+        val sendtSykmeldingHistory =
+            SendtSykmeldingHistory(
+                UUID.randomUUID().toString(),
+                ferdigstillRegistrering.sykmeldingId,
+                veileder.veilederIdent,
+                OffsetDateTime.now(ZoneOffset.UTC),
+                receivedSykmelding,
+            )
+        sendtSykmeldingService.insertSendtSykmeldingHistory(
+            sendtSykmeldingHistory = sendtSykmeldingHistory
         )
-        sendtSykmeldingService.insertSendtSykmeldingHistory(sendtSykmeldingHistory = sendtSykmeldingHistory)
         sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
         sendtSykmeldingService.createJobs(receivedSykmelding)
     }
@@ -403,27 +462,28 @@ class SendPapirsykmeldingController(
 private fun createMerknad(sykmelding: Sykmelding): List<Merknad>? {
     val behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate()
     val terskel = sykmelding.perioder.map { it.fom }.minOrNull()?.plusDays(7)
-    return if (behandletTidspunkt != null && terskel != null &&
-        behandletTidspunkt > terskel
-    ) {
+    return if (behandletTidspunkt != null && terskel != null && behandletTidspunkt > terskel) {
         listOf(Merknad("TILBAKEDATERT_PAPIRSYKMELDING", null))
     } else {
         null
     }
 }
 
-fun List<Godkjenning>.getHelsepersonellKategori(): String? = when {
-    find { it.helsepersonellkategori?.verdi == "LE" } != null -> "LE"
-    find { it.helsepersonellkategori?.verdi == "TL" } != null -> "TL"
-    find { it.helsepersonellkategori?.verdi == "MT" } != null -> "MT"
-    find { it.helsepersonellkategori?.verdi == "FT" } != null -> "FT"
-    find { it.helsepersonellkategori?.verdi == "KI" } != null -> "KI"
-    else -> {
-        val verdi = firstOrNull()?.helsepersonellkategori?.verdi
-        log.warn("Signerende behandler har ikke en helsepersonellkategori($verdi) vi kjenner igjen")
-        verdi
+fun List<Godkjenning>.getHelsepersonellKategori(): String? =
+    when {
+        find { it.helsepersonellkategori?.verdi == "LE" } != null -> "LE"
+        find { it.helsepersonellkategori?.verdi == "TL" } != null -> "TL"
+        find { it.helsepersonellkategori?.verdi == "MT" } != null -> "MT"
+        find { it.helsepersonellkategori?.verdi == "FT" } != null -> "FT"
+        find { it.helsepersonellkategori?.verdi == "KI" } != null -> "KI"
+        else -> {
+            val verdi = firstOrNull()?.helsepersonellkategori?.verdi
+            log.warn(
+                "Signerende behandler har ikke en helsepersonellkategori($verdi) vi kjenner igjen"
+            )
+            verdi
+        }
     }
-}
 
 data class HttpServiceResponse(
     val httpStatusCode: HttpStatusCode,

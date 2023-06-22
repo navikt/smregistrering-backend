@@ -27,7 +27,8 @@ data class Environment(
     val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER"),
     val okSykmeldingTopic: String = "teamsykmelding.ok-sykmelding",
     val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
-    val syfoSmregisterEndpointURL: String = getEnvVar("SYFOSMREGISTER_ENDPOINT_URL", "http://syfosmregister"),
+    val syfoSmregisterEndpointURL: String =
+        getEnvVar("SYFOSMREGISTER_ENDPOINT_URL", "http://syfosmregister"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),
     val databaseUsername: String = getEnvVar("NAIS_DATABASE_USERNAME"),
     val databasePassword: String = getEnvVar("NAIS_DATABASE_PASSWORD"),
@@ -43,4 +44,5 @@ data class Environment(
 }
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
-    System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
+    System.getenv(varName)
+        ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")

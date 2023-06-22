@@ -14,8 +14,11 @@ class KafkaConsumers(env: Environment) {
         kafkaBaseConfig["auto.offset.reset"] = "none"
     }
 
-    private val properties = kafkaBaseConfig
-        .toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
+    private val properties =
+        kafkaBaseConfig.toConsumerConfig(
+            "${env.applicationName}-consumer",
+            valueDeserializer = StringDeserializer::class
+        )
 
     val kafkaConsumerPapirSmRegistering = KafkaConsumer<String, String>(properties)
 }

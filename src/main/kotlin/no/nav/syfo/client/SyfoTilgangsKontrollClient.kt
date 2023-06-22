@@ -9,10 +9,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
-import java.util.concurrent.TimeUnit
 
 class SyfoTilgangsKontrollClient(
     environment: Environment,
@@ -20,10 +20,8 @@ class SyfoTilgangsKontrollClient(
     private val httpClient: HttpClient,
     private val syfoTilgangsKontrollClientUrl: String = environment.syfoTilgangsKontrollClientUrl,
     private val scope: String = environment.syfoTilgangsKontrollScope,
-    private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(100)
-        .build(),
+    private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> =
+        Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(100).build(),
 ) {
     companion object {
         const val NAV_PERSONIDENT_HEADER = "nav-personident"
@@ -38,13 +36,16 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker tilgang for veileder på person")
-            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person") {
-                accept(ContentType.Application.Json)
-                headers {
-                    append("Authorization", "Bearer $oboToken")
-                    append(NAV_PERSONIDENT_HEADER, personFnr)
+            val httpResponse =
+                httpClient.get(
+                    "$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person"
+                ) {
+                    accept(ContentType.Application.Json)
+                    headers {
+                        append("Authorization", "Bearer $oboToken")
+                        append(NAV_PERSONIDENT_HEADER, personFnr)
+                    }
                 }
-            }
             return when (httpResponse.status) {
                 HttpStatusCode.OK -> {
                     val tilgang = httpResponse.body<Tilgang>()
@@ -71,13 +72,16 @@ class SyfoTilgangsKontrollClient(
 
         try {
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
-            val httpResponse = httpClient.get("$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person/papirsykmelding") {
-                accept(ContentType.Application.Json)
-                headers {
-                    append("Authorization", "Bearer $oboToken")
-                    append(NAV_PERSONIDENT_HEADER, personFnr)
+            val httpResponse =
+                httpClient.get(
+                    "$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person/papirsykmelding"
+                ) {
+                    accept(ContentType.Application.Json)
+                    headers {
+                        append("Authorization", "Bearer $oboToken")
+                        append(NAV_PERSONIDENT_HEADER, personFnr)
+                    }
                 }
-            }
             return when (httpResponse.status) {
                 HttpStatusCode.OK -> {
                     val tilgang = httpResponse.body<Tilgang>()
@@ -85,14 +89,18 @@ class SyfoTilgangsKontrollClient(
                     tilgang
                 }
                 else -> {
-                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang")
+                    log.warn(
+                        "syfo-tilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang"
+                    )
                     Tilgang(
                         harTilgang = false,
                     )
                 }
             }
         } catch (e: Exception) {
-            log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang")
+            log.warn(
+                "noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang"
+            )
             return Tilgang(
                 harTilgang = false,
             )

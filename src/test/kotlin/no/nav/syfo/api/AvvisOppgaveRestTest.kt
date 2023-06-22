@@ -18,6 +18,9 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
@@ -54,9 +57,6 @@ import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.generateJWT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 
 class AvvisOppgaveRestTest {
 
@@ -73,7 +73,14 @@ class AvvisOppgaveRestTest {
     private val sykmelderService = mockk<SykmelderService>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val journalpostService = JournalpostService(dokArkivClient, safJournalpostService)
-    private val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(authorizationService, sykmelderService, manuellOppgaveDAO, oppgaveService, journalpostService)
+    private val avvisPapirsykmeldingController =
+        AvvisPapirsykmeldingController(
+            authorizationService,
+            sykmelderService,
+            manuellOppgaveDAO,
+            oppgaveService,
+            journalpostService
+        )
     private val env = mockk<Environment>()
 
     @Test
@@ -101,7 +108,10 @@ class AvvisOppgaveRestTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
@@ -111,13 +121,14 @@ class AvvisOppgaveRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"),
-                listOf(
-                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID"),
-                ),
-            )
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns
+                PdlPerson(
+                    Navn("Billy", "Bob", "Thornton"),
+                    listOf(
+                        IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                        IdentInformasjon("12345", false, "AKTORID"),
+                    ),
+                )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
@@ -132,79 +143,89 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1
+            coEvery {
+                manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any())
+            } returns 1
 
             val oppgaveid = 308076319
 
-            val papirSmRegistering = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    "hpr",
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val papirSmRegistering =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            "hpr",
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                true,
+                                false,
+                                LocalDate.now(),
+                                LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
-            val manuellOppgaveDTO = ManuellOppgaveDTO(
-                journalpostId = "journalpostId",
-                fnr = "fnr",
-                aktorId = "aktorId",
-                dokumentInfoId = null,
-                datoOpprettet = null,
-                sykmeldingId = "sykmeldingsId",
-                oppgaveid = oppgaveid,
-                papirSmRegistering = papirSmRegistering,
-                ferdigstilt = false,
-                pdfPapirSykmelding = null,
-            )
+            val manuellOppgaveDTO =
+                ManuellOppgaveDTO(
+                    journalpostId = "journalpostId",
+                    fnr = "fnr",
+                    aktorId = "aktorId",
+                    dokumentInfoId = null,
+                    datoOpprettet = null,
+                    sykmeldingId = "sykmeldingsId",
+                    oppgaveid = oppgaveid,
+                    papirSmRegistering = papirSmRegistering,
+                    ferdigstilt = false,
+                    pdfPapirSykmelding = null,
+                )
 
-            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(manuellOppgaveDTO)
+            coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns
+                listOf(manuellOppgaveDTO)
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
-                    id = 123, versjon = 1,
+                    id = 123,
+                    versjon = 1,
                     tilordnetRessurs = "",
                     tildeltEnhetsnr = "",
                     journalpostId = "",
@@ -224,10 +245,23 @@ class AvvisOppgaveRestTest {
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
-                    id = 123, versjon = 1,
+                    id = 123,
+                    versjon = 1,
                     tilordnetRessurs = "",
                     tildeltEnhetsnr = "",
                     journalpostId = "",
@@ -292,7 +326,10 @@ class AvvisOppgaveRestTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
@@ -302,13 +339,14 @@ class AvvisOppgaveRestTest {
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
-            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns PdlPerson(
-                Navn("Billy", "Bob", "Thornton"),
-                listOf(
-                    IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
-                    IdentInformasjon("12345", false, "AKTORID"),
-                ),
-            )
+            coEvery { pdlPersonService.getPdlPerson(any(), any()) } returns
+                PdlPerson(
+                    Navn("Billy", "Bob", "Thornton"),
+                    listOf(
+                        IdentInformasjon("12345", false, "FOLKEREGISTERIDENT"),
+                        IdentInformasjon("12345", false, "AKTORID"),
+                    ),
+                )
 
             coEvery { sykmelderService.hentSykmelder(any(), any()) } returns
                 Sykmelder(
@@ -330,7 +368,8 @@ class AvvisOppgaveRestTest {
             coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns emptyList()
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
-                    id = 123, versjon = 1,
+                    id = 123,
+                    versjon = 1,
                     tilordnetRessurs = "",
                     tildeltEnhetsnr = "",
                     journalpostId = "",
@@ -350,10 +389,23 @@ class AvvisOppgaveRestTest {
 
             val avvisSykmeldingRequest = AvvisSykmeldingRequest("Foo bar reason")
 
-            coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+            coEvery {
+                dokArkivClient.oppdaterOgFerdigstillJournalpost(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
-                    id = 123, versjon = 1,
+                    id = 123,
+                    versjon = 1,
                     tilordnetRessurs = "",
                     tildeltEnhetsnr = "",
                     journalpostId = "",

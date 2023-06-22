@@ -2,6 +2,7 @@ package no.nav.syfo.pdl.service
 
 import io.mockk.coEvery
 import io.mockk.mockkClass
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.graphql.model.GraphQLResponse
@@ -15,7 +16,6 @@ import no.nav.syfo.pdl.error.AktoerNotFoundException
 import no.nav.syfo.pdl.error.PersonNotFoundInPdl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
 
 internal class PdlServiceTest {
 
@@ -40,84 +40,88 @@ internal class PdlServiceTest {
     @Test
     internal fun `Skal feile naar person ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
-        coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
-            PdlResponse(null, null),
-            errors = null,
-        )
+        coEvery { pdlClient.getPerson(any(), any()) } returns
+            GraphQLResponse<PdlResponse>(
+                PdlResponse(null, null),
+                errors = null,
+            )
 
-        val exception = assertFailsWith<PersonNotFoundInPdl> {
-            runBlocking {
-                pdlService.getPdlPerson("123", "callId")
+        val exception =
+            assertFailsWith<PersonNotFoundInPdl> {
+                runBlocking { pdlService.getPdlPerson("123", "callId") }
             }
-        }
         assertEquals("Klarte ikke hente ut person fra PDL", exception.message)
     }
 
     @Test
     internal fun `Skal feile naar navn er tom liste`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
-        coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
-            PdlResponse(
-                hentPerson = HentPerson(
-                    navn = emptyList(),
+        coEvery { pdlClient.getPerson(any(), any()) } returns
+            GraphQLResponse<PdlResponse>(
+                PdlResponse(
+                    hentPerson =
+                        HentPerson(
+                            navn = emptyList(),
+                        ),
+                    hentIdenter = Identliste(emptyList()),
                 ),
-                hentIdenter = Identliste(emptyList()),
-            ),
-            errors = null,
-        )
-        val exception = assertFailsWith<PersonNotFoundInPdl> {
-            runBlocking {
-                pdlService.getPdlPerson("123", "callId")
+                errors = null,
+            )
+        val exception =
+            assertFailsWith<PersonNotFoundInPdl> {
+                runBlocking { pdlService.getPdlPerson("123", "callId") }
             }
-        }
         assertEquals("Fant ikke navn på person i PDL", exception.message)
     }
 
     @Test
     internal fun `Skal feile naar navn ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
-        coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
-            PdlResponse(
-                hentPerson = HentPerson(
-                    navn = null,
-                ),
-                hentIdenter = Identliste(
-                    listOf(
-                        IdentInformasjon(
-                            ident = "987654321",
-                            gruppe = "foo",
-                            historisk = false,
+        coEvery { pdlClient.getPerson(any(), any()) } returns
+            GraphQLResponse<PdlResponse>(
+                PdlResponse(
+                    hentPerson =
+                        HentPerson(
+                            navn = null,
                         ),
-                    ),
+                    hentIdenter =
+                        Identliste(
+                            listOf(
+                                IdentInformasjon(
+                                    ident = "987654321",
+                                    gruppe = "foo",
+                                    historisk = false,
+                                ),
+                            ),
+                        ),
                 ),
-            ),
-            errors = null,
-        )
-        val exception = assertFailsWith<PersonNotFoundInPdl> {
-            runBlocking {
-                pdlService.getPdlPerson("123", "callId")
+                errors = null,
+            )
+        val exception =
+            assertFailsWith<PersonNotFoundInPdl> {
+                runBlocking { pdlService.getPdlPerson("123", "callId") }
             }
-        }
         assertEquals("Fant ikke navn på person i PDL", exception.message)
     }
 
     @Test
     internal fun `Skal feile naar aktorid ikke finnes`() {
         coEvery { accessTokenClientV2.getAccessToken(any()) } returns "token"
-        coEvery { pdlClient.getPerson(any(), any()) } returns GraphQLResponse<PdlResponse>(
-            PdlResponse(
-                hentPerson = HentPerson(
-                    navn = listOf(Navn("fornavn", "mellomnavn", "etternavn")),
+        coEvery { pdlClient.getPerson(any(), any()) } returns
+            GraphQLResponse<PdlResponse>(
+                PdlResponse(
+                    hentPerson =
+                        HentPerson(
+                            navn = listOf(Navn("fornavn", "mellomnavn", "etternavn")),
+                        ),
+                    hentIdenter = Identliste(emptyList()),
                 ),
-                hentIdenter = Identliste(emptyList()),
-            ),
-            errors = null,
-        )
-        val exception = assertFailsWith<AktoerNotFoundException> {
-            runBlocking {
-                pdlService.getPdlPerson("123", "callId")
+                errors = null,
+            )
+        val exception =
+            assertFailsWith<AktoerNotFoundException> {
+                runBlocking { pdlService.getPdlPerson("123", "callId") }
             }
-        }
         assertEquals("Fant ikke aktørId i PDL", exception.message)
     }
 }

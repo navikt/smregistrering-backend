@@ -9,11 +9,10 @@ import no.nav.syfo.client.Kode
 fun getAccessTokenFromAuthHeader(request: ApplicationRequest): String? {
     val authHeader = request.parseAuthorizationHeader()
     var accessToken: String? = null
-    if (!(
-            authHeader == null ||
-                authHeader !is HttpAuthHeader.Single ||
-                authHeader.authScheme != "Bearer"
-            )
+    if (
+        !(authHeader == null ||
+            authHeader !is HttpAuthHeader.Single ||
+            authHeader.authScheme != "Bearer")
     ) {
         accessToken = authHeader.blob
     }
@@ -27,20 +26,26 @@ fun padHpr(hprnummer: String?): String? {
     return hprnummer
 }
 
-fun changeHelsepersonellkategoriVerdiFromFAToFA1(godkjenninger: List<Godkjenning>): List<Godkjenning> {
+fun changeHelsepersonellkategoriVerdiFromFAToFA1(
+    godkjenninger: List<Godkjenning>
+): List<Godkjenning> {
     return if (godkjenninger.isNotEmpty()) {
         return godkjenninger.map {
             if (it.helsepersonellkategori?.verdi == "FA") {
                 Godkjenning(
-                    helsepersonellkategori = Kode(
-                        aktiv = it.helsepersonellkategori.aktiv,
-                        oid = it.helsepersonellkategori.oid,
-                        verdi = "FA1",
-                    ),
+                    helsepersonellkategori =
+                        Kode(
+                            aktiv = it.helsepersonellkategori.aktiv,
+                            oid = it.helsepersonellkategori.oid,
+                            verdi = "FA1",
+                        ),
                     autorisasjon = it.autorisasjon,
                 )
             } else {
-                Godkjenning(helsepersonellkategori = it.helsepersonellkategori, autorisasjon = it.autorisasjon)
+                Godkjenning(
+                    helsepersonellkategori = it.helsepersonellkategori,
+                    autorisasjon = it.autorisasjon
+                )
             }
         }
     } else {

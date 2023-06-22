@@ -50,7 +50,8 @@ class HttpClients(env: Environment) {
         HttpResponseValidator {
             handleResponseExceptionWithRequest { exception, _ ->
                 when (exception) {
-                    is SocketTimeoutException -> throw ServiceUnavailableException(exception.message)
+                    is SocketTimeoutException ->
+                        throw ServiceUnavailableException(exception.message)
                 }
             }
         }
@@ -62,7 +63,9 @@ class HttpClients(env: Environment) {
             }
             retryIf(maxRetries) { request, response ->
                 if (response.status.value.let { it in 500..599 }) {
-                    log.warn("Retrying for statuscode ${response.status.value}, for url ${request.url}")
+                    log.warn(
+                        "Retrying for statuscode ${response.status.value}, for url ${request.url}"
+                    )
                     true
                 } else {
                     false
@@ -73,49 +76,70 @@ class HttpClients(env: Environment) {
 
     private val httpClient = HttpClient(Apache, config)
 
-    internal val azureAdV2Client = AzureAdV2Client(
-        environment = env,
-        httpClient = httpClient,
-    )
+    internal val azureAdV2Client =
+        AzureAdV2Client(
+            environment = env,
+            httpClient = httpClient,
+        )
 
-    internal val oppgaveClient = OppgaveClient(env.oppgavebehandlingUrl, azureAdV2Client, httpClient, env.oppgaveScope)
+    internal val oppgaveClient =
+        OppgaveClient(env.oppgavebehandlingUrl, azureAdV2Client, httpClient, env.oppgaveScope)
 
     internal val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
-    internal val smTssClient = SmtssClient(env.smtssApiUrl, azureAdV2Client, env.smtssApiScope, httpClient)
+    internal val smTssClient =
+        SmtssClient(env.smtssApiUrl, azureAdV2Client, env.smtssApiScope, httpClient)
 
-    internal val dokArkivClient = DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
+    internal val dokArkivClient =
+        DokArkivClient(env.dokArkivUrl, azureAdV2Client, env.dokArkivScope, httpClient)
 
     internal val regelClient =
         RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)
 
-    internal val syfoTilgangsKontrollClient = SyfoTilgangsKontrollClient(
-        environment = env,
-        azureAdV2Client = azureAdV2Client,
-        httpClient = httpClient,
-    )
+    internal val syfoTilgangsKontrollClient =
+        SyfoTilgangsKontrollClient(
+            environment = env,
+            azureAdV2Client = azureAdV2Client,
+            httpClient = httpClient,
+        )
 
-    internal val msGraphClient = MSGraphClient(
-        environment = env,
-        azureAdV2Client = azureAdV2Client,
-        httpClient = httpClient,
-    )
+    internal val msGraphClient =
+        MSGraphClient(
+            environment = env,
+            azureAdV2Client = azureAdV2Client,
+            httpClient = httpClient,
+        )
 
-    internal val pdlClient = PdlClient(
-        httpClient,
-        env.pdlGraphqlPath,
-        PdlClient::class.java.getResource("/graphql/getPerson.graphql")!!.readText().replace(Regex("[\n\t]"), ""),
-    )
+    internal val pdlClient =
+        PdlClient(
+            httpClient,
+            env.pdlGraphqlPath,
+            PdlClient::class
+                .java
+                .getResource("/graphql/getPerson.graphql")!!
+                .readText()
+                .replace(Regex("[\n\t]"), ""),
+        )
 
     internal val norskHelsenettClient =
-        NorskHelsenettClient(env.norskHelsenettEndpointURL, azureAdV2Client, env.helsenettproxyScope, httpClient)
+        NorskHelsenettClient(
+            env.norskHelsenettEndpointURL,
+            azureAdV2Client,
+            env.helsenettproxyScope,
+            httpClient
+        )
 
-    internal val safJournalpostClient = SafJournalpostClient(
-        httpClient,
-        "${env.safV1Url}/graphql",
-        SafJournalpostClient::class.java.getResource("/graphql/getJournalpostStatus.graphql")!!.readText()
-            .replace(Regex("[\n\t]"), ""),
-    )
+    internal val safJournalpostClient =
+        SafJournalpostClient(
+            httpClient,
+            "${env.safV1Url}/graphql",
+            SafJournalpostClient::class
+                .java
+                .getResource("/graphql/getJournalpostStatus.graphql")!!
+                .readText()
+                .replace(Regex("[\n\t]"), ""),
+        )
 
-    internal val syfoSmregisterClient = SyfosmregisterClient(env.syfoSmregisterEndpointURL, httpClient)
+    internal val syfoSmregisterClient =
+        SyfosmregisterClient(env.syfoSmregisterEndpointURL, httpClient)
 }

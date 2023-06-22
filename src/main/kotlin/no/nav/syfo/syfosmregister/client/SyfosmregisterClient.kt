@@ -15,12 +15,12 @@ class SyfosmregisterClient(
 ) {
     suspend fun getSykmelding(token: String, sykmeldingId: String): PapirsykmeldingDTO? {
         try {
-            return httpClient.get("$endpointUrl/api/v2/papirsykmelding/$sykmeldingId") {
-                accept(ContentType.Application.Json)
-                headers {
-                    append("Authorization", "Bearer $token")
+            return httpClient
+                .get("$endpointUrl/api/v2/papirsykmelding/$sykmeldingId") {
+                    accept(ContentType.Application.Json)
+                    headers { append("Authorization", "Bearer $token") }
                 }
-            }.body()
+                .body()
         } catch (e: Exception) {
             log.error("Noe gikk galt ved kall getSykmelding $sykmeldingId", e)
             throw e

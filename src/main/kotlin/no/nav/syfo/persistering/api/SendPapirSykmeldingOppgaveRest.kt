@@ -9,6 +9,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.util.pipeline.PipelineContext
+import java.util.UUID
 import no.nav.syfo.controllers.HttpServiceResponse
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
@@ -16,7 +17,6 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import java.util.UUID
 
 fun Route.sendPapirSykmeldingManuellOppgave(
     sendPapirsykmeldingController: SendPapirsykmeldingController,
@@ -42,21 +42,25 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
+                    call.respond(
+                        HttpStatusCode.Unauthorized,
+                        "Mangler JWT Bearer token i HTTP header"
+                    )
                 }
                 navEnhet == null -> {
                     log.error("Mangler X-Nav-Enhet i http header")
                     call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
-                    val httpRespons = sendPapirsykmeldingController.sendPapirsykmelding(
-                        smRegistreringManuell = smRegistreringManuell,
-                        accessToken = accessToken,
-                        callId = callId,
-                        sykmeldingId = sykmeldingId,
-                        navEnhet = navEnhet,
-                        requestPath = "/api/v1/sykmelding/$sykmeldingId",
-                    )
+                    val httpRespons =
+                        sendPapirsykmeldingController.sendPapirsykmelding(
+                            smRegistreringManuell = smRegistreringManuell,
+                            accessToken = accessToken,
+                            callId = callId,
+                            sykmeldingId = sykmeldingId,
+                            navEnhet = navEnhet,
+                            requestPath = "/api/v1/sykmelding/$sykmeldingId",
+                        )
 
                     respond(httpRespons)
                 }
@@ -83,7 +87,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
+                    call.respond(
+                        HttpStatusCode.Unauthorized,
+                        "Mangler JWT Bearer token i HTTP header"
+                    )
                 }
                 navEnhet == null -> {
                     log.error("Mangler X-Nav-Enhet i http header")
@@ -91,19 +98,23 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 else -> {
                     try {
-                        val httpServiceResponse = sendPapirsykmeldingController.sendPapirsykmelding(
-                            smRegistreringManuell = smRegistreringManuell,
-                            accessToken = accessToken,
-                            callId = callId,
-                            oppgaveId = oppgaveId,
-                            navEnhet = navEnhet,
-                            requestPath = "/api/v1/oppgave/$oppgaveId/send",
-                        )
+                        val httpServiceResponse =
+                            sendPapirsykmeldingController.sendPapirsykmelding(
+                                smRegistreringManuell = smRegistreringManuell,
+                                accessToken = accessToken,
+                                callId = callId,
+                                oppgaveId = oppgaveId,
+                                navEnhet = navEnhet,
+                                requestPath = "/api/v1/oppgave/$oppgaveId/send",
+                            )
 
                         respond(httpServiceResponse)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
-                        call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt ved uthenting av behandler")
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Noe gikk galt ved uthenting av behandler"
+                        )
                     } catch (e: UnauthorizedException) {
                         log.warn("Caught UnauthorizedException", e)
                         call.respond(
@@ -115,7 +126,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                         call.respond(HttpStatusCode.BadRequest, e.validationResult)
                     } catch (e: Exception) {
                         log.error("Caught unexpected exception", e)
-                        call.respond(HttpStatusCode.InternalServerError, "En ukjent feil har oppstått.")
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "En ukjent feil har oppstått."
+                        )
                     }
                 }
             }

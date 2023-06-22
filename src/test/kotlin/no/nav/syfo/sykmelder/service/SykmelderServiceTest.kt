@@ -3,6 +3,7 @@ package no.nav.syfo.sykmelder.service
 import io.ktor.util.InternalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.client.Behandler
 import no.nav.syfo.client.Godkjenning
@@ -15,7 +16,6 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
 
 class SykmelderServiceTest {
 
@@ -31,22 +31,27 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-            Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID")),
-        )
-        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
-            listOf(
-                Godkjenning(
-                    Kode(true, 1, null),
-                    Kode(true, 1, null),
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns
+            PdlPerson(
+                Navn(fornavn, mellomnavn, etternavn),
+                listOf(
+                    IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("ident", false, "AKTORID")
                 ),
-            ),
-            fnr,
-            fornavn,
-            mellomnavn,
-            etternavn,
-        )
+            )
+        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns
+            Behandler(
+                listOf(
+                    Godkjenning(
+                        Kode(true, 1, null),
+                        Kode(true, 1, null),
+                    ),
+                ),
+                fnr,
+                fornavn,
+                mellomnavn,
+                etternavn,
+            )
 
         runBlocking {
             val sykmelder = sykmelderService.hentSykmelder(hprNummer, "callid")
@@ -68,27 +73,33 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-            Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"), IdentInformasjon("ident", false, "AKTORID")),
-        )
-        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
-            listOf(
-                Godkjenning(
-                    Kode(true, 1, null),
-                    Kode(true, 1, null),
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns
+            PdlPerson(
+                Navn(fornavn, mellomnavn, etternavn),
+                listOf(
+                    IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("ident", false, "AKTORID")
                 ),
-            ),
-            fnr,
-            fornavn,
-            mellomnavn,
-            etternavn,
-        )
+            )
+        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns
+            Behandler(
+                listOf(
+                    Godkjenning(
+                        Kode(true, 1, null),
+                        Kode(true, 1, null),
+                    ),
+                ),
+                fnr,
+                fornavn,
+                mellomnavn,
+                etternavn,
+            )
 
         runBlocking {
-            val exception = assertFailsWith<IllegalStateException> {
-                sykmelderService.hentSykmelder(hprNummer, "callid")
-            }
+            val exception =
+                assertFailsWith<IllegalStateException> {
+                    sykmelderService.hentSykmelder(hprNummer, "callid")
+                }
             assertEquals("HPR-nummer mangler", exception.message)
         }
     }
@@ -101,19 +112,22 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-            Navn(fornavn, mellomnavn, etternavn),
-            listOf(
-                IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
-                IdentInformasjon("ident", false, "AKTORID"),
-            ),
-        )
-        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } throws SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns
+            PdlPerson(
+                Navn(fornavn, mellomnavn, etternavn),
+                listOf(
+                    IdentInformasjon("ident", false, "FOLKEREGISTERIDENT"),
+                    IdentInformasjon("ident", false, "AKTORID"),
+                ),
+            )
+        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } throws
+            SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
 
         runBlocking {
-            val exception = assertFailsWith<SykmelderNotFoundException> {
-                sykmelderService.hentSykmelder(hprNummer, "callid")
-            }
+            val exception =
+                assertFailsWith<SykmelderNotFoundException> {
+                    sykmelderService.hentSykmelder(hprNummer, "callid")
+                }
             assertEquals("Kunne ikke hente fnr for hpr $hprNummer", exception.message)
         }
     }
@@ -127,27 +141,30 @@ class SykmelderServiceTest {
         val mellomnavn = "Mellomnavn"
         val etternavn = "Normann"
 
-        coEvery { pdlService.getPdlPerson(any(), any()) } returns PdlPerson(
-            Navn(fornavn, mellomnavn, etternavn),
-            listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT")),
-        )
-        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns Behandler(
-            listOf(
-                Godkjenning(
-                    Kode(true, 1, null),
-                    Kode(true, 1, null),
+        coEvery { pdlService.getPdlPerson(any(), any()) } returns
+            PdlPerson(
+                Navn(fornavn, mellomnavn, etternavn),
+                listOf(IdentInformasjon("ident", false, "FOLKEREGISTERIDENT")),
+            )
+        coEvery { norskHelsenettClient.finnBehandler(hprNummer, "callid") } returns
+            Behandler(
+                listOf(
+                    Godkjenning(
+                        Kode(true, 1, null),
+                        Kode(true, 1, null),
+                    ),
                 ),
-            ),
-            fnr,
-            fornavn,
-            mellomnavn,
-            etternavn,
-        )
+                fnr,
+                fornavn,
+                mellomnavn,
+                etternavn,
+            )
 
         runBlocking {
-            val exception = assertFailsWith<SykmelderNotFoundException> {
-                sykmelderService.hentSykmelder(hprNummer, "callid")
-            }
+            val exception =
+                assertFailsWith<SykmelderNotFoundException> {
+                    sykmelderService.hentSykmelder(hprNummer, "callid")
+                }
             assertEquals("Kunne ikke hente aktorId for hpr $hprNummer", exception.message)
         }
     }

@@ -20,7 +20,8 @@ fun Route.hentFerdigstiltSykmelding(
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
 
-            val httpServiceResponse = ferdigstiltSykmeldingController.hentFerdigstiltOppgave(accessToken, sykmeldingId)
+            val httpServiceResponse =
+                ferdigstiltSykmeldingController.hentFerdigstiltOppgave(accessToken, sykmeldingId)
 
             when {
                 httpServiceResponse.payload != null -> {

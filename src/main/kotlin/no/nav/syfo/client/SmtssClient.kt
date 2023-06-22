@@ -26,14 +26,15 @@ class SmtssClient(
         sykmeldingId: String,
     ): String? {
         val accessToken = azureAdV2Client.getAccessToken(resourceId)
-        val httpResponse = httpClient.get("$endpointUrl/api/v1/samhandler/infotrygd") {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            header("samhandlerFnr", samhandlerFnr)
-            header("samhandlerOrgName", samhandlerOrgName)
-            header("Authorization", "Bearer $accessToken")
-            header("requestId", sykmeldingId)
-        }
+        val httpResponse =
+            httpClient.get("$endpointUrl/api/v1/samhandler/infotrygd") {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                header("samhandlerFnr", samhandlerFnr)
+                header("samhandlerOrgName", samhandlerOrgName)
+                header("Authorization", "Bearer $accessToken")
+                header("requestId", sykmeldingId)
+            }
         return if (httpResponse.status == HttpStatusCode.OK) {
             val tssid = httpResponse.body<TSSident>().tssid
             tssid

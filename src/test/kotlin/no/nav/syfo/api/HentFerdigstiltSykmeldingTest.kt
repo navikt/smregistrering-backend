@@ -17,6 +17,9 @@ import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.application.setupAuth
@@ -55,9 +58,6 @@ import no.nav.syfo.util.getReceivedSykmelding
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
-import java.time.LocalDate
-import java.time.OffsetDateTime
 
 internal class HentFerdigstiltSykmeldingTest {
     private val database = TestDB()
@@ -70,9 +70,7 @@ internal class HentFerdigstiltSykmeldingTest {
     private val authorizationService = mockk<AuthorizationService>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val receivedSykmeldingController = mockk<ReceivedSykmeldingController>()
-    private val env = mockk<Environment> {
-        coEvery { azureAppClientId } returns "clientId"
-    }
+    private val env = mockk<Environment> { coEvery { azureAppClientId } returns "clientId" }
 
     @AfterEach
     fun after() {
@@ -99,117 +97,137 @@ internal class HentFerdigstiltSykmeldingTest {
             val sykmeldingId = "sykmeldingId"
             val oppgaveid = 308076319
 
-            coEvery { syfosmregisterService.hentSykmelding(any()) } returns PapirsykmeldingDTO(
-                pasientFnr = "12345678912",
-                mottattTidspunkt = OffsetDateTime.now(),
-                sykmelding = getReceivedSykmelding(fnrPasient = "41424", sykmelderFnr = "12345678912").sykmelding,
-            )
+            coEvery { syfosmregisterService.hentSykmelding(any()) } returns
+                PapirsykmeldingDTO(
+                    pasientFnr = "12345678912",
+                    mottattTidspunkt = OffsetDateTime.now(),
+                    sykmelding =
+                        getReceivedSykmelding(fnrPasient = "41424", sykmelderFnr = "12345678912")
+                            .sykmelding,
+                )
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
 
-            val papirSmRegistering = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = oppgaveid.toString(),
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = sykmeldingId,
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        true,
-                        false,
-                        LocalDate.now(),
-                        LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
-
-            val smRegisteringManuell = SmRegistreringManuell(
-                pasientFnr = papirSmRegistering.fnr!!,
-                sykmelderFnr = papirSmRegistering.behandler!!.fnr,
-                perioder = listOf(
-                    Periode(
-                        fom = LocalDate.now(),
-                        tom = LocalDate.now(),
-                        aktivitetIkkeMulig = AktivitetIkkeMulig(
-                            medisinskArsak = MedisinskArsak(
-                                beskrivelse = "test data",
-                                arsak = listOf(MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET),
-                            ),
-                            arbeidsrelatertArsak = null,
+            val papirSmRegistering =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = oppgaveid.toString(),
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = sykmeldingId,
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
                         ),
-                        avventendeInnspillTilArbeidsgiver = null,
-                        behandlingsdager = null,
-                        gradert = null,
-                        reisetilskudd = false,
-                    ),
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(
-                        system = "2.16.578.1.12.4.1.1.7170",
-                        kode = "A070",
-                        tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
-                    ),
-                    biDiagnoser = listOf(),
-                    svangerskap = false,
-                    yrkesskade = false,
-                    yrkesskadeDato = null,
-                    annenFraversArsak = null,
-                ),
-                syketilfelleStartDato = LocalDate.of(2020, 4, 1),
-                skjermesForPasient = false,
-                arbeidsgiver = Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
-                behandletDato = LocalDate.now(),
-                behandler = papirSmRegistering.behandler!!,
-                kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 4, 1), "Ja nei det."),
-                meldingTilArbeidsgiver = "Nei",
-                meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
-                navnFastlege = "Per Person",
-                harUtdypendeOpplysninger = false,
-            )
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                true,
+                                false,
+                                LocalDate.now(),
+                                LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
-            val receivedSykmelding = getReceivedSykmelding(
-                smRegisteringManuell,
-                smRegisteringManuell.pasientFnr,
-                smRegisteringManuell.sykmelderFnr,
-                papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
-                sykmeldingId,
-            )
+            val smRegisteringManuell =
+                SmRegistreringManuell(
+                    pasientFnr = papirSmRegistering.fnr!!,
+                    sykmelderFnr = papirSmRegistering.behandler!!.fnr,
+                    perioder =
+                        listOf(
+                            Periode(
+                                fom = LocalDate.now(),
+                                tom = LocalDate.now(),
+                                aktivitetIkkeMulig =
+                                    AktivitetIkkeMulig(
+                                        medisinskArsak =
+                                            MedisinskArsak(
+                                                beskrivelse = "test data",
+                                                arsak =
+                                                    listOf(
+                                                        MedisinskArsakType
+                                                            .TILSTAND_HINDRER_AKTIVITET
+                                                    ),
+                                            ),
+                                        arbeidsrelatertArsak = null,
+                                    ),
+                                avventendeInnspillTilArbeidsgiver = null,
+                                behandlingsdager = null,
+                                gradert = null,
+                                reisetilskudd = false,
+                            ),
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(
+                                    system = "2.16.578.1.12.4.1.1.7170",
+                                    kode = "A070",
+                                    tekst = "Balantidiasis Dysenteri som skyldes Balantidium",
+                                ),
+                            biDiagnoser = listOf(),
+                            svangerskap = false,
+                            yrkesskade = false,
+                            yrkesskadeDato = null,
+                            annenFraversArsak = null,
+                        ),
+                    syketilfelleStartDato = LocalDate.of(2020, 4, 1),
+                    skjermesForPasient = false,
+                    arbeidsgiver =
+                        Arbeidsgiver(HarArbeidsgiver.EN_ARBEIDSGIVER, "NAV ikt", "Utvikler", 100),
+                    behandletDato = LocalDate.now(),
+                    behandler = papirSmRegistering.behandler!!,
+                    kontaktMedPasient = KontaktMedPasient(LocalDate.of(2020, 4, 1), "Ja nei det."),
+                    meldingTilArbeidsgiver = "Nei",
+                    meldingTilNAV = MeldingTilNAV(true, "Ja nei det."),
+                    navnFastlege = "Per Person",
+                    harUtdypendeOpplysninger = false,
+                )
+
+            val receivedSykmelding =
+                getReceivedSykmelding(
+                    smRegisteringManuell,
+                    smRegisteringManuell.pasientFnr,
+                    smRegisteringManuell.sykmelderFnr,
+                    papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
+                    sykmeldingId,
+                )
 
             database.opprettManuellOppgave(papirSmRegistering, oppgaveid)
             database.upsertSendtSykmelding(receivedSykmelding)
@@ -242,7 +260,10 @@ internal class HentFerdigstiltSykmeldingTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }

@@ -1,16 +1,16 @@
 package no.nav.syfo.sykmelding.jobs.db
 
-import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.log
-import no.nav.syfo.sykmelding.jobs.model.JOBNAME
-import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
-import no.nav.syfo.sykmelding.jobs.model.Job
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.log
+import no.nav.syfo.sykmelding.jobs.model.JOBNAME
+import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
+import no.nav.syfo.sykmelding.jobs.model.Job
 
 private const val TRANSACTION_TIMEOUT = 60_000
 
@@ -22,27 +22,29 @@ fun DatabaseInterface.insertJobs(jobs: List<Job>) {
 }
 
 private fun upsertJobs(connection: Connection, jobs: List<Job>) {
-    connection.prepareStatement(
-        """
+    connection
+        .prepareStatement(
+            """
             INSERT INTO job(sykmelding_id, name, created, updated, status)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT (sykmelding_id, name) DO UPDATE SET updated = ?,
                                                             status  = ?;
             """,
-    ).use {
-        for (job in jobs) {
-            var i = 1
-            it.setString(i++, job.sykmeldingId)
-            it.setString(i++, job.name.name)
-            it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
-            it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
-            it.setString(i++, job.status.name)
-            it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
-            it.setString(i, job.status.name)
-            it.addBatch()
+        )
+        .use {
+            for (job in jobs) {
+                var i = 1
+                it.setString(i++, job.sykmeldingId)
+                it.setString(i++, job.name.name)
+                it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
+                it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
+                it.setString(i++, job.status.name)
+                it.setTimestamp(i++, Timestamp.from(job.updated.toInstant()))
+                it.setString(i, job.status.name)
+                it.addBatch()
+            }
+            it.executeBatch()
         }
-        it.executeBatch()
-    }
 }
 
 fun DatabaseInterface.getNextJob(): Job? {
@@ -69,9 +71,7 @@ fun DatabaseInterface.getNextJob(): Job? {
 }
 
 fun DatabaseInterface.getJobStatus(status: JOBSTATUS): Job? {
-    return connection.use {
-        getJob(connection, status)
-    }
+    return connection.use { getJob(connection, status) }
 }
 
 fun DatabaseInterface.updateJob(job: Job) {
@@ -85,45 +85,53 @@ fun DatabaseInterface.resetJobs(): Int {
     val resetTimestamp = OffsetDateTime.now().minusHours(1)
     var updated = 0
     connection.use { connection ->
-        connection.prepareStatement(
-            """
+        connection
+            .prepareStatement(
+                """
            update job set status = '${JOBSTATUS.NEW.name}', updated = ? where status = '${JOBSTATUS.IN_PROGRESS.name}' and updated < ?
         """,
-        ).use { ps ->
-            ps.setTimestamp(1, Timestamp.from(Instant.now()))
-            ps.setTimestamp(2, Timestamp.from(resetTimestamp.toInstant()))
-            updated = ps.executeUpdate()
-        }
+            )
+            .use { ps ->
+                ps.setTimestamp(1, Timestamp.from(Instant.now()))
+                ps.setTimestamp(2, Timestamp.from(resetTimestamp.toInstant()))
+                updated = ps.executeUpdate()
+            }
         connection.commit()
     }
     return updated
 }
 
 private fun updateJob(connection: Connection, job: Job): Int {
-    return connection.prepareStatement(
-        """
+    return connection
+        .prepareStatement(
+            """
                 update job set status=?, updated=? where name=? and sykmelding_id=? 
             """,
-    ).use {
-        var i = 0
-        it.setString(++i, job.status.name)
-        it.setTimestamp(++i, Timestamp.from(job.updated.toInstant()))
-        it.setString(++i, job.name.name)
-        it.setString(++i, job.sykmeldingId)
-        it.executeUpdate()
-    }
+        )
+        .use {
+            var i = 0
+            it.setString(++i, job.status.name)
+            it.setTimestamp(++i, Timestamp.from(job.updated.toInstant()))
+            it.setString(++i, job.name.name)
+            it.setString(++i, job.sykmeldingId)
+            it.executeUpdate()
+        }
 }
 
 private fun getJob(connection: Connection, status: JOBSTATUS): Job? {
-    connection.prepareStatement("""SET idle_in_transaction_session_timeout = $TRANSACTION_TIMEOUT""").execute()
-    return connection.prepareStatement(
-        """
+    connection
+        .prepareStatement("""SET idle_in_transaction_session_timeout = $TRANSACTION_TIMEOUT""")
+        .execute()
+    return connection
+        .prepareStatement(
+            """
             SELECT * from job where status = ? order by created desc limit 1 for update skip locked ;
         """,
-    ).use {
-        it.setString(1, status.name)
-        it.executeQuery().toJob()
-    }
+        )
+        .use {
+            it.setString(1, status.name)
+            it.executeQuery().toJob()
+        }
 }
 
 private fun ResultSet.toJob(): Job? {

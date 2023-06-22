@@ -8,7 +8,9 @@ enum class JOBNAME {
 }
 
 enum class JOBSTATUS {
-    NEW, DONE, IN_PROGRESS
+    NEW,
+    DONE,
+    IN_PROGRESS
 }
 
 data class Job(

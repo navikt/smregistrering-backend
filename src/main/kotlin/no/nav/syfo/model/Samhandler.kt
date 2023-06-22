@@ -65,4 +65,7 @@ data class Samhandlerident(
     val aktiv_ident: String?,
 )
 
-data class SamhandlerPraksisMatch(val samhandlerPraksis: SamhandlerPraksis, val percentageMatch: Double)
+data class SamhandlerPraksisMatch(
+    val samhandlerPraksis: SamhandlerPraksis,
+    val percentageMatch: Double
+)

@@ -19,17 +19,19 @@ class RegelClient(
     private val client: HttpClient,
 ) {
     suspend fun valider(sykmelding: ReceivedSykmelding, msgId: String): ValidationResult {
-        return client.post("$endpointUrl/api/v2/rules/validate") {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
+        return client
+            .post("$endpointUrl/api/v2/rules/validate") {
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
 
-            val accessToken = azureAdV2Client.getAccessToken(resourceId)
+                val accessToken = azureAdV2Client.getAccessToken(resourceId)
 
-            headers {
-                append("Authorization", "Bearer $accessToken")
-                append("Nav-CallId", msgId)
+                headers {
+                    append("Authorization", "Bearer $accessToken")
+                    append("Nav-CallId", msgId)
+                }
+                setBody(sykmelding)
             }
-            setBody(sykmelding)
-        }.body<ValidationResult>()
+            .body<ValidationResult>()
     }
 }

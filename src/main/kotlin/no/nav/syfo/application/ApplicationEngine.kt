@@ -57,10 +57,14 @@ fun createApplicationEngine(
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService,
 ): ApplicationEngine =
-    embeddedServer(Netty, env.applicationPort, configure = {
-        // Increase timeout of Netty to handle large content bodies
-        responseWriteTimeoutSeconds = 40
-    }) {
+    embeddedServer(
+        Netty,
+        env.applicationPort,
+        configure = {
+            // Increase timeout of Netty to handle large content bodies
+            responseWriteTimeoutSeconds = 40
+        }
+    ) {
         setupAuth(env, jwkProvider, env.jwtIssuer)
         install(ContentNegotiation) {
             jackson {

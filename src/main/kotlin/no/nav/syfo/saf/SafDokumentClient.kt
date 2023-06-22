@@ -13,7 +13,8 @@ import no.nav.syfo.log
 import no.nav.syfo.saf.exception.SafForbiddenException
 import no.nav.syfo.saf.exception.SafNotFoundException
 
-class SafDokumentClient constructor(
+class SafDokumentClient
+constructor(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient,
@@ -38,39 +39,79 @@ class SafDokumentClient constructor(
                 header("Nav-Consumer-Id", "smregistrering-backend")
             }
 
-        log.info("Saf returnerte: httpstatus {} for sykmeldingId {}", httpResponse.status, sykmeldingId)
+        log.info(
+            "Saf returnerte: httpstatus {} for sykmeldingId {}",
+            httpResponse.status,
+            sykmeldingId
+        )
         when (httpResponse.status) {
             HttpStatusCode.OK -> {
-                log.info("Hentet papirsykmelding pdf for journalpostId {}, sykmeldingId {}", journalpostId, sykmeldingId)
+                log.info(
+                    "Hentet papirsykmelding pdf for journalpostId {}, sykmeldingId {}",
+                    journalpostId,
+                    sykmeldingId
+                )
                 return httpResponse.body<ByteArray>()
             }
             HttpStatusCode.InternalServerError -> {
-                log.error("Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.error(
+                    "Noe gikk galt ved sjekking av status eller tilgang for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.NotFound -> {
-                log.error("Dokumentet finnes ikke for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.error(
+                    "Dokumentet finnes ikke for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw SafNotFoundException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Forbidden -> {
-                log.warn("Bruker har ikke tilgang til for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.warn(
+                    "Bruker har ikke tilgang til for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw SafForbiddenException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.Unauthorized -> {
-                log.warn("Bruker har ikke tilgang til for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.warn(
+                    "Bruker har ikke tilgang til for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw SafForbiddenException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.NotAcceptable -> {
-                log.error("Not Acceptable for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.error(
+                    "Not Acceptable for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             HttpStatusCode.BadRequest -> {
-                log.error("Bad Requests for journalpostId {}, sykmeldingId {}, response {}", journalpostId, sykmeldingId, httpResponse.body<String>())
+                log.error(
+                    "Bad Requests for journalpostId {}, sykmeldingId {}, response {}",
+                    journalpostId,
+                    sykmeldingId,
+                    httpResponse.body<String>()
+                )
                 throw RuntimeException("Saf returnerte: httpstatus ${httpResponse.status}")
             }
             else -> {
                 log.error("Feil ved henting av dokument. Statuskode: ${httpResponse.status}")
-                throw RuntimeException("En ukjent feil oppsto ved ved henting av dokument. Statuskode: ${httpResponse.status}")
+                throw RuntimeException(
+                    "En ukjent feil oppsto ved ved henting av dokument. Statuskode: ${httpResponse.status}"
+                )
             }
         }
     }

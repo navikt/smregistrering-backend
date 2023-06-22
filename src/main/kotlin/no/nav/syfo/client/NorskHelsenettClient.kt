@@ -10,12 +10,12 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
+import java.io.IOException
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.padHpr
-import java.io.IOException
 
 class NorskHelsenettClient(
     private val endpointUrl: String,
@@ -28,17 +28,20 @@ class NorskHelsenettClient(
         log.info("Henter behandler fra syfohelsenettproxy for callId {}", callId)
         val accessToken = azureAdV2Client.getAccessToken(resourceId)
 
-        val httpResponse = httpClient.get("$endpointUrl/api/v2/behandlerMedHprNummer") {
-            accept(ContentType.Application.Json)
-            headers {
-                append("Authorization", "Bearer $accessToken")
-                append("Nav-CallId", callId)
-                append("hprNummer", padHpr(hprNummer)!!)
+        val httpResponse =
+            httpClient.get("$endpointUrl/api/v2/behandlerMedHprNummer") {
+                accept(ContentType.Application.Json)
+                headers {
+                    append("Authorization", "Bearer $accessToken")
+                    append("Nav-CallId", callId)
+                    append("hprNummer", padHpr(hprNummer)!!)
+                }
             }
-        }
         when (httpResponse.status) {
             OK -> {
-                return httpResponse.body<Behandler>().also { log.info("Hentet behandler for callId {}", callId) }
+                return httpResponse.body<Behandler>().also {
+                    log.info("Hentet behandler for callId {}", callId)
+                }
             }
             InternalServerError -> {
                 log.error("Syfohelsenettproxy svarte med feilmelding for callId {}", callId)
@@ -49,8 +52,12 @@ class NorskHelsenettClient(
                 throw SykmelderNotFoundException("Kunne ikke hente fnr for hpr $hprNummer")
             }
             Unauthorized -> {
-                log.warn("Norsk helsenett returnerte Unauthorized for henting av behandler: $hprNummer")
-                throw UnauthorizedException("Norsk helsenett returnerte Unauthorized ved oppslag av HPR-nummer $hprNummer")
+                log.warn(
+                    "Norsk helsenett returnerte Unauthorized for henting av behandler: $hprNummer"
+                )
+                throw UnauthorizedException(
+                    "Norsk helsenett returnerte Unauthorized ved oppslag av HPR-nummer $hprNummer"
+                )
             }
             else -> {
                 log.error("Noe gikk galt ved henting av behandler fra syfohelsenettproxy $callId")

@@ -36,23 +36,30 @@ fun Route.avvisOppgave(
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
+                    call.respond(
+                        HttpStatusCode.Unauthorized,
+                        "Mangler JWT Bearer token i HTTP header"
+                    )
                 }
                 navEnhet == null -> {
                     log.error("Mangler X-Nav-Enhet i http header")
                     call.respond(HttpStatusCode.BadRequest, "Mangler X-Nav-Enhet i HTTP header")
                 }
                 else -> {
-                    val httpServiceResponse = avvisPapirsykmeldingController.avvisPapirsykmelding(
-                        oppgaveId,
-                        accessToken,
-                        navEnhet,
-                        avvisSykmeldingRequest?.reason,
-                    )
+                    val httpServiceResponse =
+                        avvisPapirsykmeldingController.avvisPapirsykmelding(
+                            oppgaveId,
+                            accessToken,
+                            navEnhet,
+                            avvisSykmeldingRequest?.reason,
+                        )
 
                     when {
                         httpServiceResponse.payload != null -> {
-                            call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+                            call.respond(
+                                httpServiceResponse.httpStatusCode,
+                                httpServiceResponse.payload
+                            )
                         }
                         else -> {
                             call.respond(httpServiceResponse.httpStatusCode)

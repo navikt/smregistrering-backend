@@ -2,6 +2,9 @@ package no.nav.syfo.controllers
 
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
 import no.nav.syfo.auditlogg
@@ -17,9 +20,6 @@ import no.nav.syfo.service.Veileder
 import no.nav.syfo.sikkerlogg
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.util.LoggingMeta
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 class AvvisPapirsykmeldingController(
     private val authorizationService: AuthorizationService,
@@ -47,17 +47,18 @@ class AvvisPapirsykmeldingController(
             val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
             val pasientFnr = manuellOppgaveDTOList.first().fnr!!
 
-            val loggingMeta = LoggingMeta(
-                mottakId = sykmeldingId,
-                dokumentInfoId = dokumentInfoId,
-                msgId = callId,
-                sykmeldingId = sykmeldingId,
-                journalpostId = journalpostId,
-            )
+            val loggingMeta =
+                LoggingMeta(
+                    mottakId = sykmeldingId,
+                    dokumentInfoId = dokumentInfoId,
+                    msgId = callId,
+                    sykmeldingId = sykmeldingId,
+                    journalpostId = journalpostId,
+                )
 
-            /***
-             * Vi antar at pasientFnr finnes da sykmeldinger må ha fnr fylt ut
-             * for å bli routet til smregistrering-backend (håndtert av syfosmpapirmottak)
+            /**
+             * Vi antar at pasientFnr finnes da sykmeldinger må ha fnr fylt ut for å bli routet til
+             * smregistrering-backend (håndtert av syfosmpapirmottak)
              */
             if (authorizationService.hasAccess(accessToken, pasientFnr)) {
                 val veileder = authorizationService.getVeileder(accessToken)
@@ -66,59 +67,72 @@ class AvvisPapirsykmeldingController(
                 val sykmelder = finnSykmelder(hpr, callId, oppgaveId)
 
                 val hentOppgave = oppgaveService.hentOppgave(oppgaveId, sykmeldingId)
-                val ferdigstillRegistrering = FerdigstillRegistrering(
-                    oppgaveId = oppgaveId,
-                    journalpostId = journalpostId,
-                    dokumentInfoId = dokumentInfoId,
-                    pasientFnr = pasientFnr,
-                    sykmeldingId = sykmeldingId,
-                    sykmelder = sykmelder,
-                    navEnhet = navEnhet,
-                    veileder = veileder,
-                    avvist = true,
-                    oppgave = hentOppgave,
-                )
+                val ferdigstillRegistrering =
+                    FerdigstillRegistrering(
+                        oppgaveId = oppgaveId,
+                        journalpostId = journalpostId,
+                        dokumentInfoId = dokumentInfoId,
+                        pasientFnr = pasientFnr,
+                        sykmeldingId = sykmeldingId,
+                        sykmelder = sykmelder,
+                        navEnhet = navEnhet,
+                        veileder = veileder,
+                        avvist = true,
+                        oppgave = hentOppgave,
+                    )
 
-                journalpostService.ferdigstillJournalpost(accessToken, ferdigstillRegistrering, null, loggingMeta)
+                journalpostService.ferdigstillJournalpost(
+                    accessToken,
+                    ferdigstillRegistrering,
+                    null,
+                    loggingMeta
+                )
                 oppgaveService.ferdigstillOppgave(
                     oppgaveId = oppgaveId,
                     ferdigstillRegistrering = ferdigstillRegistrering,
-                    beskrivelse = lagOppgavebeskrivelse(
-                        avvisSykmeldingReason,
-                        hentOppgave.beskrivelse,
-                        veileder,
-                        navEnhet,
-                    ),
+                    beskrivelse =
+                        lagOppgavebeskrivelse(
+                            avvisSykmeldingReason,
+                            hentOppgave.beskrivelse,
+                            veileder,
+                            navEnhet,
+                        ),
                     loggingMeta = loggingMeta,
                 )
 
-                manuellOppgaveDAO.ferdigstillSmRegistering(
-                    sykmeldingId = sykmeldingId,
-                    utfall = Utfall.AVVIST,
-                    ferdigstiltAv = veileder.veilederIdent,
-                    avvisningsgrunn = avvisSykmeldingReason,
-                ).also {
-                    if (it < 1) {
-                        log.warn(
-                            "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
-                            StructuredArguments.keyValue("oppgaveId", oppgaveId),
-                        )
+                manuellOppgaveDAO
+                    .ferdigstillSmRegistering(
+                        sykmeldingId = sykmeldingId,
+                        utfall = Utfall.AVVIST,
+                        ferdigstiltAv = veileder.veilederIdent,
+                        avvisningsgrunn = avvisSykmeldingReason,
+                    )
+                    .also {
+                        if (it < 1) {
+                            log.warn(
+                                "Ferdigstilling av papirsm i database rapporterer update count < 1 for oppgave {}",
+                                StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                            )
+                        }
                     }
-                }
 
                 auditlogg.info(
-                    AuditLogger().createcCefMessage(
-                        fnr = pasientFnr,
-                        accessToken = accessToken,
-                        operation = AuditLogger.Operation.WRITE,
-                        requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
-                        permit = AuditLogger.Permit.PERMIT,
-                    ),
+                    AuditLogger()
+                        .createcCefMessage(
+                            fnr = pasientFnr,
+                            accessToken = accessToken,
+                            operation = AuditLogger.Operation.WRITE,
+                            requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
+                            permit = AuditLogger.Permit.PERMIT,
+                        ),
                 )
 
                 return HttpServiceResponse(HttpStatusCode.NoContent)
             } else {
-                log.warn("Veileder har ikkje tilgang, {}", StructuredArguments.keyValue("oppgaveId", oppgaveId))
+                log.warn(
+                    "Veileder har ikkje tilgang, {}",
+                    StructuredArguments.keyValue("oppgaveId", oppgaveId)
+                )
 
                 sikkerlogg.info(
                     "Veileder har ikkje tilgang navEmail:" +
@@ -128,13 +142,14 @@ class AvvisPapirsykmeldingController(
                 )
 
                 auditlogg.info(
-                    AuditLogger().createcCefMessage(
-                        fnr = pasientFnr,
-                        accessToken = accessToken,
-                        operation = AuditLogger.Operation.WRITE,
-                        requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
-                        permit = AuditLogger.Permit.DENY,
-                    ),
+                    AuditLogger()
+                        .createcCefMessage(
+                            fnr = pasientFnr,
+                            accessToken = accessToken,
+                            operation = AuditLogger.Operation.WRITE,
+                            requestPath = "/api/v1/oppgave/$oppgaveId/avvis",
+                            permit = AuditLogger.Permit.DENY,
+                        ),
                 )
 
                 return HttpServiceResponse(HttpStatusCode.Forbidden)
@@ -149,10 +164,12 @@ class AvvisPapirsykmeldingController(
         navEnhet: String,
         timestamp: LocalDateTime? = null,
     ): String {
-        val oppdatertBeskrivelse = when {
-            !avvisSykmeldingReason.isNullOrEmpty() -> "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
-            else -> "Avvist papirsykmelding uten oppgitt årsak."
-        }
+        val oppdatertBeskrivelse =
+            when {
+                !avvisSykmeldingReason.isNullOrEmpty() ->
+                    "Avvist papirsykmelding med årsak: $avvisSykmeldingReason"
+                else -> "Avvist papirsykmelding uten oppgitt årsak."
+            }
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
         val formattedTimestamp = (timestamp ?: LocalDateTime.now()).format(formatter)
         return "--- $formattedTimestamp ${veileder.veilederIdent}, $navEnhet ---\n$oppdatertBeskrivelse\n\n$opprinneligBeskrivelse"
@@ -168,7 +185,9 @@ class AvvisPapirsykmeldingController(
             try {
                 sykmelderService.hentSykmelder(hpr, callId)
             } catch (e: Exception) {
-                log.warn("Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId")
+                log.warn(
+                    "Noe gikk galt ved henting av sykmelder fra HPR eller PDL for oppgaveid $oppgaveId"
+                )
                 return getDefaultSykmelder()
             }
         } else {

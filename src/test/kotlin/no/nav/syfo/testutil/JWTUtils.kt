@@ -66,4 +66,5 @@ private fun getJWKSet(): JWKSet {
     }
 }
 
-fun getFileAsString(filePath: String) = String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8)
+fun getFileAsString(filePath: String) =
+    String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8)

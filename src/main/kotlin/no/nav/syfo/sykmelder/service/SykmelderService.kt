@@ -20,7 +20,8 @@ class SykmelderService(
 
         val behandler = norskHelsenettClient.finnBehandler(hprNummer, callId)
 
-        // Helsedir har ikke migriert alle med Helsepersonellkategori(OID=9060) Verdien FA over til FA1 eller FA2,
+        // Helsedir har ikke migriert alle med Helsepersonellkategori(OID=9060) Verdien FA over til
+        // FA1 eller FA2,
         // da det var mulighet at noe måtte ligge igjen for historiske årsaker
         val godkjenninger = changeHelsepersonellkategoriVerdiFromFAToFA1(behandler.godkjenninger)
 

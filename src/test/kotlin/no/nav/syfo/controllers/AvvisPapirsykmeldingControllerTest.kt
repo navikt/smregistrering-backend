@@ -3,6 +3,9 @@ package no.nav.syfo.controllers
 import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
@@ -26,9 +29,6 @@ import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.generateJWT
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
 
 class AvvisPapirsykmeldingControllerTest {
 
@@ -40,50 +40,77 @@ class AvvisPapirsykmeldingControllerTest {
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val dokArkivClient = mockk<DokArkivClient>()
     private val journalpostService = JournalpostService(dokArkivClient, safJournalpostService)
-    private val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(authorizationService, sykmelderService, manuellOppgaveDAO, oppgaveService, journalpostService)
+    private val avvisPapirsykmeldingController =
+        AvvisPapirsykmeldingController(
+            authorizationService,
+            sykmelderService,
+            manuellOppgaveDAO,
+            oppgaveService,
+            journalpostService
+        )
 
-    private val opprinneligBeskrivelse = "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
-        "Viktig beskrivelse!\n" +
-        "\n" +
-        "Manuell registrering av sykmelding mottatt på papir"
+    private val opprinneligBeskrivelse =
+        "--- 02.02.2022 10:14 F_Z990098 E_Z990098 (z990098, 2820) ---\n" +
+            "Viktig beskrivelse!\n" +
+            "\n" +
+            "Manuell registrering av sykmelding mottatt på papir"
     private val veileder = Veileder("Z999999")
     private val enhet = "0101"
     private val timestamp = LocalDateTime.of(2022, 2, 4, 11, 23)
 
     @Test
     fun avisPapirsykmeldingHappyCase() {
-        coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(getManuellOppgaveDTO(1))
+        coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns
+            listOf(getManuellOppgaveDTO(1))
         coEvery { authorizationService.hasAccess(any(), any()) } returns true
         coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
         coEvery { oppgaveService.hentOppgave(any(), any()) } returns getOppgave(1)
         coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns false
-        coEvery { dokArkivClient.oppdaterOgFerdigstillJournalpost(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns ""
+        coEvery {
+            dokArkivClient.oppdaterOgFerdigstillJournalpost(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ""
         coEvery { oppgaveClient.hentOppgave(any(), any()) } returns getOppgave()
         coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns getOppgave()
         coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any(), any()) } returns 1
-        val accessToken = generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
+        val accessToken =
+            generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
 
         runBlocking {
-            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
+            val avvisPapirsykmelding =
+                avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
             assertEquals(HttpStatusCode.NoContent, avvisPapirsykmelding.httpStatusCode)
         }
     }
 
     @Test
     fun avisPapirsykmeldingVeilederIkkeTilgang() {
-        coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns listOf(getManuellOppgaveDTO(1))
+        coEvery { manuellOppgaveDAO.hentManuellOppgaver(any()) } returns
+            listOf(getManuellOppgaveDTO(1))
         coEvery { authorizationService.hasAccess(any(), any()) } returns false
-        val accessToken = generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
+        val accessToken =
+            generateJWT("2", "clientId", Claim("preferred_username", "firstname.lastname@nav.no"))!!
 
         runBlocking {
-            val avvisPapirsykmelding = avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
+            val avvisPapirsykmelding =
+                avvisPapirsykmeldingController.avvisPapirsykmelding(1, accessToken, "123", "reason")
             assertEquals(HttpStatusCode.Forbidden, avvisPapirsykmelding.httpStatusCode)
         }
     }
 
     private fun getOppgave(): Oppgave {
         return Oppgave(
-            id = 1, versjon = 1,
+            id = 1,
+            versjon = 1,
             tilordnetRessurs = "",
             tildeltEnhetsnr = "",
             journalpostId = "",
@@ -105,7 +132,14 @@ class AvvisPapirsykmeldingControllerTest {
     @Test
     fun lagOppgavebeskrivelseLagerRiktigBeskrivelseMedAvvisningsarsak() {
         val avvisSykmeldingReason = "Feil avventende periode"
-        val oppdatertBeskrivelse = avvisPapirsykmeldingController.lagOppgavebeskrivelse(avvisSykmeldingReason, opprinneligBeskrivelse, veileder, enhet, timestamp)
+        val oppdatertBeskrivelse =
+            avvisPapirsykmeldingController.lagOppgavebeskrivelse(
+                avvisSykmeldingReason,
+                opprinneligBeskrivelse,
+                veileder,
+                enhet,
+                timestamp
+            )
         assertEquals(
             "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
                 "Avvist papirsykmelding med årsak: Feil avventende periode\n" +
@@ -122,13 +156,14 @@ class AvvisPapirsykmeldingControllerTest {
     fun lagOppgavebeskrivelseLagerRiktigBeskrivelseUtenAvvisningsarsak() {
         val avvisSykmeldingReason = null
 
-        val oppdatertBeskrivelse = avvisPapirsykmeldingController.lagOppgavebeskrivelse(
-            avvisSykmeldingReason,
-            opprinneligBeskrivelse,
-            veileder,
-            enhet,
-            timestamp,
-        )
+        val oppdatertBeskrivelse =
+            avvisPapirsykmeldingController.lagOppgavebeskrivelse(
+                avvisSykmeldingReason,
+                opprinneligBeskrivelse,
+                veileder,
+                enhet,
+                timestamp,
+            )
 
         assertEquals(
             "--- 04.02.2022 11:23 Z999999, 0101 ---\n" +
@@ -167,17 +202,18 @@ class AvvisPapirsykmeldingControllerTest {
             datoOpprettet = OffsetDateTime.now(),
             sykmeldingId = "1344444",
             syketilfelleStartDato = LocalDate.now(),
-            behandler = Behandler(
-                "John",
-                "Besserwisser",
-                "Doe",
-                "123",
-                "12345678912",
-                "hpr",
-                null,
-                Adresse(null, null, null, null, null),
-                "12345",
-            ),
+            behandler =
+                Behandler(
+                    "John",
+                    "Besserwisser",
+                    "Doe",
+                    "123",
+                    "12345678912",
+                    "hpr",
+                    null,
+                    Adresse(null, null, null, null, null),
+                    "12345",
+                ),
             kontaktMedPasient = null,
             meldingTilArbeidsgiver = null,
             meldingTilNAV = null,
@@ -185,25 +221,28 @@ class AvvisPapirsykmeldingControllerTest {
             tiltakNAV = "Nei",
             tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
             utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
+            prognose =
+                Prognose(
                     true,
-                    false,
-                    LocalDate.now(),
-                    LocalDate.now(),
+                    "Nei",
+                    ErIArbeid(
+                        true,
+                        false,
+                        LocalDate.now(),
+                        LocalDate.now(),
+                    ),
+                    null,
                 ),
-                null,
-            ),
-            medisinskVurdering = MedisinskVurdering(
-                hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                biDiagnoser = emptyList(),
-                annenFraversArsak = null,
-                yrkesskadeDato = null,
-                yrkesskade = false,
-                svangerskap = false,
-            ),
+            medisinskVurdering =
+                MedisinskVurdering(
+                    hovedDiagnose =
+                        Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                    biDiagnoser = emptyList(),
+                    annenFraversArsak = null,
+                    yrkesskadeDato = null,
+                    yrkesskade = false,
+                    svangerskap = false,
+                ),
             arbeidsgiver = null,
             behandletTidspunkt = null,
             perioder = null,
@@ -213,7 +252,8 @@ class AvvisPapirsykmeldingControllerTest {
 
     fun getOppgave(oppgaveId: Int): Oppgave {
         return Oppgave(
-            id = oppgaveId, versjon = 1,
+            id = oppgaveId,
+            versjon = 1,
             tilordnetRessurs = "",
             tildeltEnhetsnr = "",
             journalpostId = "",

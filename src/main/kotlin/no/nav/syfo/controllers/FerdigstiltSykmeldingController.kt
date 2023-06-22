@@ -27,10 +27,12 @@ class FerdigstiltSykmeldingController(
     val receivedSykmeldingController: ReceivedSykmeldingController,
 ) {
 
-    suspend fun hentFerdigstiltOppgave(accessToken: String?, sykmeldingId: String?): HttpServiceResponse {
-        val ferdigstilteOppgaver = sykmeldingId?.let {
-            manuellOppgaveDAO.hentFerdigstiltManuellOppgave(it)
-        } ?: emptyList()
+    suspend fun hentFerdigstiltOppgave(
+        accessToken: String?,
+        sykmeldingId: String?
+    ): HttpServiceResponse {
+        val ferdigstilteOppgaver =
+            sykmeldingId?.let { manuellOppgaveDAO.hentFerdigstiltManuellOppgave(it) } ?: emptyList()
 
         when {
             accessToken == null -> {
@@ -51,11 +53,20 @@ class FerdigstiltSykmeldingController(
         }
     }
 
-    private suspend fun fetchFromSyfosmregister(sykmeldingId: String, accessToken: String): HttpServiceResponse {
-        val papirSykmelding = syfosmregisterService.hentSykmelding(sykmeldingId)
-            ?: return HttpServiceResponse(HttpStatusCode.NotFound, "Fant ikke sykmelding $sykmeldingId")
+    private suspend fun fetchFromSyfosmregister(
+        sykmeldingId: String,
+        accessToken: String
+    ): HttpServiceResponse {
+        val papirSykmelding =
+            syfosmregisterService.hentSykmelding(sykmeldingId)
+                ?: return HttpServiceResponse(
+                    HttpStatusCode.NotFound,
+                    "Fant ikke sykmelding $sykmeldingId"
+                )
 
-        log.info("Hentet sykmelding fra syfosmregister, sykmelding: ${papirSykmelding.sykmelding.id}")
+        log.info(
+            "Hentet sykmelding fra syfosmregister, sykmelding: ${papirSykmelding.sykmelding.id}"
+        )
 
         if (!authorizationService.hasSuperuserAccess(accessToken, papirSykmelding.pasientFnr)) {
             log.warn(
@@ -63,63 +74,74 @@ class FerdigstiltSykmeldingController(
                 StructuredArguments.keyValue("sykmeldingId", sykmeldingId),
             )
             auditlogg.info(
-                AuditLogger().createcCefMessage(
-                    fnr = null,
-                    accessToken = accessToken,
-                    operation = AuditLogger.Operation.READ,
-                    requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
-                    permit = AuditLogger.Permit.DENY,
-                ),
+                AuditLogger()
+                    .createcCefMessage(
+                        fnr = null,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.READ,
+                        requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                        permit = AuditLogger.Permit.DENY,
+                    ),
             )
 
-            return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
+            return HttpServiceResponse(
+                HttpStatusCode.Forbidden,
+                "Veileder har ikke tilgang til å endre oppgaver"
+            )
         } else {
             val journalpostId = papirSykmelding.sykmelding.avsenderSystem.versjon
-            val journalPost = safJournalpostService.getJournalPostDokumentInfo(journalpostId, accessToken)
+            val journalPost =
+                safJournalpostService.getJournalPostDokumentInfo(journalpostId, accessToken)
             val dokuments = journalPost.data.journalpost.dokumenter
             if (dokuments.size != 1) {
                 log.error("Journalpost for papirsykmelding har ${dokuments.size} dokumenter")
-                return HttpServiceResponse(HttpStatusCode.UnprocessableEntity, "Det ser ut som det er feil antall dokumenter på journalposten")
+                return HttpServiceResponse(
+                    HttpStatusCode.UnprocessableEntity,
+                    "Det ser ut som det er feil antall dokumenter på journalposten"
+                )
             }
 
             val dokumentInfoId = dokuments.first()
-            val dokument = safDokumentClient.hentDokument(
-                journalpostId,
-                dokumentInfoId.dokumentInfoId,
-                papirSykmelding.sykmelding.id,
-                accessToken,
-                sykmeldingId,
-            )
+            val dokument =
+                safDokumentClient.hentDokument(
+                    journalpostId,
+                    dokumentInfoId.dokumentInfoId,
+                    papirSykmelding.sykmelding.id,
+                    accessToken,
+                    sykmeldingId,
+                )
 
             if (dokument == null) {
                 log.error("Fant ikke PDF for sykmeldingId $sykmeldingId")
                 return HttpServiceResponse(HttpStatusCode.InternalServerError)
             }
 
-            val papirSmRegistering = PapirSmRegistering(
-                journalpostId = journalpostId,
-                oppgaveId = Int.MAX_VALUE.toString(),
-                fnr = papirSykmelding.pasientFnr,
-                aktorId = papirSykmelding.sykmelding.pasientAktoerId,
-                dokumentInfoId = dokumentInfoId.dokumentInfoId,
-                datoOpprettet = papirSykmelding.mottattTidspunkt,
-                sykmeldingId = papirSykmelding.sykmelding.id,
-                syketilfelleStartDato = papirSykmelding.sykmelding.syketilfelleStartDato,
-                arbeidsgiver = papirSykmelding.sykmelding.arbeidsgiver,
-                medisinskVurdering = papirSykmelding.sykmelding.medisinskVurdering,
-                skjermesForPasient = papirSykmelding.sykmelding.skjermesForPasient,
-                perioder = papirSykmelding.sykmelding.perioder,
-                prognose = papirSykmelding.sykmelding.prognose,
-                utdypendeOpplysninger = papirSykmelding.sykmelding.utdypendeOpplysninger,
-                tiltakNAV = papirSykmelding.sykmelding.tiltakNAV,
-                tiltakArbeidsplassen = papirSykmelding.sykmelding.tiltakArbeidsplassen,
-                andreTiltak = papirSykmelding.sykmelding.andreTiltak,
-                meldingTilNAV = papirSykmelding.sykmelding.meldingTilNAV,
-                meldingTilArbeidsgiver = papirSykmelding.sykmelding.meldingTilArbeidsgiver,
-                kontaktMedPasient = papirSykmelding.sykmelding.kontaktMedPasient,
-                behandletTidspunkt = papirSykmelding.sykmelding.behandletTidspunkt.toLocalDate(),
-                behandler = papirSykmelding.sykmelding.behandler,
-            )
+            val papirSmRegistering =
+                PapirSmRegistering(
+                    journalpostId = journalpostId,
+                    oppgaveId = Int.MAX_VALUE.toString(),
+                    fnr = papirSykmelding.pasientFnr,
+                    aktorId = papirSykmelding.sykmelding.pasientAktoerId,
+                    dokumentInfoId = dokumentInfoId.dokumentInfoId,
+                    datoOpprettet = papirSykmelding.mottattTidspunkt,
+                    sykmeldingId = papirSykmelding.sykmelding.id,
+                    syketilfelleStartDato = papirSykmelding.sykmelding.syketilfelleStartDato,
+                    arbeidsgiver = papirSykmelding.sykmelding.arbeidsgiver,
+                    medisinskVurdering = papirSykmelding.sykmelding.medisinskVurdering,
+                    skjermesForPasient = papirSykmelding.sykmelding.skjermesForPasient,
+                    perioder = papirSykmelding.sykmelding.perioder,
+                    prognose = papirSykmelding.sykmelding.prognose,
+                    utdypendeOpplysninger = papirSykmelding.sykmelding.utdypendeOpplysninger,
+                    tiltakNAV = papirSykmelding.sykmelding.tiltakNAV,
+                    tiltakArbeidsplassen = papirSykmelding.sykmelding.tiltakArbeidsplassen,
+                    andreTiltak = papirSykmelding.sykmelding.andreTiltak,
+                    meldingTilNAV = papirSykmelding.sykmelding.meldingTilNAV,
+                    meldingTilArbeidsgiver = papirSykmelding.sykmelding.meldingTilArbeidsgiver,
+                    kontaktMedPasient = papirSykmelding.sykmelding.kontaktMedPasient,
+                    behandletTidspunkt =
+                        papirSykmelding.sykmelding.behandletTidspunkt.toLocalDate(),
+                    behandler = papirSykmelding.sykmelding.behandler,
+                )
 
             receivedSykmeldingController.handlePapirsykmeldingFromSyfosmregister(
                 papirSykmelding,
@@ -133,22 +155,24 @@ class FerdigstiltSykmeldingController(
                 ),
             )
 
-            val papirManuellOppgave = PapirManuellOppgave(
-                fnr = papirSykmelding.pasientFnr,
-                sykmeldingId = papirSykmelding.sykmelding.id,
-                oppgaveid = Int.MAX_VALUE,
-                pdfPapirSykmelding = dokument,
-                papirSmRegistering = papirSmRegistering,
-            )
+            val papirManuellOppgave =
+                PapirManuellOppgave(
+                    fnr = papirSykmelding.pasientFnr,
+                    sykmeldingId = papirSykmelding.sykmelding.id,
+                    oppgaveid = Int.MAX_VALUE,
+                    pdfPapirSykmelding = dokument,
+                    papirSmRegistering = papirSmRegistering,
+                )
 
             auditlogg.info(
-                AuditLogger().createcCefMessage(
-                    fnr = papirSykmelding.pasientFnr,
-                    accessToken = accessToken,
-                    operation = AuditLogger.Operation.READ,
-                    requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
-                    permit = AuditLogger.Permit.PERMIT,
-                ),
+                AuditLogger()
+                    .createcCefMessage(
+                        fnr = papirSykmelding.pasientFnr,
+                        accessToken = accessToken,
+                        operation = AuditLogger.Operation.READ,
+                        requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                        permit = AuditLogger.Permit.PERMIT,
+                    ),
             )
 
             return HttpServiceResponse(HttpStatusCode.OK, papirManuellOppgave)
@@ -183,64 +207,75 @@ class FerdigstiltSykmeldingController(
                 )
 
                 auditlogg.info(
-                    AuditLogger().createcCefMessage(
-                        fnr = fnr,
-                        accessToken = accessToken,
-                        operation = AuditLogger.Operation.READ,
-                        requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
-                        permit = AuditLogger.Permit.DENY,
-                    ),
+                    AuditLogger()
+                        .createcCefMessage(
+                            fnr = fnr,
+                            accessToken = accessToken,
+                            operation = AuditLogger.Operation.READ,
+                            requestPath = "/api/v1/sykmelding/$sykmeldingId/ferdigstilt",
+                            permit = AuditLogger.Permit.DENY,
+                        ),
                 )
 
-                return HttpServiceResponse(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til å endre oppgaver")
+                return HttpServiceResponse(
+                    HttpStatusCode.Forbidden,
+                    "Veileder har ikke tilgang til å endre oppgaver"
+                )
             }
 
-            val receivedSykmelding = manuellOppgaveDAO.hentSykmelding(sykmeldingId)
-                ?: return HttpServiceResponse(HttpStatusCode.NotFound, "Fant ingen ferdigstilte manuelloppgaver med sykmeldingId $sykmeldingId")
+            val receivedSykmelding =
+                manuellOppgaveDAO.hentSykmelding(sykmeldingId)
+                    ?: return HttpServiceResponse(
+                        HttpStatusCode.NotFound,
+                        "Fant ingen ferdigstilte manuelloppgaver med sykmeldingId $sykmeldingId"
+                    )
 
             val sykmelding = receivedSykmelding.sykmelding
 
             try {
-                val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                    journalpostId = manuellOppgave.journalpostId,
-                    dokumentInfoId = manuellOppgave.dokumentInfoId ?: "",
-                    msgId = manuellOppgave.sykmeldingId,
-                    accessToken = accessToken,
-                    sykmeldingId = manuellOppgave.sykmeldingId,
-                )
-                if (pdfPapirSykmelding != null) {
-                    val papirSmRegistering = PapirSmRegistering(
+                val pdfPapirSykmelding =
+                    safDokumentClient.hentDokument(
                         journalpostId = manuellOppgave.journalpostId,
-                        oppgaveId = manuellOppgave.oppgaveid.toString(),
-                        fnr = manuellOppgave.fnr,
-                        aktorId = manuellOppgave.aktorId,
-                        dokumentInfoId = manuellOppgave.dokumentInfoId,
-                        datoOpprettet = manuellOppgave.datoOpprettet,
+                        dokumentInfoId = manuellOppgave.dokumentInfoId ?: "",
+                        msgId = manuellOppgave.sykmeldingId,
+                        accessToken = accessToken,
                         sykmeldingId = manuellOppgave.sykmeldingId,
-                        syketilfelleStartDato = sykmelding.syketilfelleStartDato,
-                        arbeidsgiver = sykmelding.arbeidsgiver,
-                        medisinskVurdering = sykmelding.medisinskVurdering,
-                        skjermesForPasient = sykmelding.skjermesForPasient,
-                        perioder = sykmelding.perioder,
-                        prognose = sykmelding.prognose,
-                        utdypendeOpplysninger = sykmelding.utdypendeOpplysninger,
-                        tiltakNAV = sykmelding.tiltakNAV,
-                        tiltakArbeidsplassen = sykmelding.tiltakArbeidsplassen,
-                        andreTiltak = sykmelding.andreTiltak,
-                        meldingTilNAV = sykmelding.meldingTilNAV,
-                        meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
-                        kontaktMedPasient = sykmelding.kontaktMedPasient,
-                        behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate(),
-                        behandler = sykmelding.behandler,
                     )
+                if (pdfPapirSykmelding != null) {
+                    val papirSmRegistering =
+                        PapirSmRegistering(
+                            journalpostId = manuellOppgave.journalpostId,
+                            oppgaveId = manuellOppgave.oppgaveid.toString(),
+                            fnr = manuellOppgave.fnr,
+                            aktorId = manuellOppgave.aktorId,
+                            dokumentInfoId = manuellOppgave.dokumentInfoId,
+                            datoOpprettet = manuellOppgave.datoOpprettet,
+                            sykmeldingId = manuellOppgave.sykmeldingId,
+                            syketilfelleStartDato = sykmelding.syketilfelleStartDato,
+                            arbeidsgiver = sykmelding.arbeidsgiver,
+                            medisinskVurdering = sykmelding.medisinskVurdering,
+                            skjermesForPasient = sykmelding.skjermesForPasient,
+                            perioder = sykmelding.perioder,
+                            prognose = sykmelding.prognose,
+                            utdypendeOpplysninger = sykmelding.utdypendeOpplysninger,
+                            tiltakNAV = sykmelding.tiltakNAV,
+                            tiltakArbeidsplassen = sykmelding.tiltakArbeidsplassen,
+                            andreTiltak = sykmelding.andreTiltak,
+                            meldingTilNAV = sykmelding.meldingTilNAV,
+                            meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
+                            kontaktMedPasient = sykmelding.kontaktMedPasient,
+                            behandletTidspunkt = sykmelding.behandletTidspunkt.toLocalDate(),
+                            behandler = sykmelding.behandler,
+                        )
 
-                    val papirManuellOppgave = PapirManuellOppgave(
-                        fnr = manuellOppgave.fnr,
-                        sykmeldingId = manuellOppgave.sykmeldingId,
-                        oppgaveid = manuellOppgave.oppgaveid!!,
-                        pdfPapirSykmelding = pdfPapirSykmelding,
-                        papirSmRegistering = papirSmRegistering,
-                    )
+                    val papirManuellOppgave =
+                        PapirManuellOppgave(
+                            fnr = manuellOppgave.fnr,
+                            sykmeldingId = manuellOppgave.sykmeldingId,
+                            oppgaveid = manuellOppgave.oppgaveid!!,
+                            pdfPapirSykmelding = pdfPapirSykmelding,
+                            papirSmRegistering = papirSmRegistering,
+                        )
 
                     return HttpServiceResponse(HttpStatusCode.OK, papirManuellOppgave)
                 } else {
@@ -248,7 +283,10 @@ class FerdigstiltSykmeldingController(
                     return HttpServiceResponse(HttpStatusCode.InternalServerError)
                 }
             } catch (safForbiddenException: SafForbiddenException) {
-                return HttpServiceResponse(HttpStatusCode.Forbidden, "Du har ikke tilgang til dokumentet i SAF")
+                return HttpServiceResponse(
+                    HttpStatusCode.Forbidden,
+                    "Du har ikke tilgang til dokumentet i SAF"
+                )
             }
         }
         return HttpServiceResponse(HttpStatusCode.InternalServerError)

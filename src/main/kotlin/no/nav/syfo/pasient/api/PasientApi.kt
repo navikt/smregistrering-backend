@@ -7,6 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
 import no.nav.syfo.auditlogg
@@ -15,7 +16,6 @@ import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.sikkerlogg
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import java.util.UUID
 
 fun Route.pasientApi(
     pdlPersonService: PdlPersonService,
@@ -32,15 +32,17 @@ fun Route.pasientApi(
                     val accessToken = getAccessTokenFromAuthHeader(call.request)!!
                     val callId = UUID.randomUUID().toString()
                     if (authorizationService.hasAccess(accessToken, pasientFnr)) {
-                        val pdlPerson = pdlPersonService.getPdlPerson(fnr = pasientFnr, callId = callId)
+                        val pdlPerson =
+                            pdlPersonService.getPdlPerson(fnr = pasientFnr, callId = callId)
                         auditlogg.info(
-                            AuditLogger().createcCefMessage(
-                                fnr = pasientFnr,
-                                accessToken = accessToken,
-                                operation = AuditLogger.Operation.READ,
-                                requestPath = "/api/v1/pasient",
-                                permit = AuditLogger.Permit.PERMIT,
-                            ),
+                            AuditLogger()
+                                .createcCefMessage(
+                                    fnr = pasientFnr,
+                                    accessToken = accessToken,
+                                    operation = AuditLogger.Operation.READ,
+                                    requestPath = "/api/v1/pasient",
+                                    permit = AuditLogger.Permit.PERMIT,
+                                ),
                         )
                         call.respond(pdlPerson.navn)
                     } else {
@@ -54,16 +56,20 @@ fun Route.pasientApi(
                         )
 
                         auditlogg.info(
-                            AuditLogger().createcCefMessage(
-                                fnr = pasientFnr,
-                                accessToken = accessToken,
-                                operation = AuditLogger.Operation.READ,
-                                requestPath = "/api/v1/pasient",
-                                permit = AuditLogger.Permit.DENY,
-                            ),
+                            AuditLogger()
+                                .createcCefMessage(
+                                    fnr = pasientFnr,
+                                    accessToken = accessToken,
+                                    operation = AuditLogger.Operation.READ,
+                                    requestPath = "/api/v1/pasient",
+                                    permit = AuditLogger.Permit.DENY,
+                                ),
                         )
 
-                        call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til pasienten")
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            "Veileder har ikke tilgang til pasienten"
+                        )
                     }
                 }
             }

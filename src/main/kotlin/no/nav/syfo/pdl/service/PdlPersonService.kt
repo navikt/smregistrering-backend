@@ -22,9 +22,7 @@ class PdlPersonService(
         val pdlResponse = pdlClient.getPerson(fnr, token)
 
         if (pdlResponse.errors != null) {
-            pdlResponse.errors.forEach {
-                log.error("PDL kastet error: {} ", it)
-            }
+            pdlResponse.errors.forEach { log.error("PDL kastet error: {} ", it) }
         }
         if (pdlResponse.data.hentPerson == null) {
             log.warn("Klarte ikke hente ut person fra PDL {}", callId)
@@ -34,14 +32,24 @@ class PdlPersonService(
             log.warn("Fant ikke navn på person i PDL {}", callId)
             throw PersonNotFoundInPdl("Fant ikke navn på person i PDL")
         }
-        if (pdlResponse.data.hentIdenter == null || pdlResponse.data.hentIdenter.identer.isNullOrEmpty()) {
+        if (
+            pdlResponse.data.hentIdenter == null ||
+                pdlResponse.data.hentIdenter.identer.isNullOrEmpty()
+        ) {
             log.warn("Fant ikke aktørid i PDL {}", callId)
             throw AktoerNotFoundException("Fant ikke aktørId i PDL")
         }
-        return PdlPerson(getNavn(pdlResponse.data.hentPerson.navn[0]), pdlResponse.data.hentIdenter.identer)
+        return PdlPerson(
+            getNavn(pdlResponse.data.hentPerson.navn[0]),
+            pdlResponse.data.hentIdenter.identer
+        )
     }
 
     private fun getNavn(navn: no.nav.syfo.pdl.client.model.Navn): Navn {
-        return Navn(fornavn = navn.fornavn, mellomnavn = navn.mellomnavn, etternavn = navn.etternavn)
+        return Navn(
+            fornavn = navn.fornavn,
+            mellomnavn = navn.mellomnavn,
+            etternavn = navn.etternavn
+        )
     }
 }

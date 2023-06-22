@@ -35,9 +35,8 @@ fun Route.hentPapirSykmeldingManuellOppgave(
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-            val manuellOppgaveDTOList = oppgaveId?.let {
-                manuellOppgaveDAO.hentManuellOppgaver(it)
-            } ?: emptyList()
+            val manuellOppgaveDTOList =
+                oppgaveId?.let { manuellOppgaveDAO.hentManuellOppgaver(it) } ?: emptyList()
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -68,51 +67,66 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                         if (authorizationService.hasAccess(accessToken, fnr)) {
                             try {
-                                val pdfPapirSykmelding = safDokumentClient.hentDokument(
-                                    journalpostId = manuellOppgaveDTOList.first().journalpostId,
-                                    dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId ?: "",
-                                    msgId = manuellOppgaveDTOList.first().sykmeldingId,
-                                    accessToken = accessToken,
-                                    sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                                )
+                                val pdfPapirSykmelding =
+                                    safDokumentClient.hentDokument(
+                                        journalpostId = manuellOppgaveDTOList.first().journalpostId,
+                                        dokumentInfoId =
+                                            manuellOppgaveDTOList.first().dokumentInfoId ?: "",
+                                        msgId = manuellOppgaveDTOList.first().sykmeldingId,
+                                        accessToken = accessToken,
+                                        sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
+                                    )
                                 if (pdfPapirSykmelding == null) {
                                     call.respond(HttpStatusCode.InternalServerError)
                                 } else {
-                                    val papirManuellOppgave = PapirManuellOppgave(
-                                        fnr = manuellOppgaveDTOList.first().fnr,
-                                        sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId,
-                                        oppgaveid = oppgaveId,
-                                        pdfPapirSykmelding = pdfPapirSykmelding,
-                                        papirSmRegistering = manuellOppgaveDTOList.first().papirSmRegistering,
-                                    )
+                                    val papirManuellOppgave =
+                                        PapirManuellOppgave(
+                                            fnr = manuellOppgaveDTOList.first().fnr,
+                                            sykmeldingId =
+                                                manuellOppgaveDTOList.first().sykmeldingId,
+                                            oppgaveid = oppgaveId,
+                                            pdfPapirSykmelding = pdfPapirSykmelding,
+                                            papirSmRegistering =
+                                                manuellOppgaveDTOList.first().papirSmRegistering,
+                                        )
 
                                     call.respond(papirManuellOppgave)
                                 }
                             } catch (safForbiddenException: SafForbiddenException) {
-                                call.respond(HttpStatusCode.Forbidden, "Du har ikke tilgang til dokumentet i SAF")
+                                call.respond(
+                                    HttpStatusCode.Forbidden,
+                                    "Du har ikke tilgang til dokumentet i SAF"
+                                )
                             } catch (safNotFoundException: SafNotFoundException) {
                                 val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
                                 val journalpostId = manuellOppgaveDTOList.first().journalpostId
                                 val dokumentInfoId = manuellOppgaveDTOList.first().dokumentInfoId
 
-                                val loggingMeta = LoggingMeta(
-                                    mottakId = sykmeldingId,
-                                    dokumentInfoId = dokumentInfoId,
-                                    msgId = sykmeldingId,
-                                    sykmeldingId = sykmeldingId,
-                                    journalpostId = journalpostId,
+                                val loggingMeta =
+                                    LoggingMeta(
+                                        mottakId = sykmeldingId,
+                                        dokumentInfoId = dokumentInfoId,
+                                        msgId = sykmeldingId,
+                                        sykmeldingId = sykmeldingId,
+                                        journalpostId = journalpostId,
+                                    )
+
+                                sendTilGosysController.sendOppgaveTilGosys(
+                                    oppgaveId,
+                                    sykmeldingId,
+                                    accessToken,
+                                    loggingMeta
                                 )
 
-                                sendTilGosysController.sendOppgaveTilGosys(oppgaveId, sykmeldingId, accessToken, loggingMeta)
-
                                 auditlogg.info(
-                                    AuditLogger().createcCefMessage(
-                                        fnr = manuellOppgaveDTOList.first().fnr,
-                                        accessToken = accessToken,
-                                        operation = AuditLogger.Operation.READ,
-                                        requestPath = "/api/v1/oppgave/$oppgaveId",
-                                        permit = AuditLogger.Permit.PERMIT,
-                                    ),
+                                    AuditLogger()
+                                        .createcCefMessage(
+                                            fnr = manuellOppgaveDTOList.first().fnr,
+                                            accessToken = accessToken,
+                                            operation = AuditLogger.Operation.READ,
+                                            requestPath = "/api/v1/oppgave/$oppgaveId",
+                                            permit = AuditLogger.Permit.PERMIT,
+                                        ),
                                 )
 
                                 call.respond(HttpStatusCode.Gone, "SENT_TO_GOSYS")
@@ -131,16 +145,20 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                             )
 
                             auditlogg.info(
-                                AuditLogger().createcCefMessage(
-                                    fnr = manuellOppgaveDTOList.first().fnr,
-                                    accessToken = accessToken,
-                                    operation = AuditLogger.Operation.READ,
-                                    requestPath = "/api/v1/oppgave/$oppgaveId",
-                                    permit = AuditLogger.Permit.DENY,
-                                ),
+                                AuditLogger()
+                                    .createcCefMessage(
+                                        fnr = manuellOppgaveDTOList.first().fnr,
+                                        accessToken = accessToken,
+                                        operation = AuditLogger.Operation.READ,
+                                        requestPath = "/api/v1/oppgave/$oppgaveId",
+                                        permit = AuditLogger.Permit.DENY,
+                                    ),
                             )
 
-                            call.respond(HttpStatusCode.Forbidden, "Veileder har ikke tilgang til oppgaven")
+                            call.respond(
+                                HttpStatusCode.Forbidden,
+                                "Veileder har ikke tilgang til oppgaven"
+                            )
                         }
                     }
                 }

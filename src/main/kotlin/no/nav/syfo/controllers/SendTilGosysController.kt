@@ -24,13 +24,17 @@ class SendTilGosysController(
     ): Oppgave {
         val veileder = authorizationService.getVeileder(accessToken)
 
-        log.info("Sender oppgave med id $oppgaveId til Gosys {}", StructuredArguments.fields(loggingMeta))
-
-        val tilGosys = oppgaveService.sendOppgaveTilGosys(
-            oppgaveId = oppgaveId,
-            msgId = loggingMeta.msgId,
-            tilordnetRessurs = veileder.veilederIdent,
+        log.info(
+            "Sender oppgave med id $oppgaveId til Gosys {}",
+            StructuredArguments.fields(loggingMeta)
         )
+
+        val tilGosys =
+            oppgaveService.sendOppgaveTilGosys(
+                oppgaveId = oppgaveId,
+                msgId = loggingMeta.msgId,
+                tilordnetRessurs = veileder.veilederIdent,
+            )
         manuellOppgaveDAO.ferdigstillSmRegistering(
             sykmeldingId = sykmeldingId,
             utfall = Utfall.SENDT_TIL_GOSYS,
@@ -39,7 +43,10 @@ class SendTilGosysController(
 
         SENT_TO_GOSYS_COUNTER.inc()
 
-        log.info("Ferdig å sende oppgave med id $oppgaveId til Gosys {}", StructuredArguments.fields(loggingMeta))
+        log.info(
+            "Ferdig å sende oppgave med id $oppgaveId til Gosys {}",
+            StructuredArguments.fields(loggingMeta)
+        )
 
         return tilGosys
     }

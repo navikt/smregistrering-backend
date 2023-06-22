@@ -7,6 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import java.util.UUID
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.metrics.SYKMELDING_KORRIGERT_COUNTER
@@ -14,7 +15,6 @@ import no.nav.syfo.model.SmRegistreringManuell
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
-import java.util.UUID
 
 fun Route.endreSykmelding(
     sendPapirsykmeldingController: SendPapirsykmeldingController,
@@ -41,7 +41,10 @@ fun Route.endreSykmelding(
                 }
                 accessToken == null -> {
                     log.error("Mangler JWT Bearer token i HTTP header")
-                    call.respond(HttpStatusCode.Unauthorized, "Mangler JWT Bearer token i HTTP header")
+                    call.respond(
+                        HttpStatusCode.Unauthorized,
+                        "Mangler JWT Bearer token i HTTP header"
+                    )
                 }
                 navEnhet == null -> {
                     log.error("Mangler X-Nav-Enhet i http header")
@@ -49,20 +52,24 @@ fun Route.endreSykmelding(
                 }
                 else -> {
                     try {
-                        val httpServiceResponse = sendPapirsykmeldingController.sendPapirsykmelding(
-                            smRegistreringManuell,
-                            accessToken,
-                            callId,
-                            oppgaveId,
-                            navEnhet,
-                            "/api/v1/oppgave/{oppgaveid}/endre",
-                            isUpdate = true,
-                        )
+                        val httpServiceResponse =
+                            sendPapirsykmeldingController.sendPapirsykmelding(
+                                smRegistreringManuell,
+                                accessToken,
+                                callId,
+                                oppgaveId,
+                                navEnhet,
+                                "/api/v1/oppgave/{oppgaveid}/endre",
+                                isUpdate = true,
+                            )
 
                         when {
                             httpServiceResponse.payload != null -> {
                                 SYKMELDING_KORRIGERT_COUNTER.inc()
-                                call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+                                call.respond(
+                                    httpServiceResponse.httpStatusCode,
+                                    httpServiceResponse.payload
+                                )
                             }
                             else -> {
                                 call.respond(httpServiceResponse.httpStatusCode)
@@ -82,7 +89,10 @@ fun Route.endreSykmelding(
                         call.respond(HttpStatusCode.BadRequest, e.validationResult)
                     } catch (e: Exception) {
                         log.warn("Caught unexpected exception", e)
-                        call.respond(HttpStatusCode.InternalServerError, "En ukjent feil har oppstått.")
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "En ukjent feil har oppstått."
+                        )
                     }
                 }
             }

@@ -1,16 +1,14 @@
 package no.nav.syfo.saf.service
 
+import java.lang.RuntimeException
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.graphql.model.GraphQLResponse
 import no.nav.syfo.saf.SafJournalpostClient
 import no.nav.syfo.saf.model.JournalpostResponse
 import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
 
-/***
- * Service for å fasilitere GrahpQL-oppslag mot SAF
- */
+/** Service for å fasilitere GrahpQL-oppslag mot SAF */
 class SafJournalpostService(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
@@ -28,7 +26,10 @@ class SafJournalpostService(
         return erJournalfoert(journalPost.data.journalpost.journalstatus)
     }
 
-    suspend fun getJournalPostDokumentInfo(journalpostId: String, token: String): GraphQLResponse<JournalpostResponse> {
+    suspend fun getJournalPostDokumentInfo(
+        journalpostId: String,
+        token: String
+    ): GraphQLResponse<JournalpostResponse> {
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token, scope)
 
         val graphQLResponse = safJournalpostClient.getJournalpostMetadata(journalpostId, oboToken)
@@ -38,9 +39,7 @@ class SafJournalpostService(
             throw RuntimeException("Klarte ikke hente data fra SAF")
         }
         if (graphQLResponse.errors != null) {
-            graphQLResponse.errors.forEach {
-                log.error("Saf kastet error: {} ", it)
-            }
+            graphQLResponse.errors.forEach { log.error("Saf kastet error: {} ", it) }
         }
 
         if (graphQLResponse.data.journalpost.journalstatus == null) {
@@ -53,6 +52,7 @@ class SafJournalpostService(
     private fun erJournalfoert(journalstatus: String?): Boolean {
         return journalstatus?.let {
             it.equals("JOURNALFOERT", true) || it.equals("FERDIGSTILT", true)
-        } ?: false
+        }
+            ?: false
     }
 }

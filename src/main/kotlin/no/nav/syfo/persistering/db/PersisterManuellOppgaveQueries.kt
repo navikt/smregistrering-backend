@@ -1,16 +1,21 @@
 package no.nav.syfo.persistering.db
 
-import no.nav.syfo.db.DatabaseInterface
-import no.nav.syfo.model.PapirSmRegistering
-import no.nav.syfo.util.toPGObject
 import java.sql.Timestamp
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.util.toPGObject
 
-fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegistering, oppgaveId: Int?, ferdigstilt: Boolean = false) {
+fun DatabaseInterface.opprettManuellOppgave(
+    papirSmRegistering: PapirSmRegistering,
+    oppgaveId: Int?,
+    ferdigstilt: Boolean = false
+) {
     connection.use { connection ->
-        connection.prepareStatement(
-            """
+        connection
+            .prepareStatement(
+                """
             INSERT INTO manuelloppgave(
                 id,
                 journalpost_id,
@@ -24,18 +29,22 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
                 )
             VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-        ).use {
-            it.setString(1, papirSmRegistering.sykmeldingId)
-            it.setString(2, papirSmRegistering.journalpostId)
-            it.setString(3, papirSmRegistering.fnr)
-            it.setString(4, papirSmRegistering.aktorId)
-            it.setString(5, papirSmRegistering.dokumentInfoId)
-            it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
-            it.setObject(7, oppgaveId)
-            it.setBoolean(8, ferdigstilt)
-            it.setObject(9, toPGObject(papirSmRegistering)) // Store it all so frontend can present whatever is present
-            it.executeUpdate()
-        }
+            )
+            .use {
+                it.setString(1, papirSmRegistering.sykmeldingId)
+                it.setString(2, papirSmRegistering.journalpostId)
+                it.setString(3, papirSmRegistering.fnr)
+                it.setString(4, papirSmRegistering.aktorId)
+                it.setString(5, papirSmRegistering.dokumentInfoId)
+                it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
+                it.setObject(7, oppgaveId)
+                it.setBoolean(8, ferdigstilt)
+                it.setObject(
+                    9,
+                    toPGObject(papirSmRegistering)
+                ) // Store it all so frontend can present whatever is present
+                it.executeUpdate()
+            }
 
         connection.commit()
     }
@@ -43,16 +52,18 @@ fun DatabaseInterface.opprettManuellOppgave(papirSmRegistering: PapirSmRegisteri
 
 fun DatabaseInterface.erOpprettManuellOppgave(sykmledingsId: String) =
     connection.use { connection ->
-        connection.prepareStatement(
-            """
+        connection
+            .prepareStatement(
+                """
                 SELECT *
                 FROM MANUELLOPPGAVE
                 WHERE id=?;
                 """,
-        ).use {
-            it.setString(1, sykmledingsId)
-            it.executeQuery().next()
-        }
+            )
+            .use {
+                it.setString(1, sykmledingsId)
+                it.executeQuery().next()
+            }
     }
 
 fun DatabaseInterface.ferdigstillSmRegistering(
@@ -62,8 +73,10 @@ fun DatabaseInterface.ferdigstillSmRegistering(
     avvisningsgrunn: String? = null,
 ): Int =
     connection.use { connection ->
-        val status = connection.prepareStatement(
-            """
+        val status =
+            connection
+                .prepareStatement(
+                    """
             UPDATE MANUELLOPPGAVE
             SET ferdigstilt = ?,
                 utfall = ?,
@@ -72,57 +85,76 @@ fun DatabaseInterface.ferdigstillSmRegistering(
                 avvisningsgrunn = ?
             WHERE id = ?;
             """,
-        ).use {
-            it.setBoolean(1, true)
-            it.setString(2, utfall)
-            it.setString(3, ferdigstiltAv)
-            it.setTimestamp(4, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()))
-            it.setString(5, avvisningsgrunn)
-            it.setString(6, sykmeldingId)
-            it.executeUpdate()
-        }
+                )
+                .use {
+                    it.setBoolean(1, true)
+                    it.setString(2, utfall)
+                    it.setString(3, ferdigstiltAv)
+                    it.setTimestamp(
+                        4,
+                        Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant())
+                    )
+                    it.setString(5, avvisningsgrunn)
+                    it.setString(6, sykmeldingId)
+                    it.executeUpdate()
+                }
         connection.commit()
         return status
     }
 
 fun DatabaseInterface.slettSykmelding(sykmeldingId: String): Int =
     connection.use { connection ->
-        val statusSendtSykmeldingHistory = connection.prepareStatement(
-            """
+        val statusSendtSykmeldingHistory =
+            connection
+                .prepareStatement(
+                    """
             DELETE FROM sendt_sykmelding_history
             WHERE sykmelding_id = ?;
             """,
-        ).use {
-            it.setString(1, sykmeldingId)
-            it.executeUpdate()
-        }
-        val statusManuellOppgave = connection.prepareStatement(
-            """
+                )
+                .use {
+                    it.setString(1, sykmeldingId)
+                    it.executeUpdate()
+                }
+        val statusManuellOppgave =
+            connection
+                .prepareStatement(
+                    """
             DELETE FROM MANUELLOPPGAVE
             WHERE id = ?;
             """,
-        ).use {
-            it.setString(1, sykmeldingId)
-            it.executeUpdate()
-        }
-        val statusJob = connection.prepareStatement(
-            """
+                )
+                .use {
+                    it.setString(1, sykmeldingId)
+                    it.executeUpdate()
+                }
+        val statusJob =
+            connection
+                .prepareStatement(
+                    """
             DELETE FROM job
             WHERE sykmelding_id = ?;
             """,
-        ).use {
-            it.setString(1, sykmeldingId)
-            it.executeUpdate()
-        }
-        val statusSendtSykmelding = connection.prepareStatement(
-            """
+                )
+                .use {
+                    it.setString(1, sykmeldingId)
+                    it.executeUpdate()
+                }
+        val statusSendtSykmelding =
+            connection
+                .prepareStatement(
+                    """
             DELETE FROM sendt_sykmelding
             WHERE sykmelding_id = ?;
             """,
-        ).use {
-            it.setString(1, sykmeldingId)
-            it.executeUpdate()
-        }
+                )
+                .use {
+                    it.setString(1, sykmeldingId)
+                    it.executeUpdate()
+                }
         connection.commit()
-        return statusSendtSykmelding + statusSendtSykmeldingHistory + statusJob + statusManuellOppgave
+        return statusSendtSykmelding +
+            statusSendtSykmeldingHistory +
+            statusJob +
+            statusManuellOppgave
     }

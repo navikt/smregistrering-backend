@@ -109,7 +109,10 @@ internal class CORSTest {
                 },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])
+                assertEquals(
+                    "https://smregistrering.nais.preprod.local",
+                    response.headers[HttpHeaders.AccessControlAllowOrigin]
+                )
                 assertEquals("I'm ready! :)", response.content)
             }
         }
@@ -120,9 +123,7 @@ internal class CORSTest {
     internal fun `Simple Null`() {
         with(TestApplicationEngine()) {
             start()
-            application.install(CORS) {
-                anyHost()
-            }
+            application.install(CORS) { anyHost() }
             val applicationState = ApplicationState()
             applicationState.ready = true
             applicationState.alive = true
@@ -161,8 +162,14 @@ internal class CORSTest {
                 },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])
-                assertEquals("Content-Type", response.headers[HttpHeaders.AccessControlAllowHeaders])
+                assertEquals(
+                    "https://smregistrering.nais.preprod.local",
+                    response.headers[HttpHeaders.AccessControlAllowOrigin]
+                )
+                assertEquals(
+                    "Content-Type",
+                    response.headers[HttpHeaders.AccessControlAllowHeaders]
+                )
                 assertEquals(HttpHeaders.Origin, response.headers[HttpHeaders.Vary])
             }
         }
@@ -189,7 +196,10 @@ internal class CORSTest {
                 },
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("https://smregistrering.nais.preprod.local", response.headers[HttpHeaders.AccessControlAllowOrigin])
+                assertEquals(
+                    "https://smregistrering.nais.preprod.local",
+                    response.headers[HttpHeaders.AccessControlAllowOrigin]
+                )
                 assertEquals(HttpHeaders.Origin, response.headers[HttpHeaders.Vary])
                 assertEquals("true", response.headers[HttpHeaders.AccessControlAllowCredentials])
             }

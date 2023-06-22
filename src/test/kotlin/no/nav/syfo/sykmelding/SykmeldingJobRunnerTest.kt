@@ -6,6 +6,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
+import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.ApplicationState
@@ -21,18 +22,19 @@ import no.nav.syfo.util.getReceivedSykmelding
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.OffsetDateTime
 
 class SykmeldingJobRunnerTest {
     private val testDB = TestDB()
     val applicationState = ApplicationState(true, true)
     val sendtSykmeldingService = spyk(SendtSykmeldingService(testDB))
-    val kafkaReceivedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
-    val service = SykmeldingJobRunner(
-        applicationState,
-        sendtSykmeldingService,
-        kafkaReceivedSykmeldingProducer,
-    )
+    val kafkaReceivedSykmeldingProducer =
+        mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
+    val service =
+        SykmeldingJobRunner(
+            applicationState,
+            sendtSykmeldingService,
+            kafkaReceivedSykmeldingProducer,
+        )
 
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
@@ -50,15 +52,14 @@ class SykmeldingJobRunnerTest {
         sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         sendtSykmeldingService.createJobs(sykmelding)
         var jobCount = 0
-        every { sendtSykmeldingService.getNextJob() } answers {
-            if (jobCount++ > 1) {
-                applicationState.ready = false
+        every { sendtSykmeldingService.getNextJob() } answers
+            {
+                if (jobCount++ > 1) {
+                    applicationState.ready = false
+                }
+                callOriginal()
             }
-            callOriginal()
-        }
-        runBlocking {
-            service.startJobRunner()
-        }
+        runBlocking { service.startJobRunner() }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
         assertEquals(JOBSTATUS.DONE, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
@@ -69,19 +70,22 @@ class SykmeldingJobRunnerTest {
         val sykmelding = getReceivedSykmelding(fnrPasient = "1", sykmelderFnr = "2")
         sendtSykmeldingService.upsertSendtSykmelding(sykmelding)
         sendtSykmeldingService.createJobs(sykmelding)
-        every { kafkaReceivedSykmeldingProducer.producer.send(any()) } throws Exception("Some error")
+        every { kafkaReceivedSykmeldingProducer.producer.send(any()) } throws
+            Exception("Some error")
         var jobCount = 0
-        every { sendtSykmeldingService.getNextJob() } answers {
-            if (jobCount++ > 1) applicationState.ready = false
-            callOriginal()
-        }
-        runBlocking {
-            service.startJobRunner()
-        }
+        every { sendtSykmeldingService.getNextJob() } answers
+            {
+                if (jobCount++ > 1) applicationState.ready = false
+                callOriginal()
+            }
+        runBlocking { service.startJobRunner() }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
 
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOBSTATUS.IN_PROGRESS, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
+        assertEquals(
+            JOBSTATUS.IN_PROGRESS,
+            jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status
+        )
     }
 
     @Test
@@ -99,16 +103,18 @@ class SykmeldingJobRunnerTest {
             ),
         )
         var jobCount = 0
-        every { sendtSykmeldingService.getNextJob() } answers {
-            if (jobCount++ > 5) applicationState.ready = false
-            callOriginal()
-        }
-        runBlocking {
-            service.startJobRunner()
-        }
+        every { sendtSykmeldingService.getNextJob() } answers
+            {
+                if (jobCount++ > 5) applicationState.ready = false
+                callOriginal()
+            }
+        runBlocking { service.startJobRunner() }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 0) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
-        assertEquals(JOBSTATUS.IN_PROGRESS, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)
+        assertEquals(
+            JOBSTATUS.IN_PROGRESS,
+            jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status
+        )
     }
 
     @Test
@@ -126,13 +132,12 @@ class SykmeldingJobRunnerTest {
             ),
         )
         var jobCount = 0
-        every { sendtSykmeldingService.getNextJob() } answers {
-            if (jobCount++ > 5) applicationState.ready = false
-            callOriginal()
-        }
-        runBlocking {
-            service.startJobRunner()
-        }
+        every { sendtSykmeldingService.getNextJob() } answers
+            {
+                if (jobCount++ > 5) applicationState.ready = false
+                callOriginal()
+            }
+        runBlocking { service.startJobRunner() }
         val jobs = testDB.getJobForSykmeldingId(sykmelding.sykmelding.id)
         verify(exactly = 1) { kafkaReceivedSykmeldingProducer.producer.send(any()) }
         assertEquals(JOBSTATUS.DONE, jobs.first { it?.name == JOBNAME.SENDT_SYKMELDING }?.status)

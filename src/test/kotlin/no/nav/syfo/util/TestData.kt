@@ -1,5 +1,6 @@
 package no.nav.syfo.util
 
+import java.time.LocalDateTime
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.helse.sm2013.HelseOpplysningerArbeidsuforhet
@@ -13,11 +14,21 @@ import no.nav.syfo.pdl.model.PdlPerson
 import no.nav.syfo.service.getSmRegistreringManuell
 import no.nav.syfo.service.journalpostId
 import no.nav.syfo.service.toSykmelding
-import java.time.LocalDateTime
 
-fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"), fnrPasient: String, sykmelderFnr: String, datoOpprettet: LocalDateTime = LocalDateTime.now(), sykmeldingId: String = "1234"): ReceivedSykmelding {
+fun getReceivedSykmelding(
+    manuell: SmRegistreringManuell = getSmRegistreringManuell("fnrPasient", "fnrLege"),
+    fnrPasient: String,
+    sykmelderFnr: String,
+    datoOpprettet: LocalDateTime = LocalDateTime.now(),
+    sykmeldingId: String = "1234"
+): ReceivedSykmelding {
     val fellesformat = getXmleiFellesformat(manuell, sykmeldingId, datoOpprettet)
-    val sykmelding = getSykmelding(extractHelseOpplysningerArbeidsuforhet(fellesformat), fellesformat.get(), sykmeldingId = sykmeldingId)
+    val sykmelding =
+        getSykmelding(
+            extractHelseOpplysningerArbeidsuforhet(fellesformat),
+            fellesformat.get(),
+            sykmeldingId = sykmeldingId
+        )
     val healthInformation = extractHelseOpplysningerArbeidsuforhet(fellesformat)
     return ReceivedSykmelding(
         sykmelding = sykmelding,
@@ -43,31 +54,43 @@ fun getReceivedSykmelding(manuell: SmRegistreringManuell = getSmRegistreringManu
     )
 }
 
-fun getXmleiFellesformat(smRegisteringManuellt: SmRegistreringManuell, sykmeldingId: String, datoOpprettet: LocalDateTime): XMLEIFellesformat {
+fun getXmleiFellesformat(
+    smRegisteringManuellt: SmRegistreringManuell,
+    sykmeldingId: String,
+    datoOpprettet: LocalDateTime
+): XMLEIFellesformat {
     return mapsmRegistreringManuelltTilFellesformat(
         smRegistreringManuell = smRegisteringManuellt,
-        pdlPasient = PdlPerson(
-            Navn("Test", "Doctor", "Thornton"),
-            listOf(
-                IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT"),
+        pdlPasient =
+            PdlPerson(
+                Navn("Test", "Doctor", "Thornton"),
+                listOf(
+                    IdentInformasjon(smRegisteringManuellt.pasientFnr, false, "FOLKEREGISTERIDENT"),
+                ),
             ),
-        ),
-        sykmelder = Sykmelder(
-            aktorId = "aktorid",
-            etternavn = "Doctor",
-            fornavn = "Test",
-            mellomnavn = "Bob",
-            fnr = smRegisteringManuellt.sykmelderFnr,
-            hprNummer = "hpr",
-            godkjenninger = null,
-        ),
+        sykmelder =
+            Sykmelder(
+                aktorId = "aktorid",
+                etternavn = "Doctor",
+                fornavn = "Test",
+                mellomnavn = "Bob",
+                fnr = smRegisteringManuellt.sykmelderFnr,
+                hprNummer = "hpr",
+                godkjenninger = null,
+            ),
         sykmeldingId = sykmeldingId,
         datoOpprettet = datoOpprettet,
         journalpostId = journalpostId,
     )
 }
 
-fun getSykmelding(healthInformation: HelseOpplysningerArbeidsuforhet, msgHead: XMLMsgHead, sykmeldingId: String = "1234", aktorId: String = "aktorId", aktorIdLege: String = "aktorIdLege"): Sykmelding {
+fun getSykmelding(
+    healthInformation: HelseOpplysningerArbeidsuforhet,
+    msgHead: XMLMsgHead,
+    sykmeldingId: String = "1234",
+    aktorId: String = "aktorId",
+    aktorIdLege: String = "aktorIdLege"
+): Sykmelding {
     return healthInformation.toSykmelding(
         sykmeldingId = sykmeldingId,
         pasientAktoerId = aktorId,

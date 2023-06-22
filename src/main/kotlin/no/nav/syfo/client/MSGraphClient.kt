@@ -6,11 +6,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import java.io.Serializable
+import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
-import java.io.Serializable
-import java.util.concurrent.TimeUnit
 
 class MSGraphClient(
     environment: Environment,
@@ -22,10 +22,11 @@ class MSGraphClient(
 
     private val msGraphApiAccountNameQuery = "$msGraphApiUrl/me/?\$select=onPremisesSamAccountName"
 
-    val subjectCache: Cache<String, String> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(100)
-        .build<String, String>()
+    val subjectCache: Cache<String, String> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .maximumSize(100)
+            .build<String, String>()
 
     suspend fun getSubjectFromMsGraph(accessToken: String): String {
         subjectCache.getIfPresent(accessToken)?.let {
@@ -45,11 +46,12 @@ class MSGraphClient(
 
     private suspend fun callMsGraphApi(oboToken: String): String {
         try {
-            return httpClient.get(msGraphApiAccountNameQuery) {
-                headers {
-                    append("Authorization", "Bearer $oboToken")
+            return httpClient
+                .get(msGraphApiAccountNameQuery) {
+                    headers { append("Authorization", "Bearer $oboToken") }
                 }
-            }.body<GraphResponse>().onPremisesSamAccountName
+                .body<GraphResponse>()
+                .onPremisesSamAccountName
         } catch (e: Exception) {
             throw RuntimeException("Noe gikk galt ved henting av veilederIdent fra Ms Graph", e)
         }

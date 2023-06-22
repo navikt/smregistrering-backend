@@ -8,6 +8,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
+import java.net.URL
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -41,13 +44,13 @@ import no.nav.syfo.util.Unbounded
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URL
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 
-val objectMapper: ObjectMapper = ObjectMapper().registerModule(JavaTimeModule()).registerKotlinModule()
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+val objectMapper: ObjectMapper =
+    ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .registerKotlinModule()
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smregisteringbackend")
 
@@ -61,7 +64,9 @@ fun main() {
     val env = Environment()
 
     val jwkProvider =
-        JwkProviderBuilder(URL(env.jwkKeysUrl)).cached(10, 24, TimeUnit.HOURS).rateLimited(10, 1, TimeUnit.MINUTES)
+        JwkProviderBuilder(URL(env.jwkKeysUrl))
+            .cached(10, 24, TimeUnit.HOURS)
+            .rateLimited(10, 1, TimeUnit.MINUTES)
             .build()
 
     val database = Database(env)
@@ -75,63 +80,77 @@ fun main() {
     val httpClients = HttpClients(env)
 
     val sendtSykmeldingService = SendtSykmeldingService(databaseInterface = database)
-    val authorizationService = AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
-    val pdlService = PdlPersonService(httpClients.pdlClient, httpClients.azureAdV2Client, env.pdlScope)
+    val authorizationService =
+        AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
+    val pdlService =
+        PdlPersonService(httpClients.pdlClient, httpClients.azureAdV2Client, env.pdlScope)
     val sykmelderService = SykmelderService(httpClients.norskHelsenettClient, pdlService)
-    val safJournalpostService = SafJournalpostService(env, httpClients.azureAdV2Client, httpClients.safJournalpostClient)
+    val safJournalpostService =
+        SafJournalpostService(env, httpClients.azureAdV2Client, httpClients.safJournalpostClient)
     val journalpostService = JournalpostService(httpClients.dokArkivClient, safJournalpostService)
     val oppgaveService = OppgaveService(httpClients.oppgaveClient)
-    val syfosmregisterService = SyfosmregisterService(httpClients.azureAdV2Client, httpClients.syfoSmregisterClient, env.syfoSmregisterScope)
+    val syfosmregisterService =
+        SyfosmregisterService(
+            httpClients.azureAdV2Client,
+            httpClients.syfoSmregisterClient,
+            env.syfoSmregisterScope
+        )
 
-    val avvisPapirsykmeldingController = AvvisPapirsykmeldingController(
-        authorizationService,
-        sykmelderService,
-        manuellOppgaveDAO,
-        oppgaveService,
-        journalpostService,
-    )
+    val avvisPapirsykmeldingController =
+        AvvisPapirsykmeldingController(
+            authorizationService,
+            sykmelderService,
+            manuellOppgaveDAO,
+            oppgaveService,
+            journalpostService,
+        )
     val receivedSykmeldingController = ReceivedSykmeldingController(database, oppgaveService)
-    val sendPapirsykmeldingController = SendPapirsykmeldingController(
-        sykmelderService,
-        pdlService,
-        httpClients.smTssClient,
-        httpClients.regelClient,
-        authorizationService,
-        sendtSykmeldingService,
-        oppgaveService,
-        journalpostService,
-        manuellOppgaveDAO,
-    )
-    val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
-    val ferdigstiltSykmeldingController = FerdigstiltSykmeldingController(
-        manuellOppgaveDAO,
-        httpClients.safClient,
-        syfosmregisterService,
-        authorizationService,
-        safJournalpostService,
-        receivedSykmeldingController,
-    )
+    val sendPapirsykmeldingController =
+        SendPapirsykmeldingController(
+            sykmelderService,
+            pdlService,
+            httpClients.smTssClient,
+            httpClients.regelClient,
+            authorizationService,
+            sendtSykmeldingService,
+            oppgaveService,
+            journalpostService,
+            manuellOppgaveDAO,
+        )
+    val sendTilGosysController =
+        SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+    val ferdigstiltSykmeldingController =
+        FerdigstiltSykmeldingController(
+            manuellOppgaveDAO,
+            httpClients.safClient,
+            syfosmregisterService,
+            authorizationService,
+            safJournalpostService,
+            receivedSykmeldingController,
+        )
 
-    val sykmeldingJobRunner = SykmeldingJobRunner(
-        applicationState,
-        sendtSykmeldingService,
-        kafkaProducers.kafkaRecievedSykmeldingProducer,
-    )
+    val sykmeldingJobRunner =
+        SykmeldingJobRunner(
+            applicationState,
+            sendtSykmeldingService,
+            kafkaProducers.kafkaRecievedSykmeldingProducer,
+        )
 
-    val applicationEngine = createApplicationEngine(
-        env,
-        sendPapirsykmeldingController,
-        applicationState,
-        jwkProvider,
-        manuellOppgaveDAO,
-        httpClients.safClient,
-        sendTilGosysController,
-        avvisPapirsykmeldingController,
-        ferdigstiltSykmeldingController,
-        pdlService,
-        sykmelderService,
-        authorizationService,
-    )
+    val applicationEngine =
+        createApplicationEngine(
+            env,
+            sendPapirsykmeldingController,
+            applicationState,
+            jwkProvider,
+            manuellOppgaveDAO,
+            httpClients.safClient,
+            sendTilGosysController,
+            avvisPapirsykmeldingController,
+            ferdigstiltSykmeldingController,
+            pdlService,
+            sykmelderService,
+            authorizationService,
+        )
 
     GlobalScope.launch {
         sykmeldingJobRunner.startJobRunner()
@@ -161,20 +180,24 @@ fun startConsumer(
                 log.info("Starting consuming topic $topic")
                 kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
                 while (applicationState.ready) {
-                    kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach { consumerRecord ->
+                    kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach {
+                        consumerRecord ->
                         if (consumerRecord.value() == null) {
-                            log.info("Mottatt tombstone for sykmelding med id ${consumerRecord.key()}")
+                            log.info(
+                                "Mottatt tombstone for sykmelding med id ${consumerRecord.key()}"
+                            )
                             receivedSykmeldingController.slettSykmelding(consumerRecord.key())
                         } else {
                             val receivedPapirSmRegistering: PapirSmRegistering =
                                 objectMapper.readValue(consumerRecord.value())
-                            val loggingMeta = LoggingMeta(
-                                mottakId = receivedPapirSmRegistering.sykmeldingId,
-                                dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
-                                msgId = receivedPapirSmRegistering.sykmeldingId,
-                                sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                                journalpostId = receivedPapirSmRegistering.journalpostId,
-                            )
+                            val loggingMeta =
+                                LoggingMeta(
+                                    mottakId = receivedPapirSmRegistering.sykmeldingId,
+                                    dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
+                                    msgId = receivedPapirSmRegistering.sykmeldingId,
+                                    sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
+                                    journalpostId = receivedPapirSmRegistering.journalpostId,
+                                )
                             receivedSykmeldingController.handleReceivedSykmelding(
                                 papirSmRegistering = receivedPapirSmRegistering,
                                 loggingMeta = loggingMeta,
@@ -183,7 +206,10 @@ fun startConsumer(
                     }
                 }
             } catch (ex: Exception) {
-                log.error("Error running kafka consumer, unsubscribing and waiting 60 seconds for retry", ex)
+                log.error(
+                    "Error running kafka consumer, unsubscribing and waiting 60 seconds for retry",
+                    ex
+                )
                 kafkaConsumerPapirSmRegistering.unsubscribe()
                 delay(60_000)
             }

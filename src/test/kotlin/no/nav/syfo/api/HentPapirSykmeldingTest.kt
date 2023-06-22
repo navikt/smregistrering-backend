@@ -19,6 +19,12 @@ import io.ktor.server.testing.handleRequest
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import java.nio.file.Paths
+import java.sql.Connection
+import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.util.concurrent.Future
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -57,12 +63,6 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
-import java.sql.Connection
-import java.sql.Timestamp
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.concurrent.Future
 
 internal class HentPapirSykmeldingTest {
     private val database = TestDB()
@@ -71,7 +71,8 @@ internal class HentPapirSykmeldingTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
-    private val kafkaRecievedSykmeldingProducer = mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
+    private val kafkaRecievedSykmeldingProducer =
+        mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = mockk<OppgaveService>()
     private val smTssClient = mockk<SmtssClient>()
@@ -79,11 +80,10 @@ internal class HentPapirSykmeldingTest {
     private val regelClient = mockk<RegelClient>()
     private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
-    private val sendTilGosysController = SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
+    private val sendTilGosysController =
+        SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
 
-    private val env = mockk<Environment> {
-        coEvery { azureAppClientId } returns "clientId"
-    }
+    private val env = mockk<Environment> { coEvery { azureAppClientId } returns "clientId" }
 
     @AfterEach
     fun after() {
@@ -95,7 +95,8 @@ internal class HentPapirSykmeldingTest {
         with(TestApplicationEngine()) {
             start()
 
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns ByteArray(1)
+            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
+                ByteArray(1)
             coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
@@ -103,57 +104,62 @@ internal class HentPapirSykmeldingTest {
 
             val oppgaveid = 308076319
 
-            val manuellOppgave = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        egetArbeidPaSikt = true,
-                        annetArbeidPaSikt = false,
-                        arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val manuellOppgave =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                egetArbeidPaSikt = true,
+                                annetArbeidPaSikt = false,
+                                arbeidFOM = LocalDate.now(),
+                                vurderingsdato = LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -180,33 +186,41 @@ internal class HentPapirSykmeldingTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
             }
 
-            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
-                id = 123, versjon = 2,
-                tilordnetRessurs = "",
-                tildeltEnhetsnr = "",
-                journalpostId = "",
-                aktivDato = LocalDate.MAX,
-                aktoerId = "",
-                behandlesAvApplikasjon = "",
-                behandlingstype = "",
-                beskrivelse = "",
-                fristFerdigstillelse = null,
-                oppgavetype = "",
-                opprettetAvEnhetsnr = "",
-                prioritet = "",
-                saksreferanse = "",
-                tema = "",
-                status = "OPPRETTET",
-            )
-            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any(), any()) } returns "12341"
+            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
+                mockk<Future<RecordMetadata>>()
+            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
+                "automattopic"
+            coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
+                Oppgave(
+                    id = 123,
+                    versjon = 2,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET",
+                )
+            coEvery { smTssClient.findBestTssInfotrygdId(any(), any(), any(), any()) } returns
+                "12341"
             coEvery {
                 dokArkivClient.oppdaterOgFerdigstillJournalpost(
                     any(),
@@ -220,10 +234,11 @@ internal class HentPapirSykmeldingTest {
                     any(),
                 )
             } returns ""
-            coEvery { regelClient.valider(any(), any()) } returns ValidationResult(
-                status = Status.OK,
-                ruleHits = emptyList(),
-            )
+            coEvery { regelClient.valider(any(), any()) } returns
+                ValidationResult(
+                    status = Status.OK,
+                    ruleHits = emptyList(),
+                )
 
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
@@ -241,7 +256,12 @@ internal class HentPapirSykmeldingTest {
             ) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals(true, response.content?.contains("\"aktorId\":\"1314\""))
-                assertEquals(true, response.content?.contains("\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\""))
+                assertEquals(
+                    true,
+                    response.content?.contains(
+                        "\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\""
+                    )
+                )
             }
 
             with(
@@ -259,80 +279,89 @@ internal class HentPapirSykmeldingTest {
     fun `Hent papirsykmelding papir_sm_registrering = null`() {
         val oppgaveid = 308076319
 
-        val manuellOppgave = PapirSmRegistering(
-            journalpostId = "134",
-            oppgaveId = "123",
-            fnr = "41424",
-            aktorId = "1314",
-            dokumentInfoId = "131313",
-            datoOpprettet = OffsetDateTime.now(),
-            sykmeldingId = "1344444",
-            syketilfelleStartDato = LocalDate.now(),
-            behandler = Behandler(
-                "John",
-                "Besserwisser",
-                "Doe",
-                "123",
-                "12345678912",
-                null,
-                null,
-                Adresse(null, null, null, null, null),
-                "12345",
-            ),
-            kontaktMedPasient = null,
-            meldingTilArbeidsgiver = null,
-            meldingTilNAV = null,
-            andreTiltak = "Nei",
-            tiltakNAV = "Nei",
-            tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-            utdypendeOpplysninger = null,
-            prognose = Prognose(
-                true,
-                "Nei",
-                ErIArbeid(
-                    egetArbeidPaSikt = true,
-                    annetArbeidPaSikt = false,
-                    arbeidFOM = LocalDate.now(),
-                    vurderingsdato = LocalDate.now(),
-                ),
-                null,
-            ),
-            medisinskVurdering = MedisinskVurdering(
-                hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                biDiagnoser = emptyList(),
-                annenFraversArsak = null,
-                yrkesskadeDato = null,
-                yrkesskade = false,
-                svangerskap = false,
-            ),
-            arbeidsgiver = null,
-            behandletTidspunkt = null,
-            perioder = null,
-            skjermesForPasient = false,
-        )
+        val manuellOppgave =
+            PapirSmRegistering(
+                journalpostId = "134",
+                oppgaveId = "123",
+                fnr = "41424",
+                aktorId = "1314",
+                dokumentInfoId = "131313",
+                datoOpprettet = OffsetDateTime.now(),
+                sykmeldingId = "1344444",
+                syketilfelleStartDato = LocalDate.now(),
+                behandler =
+                    Behandler(
+                        "John",
+                        "Besserwisser",
+                        "Doe",
+                        "123",
+                        "12345678912",
+                        null,
+                        null,
+                        Adresse(null, null, null, null, null),
+                        "12345",
+                    ),
+                kontaktMedPasient = null,
+                meldingTilArbeidsgiver = null,
+                meldingTilNAV = null,
+                andreTiltak = "Nei",
+                tiltakNAV = "Nei",
+                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                utdypendeOpplysninger = null,
+                prognose =
+                    Prognose(
+                        true,
+                        "Nei",
+                        ErIArbeid(
+                            egetArbeidPaSikt = true,
+                            annetArbeidPaSikt = false,
+                            arbeidFOM = LocalDate.now(),
+                            vurderingsdato = LocalDate.now(),
+                        ),
+                        null,
+                    ),
+                medisinskVurdering =
+                    MedisinskVurdering(
+                        hovedDiagnose =
+                            Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                        biDiagnoser = emptyList(),
+                        annenFraversArsak = null,
+                        yrkesskadeDato = null,
+                        yrkesskade = false,
+                        svangerskap = false,
+                    ),
+                arbeidsgiver = null,
+                behandletTidspunkt = null,
+                perioder = null,
+                skjermesForPasient = false,
+            )
 
         opprettManuellOppgaveNullPapirsm(database.connection, manuellOppgave, oppgaveid)
 
-        coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns mockk<Future<RecordMetadata>>()
-        coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns "automattopic"
-        coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns Oppgave(
-            id = 123, versjon = 2,
-            tilordnetRessurs = "",
-            tildeltEnhetsnr = "",
-            journalpostId = "",
-            aktivDato = LocalDate.MAX,
-            aktoerId = "",
-            behandlesAvApplikasjon = "",
-            behandlingstype = "",
-            beskrivelse = "",
-            fristFerdigstillelse = null,
-            oppgavetype = "",
-            opprettetAvEnhetsnr = "",
-            prioritet = "",
-            saksreferanse = "",
-            tema = "",
-            status = "OPPRETTET",
-        )
+        coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
+            mockk<Future<RecordMetadata>>()
+        coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
+            "automattopic"
+        coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
+            Oppgave(
+                id = 123,
+                versjon = 2,
+                tilordnetRessurs = "",
+                tildeltEnhetsnr = "",
+                journalpostId = "",
+                aktivDato = LocalDate.MAX,
+                aktoerId = "",
+                behandlesAvApplikasjon = "",
+                behandlingstype = "",
+                beskrivelse = "",
+                fristFerdigstillelse = null,
+                oppgavetype = "",
+                opprettetAvEnhetsnr = "",
+                prioritet = "",
+                saksreferanse = "",
+                tema = "",
+                status = "OPPRETTET",
+            )
 
         val hentManuellOppgaver = database.hentManuellOppgaver(oppgaveid)
 
@@ -361,57 +390,62 @@ internal class HentPapirSykmeldingTest {
 
             val oppgaveid = 308076319
 
-            val manuellOppgave = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        egetArbeidPaSikt = true,
-                        annetArbeidPaSikt = false,
-                        arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val manuellOppgave =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                egetArbeidPaSikt = true,
+                                annetArbeidPaSikt = false,
+                                arbeidFOM = LocalDate.now(),
+                                vurderingsdato = LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -440,30 +474,35 @@ internal class HentPapirSykmeldingTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
             }
 
-            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
-                id = 123, versjon = 2,
-                tilordnetRessurs = "",
-                tildeltEnhetsnr = "",
-                journalpostId = "",
-                aktivDato = LocalDate.MAX,
-                aktoerId = "",
-                behandlesAvApplikasjon = "",
-                behandlingstype = "",
-                beskrivelse = "",
-                fristFerdigstillelse = null,
-                oppgavetype = "",
-                opprettetAvEnhetsnr = "",
-                prioritet = "",
-                saksreferanse = "",
-                tema = "",
-                status = "OPPRETTET",
-            )
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns
+                Oppgave(
+                    id = 123,
+                    versjon = 2,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET",
+                )
 
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
@@ -513,57 +552,62 @@ internal class HentPapirSykmeldingTest {
 
             val oppgaveid = 308076319
 
-            val manuellOppgave = PapirSmRegistering(
-                journalpostId = "134",
-                oppgaveId = "123",
-                fnr = "41424",
-                aktorId = "1314",
-                dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
-                sykmeldingId = "1344444",
-                syketilfelleStartDato = LocalDate.now(),
-                behandler = Behandler(
-                    "John",
-                    "Besserwisser",
-                    "Doe",
-                    "123",
-                    "12345678912",
-                    null,
-                    null,
-                    Adresse(null, null, null, null, null),
-                    "12345",
-                ),
-                kontaktMedPasient = null,
-                meldingTilArbeidsgiver = null,
-                meldingTilNAV = null,
-                andreTiltak = "Nei",
-                tiltakNAV = "Nei",
-                tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                utdypendeOpplysninger = null,
-                prognose = Prognose(
-                    true,
-                    "Nei",
-                    ErIArbeid(
-                        egetArbeidPaSikt = true,
-                        annetArbeidPaSikt = false,
-                        arbeidFOM = LocalDate.now(),
-                        vurderingsdato = LocalDate.now(),
-                    ),
-                    null,
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                    biDiagnoser = emptyList(),
-                    annenFraversArsak = null,
-                    yrkesskadeDato = null,
-                    yrkesskade = false,
-                    svangerskap = false,
-                ),
-                arbeidsgiver = null,
-                behandletTidspunkt = null,
-                perioder = null,
-                skjermesForPasient = false,
-            )
+            val manuellOppgave =
+                PapirSmRegistering(
+                    journalpostId = "134",
+                    oppgaveId = "123",
+                    fnr = "41424",
+                    aktorId = "1314",
+                    dokumentInfoId = "131313",
+                    datoOpprettet = OffsetDateTime.now(),
+                    sykmeldingId = "1344444",
+                    syketilfelleStartDato = LocalDate.now(),
+                    behandler =
+                        Behandler(
+                            "John",
+                            "Besserwisser",
+                            "Doe",
+                            "123",
+                            "12345678912",
+                            null,
+                            null,
+                            Adresse(null, null, null, null, null),
+                            "12345",
+                        ),
+                    kontaktMedPasient = null,
+                    meldingTilArbeidsgiver = null,
+                    meldingTilNAV = null,
+                    andreTiltak = "Nei",
+                    tiltakNAV = "Nei",
+                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                    utdypendeOpplysninger = null,
+                    prognose =
+                        Prognose(
+                            true,
+                            "Nei",
+                            ErIArbeid(
+                                egetArbeidPaSikt = true,
+                                annetArbeidPaSikt = false,
+                                arbeidFOM = LocalDate.now(),
+                                vurderingsdato = LocalDate.now(),
+                            ),
+                            null,
+                        ),
+                    medisinskVurdering =
+                        MedisinskVurdering(
+                            hovedDiagnose =
+                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
+                            biDiagnoser = emptyList(),
+                            annenFraversArsak = null,
+                            yrkesskadeDato = null,
+                            yrkesskade = false,
+                            svangerskap = false,
+                        ),
+                    arbeidsgiver = null,
+                    behandletTidspunkt = null,
+                    perioder = null,
+                    skjermesForPasient = false,
+                )
 
             database.opprettManuellOppgave(manuellOppgave, oppgaveid)
 
@@ -592,30 +636,35 @@ internal class HentPapirSykmeldingTest {
             }
             application.install(StatusPages) {
                 exception<Throwable> { call, cause ->
-                    call.respond(HttpStatusCode.InternalServerError, cause.message ?: "Unknown error")
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        cause.message ?: "Unknown error"
+                    )
                     log.error("Caught exception", cause)
                     throw cause
                 }
             }
 
-            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns Oppgave(
-                id = 123, versjon = 2,
-                tilordnetRessurs = "",
-                tildeltEnhetsnr = "",
-                journalpostId = "",
-                aktivDato = LocalDate.MAX,
-                aktoerId = "",
-                behandlesAvApplikasjon = "",
-                behandlingstype = "",
-                beskrivelse = "",
-                fristFerdigstillelse = null,
-                oppgavetype = "",
-                opprettetAvEnhetsnr = "",
-                prioritet = "",
-                saksreferanse = "",
-                tema = "",
-                status = "OPPRETTET",
-            )
+            coEvery { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) } returns
+                Oppgave(
+                    id = 123,
+                    versjon = 2,
+                    tilordnetRessurs = "",
+                    tildeltEnhetsnr = "",
+                    journalpostId = "",
+                    aktivDato = LocalDate.MAX,
+                    aktoerId = "",
+                    behandlesAvApplikasjon = "",
+                    behandlingstype = "",
+                    beskrivelse = "",
+                    fristFerdigstillelse = null,
+                    oppgavetype = "",
+                    opprettetAvEnhetsnr = "",
+                    prioritet = "",
+                    saksreferanse = "",
+                    tema = "",
+                    status = "OPPRETTET",
+                )
 
             with(
                 handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
@@ -637,8 +686,9 @@ internal class HentPapirSykmeldingTest {
         oppgaveId: Int,
     ) {
         databaseConnection.use { connection ->
-            connection.prepareStatement(
-                """
+            connection
+                .prepareStatement(
+                    """
             INSERT INTO manuelloppgave(
                 id,
                 journalpost_id,
@@ -652,18 +702,25 @@ internal class HentPapirSykmeldingTest {
                 )
             VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            ).use {
-                it.setString(1, papirSmRegistering.sykmeldingId)
-                it.setString(2, papirSmRegistering.journalpostId)
-                it.setString(3, papirSmRegistering.fnr)
-                it.setString(4, papirSmRegistering.aktorId)
-                it.setString(5, papirSmRegistering.dokumentInfoId)
-                it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
-                it.setInt(7, oppgaveId)
-                it.setBoolean(8, false)
-                it.setObject(9, null) // Store it all so frontend can present whatever is present
-                it.executeUpdate()
-            }
+                )
+                .use {
+                    it.setString(1, papirSmRegistering.sykmeldingId)
+                    it.setString(2, papirSmRegistering.journalpostId)
+                    it.setString(3, papirSmRegistering.fnr)
+                    it.setString(4, papirSmRegistering.aktorId)
+                    it.setString(5, papirSmRegistering.dokumentInfoId)
+                    it.setTimestamp(
+                        6,
+                        Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant())
+                    )
+                    it.setInt(7, oppgaveId)
+                    it.setBoolean(8, false)
+                    it.setObject(
+                        9,
+                        null
+                    ) // Store it all so frontend can present whatever is present
+                    it.executeUpdate()
+                }
 
             connection.commit()
         }

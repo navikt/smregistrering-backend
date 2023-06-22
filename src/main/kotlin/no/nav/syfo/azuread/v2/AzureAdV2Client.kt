@@ -21,42 +21,39 @@ class AzureAdV2Client(
     private val azureAppClientSecret = environment.azureAppClientSecret
     private val azureTokenEndpoint = environment.azureTokenEndpoint
 
-    /**
-     * Returns a non-obo access token authenticated using app specific client credentials
-     */
+    /** Returns a non-obo access token authenticated using app specific client credentials */
     suspend fun getAccessToken(
         scope: String,
     ): String {
         return azureAdV2Cache.getAccessToken(scope)?.accessToken
-            ?: getClientSecretAccessToken(scope).let {
-                azureAdV2Cache.putValue(scope, it)
-            }.accessToken
+            ?: getClientSecretAccessToken(scope)
+                .let { azureAdV2Cache.putValue(scope, it) }
+                .accessToken
     }
 
     private suspend fun getClientSecretAccessToken(
         scope: String,
     ): AzureAdV2Token {
         return getAccessTokenFromAzure(
-            Parameters.build {
-                append("client_id", azureAppClientId)
-                append("client_secret", azureAppClientSecret)
-                append("scope", scope)
-                append("grant_type", "client_credentials")
-            },
-        ).toAzureAdV2Token()
+                Parameters.build {
+                    append("client_id", azureAppClientId)
+                    append("client_secret", azureAppClientSecret)
+                    append("scope", scope)
+                    append("grant_type", "client_credentials")
+                },
+            )
+            .toAzureAdV2Token()
     }
 
-    /**
-     * Returns a obo access token authenticated using provided user token
-     */
+    /** Returns a obo access token authenticated using provided user token */
     suspend fun getOnBehalfOfToken(
         token: String,
         scope: String,
     ): String {
         return azureAdV2Cache.getOboToken(token, scope)?.accessToken
-            ?: getOboAccessToken(token, scope).let {
-                azureAdV2Cache.putValue(token, scope, it)
-            }.accessToken
+            ?: getOboAccessToken(token, scope)
+                .let { azureAdV2Cache.putValue(token, scope, it) }
+                .accessToken
     }
 
     private suspend fun getOboAccessToken(
@@ -64,26 +61,28 @@ class AzureAdV2Client(
         scope: String,
     ): AzureAdV2Token {
         return getAccessTokenFromAzure(
-            Parameters.build {
-                append("client_id", azureAppClientId)
-                append("client_secret", azureAppClientSecret)
-                append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                append("assertion", token)
-                append("scope", scope)
-                append("requested_token_use", "on_behalf_of")
-            },
-        ).toAzureAdV2Token()
+                Parameters.build {
+                    append("client_id", azureAppClientId)
+                    append("client_secret", azureAppClientSecret)
+                    append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    append("assertion", token)
+                    append("scope", scope)
+                    append("requested_token_use", "on_behalf_of")
+                },
+            )
+            .toAzureAdV2Token()
     }
 
     private suspend fun getAccessTokenFromAzure(
         formParameters: Parameters,
     ): AzureAdV2TokenResponse {
         return try {
-            val response: HttpResponse = httpClient.post(azureTokenEndpoint) {
-                accept(ContentType.Application.Json)
-                setBody(FormDataContent(formParameters))
-            }
+            val response: HttpResponse =
+                httpClient.post(azureTokenEndpoint) {
+                    accept(ContentType.Application.Json)
+                    setBody(FormDataContent(formParameters))
+                }
             response.body<AzureAdV2TokenResponse>()
         } catch (e: Exception) {
             log.error("Error while requesting AzureAdAccessToken", e)
