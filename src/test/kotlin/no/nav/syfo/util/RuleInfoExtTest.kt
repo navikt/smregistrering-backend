@@ -14,25 +14,19 @@ internal class RuleInfoExtTest {
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
-                    ruleName =
-                        WhitelistedRuleHit
-                            .TILBAKEDATERT_INNTIL_8_DAGER_UTEN_KONTAKTDATO_OG_BEGRUNNELSE
-                            .toString(),
+                    ruleName = WhitelistedRuleHit.INNTIL_8_DAGER.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
-                    ruleName =
-                        WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING
-                            .toString(),
+                    ruleName = WhitelistedRuleHit.INNTIL_30_DAGER.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
-                    ruleName =
-                        WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
+                    ruleName = WhitelistedRuleHit.INNTIL_30_DAGER_MED_BEGRUNNELSE.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
                 RuleInfo(
@@ -59,16 +53,13 @@ internal class RuleInfoExtTest {
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
-                    ruleName =
-                        WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORSTE_SYKMELDING
-                            .toString(),
+                    ruleName = WhitelistedRuleHit.OVER_30_DAGER.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
-                    ruleName =
-                        WhitelistedRuleHit.TILBAKEDATERT_MED_BEGRUNNELSE_FORLENGELSE.toString(),
+                    ruleName = WhitelistedRuleHit.INNTIL_30_DAGER.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
             )
