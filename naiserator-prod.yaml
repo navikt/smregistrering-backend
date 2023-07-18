@@ -49,8 +49,8 @@ spec:
     limits:
       memory: 2Gi
     requests:
-      cpu: 50m
-      memory: 400Mi
+      cpu: 100m
+      memory: 512Mi
   azure:
     application:
       allowAllUsers: true
