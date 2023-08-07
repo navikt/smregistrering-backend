@@ -1,9 +1,10 @@
 package no.nav.syfo.persistering.api
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -14,6 +15,8 @@ import no.nav.syfo.controllers.HttpServiceResponse
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
+import no.nav.syfo.objectMapper
+import no.nav.syfo.sikkerlogg
 import no.nav.syfo.sykmelder.exception.SykmelderNotFoundException
 import no.nav.syfo.sykmelder.exception.UnauthorizedException
 import no.nav.syfo.util.getAccessTokenFromAuthHeader
@@ -77,7 +80,13 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             val navEnhet = call.request.headers["X-Nav-Enhet"]
             log.info("Hentet NAV-enhet ($navEnhet) for $oppgaveId")
 
-            val smRegistreringManuell: SmRegistreringManuell = call.receive()
+            val bodyAsString = call.receiveNullable<String?>()
+
+            sikkerlogg.info("Body som string: $bodyAsString")
+
+            val smRegistreringManuell: SmRegistreringManuell =
+                objectMapper.readValue(bodyAsString!!)
+
             log.info("Hentet body for $oppgaveId")
 
             when {
