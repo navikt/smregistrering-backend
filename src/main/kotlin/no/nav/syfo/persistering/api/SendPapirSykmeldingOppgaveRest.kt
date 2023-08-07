@@ -79,7 +79,9 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             log.info("Lagde random UUID for $oppgaveId")
             val navEnhet = call.request.headers["X-Nav-Enhet"]
             log.info("Hentet NAV-enhet ($navEnhet) for $oppgaveId")
-
+            val contentType = call.request.contentType()
+            val contentLength = call.request.contentLength()
+            log.info("Content-type: $contentType length: $contentLength")
             val bodyAsString = call.receiveNullable<String?>()
 
             sikkerlogg.info("Body som string: $bodyAsString")
