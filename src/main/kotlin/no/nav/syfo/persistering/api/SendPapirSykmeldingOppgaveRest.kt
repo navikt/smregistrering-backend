@@ -98,6 +98,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                 }
                 else -> {
                     try {
+                        log.info("Attempting to send papirsykmelding for oppgave $oppgaveId")
                         val httpServiceResponse =
                             sendPapirsykmeldingController.sendPapirsykmelding(
                                 smRegistreringManuell = smRegistreringManuell,
@@ -107,6 +108,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                                 navEnhet = navEnhet,
                                 requestPath = "/api/v1/oppgave/$oppgaveId/send",
                             )
+                        log.info("Successfully sent papirsykmelding for oppgave $oppgaveId")
 
                         respond(httpServiceResponse)
                     } catch (e: SykmelderNotFoundException) {

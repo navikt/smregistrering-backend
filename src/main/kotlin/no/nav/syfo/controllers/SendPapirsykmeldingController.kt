@@ -112,6 +112,7 @@ class SendPapirsykmeldingController(
         requestPath: String,
     ): HttpServiceResponse {
         if (!manuellOppgaveDTOList.isNullOrEmpty()) {
+            log.info("Sending sykmelding: manuellOppgaveDTOList is not empty :)")
             val manuellOppgave: ManuellOppgaveDTO = manuellOppgaveDTOList.first()
             val sykmeldingId = manuellOppgave.sykmeldingId
             val journalpostId = manuellOppgave.journalpostId
