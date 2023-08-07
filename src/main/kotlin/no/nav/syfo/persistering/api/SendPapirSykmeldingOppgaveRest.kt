@@ -70,12 +70,15 @@ fun Route.sendPapirSykmeldingManuellOppgave(
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
 
             log.info("Mottok kall til POST /api/v1/oppgave/$oppgaveId/send")
-
             val accessToken = getAccessTokenFromAuthHeader(call.request)
+            log.info("Hentet access token fra header for $oppgaveId")
             val callId = UUID.randomUUID().toString()
+            log.info("Lagde random UUID for $oppgaveId")
             val navEnhet = call.request.headers["X-Nav-Enhet"]
+            log.info("Hentet NAV-enhet ($navEnhet) for $oppgaveId")
 
             val smRegistreringManuell: SmRegistreringManuell = call.receive()
+            log.info("Hentet body for $oppgaveId")
 
             when {
                 oppgaveId == null -> {
