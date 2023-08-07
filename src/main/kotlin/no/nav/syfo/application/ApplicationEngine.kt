@@ -62,6 +62,7 @@ fun createApplicationEngine(
         env.applicationPort,
         configure = {
             // Increase timeout of Netty to handle large content bodies
+            requestReadTimeoutSeconds = 10
             responseWriteTimeoutSeconds = 40
         }
     ) {
