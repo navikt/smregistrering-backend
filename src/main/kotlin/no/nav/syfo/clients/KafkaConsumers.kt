@@ -8,7 +8,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 
 class KafkaConsumers(env: Environment) {
 
-    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig()
+    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig("papir-sm-registering-consumer")
 
     init {
         kafkaBaseConfig["auto.offset.reset"] = "none"

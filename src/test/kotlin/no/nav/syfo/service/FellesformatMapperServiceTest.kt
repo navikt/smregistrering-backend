@@ -65,7 +65,6 @@ class FellesformatMapperServiceTest {
         assertEquals(datoOpprettet, receivedSykmelding.mottattDato)
         assertEquals(null, receivedSykmelding.tssid)
         assertEquals(aktorId, receivedSykmelding.sykmelding.pasientAktoerId)
-        assertEquals(true, receivedSykmelding.sykmelding.medisinskVurdering != null)
         assertEquals(
             Diagnose(
                 system = "2.16.578.1.12.4.1.1.7170",
@@ -83,7 +82,6 @@ class FellesformatMapperServiceTest {
             receivedSykmelding.sykmelding.medisinskVurdering.biDiagnoser.first(),
         )
         assertEquals(false, receivedSykmelding.sykmelding.skjermesForPasient)
-        assertEquals(true, receivedSykmelding.sykmelding.arbeidsgiver != null)
         assertEquals(1, receivedSykmelding.sykmelding.perioder.size)
         assertEquals(null, receivedSykmelding.sykmelding.prognose)
         assertEquals(

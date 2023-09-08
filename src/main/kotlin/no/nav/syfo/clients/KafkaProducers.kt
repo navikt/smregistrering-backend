@@ -8,7 +8,7 @@ import no.nav.syfo.util.JacksonKafkaSerializer
 import org.apache.kafka.clients.producer.KafkaProducer
 
 class KafkaProducers(private val env: Environment) {
-    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig()
+    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig("ok-sykmelding-producer")
 
     init {
         kafkaBaseConfig["auto.offset.reset"] = "none"
