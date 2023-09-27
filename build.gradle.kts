@@ -81,7 +81,7 @@ dependencies {
 
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
     constraints {
-        implementation("org.xerial.snappy:snappy-java:1.1.10.4") {
+        implementation("org.xerial.snappy:snappy-java:1.1.10.5") {
             because("override transient from org.apache.kafka:kafka_2.12")
         }
     }
