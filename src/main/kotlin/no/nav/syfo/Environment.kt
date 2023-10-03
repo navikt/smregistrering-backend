@@ -14,7 +14,7 @@ data class Environment(
     val syfosmpapirregelScope: String = getEnvVar("SYFOSMPAPIRREGLER_SCOPE"),
     val pdlGraphqlPath: String = getEnvVar("PDL_GRAPHQL_PATH"),
     val pdlScope: String = getEnvVar("PDL_SCOPE"),
-    val norskHelsenettEndpointURL: String = getEnvVar("HELSENETT_ENDPOINT_URL"),
+    val norskHelsenettEndpointURL: String = "http://syfohelsenettproxy",
     val helsenettproxyScope: String = getEnvVar("HELSENETT_SCOPE"),
     val syfoTilgangsKontrollClientUrl: String = "http://syfo-tilgangskontroll.teamsykefravr",
     val syfoTilgangsKontrollScope: String = getEnvVar("SYFOTILGANGSKONTROLL_SCOPE"),
