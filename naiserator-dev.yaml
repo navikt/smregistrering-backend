@@ -75,6 +75,7 @@ spec:
         - application: syfo-tilgangskontroll
           namespace: teamsykefravr
           cluster: dev-gcp
+        - application: syfohelsenettproxy
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: syfohelsenettproxy.dev-fss-pub.nais.io
@@ -100,9 +101,9 @@ spec:
     - name: PDL_SCOPE
       value: api://dev-fss.pdl.pdl-api/.default
     - name: HELSENETT_ENDPOINT_URL
-      value: https://syfohelsenettproxy.dev-fss-pub.nais.io
+      value: http://syfohelsenettproxy
     - name: HELSENETT_SCOPE
-      value: api://dev-fss.teamsykmelding.syfohelsenettproxy/.default
+      value: api://dev-gcp.teamsykmelding.syfohelsenettproxy/.default
     - name: SAF_URL
       value: https://saf.dev-fss-pub.nais.io
     - name: SAF_SCOPE
