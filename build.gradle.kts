@@ -72,8 +72,12 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    // override transient version from io.ktor:ktor-client-apache
-    implementation("commons-codec:commons-codec:$commonsCodecVersion")
+    constraints {
+        implementation("commons-codec:commons-codec:$commonsCodecVersion"){
+            because("override transient version from io.ktor:ktor-client-apache")
+        }
+    }
+
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
@@ -131,6 +135,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
