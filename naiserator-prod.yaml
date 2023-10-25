@@ -50,7 +50,7 @@ spec:
       memory: 2Gi
     requests:
       cpu: 100m
-      memory: 600Mi
+      memory: 700Mi
   azure:
     application:
       allowAllUsers: true
