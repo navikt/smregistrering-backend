@@ -76,10 +76,11 @@ spec:
           cluster: prod-gcp
         - application: syfohelsenettproxy
       external:
-        - host: pdl-api.prod-fss-pub.nais.i
+        - host: pdl-api.prod-fss-pub.nais.io
         - host: saf.prod-fss-pub.nais.io
         - host: oppgave.prod-fss-pub.nais.io
         - host: graph.microsoft.com
+        - host: dokarkiv.prod-fss-pub.nais.io
   vault:
     enabled: false
   webproxy: false

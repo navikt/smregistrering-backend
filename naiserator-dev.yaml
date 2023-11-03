@@ -78,10 +78,10 @@ spec:
         - application: syfohelsenettproxy
       external:
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: syfohelsenettproxy.dev-fss-pub.nais.io
         - host: saf.dev-fss-pub.nais.io
         - host: oppgave-q1.dev-fss-pub.nais.io
         - host: graph.microsoft.com
+        - host: dokarkiv.dev-fss-pub.nais.io
   vault:
     enabled: false
   webproxy: false
