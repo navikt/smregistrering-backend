@@ -4,7 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 15
     ignore:
       - dependency-name: "org.apache.kafka:kafka_2.12"
         update-types: ["version-update:semver-major"]
@@ -18,5 +18,5 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
