@@ -33,11 +33,11 @@ import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.Godkjenning
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.Kode
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.controllers.SendPapirsykmeldingController
@@ -102,7 +102,7 @@ class SendPapirSykmeldingTest {
     private val dokArkivClient = mockk<DokArkivClient>()
     private val safJournalpostService = mockk<SafJournalpostService>()
     private val regelClient = mockk<RegelClient>()
-    private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val istilgangskontrollClient = mockk<IstilgangskontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
@@ -161,7 +161,7 @@ class SendPapirSykmeldingTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
                 ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
@@ -458,7 +458,7 @@ class SendPapirSykmeldingTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
                 ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 
@@ -697,7 +697,7 @@ class SendPapirSykmeldingTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
                 ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
 

@@ -81,7 +81,7 @@ fun main() {
 
     val sendtSykmeldingService = SendtSykmeldingService(databaseInterface = database)
     val authorizationService =
-        AuthorizationService(httpClients.syfoTilgangsKontrollClient, httpClients.msGraphClient)
+        AuthorizationService(httpClients.istilgangskontrollClient, httpClients.msGraphClient)
     val pdlService =
         PdlPersonService(httpClients.pdlClient, httpClients.azureAdV2Client, env.pdlScope)
     val sykmelderService = SykmelderService(httpClients.norskHelsenettClient, pdlService)

@@ -18,12 +18,12 @@ import io.ktor.serialization.jackson.jackson
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.MSGraphClient
 import no.nav.syfo.client.NorskHelsenettClient
 import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.clients.exception.ServiceUnavailableException
 import no.nav.syfo.log
 import no.nav.syfo.pdl.client.PdlClient
@@ -96,8 +96,8 @@ class HttpClients(env: Environment) {
     internal val regelClient =
         RegelClient(env.regelEndpointURL, azureAdV2Client, env.syfosmpapirregelScope, httpClient)
 
-    internal val syfoTilgangsKontrollClient =
-        SyfoTilgangsKontrollClient(
+    internal val istilgangskontrollClient =
+        IstilgangskontrollClient(
             environment = env,
             azureAdV2Client = azureAdV2Client,
             httpClient = httpClient,

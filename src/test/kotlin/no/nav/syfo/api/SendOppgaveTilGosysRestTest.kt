@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
@@ -52,7 +52,7 @@ class SendOppgaveTilGosysRestTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveDAO = mockk<ManuellOppgaveDAO>()
     private val oppgaveService = mockk<OppgaveService>()
-    private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val istilgangskontrollClient = mockk<IstilgangskontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val sendTilGosysController =
         SendTilGosysController(authorizationService, manuellOppgaveDAO, oppgaveService)
@@ -90,7 +90,7 @@ class SendOppgaveTilGosysRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
@@ -246,7 +246,7 @@ class SendOppgaveTilGosysRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
