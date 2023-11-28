@@ -1,28 +1,28 @@
 package no.nav.syfo.service
 
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.MSGraphClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 
 class AuthorizationService(
-    private val syfoTilgangsKontrollClient: SyfoTilgangsKontrollClient,
+    private val istilgangskontrollClient: IstilgangskontrollClient,
     private val msGraphClient: MSGraphClient,
 ) {
     suspend fun hasAccess(accessToken: String, pasientFnr: String): Boolean {
-        return syfoTilgangsKontrollClient
+        return istilgangskontrollClient
             .hasAccess(
                 accessToken,
                 pasientFnr,
             )
-            .harTilgang
+            .erGodkjent
     }
 
     suspend fun hasSuperuserAccess(accessToken: String, pasientFnr: String): Boolean {
-        return syfoTilgangsKontrollClient
+        return istilgangskontrollClient
             .hasSuperuserAccess(
                 accessToken,
                 pasientFnr,
             )
-            .harTilgang
+            .erGodkjent
     }
 
     suspend fun getVeileder(accessToken: String): Veileder {

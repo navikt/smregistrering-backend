@@ -72,7 +72,7 @@ spec:
           namespace: teamsykmelding
           cluster: dev-gcp
         - application: smtss
-        - application: syfo-tilgangskontroll
+        - application: istilgangskontroll
           namespace: teamsykefravr
           cluster: dev-gcp
         - application: syfohelsenettproxy
@@ -112,8 +112,8 @@ spec:
       value: https://oppgave-q1.dev-fss-pub.nais.io/api/v1/oppgaver
     - name: OPPGAVE_SCOPE
       value: api://dev-fss.oppgavehandtering.oppgave-q1/.default
-    - name: SYFOTILGANGSKONTROLL_SCOPE
-      value: api://dev-gcp.teamsykefravr.syfo-tilgangskontroll/.default
+    - name: ISTILGANGSKONTROLL_SCOPE
+      value: api://dev-gcp.teamsykefravr.istilgangskontroll/.default
     - name: MS_GRAPH_API_URL
       value: https://graph.microsoft.com/v1.0
     - name: MS_GRAPH_API_SCOPE

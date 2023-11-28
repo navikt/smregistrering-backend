@@ -14,13 +14,13 @@ import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
 
-class SyfoTilgangsKontrollClient(
+class IstilgangskontrollClient(
     environment: Environment,
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient,
-    private val syfoTilgangsKontrollClientUrl: String = environment.syfoTilgangsKontrollClientUrl,
-    private val scope: String = environment.syfoTilgangsKontrollScope,
-    private val syfoTilgangskontrollCache: Cache<Map<String, String>, Tilgang> =
+    private val istilgangskontrollClientUrl: String = environment.istilgangskontrollClientUrl,
+    private val scope: String = environment.istilgangskontrollScope,
+    private val istilgangskontrollCache: Cache<Map<String, String>, Tilgang> =
         Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(100).build(),
 ) {
     companion object {
@@ -28,8 +28,8 @@ class SyfoTilgangsKontrollClient(
     }
 
     suspend fun hasAccess(accessToken: String, personFnr: String): Tilgang {
-        syfoTilgangskontrollCache.getIfPresent(mapOf(Pair(accessToken, personFnr)))?.let {
-            log.debug("Traff cache for syfotilgangskontroll")
+        istilgangskontrollCache.getIfPresent(mapOf(Pair(accessToken, personFnr)))?.let {
+            log.debug("Traff cache for istilgangskontroll")
             return it
         }
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
@@ -37,9 +37,7 @@ class SyfoTilgangsKontrollClient(
         try {
             log.info("Sjekker tilgang for veileder på person")
             val httpResponse =
-                httpClient.get(
-                    "$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person"
-                ) {
+                httpClient.get("$istilgangskontrollClientUrl/api/tilgang/navident/person") {
                     accept(ContentType.Application.Json)
                     headers {
                         append("Authorization", "Bearer $oboToken")
@@ -49,20 +47,20 @@ class SyfoTilgangsKontrollClient(
             return when (httpResponse.status) {
                 HttpStatusCode.OK -> {
                     val tilgang = httpResponse.body<Tilgang>()
-                    syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
+                    istilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
                     tilgang
                 }
                 else -> {
-                    log.warn("syfo-tilgangskontroll svarte med ${httpResponse.status}")
+                    log.warn("istilgangskontroll svarte med ${httpResponse.status}")
                     Tilgang(
-                        harTilgang = false,
+                        erGodkjent = false,
                     )
                 }
             }
         } catch (e: Exception) {
-            log.warn("noe gikk galt ved oppslag mot syfo-tilgangskontroll")
+            log.warn("noe gikk galt ved oppslag mot istilgangskontroll")
             return Tilgang(
-                harTilgang = false,
+                erGodkjent = false,
             )
         }
     }
@@ -74,7 +72,7 @@ class SyfoTilgangsKontrollClient(
             log.info("Sjekker om veileder har utvidet tilgang til smreg")
             val httpResponse =
                 httpClient.get(
-                    "$syfoTilgangsKontrollClientUrl/syfo-tilgangskontroll/api/tilgang/navident/person/papirsykmelding"
+                    "$istilgangskontrollClientUrl/api/tilgang/navident/person/papirsykmelding"
                 ) {
                     accept(ContentType.Application.Json)
                     headers {
@@ -85,29 +83,29 @@ class SyfoTilgangsKontrollClient(
             return when (httpResponse.status) {
                 HttpStatusCode.OK -> {
                     val tilgang = httpResponse.body<Tilgang>()
-                    syfoTilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
+                    istilgangskontrollCache.put(mapOf(Pair(accessToken, personFnr)), tilgang)
                     tilgang
                 }
                 else -> {
                     log.warn(
-                        "syfo-tilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang"
+                        "istilgangskontroll svarte med ${httpResponse.status} på forespørsel om utvidet tilgang"
                     )
                     Tilgang(
-                        harTilgang = false,
+                        erGodkjent = false,
                     )
                 }
             }
         } catch (e: Exception) {
             log.warn(
-                "noe gikk galt ved oppslag mot syfo-tilgangskontroll på forespørsel om utvidet tilgang"
+                "noe gikk galt ved oppslag mot istilgangskontroll på forespørsel om utvidet tilgang"
             )
             return Tilgang(
-                harTilgang = false,
+                erGodkjent = false,
             )
         }
     }
 }
 
 data class Tilgang(
-    val harTilgang: Boolean,
+    val erGodkjent: Boolean,
 )

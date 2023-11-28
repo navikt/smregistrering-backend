@@ -24,8 +24,8 @@ import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
 import no.nav.syfo.log
@@ -67,7 +67,7 @@ class AvvisOppgaveRestTest {
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
     private val dokArkivClient = mockk<DokArkivClient>()
-    private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val istilgangskontrollClient = mockk<IstilgangskontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val pdlPersonService = mockk<PdlPersonService>()
     private val sykmelderService = mockk<SykmelderService>()
@@ -116,7 +116,7 @@ class AvvisOppgaveRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
@@ -334,7 +334,7 @@ class AvvisOppgaveRestTest {
                     throw cause
                 }
             }
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")

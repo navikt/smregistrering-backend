@@ -20,7 +20,7 @@ This the high level flow for the application
   graph LR;
         
       smregistrering-backend --- smregistrering;
-      smregistrering-backend -- check caseworker access --- syfo-tilgangskontroll;
+      smregistrering-backend -- check caseworker access --- istilgangskontroll;
       smregistrering-backend -- create,get,complete oppgave --- oppgave;
       smregistrering-backend -- verify token --- azure-AD;
       smregistrering-backend --- id1[(Database)];

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class SyfoTilgangsKontrollClientTest {
+class IstilgangskontrollClientTest {
 
     private val pasientFnr = "123145"
 
@@ -29,29 +29,29 @@ class SyfoTilgangsKontrollClientTest {
             coEvery { azureAppClientId } returns "clientId"
             coEvery { azureAppClientSecret } returns "secret"
             coEvery { azureTokenEndpoint } returns "http://obo"
-            coEvery { syfoTilgangsKontrollClientUrl } returns "http://syfotilgangskontroll"
-            coEvery { syfoTilgangsKontrollScope } returns "scope"
+            coEvery { istilgangskontrollClientUrl } returns "http://istilgangskontroll"
+            coEvery { istilgangskontrollScope } returns "scope"
         }
     private val azureAdV2Client = spyk(AzureAdV2Client(env, httpClient.httpClient))
 
-    private val syfoTilgangskontrollCache =
+    private val istilgangskontrollCache =
         Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .maximumSize(100)
             .build<Map<String, String>, Tilgang>()
 
-    private val syfoTilgangsKontrollClient =
-        SyfoTilgangsKontrollClient(
+    private val istilgangskontrollClient =
+        IstilgangskontrollClient(
             environment = env,
             azureAdV2Client = azureAdV2Client,
             httpClient = httpClient.httpClient,
-            syfoTilgangskontrollCache = syfoTilgangskontrollCache,
+            istilgangskontrollCache = istilgangskontrollCache,
         )
 
     @BeforeEach
     internal fun beforeEachTest() {
         clearAllMocks()
-        syfoTilgangskontrollCache.invalidateAll()
+        istilgangskontrollCache.invalidateAll()
     }
 
     @Test
@@ -66,13 +66,13 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData =
             ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
-            val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            assertEquals(true, tilgang.harTilgang)
+            val tilgang = istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            assertEquals(true, tilgang.erGodkjent)
         }
     }
 
     @Test
-    internal fun `Skal returnere harTilgang false hvis syfotilgangskontroll svarer med feilmelding`() {
+    internal fun `Skal returnere harTilgang false hvis istilgangskontroll svarer med feilmelding`() {
         httpClient.responseDataOboToken =
             ResponseData(
                 HttpStatusCode.OK,
@@ -86,8 +86,8 @@ class SyfoTilgangsKontrollClientTest {
                 objectMapper.writeValueAsString(Tilgang(false))
             )
         runBlocking {
-            val tilgang = syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            assertEquals(false, tilgang.harTilgang)
+            val tilgang = istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            assertEquals(false, tilgang.erGodkjent)
         }
     }
 
@@ -103,8 +103,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData =
             ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
-            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
         }
 
         coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
@@ -122,8 +122,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData =
             ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
-            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", "987654")
+            istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            istilgangskontrollClient.hasAccess("sdfsdfsfs", "987654")
         }
 
         coVerify(exactly = 2) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }
@@ -141,8 +141,8 @@ class SyfoTilgangsKontrollClientTest {
         httpClient.responseData =
             ResponseData(HttpStatusCode.OK, objectMapper.writeValueAsString(Tilgang(true)))
         runBlocking {
-            syfoTilgangsKontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
-            syfoTilgangsKontrollClient.hasAccess("xxxxxxxxx", pasientFnr)
+            istilgangskontrollClient.hasAccess("sdfsdfsfs", pasientFnr)
+            istilgangskontrollClient.hasAccess("xxxxxxxxx", pasientFnr)
         }
 
         coVerify(exactly = 1) { azureAdV2Client.getOnBehalfOfToken("sdfsdfsfs", "scope") }

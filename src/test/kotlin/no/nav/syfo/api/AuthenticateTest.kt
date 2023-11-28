@@ -25,8 +25,8 @@ import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
+import no.nav.syfo.client.IstilgangskontrollClient
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.client.SyfoTilgangsKontrollClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
@@ -63,7 +63,7 @@ internal class AuthenticateTest {
 
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
-    private val syfoTilgangsKontrollClient = mockk<SyfoTilgangsKontrollClient>()
+    private val istilgangskontrollClient = mockk<IstilgangskontrollClient>()
     private val authorizationService = mockk<AuthorizationService>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
@@ -85,7 +85,7 @@ internal class AuthenticateTest {
 
             coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
                 ByteArray(1)
-            coEvery { syfoTilgangsKontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { pdlService.getPdlPerson(any(), any()) } returns
                 PdlPerson(
