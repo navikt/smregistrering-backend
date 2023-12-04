@@ -3,7 +3,7 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.7.3"
 val ktorVersion = "2.3.6"
-val logbackVersion = "1.4.13"
+val logbackVersion = "1.4.14"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.10.1"
@@ -13,7 +13,7 @@ val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.7.0"
 val flywayVersion = "10.1.0"
 val hikariVersion = "5.1.0"
-val nimbusdsVersion = "9.37.1"
+val nimbusdsVersion = "9.37.2"
 val mockkVersion = "1.13.8"
 val syfoXmlCodegenVerison = "2.0.1"
 val jaxbApiVersion = "2.1"
@@ -38,7 +38,7 @@ val ktfmtVersion = "0.44"
 plugins {
     id("application")
     kotlin("jvm") version "1.9.21"
-    id("com.diffplug.spotless") version "6.23.2"
+    id("com.diffplug.spotless") version "6.23.3"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
