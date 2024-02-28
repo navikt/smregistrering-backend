@@ -83,7 +83,7 @@ fun DatabaseInterface.updateJob(job: Job) {
 
 fun DatabaseInterface.resetJobs(): Int {
     val resetTimestamp = OffsetDateTime.now().minusHours(1)
-    var updated = 0
+    var updated: Int
     connection.use { connection ->
         connection
             .prepareStatement(

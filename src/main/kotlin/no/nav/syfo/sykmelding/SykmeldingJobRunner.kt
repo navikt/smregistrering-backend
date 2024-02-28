@@ -4,8 +4,11 @@ import java.time.OffsetDateTime
 import java.util.concurrent.ExecutionException
 import kotlinx.coroutines.delay
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.log
+import no.nav.syfo.model.Status
+import no.nav.syfo.model.ValidationResult
+import no.nav.syfo.model.toReceivedSykmeldingWithValidation
 import no.nav.syfo.sykmelding.jobs.model.JOBNAME
 import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
@@ -44,19 +47,28 @@ class SykmeldingJobRunner(
             JOBNAME.SENDT_SYKMELDING -> sendSykmelding(nextJob)
         }
         sendtSykmeldingService.finishJob(
-            nextJob.copy(updated = OffsetDateTime.now(), status = JOBSTATUS.DONE)
+            nextJob.copy(updated = OffsetDateTime.now(), status = JOBSTATUS.DONE),
         )
     }
 
     private fun sendSykmelding(job: Job) {
         try {
             val receivedSykmelding = sendtSykmeldingService.getReceivedSykmelding(job.sykmeldingId)
+            if (receivedSykmelding == null) {
+                log.error("Received sykmelding is null for job $job")
+                throw RuntimeException("Received sykmelding is null for job $job")
+            }
             receivedSykmeldingKafkaProducer.producer
                 .send(
                     ProducerRecord(
                         receivedSykmeldingKafkaProducer.sm2013AutomaticHandlingTopic,
                         job.sykmeldingId,
-                        receivedSykmelding,
+                        receivedSykmelding.toReceivedSykmeldingWithValidation(
+                            ValidationResult(
+                                Status.OK,
+                                emptyList(),
+                            ),
+                        ),
                     ),
                 )
                 .get()

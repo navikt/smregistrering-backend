@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.clients.KafkaProducers
+import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.sykmelding.jobs.db.getJobForSykmeldingId
 import no.nav.syfo.sykmelding.jobs.db.insertJobs
 import no.nav.syfo.sykmelding.jobs.model.JOBNAME

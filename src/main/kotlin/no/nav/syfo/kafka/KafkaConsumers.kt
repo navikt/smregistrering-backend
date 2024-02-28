@@ -1,8 +1,7 @@
-package no.nav.syfo.clients
+package no.nav.syfo.kafka
 
 import no.nav.syfo.Environment
 import no.nav.syfo.kafka.aiven.KafkaUtils
-import no.nav.syfo.kafka.toConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 

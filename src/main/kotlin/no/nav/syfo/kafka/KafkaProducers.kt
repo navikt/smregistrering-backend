@@ -1,9 +1,8 @@
-package no.nav.syfo.clients
+package no.nav.syfo.kafka
 
 import no.nav.syfo.Environment
 import no.nav.syfo.kafka.aiven.KafkaUtils
-import no.nav.syfo.kafka.toProducerConfig
-import no.nav.syfo.model.ReceivedSykmelding
+import no.nav.syfo.model.ReceivedSykmeldingWithValidation
 import no.nav.syfo.util.JacksonKafkaSerializer
 import org.apache.kafka.clients.producer.KafkaProducer
 
@@ -23,7 +22,7 @@ class KafkaProducers(private val env: Environment) {
     val kafkaRecievedSykmeldingProducer = KafkaRecievedSykmeldingProducer()
 
     inner class KafkaRecievedSykmeldingProducer {
-        val producer = KafkaProducer<String, ReceivedSykmelding>(properties)
+        val producer = KafkaProducer<String, ReceivedSykmeldingWithValidation>(properties)
         val sm2013AutomaticHandlingTopic = env.okSykmeldingTopic
     }
 }

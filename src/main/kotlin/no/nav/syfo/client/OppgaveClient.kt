@@ -12,10 +12,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.syfo.azuread.v2.AzureAdV2Client
-import no.nav.syfo.helpers.log
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.Oppgave
 import no.nav.syfo.model.OpprettOppgave
+import org.slf4j.LoggerFactory
 
 class OppgaveClient(
     private val url: String,
@@ -23,6 +23,10 @@ class OppgaveClient(
     private val httpClient: HttpClient,
     private val scope: String,
 ) {
+    companion object {
+        private val log = LoggerFactory.getLogger(OppgaveClient::class.java)
+    }
+
     suspend fun opprettOppgave(oppgave: OpprettOppgave, msgId: String): Oppgave {
         log.info("Oppretter oppgave for msgId {}, journalpostId {}", msgId, oppgave.journalpostId)
 
