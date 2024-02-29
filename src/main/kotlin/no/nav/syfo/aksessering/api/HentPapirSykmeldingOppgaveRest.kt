@@ -12,6 +12,7 @@ import no.nav.syfo.auditLogger.AuditLogger
 import no.nav.syfo.auditlogg
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
+import no.nav.syfo.model.Document
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
@@ -88,6 +89,17 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                             pdfPapirSykmelding = pdfPapirSykmelding,
                                             papirSmRegistering =
                                                 manuellOppgaveDTOList.first().papirSmRegistering,
+                                            documents =
+                                                listOf(
+                                                    Document(
+                                                        dokumentInfoId =
+                                                            manuellOppgaveDTOList
+                                                                .first()
+                                                                .dokumentInfoId
+                                                                ?: "",
+                                                        tittel = "papirsykmelding",
+                                                    ),
+                                                ),
                                         )
 
                                     call.respond(papirManuellOppgave)
@@ -95,7 +107,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                             } catch (safForbiddenException: SafForbiddenException) {
                                 call.respond(
                                     HttpStatusCode.Forbidden,
-                                    "Du har ikke tilgang til dokumentet i SAF"
+                                    "Du har ikke tilgang til dokumentet i SAF",
                                 )
                             } catch (safNotFoundException: SafNotFoundException) {
                                 val sykmeldingId = manuellOppgaveDTOList.first().sykmeldingId
@@ -115,7 +127,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                     oppgaveId,
                                     sykmeldingId,
                                     accessToken,
-                                    loggingMeta
+                                    loggingMeta,
                                 )
 
                                 auditlogg.info(
@@ -157,7 +169,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                             call.respond(
                                 HttpStatusCode.Forbidden,
-                                "Veileder har ikke tilgang til oppgaven"
+                                "Veileder har ikke tilgang til oppgaven",
                             )
                         }
                     }
