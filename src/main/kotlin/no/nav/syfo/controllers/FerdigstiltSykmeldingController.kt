@@ -6,6 +6,7 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.auditLogger.AuditLogger
 import no.nav.syfo.auditlogg
 import no.nav.syfo.log
+import no.nav.syfo.model.Document
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.model.PapirSmRegistering
@@ -162,6 +163,13 @@ class FerdigstiltSykmeldingController(
                     oppgaveid = Int.MAX_VALUE,
                     pdfPapirSykmelding = dokument,
                     papirSmRegistering = papirSmRegistering,
+                    documents =
+                        listOf(
+                            Document(
+                                dokumentInfoId = dokumentInfoId.dokumentInfoId,
+                                tittel = "Papirsykmelding"
+                            )
+                        ),
                 )
 
             auditlogg.info(
@@ -275,6 +283,13 @@ class FerdigstiltSykmeldingController(
                             oppgaveid = manuellOppgave.oppgaveid!!,
                             pdfPapirSykmelding = pdfPapirSykmelding,
                             papirSmRegistering = papirSmRegistering,
+                            documents =
+                                listOf(
+                                    Document(
+                                        dokumentInfoId = manuellOppgave.dokumentInfoId ?: "",
+                                        tittel = "Papirsykmelding"
+                                    )
+                                ),
                         )
 
                     return HttpServiceResponse(HttpStatusCode.OK, papirManuellOppgave)

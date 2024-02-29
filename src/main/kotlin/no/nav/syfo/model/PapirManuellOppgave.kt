@@ -6,4 +6,10 @@ data class PapirManuellOppgave(
     val oppgaveid: Int,
     var pdfPapirSykmelding: ByteArray,
     val papirSmRegistering: PapirSmRegistering?,
+    val documents: List<Document>,
+)
+
+data class Document(
+    val dokumentInfoId: String,
+    val tittel: String,
 )
