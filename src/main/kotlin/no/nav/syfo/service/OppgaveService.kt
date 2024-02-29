@@ -4,7 +4,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.client.OppgaveClient
-import no.nav.syfo.helpers.log
 import no.nav.syfo.metrics.OPPRETT_OPPGAVE_COUNTER
 import no.nav.syfo.model.FerdigstillOppgave
 import no.nav.syfo.model.FerdigstillRegistrering
@@ -13,10 +12,14 @@ import no.nav.syfo.model.OppgaveStatus
 import no.nav.syfo.model.OpprettOppgave
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.util.LoggingMeta
+import org.slf4j.LoggerFactory
 
 class OppgaveService(
     private val oppgaveClient: OppgaveClient,
 ) {
+    companion object {
+        private val log = LoggerFactory.getLogger(OppgaveService::class.java)
+    }
 
     suspend fun hentOppgave(oppgaveId: Int, sykmeldingId: String): Oppgave {
         return oppgaveClient.hentOppgave(oppgaveId, sykmeldingId)

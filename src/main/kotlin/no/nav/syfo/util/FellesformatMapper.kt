@@ -260,7 +260,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
     }
 }
 
-fun tilSyketilfelleStartDato(smRegistreringManuell: SmRegistreringManuell): LocalDate? {
+fun tilSyketilfelleStartDato(smRegistreringManuell: SmRegistreringManuell): LocalDate {
     // Bruk innsendt syketilfelleStartDato, eller fall tilbake til dato fra perioder hvis ikke satt
     return smRegistreringManuell.syketilfelleStartDato
         ?: smRegistreringManuell.perioder.stream().map(Periode::fom).min(LocalDate::compareTo).get()
@@ -356,13 +356,11 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(
             if (periode.aktivitetIkkeMulig != null) {
                 HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.AktivitetIkkeMulig().apply {
                     medisinskeArsaker =
-                        if (periode.aktivitetIkkeMulig?.medisinskArsak != null) {
+                        if (periode.aktivitetIkkeMulig.medisinskArsak != null) {
                             ArsakType().apply {
-                                beskriv = periode.aktivitetIkkeMulig?.medisinskArsak?.beskrivelse
+                                beskriv = periode.aktivitetIkkeMulig.medisinskArsak.beskrivelse
                                 arsakskode.addAll(
-                                    periode.aktivitetIkkeMulig!!
-                                        .medisinskArsak!!
-                                        .arsak
+                                    periode.aktivitetIkkeMulig.medisinskArsak.arsak
                                         .stream()
                                         .map {
                                             CS().apply {
@@ -377,14 +375,12 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(
                             null
                         }
                     arbeidsplassen =
-                        if (periode.aktivitetIkkeMulig?.arbeidsrelatertArsak != null) {
+                        if (periode.aktivitetIkkeMulig.arbeidsrelatertArsak != null) {
                             ArsakType().apply {
                                 beskriv =
-                                    periode.aktivitetIkkeMulig?.arbeidsrelatertArsak?.beskrivelse
+                                    periode.aktivitetIkkeMulig.arbeidsrelatertArsak.beskrivelse
                                 arsakskode.addAll(
-                                    periode.aktivitetIkkeMulig!!
-                                        .arbeidsrelatertArsak!!
-                                        .arsak
+                                    periode.aktivitetIkkeMulig.arbeidsrelatertArsak.arsak
                                         .stream()
                                         .map {
                                             CS().apply {
@@ -414,8 +410,8 @@ fun tilHelseOpplysningerArbeidsuforhetPeriode(
         gradertSykmelding =
             if (periode.gradert != null) {
                 HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding().apply {
-                    sykmeldingsgrad = periode.gradert!!.grad
-                    isReisetilskudd = periode.gradert!!.reisetilskudd
+                    sykmeldingsgrad = periode.gradert.grad
+                    isReisetilskudd = periode.gradert.reisetilskudd
                 }
             } else {
                 null
@@ -465,17 +461,17 @@ fun tilMedisinskVurdering(
     medisinskVurdering: MedisinskVurdering,
     skjermesForPasient: Boolean,
 ): HelseOpplysningerArbeidsuforhet.MedisinskVurdering {
-    val biDiagnoseListe: List<CV>? =
+    val biDiagnoseListe: List<CV> =
         medisinskVurdering.biDiagnoser.map { toMedisinskVurderingDiagnode(it) }
 
     return HelseOpplysningerArbeidsuforhet.MedisinskVurdering().apply {
         if (medisinskVurdering.hovedDiagnose != null) {
             hovedDiagnose =
                 HelseOpplysningerArbeidsuforhet.MedisinskVurdering.HovedDiagnose().apply {
-                    diagnosekode = toMedisinskVurderingDiagnode(medisinskVurdering.hovedDiagnose!!)
+                    diagnosekode = toMedisinskVurderingDiagnode(medisinskVurdering.hovedDiagnose)
                 }
         }
-        if (biDiagnoseListe != null && biDiagnoseListe.isNotEmpty()) {
+        if (biDiagnoseListe.isNotEmpty()) {
             biDiagnoser =
                 HelseOpplysningerArbeidsuforhet.MedisinskVurdering.BiDiagnoser().apply {
                     diagnosekode.addAll(biDiagnoseListe)
@@ -486,7 +482,7 @@ fun tilMedisinskVurdering(
             medisinskVurdering.annenFraversArsak?.let {
                 ArsakType().apply {
                     arsakskode.add(CS())
-                    beskriv = medisinskVurdering.annenFraversArsak!!.beskrivelse
+                    beskriv = medisinskVurdering.annenFraversArsak.beskrivelse
                 }
             }
         isSvangerskap = medisinskVurdering.svangerskap

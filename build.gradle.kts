@@ -8,7 +8,6 @@ val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.10.2"
 val jacksonVersion = "2.16.1"
-val smCommonVersion = "2.0.8"
 val kafkaEmbeddedVersion = "2.8.0"
 val postgresVersion = "42.7.2"
 val flywayVersion = "10.8.1"
@@ -83,14 +82,11 @@ dependencies {
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
-    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
     constraints {
         implementation("org.xerial.snappy:snappy-java:1.1.10.5") {
             because("override transient from org.apache.kafka:kafka_2.12")
         }
     }
-    implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
-    implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
 
     implementation ("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVerison")
     implementation ("no.nav.helse.xml:sm2013:$syfoXmlCodegenVerison")

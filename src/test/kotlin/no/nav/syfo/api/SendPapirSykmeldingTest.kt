@@ -39,8 +39,8 @@ import no.nav.syfo.client.OppgaveClient
 import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.Tilgang
-import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.controllers.SendPapirsykmeldingController
+import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig

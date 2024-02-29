@@ -20,14 +20,14 @@ import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.clients.HttpClients
-import no.nav.syfo.clients.KafkaConsumers
-import no.nav.syfo.clients.KafkaProducers
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
 import no.nav.syfo.controllers.FerdigstiltSykmeldingController
 import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.db.Database
+import no.nav.syfo.kafka.KafkaConsumers
+import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
@@ -40,7 +40,6 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import no.nav.syfo.util.LoggingMeta
-import no.nav.syfo.util.Unbounded
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -152,7 +151,7 @@ fun main() {
             authorizationService,
         )
 
-    GlobalScope.launch {
+    GlobalScope.launch(Dispatchers.IO) {
         sykmeldingJobRunner.startJobRunner()
         log.info("Started SykmeldingJobRunner")
     }
@@ -174,7 +173,7 @@ fun startConsumer(
     kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
     receivedSykmeldingController: ReceivedSykmeldingController,
 ) {
-    GlobalScope.launch(Dispatchers.Unbounded) {
+    GlobalScope.launch(Dispatchers.IO) {
         while (applicationState.ready) {
             try {
                 log.info("Starting consuming topic $topic")
