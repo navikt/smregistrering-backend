@@ -62,6 +62,9 @@ spec:
         - application: smregistrering
           namespace: teamsykmelding
           cluster: prod-gcp
+        - application: syk-dig
+          namespace: teamsykmelding
+          cluster: prod-gcp
     outbound:
       rules:
         - application: syfosmregister
