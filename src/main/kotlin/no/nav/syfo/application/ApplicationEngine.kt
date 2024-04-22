@@ -29,6 +29,8 @@ import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
 import no.nav.syfo.metrics.monitorHttpRequests
 import no.nav.syfo.pasient.api.pasientApi
+import no.nav.syfo.pdf.PdfService
+import no.nav.syfo.pdf.registerPdfRoutes
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.api.avvisOppgave
 import no.nav.syfo.persistering.api.endreSykmelding
@@ -54,6 +56,7 @@ fun createApplicationEngine(
     pdlService: PdlPersonService,
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService,
+    pdfService: PdfService,
 ): ApplicationEngine =
     embeddedServer(
         Netty,
@@ -97,6 +100,7 @@ fun createApplicationEngine(
                 pasientApi(pdlService, authorizationService)
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
+                registerPdfRoutes(pdfService)
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

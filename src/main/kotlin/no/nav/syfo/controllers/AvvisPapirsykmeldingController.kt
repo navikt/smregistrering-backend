@@ -66,7 +66,10 @@ class AvvisPapirsykmeldingController(
                 val hpr = manuellOppgaveDTOList.first().papirSmRegistering?.behandler?.hpr
                 val sykmelder = finnSykmelder(hpr, callId, oppgaveId)
 
-                val hentOppgave = oppgaveService.hentOppgave(oppgaveId, sykmeldingId)
+                val hentOppgave = oppgaveService.hentOppgave(
+                    oppgaveId = oppgaveId,
+                    msgId = sykmeldingId
+                )
                 val ferdigstillRegistrering =
                     FerdigstillRegistrering(
                         oppgaveId = oppgaveId,

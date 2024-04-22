@@ -21,9 +21,8 @@ class OppgaveService(
         private val log = LoggerFactory.getLogger(OppgaveService::class.java)
     }
 
-    suspend fun hentOppgave(oppgaveId: Int, sykmeldingId: String): Oppgave {
-        return oppgaveClient.hentOppgave(oppgaveId, sykmeldingId)
-    }
+    suspend fun hentOppgave(oppgaveId: Int, msgId: String): Oppgave =
+        oppgaveClient.hentOppgave(oppgaveId, msgId)
 
     suspend fun upsertOppgave(
         papirSmRegistering: PapirSmRegistering,

@@ -29,6 +29,7 @@ import no.nav.syfo.db.Database
 import no.nav.syfo.kafka.KafkaConsumers
 import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.model.PapirSmRegistering
+import no.nav.syfo.pdf.PdfService
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.service.SafJournalpostService
@@ -92,8 +93,13 @@ fun main() {
         SyfosmregisterService(
             httpClients.azureAdV2Client,
             httpClients.syfoSmregisterClient,
-            env.syfoSmregisterScope
+            env.syfoSmregisterScope,
         )
+    val pdfService = PdfService(
+        manuellOppgaveDAO = manuellOppgaveDAO,
+        dokumentClient = httpClients.safClient,
+        authorizationService = authorizationService,
+    )
 
     val avvisPapirsykmeldingController =
         AvvisPapirsykmeldingController(
@@ -149,6 +155,7 @@ fun main() {
             pdlService,
             sykmelderService,
             authorizationService,
+            pdfService,
         )
 
     GlobalScope.launch(Dispatchers.IO) {
