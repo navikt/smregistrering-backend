@@ -35,14 +35,13 @@ class AzureAdV2Client(
         scope: String,
     ): AzureAdV2Token {
         return getAccessTokenFromAzure(
-                Parameters.build {
-                    append("client_id", azureAppClientId)
-                    append("client_secret", azureAppClientSecret)
-                    append("scope", scope)
-                    append("grant_type", "client_credentials")
-                },
-            )
-            .toAzureAdV2Token()
+            Parameters.build {
+                append("client_id", azureAppClientId)
+                append("client_secret", azureAppClientSecret)
+                append("scope", scope)
+                append("grant_type", "client_credentials")
+            },
+        ).toAzureAdV2Token()
     }
 
     /** Returns a obo access token authenticated using provided user token */
@@ -61,16 +60,16 @@ class AzureAdV2Client(
         scope: String,
     ): AzureAdV2Token {
         return getAccessTokenFromAzure(
-                Parameters.build {
-                    append("client_id", azureAppClientId)
-                    append("client_secret", azureAppClientSecret)
-                    append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                    append("assertion", token)
-                    append("scope", scope)
-                    append("requested_token_use", "on_behalf_of")
-                },
-            )
+            Parameters.build {
+                append("client_id", azureAppClientId)
+                append("client_secret", azureAppClientSecret)
+                append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                append("assertion", token)
+                append("scope", scope)
+                append("requested_token_use", "on_behalf_of")
+            },
+        )
             .toAzureAdV2Token()
     }
 
@@ -83,6 +82,16 @@ class AzureAdV2Client(
                     accept(ContentType.Application.Json)
                     setBody(FormDataContent(formParameters))
                 }
+
+            if (!(200..299).contains(response.status.value)) {
+                val body = when (response.headers["Content-Type"]) {
+                    null -> null
+                    else -> response.body<String>()
+                }
+
+                throw RuntimeException("AzureAD says ${response.status}, body: $body")
+            }
+
             response.body<AzureAdV2TokenResponse>()
         } catch (e: Exception) {
             log.error("Error while requesting AzureAdAccessToken", e)
