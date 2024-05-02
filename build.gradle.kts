@@ -32,6 +32,7 @@ val kotlinVersion = "1.9.23"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
+val opentelemetryVersion = "2.3.0"
 
 
 plugins {
@@ -80,6 +81,7 @@ dependencies {
 
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
+    implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:$opentelemetryVersion")
 
     constraints {
         implementation("org.xerial.snappy:snappy-java:1.1.10.5") {

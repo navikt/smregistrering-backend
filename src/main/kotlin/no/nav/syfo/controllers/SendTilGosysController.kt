@@ -1,5 +1,7 @@
 package no.nav.syfo.controllers
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.log
 import no.nav.syfo.metrics.SENT_TO_GOSYS_COUNTER
@@ -16,8 +18,9 @@ class SendTilGosysController(
     private val oppgaveService: OppgaveService,
 ) {
 
+    @WithSpan
     suspend fun sendOppgaveTilGosys(
-        oppgaveId: Int,
+        @SpanAttribute oppgaveId: Int,
         sykmeldingId: String,
         accessToken: String,
         loggingMeta: LoggingMeta,

@@ -2,6 +2,8 @@ package no.nav.syfo.controllers
 
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -54,11 +56,12 @@ class SendPapirsykmeldingController(
     private val journalpostService: JournalpostService,
     private val manuellOppgaveDAO: ManuellOppgaveDAO,
 ) {
+    @WithSpan
     suspend fun sendPapirsykmelding(
         smRegistreringManuell: SmRegistreringManuell,
         accessToken: String,
         callId: String,
-        sykmeldingId: String,
+        @SpanAttribute sykmeldingId: String,
         navEnhet: String,
         requestPath: String,
     ): HttpServiceResponse {
@@ -76,11 +79,12 @@ class SendPapirsykmeldingController(
         )
     }
 
+    @WithSpan
     suspend fun sendPapirsykmelding(
         smRegistreringManuell: SmRegistreringManuell,
         accessToken: String,
         callId: String,
-        oppgaveId: Int,
+        @SpanAttribute oppgaveId: Int,
         navEnhet: String,
         requestPath: String,
         isUpdate: Boolean = false,
@@ -132,12 +136,12 @@ class SendPapirsykmeldingController(
                     true ->
                         authorizationService.hasSuperuserAccess(
                             accessToken,
-                            smRegistreringManuell.pasientFnr
+                            smRegistreringManuell.pasientFnr,
                         )
                     false ->
                         authorizationService.hasAccess(
                             accessToken,
-                            smRegistreringManuell.pasientFnr
+                            smRegistreringManuell.pasientFnr,
                         )
                 }
 
@@ -148,7 +152,7 @@ class SendPapirsykmeldingController(
                     log.error("HPR-nummer mangler {}", StructuredArguments.fields(loggingMeta))
                     return HttpServiceResponse(
                         HttpStatusCode.BadRequest,
-                        "Mangler HPR-nummer for behandler"
+                        "Mangler HPR-nummer for behandler",
                     )
                 }
 
@@ -170,7 +174,7 @@ class SendPapirsykmeldingController(
                     log.error("Pasientens aktørId eller fnr finnes ikke i PDL")
                     return HttpServiceResponse(
                         HttpStatusCode.InternalServerError,
-                        "Fant ikke pasientens aktørid"
+                        "Fant ikke pasientens aktørid",
                     )
                 }
 
@@ -179,7 +183,7 @@ class SendPapirsykmeldingController(
                         sykmelder.fnr!!,
                         "",
                         loggingMeta,
-                        sykmeldingId
+                        sykmeldingId,
                     )
 
                 if (tssId == null) {
@@ -338,7 +342,7 @@ class SendPapirsykmeldingController(
         )
         return HttpServiceResponse(
             HttpStatusCode.Forbidden,
-            "Veileder har ikke tilgang til oppgaven"
+            "Veileder har ikke tilgang til oppgaven",
         )
     }
 
@@ -366,7 +370,7 @@ class SendPapirsykmeldingController(
             }
             else -> {
                 log.error(
-                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING"
+                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING",
                 )
                 return HttpServiceResponse(
                     HttpStatusCode.InternalServerError,
@@ -394,13 +398,13 @@ class SendPapirsykmeldingController(
                         accessToken,
                         ferdigstillRegistrering,
                         receivedSykmelding,
-                        loggingMeta
+                        loggingMeta,
                     )
                     oppgaveService.ferdigstillOppgave(
                         ferdigstillRegistrering,
                         null,
                         loggingMeta,
-                        ferdigstillRegistrering.oppgaveId
+                        ferdigstillRegistrering.oppgaveId,
                     )
                 }
 
@@ -420,7 +424,7 @@ class SendPapirsykmeldingController(
                                 "Ferdigstilling av manuelt registrert papirsykmelding feilet ved databaseoppdatering {}",
                                 StructuredArguments.keyValue(
                                     "oppgaveId",
-                                    ferdigstillRegistrering.oppgaveId
+                                    ferdigstillRegistrering.oppgaveId,
                                 ),
                             )
                             HttpServiceResponse(
@@ -432,7 +436,7 @@ class SendPapirsykmeldingController(
             }
             else -> {
                 log.error(
-                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING"
+                    "Ukjent status: ${validationResult.status} , papirsykmeldinger manuell registering kan kun ha ein av to typer statuser enten OK eller MANUAL_PROCESSING",
                 )
                 return HttpServiceResponse(HttpStatusCode.InternalServerError)
             }
@@ -453,7 +457,7 @@ class SendPapirsykmeldingController(
                 receivedSykmelding,
             )
         sendtSykmeldingService.insertSendtSykmeldingHistory(
-            sendtSykmeldingHistory = sendtSykmeldingHistory
+            sendtSykmeldingHistory = sendtSykmeldingHistory,
         )
         sendtSykmeldingService.upsertSendtSykmelding(receivedSykmelding)
         sendtSykmeldingService.createJobs(receivedSykmelding)
@@ -480,7 +484,7 @@ fun List<Godkjenning>.getHelsepersonellKategori(): String? =
         else -> {
             val verdi = firstOrNull()?.helsepersonellkategori?.verdi
             log.warn(
-                "Signerende behandler har ikke en helsepersonellkategori($verdi) vi kjenner igjen"
+                "Signerende behandler har ikke en helsepersonellkategori($verdi) vi kjenner igjen",
             )
             verdi
         }
