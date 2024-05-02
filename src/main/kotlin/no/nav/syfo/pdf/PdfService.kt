@@ -33,13 +33,14 @@ class PdfService(
         }
 
         try {
-            val pdf = dokumentClient.hentDokument(
-                dokumentInfoId = dokumentInfoId,
-                journalpostId = firstOppgave.journalpostId,
-                sykmeldingId = firstOppgave.sykmeldingId,
-                accessToken = context.accessToken,
-                msgId = context.requestId,
-            )
+            val pdf =
+                dokumentClient.hentDokument(
+                    dokumentInfoId = dokumentInfoId,
+                    journalpostId = firstOppgave.journalpostId,
+                    sykmeldingId = firstOppgave.sykmeldingId,
+                    accessToken = context.accessToken,
+                    msgId = context.requestId,
+                )
 
             if (pdf == null) {
                 return PdfDocument.Error(PdfErrors.EMPTY_RESPONSE)
@@ -53,7 +54,6 @@ class PdfService(
         } catch (e: Exception) {
             return PdfDocument.Error(PdfErrors.SAF_CLIENT_ERROR)
         }
-
     }
 }
 
@@ -66,5 +66,6 @@ enum class PdfErrors {
 
 sealed class PdfDocument {
     data class Good(val value: ByteArray) : PdfDocument()
+
     data class Error(val value: PdfErrors) : PdfDocument()
 }

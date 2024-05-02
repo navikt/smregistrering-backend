@@ -17,27 +17,31 @@ fun Route.registerPdfRoutes(
             val dokumentInfoId = call.parameters["dokumentInfoId"]
 
             if (oppgaveId == null || dokumentInfoId == null) {
-                logger.warn("Bad on PDF-request, oppgaveId: ${oppgaveId}, dokumentInfoId: ${dokumentInfoId}")
+                logger.warn(
+                    "Bad on PDF-request, oppgaveId: ${oppgaveId}, dokumentInfoId: ${dokumentInfoId}"
+                )
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
 
-            val pdf = pdfService.getDocument(
-                oppgaveId, dokumentInfoId,
-                call.getRequestMeta(),
-            )
+            val pdf =
+                pdfService.getDocument(
+                    oppgaveId,
+                    dokumentInfoId,
+                    call.getRequestMeta(),
+                )
 
             when (pdf) {
                 is PdfDocument.Error -> {
                     logger.error("Unable to fetch PDF, reason: ${pdf.value}")
                     call.respond(HttpStatusCode.InternalServerError)
                 }
-
-                is PdfDocument.Good -> call.respondBytes(
-                    pdf.value,
-                    ContentType.Application.Pdf,
-                    HttpStatusCode.OK,
-                )
+                is PdfDocument.Good ->
+                    call.respondBytes(
+                        pdf.value,
+                        ContentType.Application.Pdf,
+                        HttpStatusCode.OK,
+                    )
             }
         }
     }

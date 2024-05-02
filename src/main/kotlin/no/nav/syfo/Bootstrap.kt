@@ -95,11 +95,12 @@ fun main() {
             httpClients.syfoSmregisterClient,
             env.syfoSmregisterScope,
         )
-    val pdfService = PdfService(
-        manuellOppgaveDAO = manuellOppgaveDAO,
-        dokumentClient = httpClients.safClient,
-        authorizationService = authorizationService,
-    )
+    val pdfService =
+        PdfService(
+            manuellOppgaveDAO = manuellOppgaveDAO,
+            dokumentClient = httpClients.safClient,
+            authorizationService = authorizationService,
+        )
 
     val avvisPapirsykmeldingController =
         AvvisPapirsykmeldingController(
