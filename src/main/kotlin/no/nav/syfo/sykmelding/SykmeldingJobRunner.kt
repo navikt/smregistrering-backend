@@ -1,5 +1,6 @@
 package no.nav.syfo.sykmelding
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.time.OffsetDateTime
 import java.util.concurrent.ExecutionException
 import kotlinx.coroutines.delay
@@ -22,11 +23,7 @@ class SykmeldingJobRunner(
     suspend fun startJobRunner() {
         while (applicationState.ready) {
             try {
-                sendtSykmeldingService.resetHangingJobs()
-                val nextJob = sendtSykmeldingService.getNextJob()
-                if (nextJob != null) {
-                    runJob(nextJob = nextJob)
-                }
+                handleJobIteration()
             } catch (ex: Exception) {
                 log.error("Could not process jobs", ex)
 
@@ -37,6 +34,15 @@ class SykmeldingJobRunner(
                 }
             }
             delay(3_000)
+        }
+    }
+
+    @WithSpan()
+    private fun handleJobIteration() {
+        sendtSykmeldingService.resetHangingJobs()
+        val nextJob = sendtSykmeldingService.getNextJob()
+        if (nextJob != null) {
+            runJob(nextJob = nextJob)
         }
     }
 
