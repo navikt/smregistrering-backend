@@ -70,10 +70,6 @@ fun DatabaseInterface.getNextJob(): Job? {
     }
 }
 
-fun DatabaseInterface.getJobStatus(status: JOBSTATUS): Job? {
-    return connection.use { getJob(connection, status) }
-}
-
 fun DatabaseInterface.updateJob(job: Job) {
     connection.use { connection ->
         updateJob(connection, job)
