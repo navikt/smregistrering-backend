@@ -481,7 +481,17 @@ fun tilMedisinskVurdering(
         annenFraversArsak =
             medisinskVurdering.annenFraversArsak?.let {
                 ArsakType().apply {
-                    arsakskode.add(CS())
+                    arsakskode.addAll(
+                        medisinskVurdering.annenFraversArsak.grunn
+                            .stream()
+                            .map {
+                                CS().apply {
+                                    v = it.codeValue
+                                    dn = it.text
+                                }
+                            }
+                            .collect(Collectors.toList()),
+                    )
                     beskriv = medisinskVurdering.annenFraversArsak.beskrivelse
                 }
             }

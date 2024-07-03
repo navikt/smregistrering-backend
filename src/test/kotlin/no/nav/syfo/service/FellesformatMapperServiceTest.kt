@@ -8,6 +8,8 @@ import java.util.UUID
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
+import no.nav.syfo.model.AnnenFraverGrunn
+import no.nav.syfo.model.AnnenFraversArsak
 import no.nav.syfo.model.Arbeidsgiver
 import no.nav.syfo.model.AvsenderSystem
 import no.nav.syfo.model.Behandler
@@ -153,7 +155,14 @@ class FellesformatMapperServiceTest {
                         svangerskap = false,
                         yrkesskade = false,
                         yrkesskadeDato = null,
-                        annenFraversArsak = null,
+                        annenFraversArsak = AnnenFraversArsak(
+                            beskrivelse = "Beskrivelse for annen fravær",
+                            grunn = listOf(
+                                AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
+                                AnnenFraverGrunn.DONOR,
+                                AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
+                            )
+                        ),
                     ),
                 syketilfelleStartDato = LocalDate.of(2020, 4, 1),
                 skjermesForPasient = false,
@@ -240,7 +249,14 @@ class FellesformatMapperServiceTest {
         assertEquals(false, receivedSykmelding.sykmelding.medisinskVurdering.svangerskap)
         assertEquals(false, receivedSykmelding.sykmelding.medisinskVurdering.yrkesskade)
         assertEquals(null, receivedSykmelding.sykmelding.medisinskVurdering.yrkesskadeDato)
-        assertEquals(null, receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak)
+        assertEquals(AnnenFraversArsak(
+            beskrivelse = "Beskrivelse for annen fravær",
+            grunn = listOf(
+                AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
+                AnnenFraverGrunn.DONOR,
+                AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
+            )
+        ), receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak)
         assertEquals(false, receivedSykmelding.sykmelding.skjermesForPasient)
         assertEquals(
             Arbeidsgiver(
