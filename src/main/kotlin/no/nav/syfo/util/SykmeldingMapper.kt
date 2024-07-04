@@ -80,7 +80,7 @@ fun HelseOpplysningerArbeidsuforhet.Aktivitet.Periode.GradertSykmelding.toGrader
 
 fun HelseOpplysningerArbeidsuforhet.Arbeidsgiver.toArbeidsgiver() =
     Arbeidsgiver(
-        harArbeidsgiver = HarArbeidsgiver.values().first { it.codeValue == harArbeidsgiver.v },
+        harArbeidsgiver = HarArbeidsgiver.entries.first { it.codeValue == harArbeidsgiver.v },
         navn = navnArbeidsgiver,
         yrkesbetegnelse = yrkesbetegnelse,
         stillingsprosent = stillingsprosent,
@@ -113,7 +113,7 @@ fun ArsakType.toAnnenFraversArsak() =
                 if (code.v == null || code.v == "0") {
                     null
                 } else {
-                    AnnenFraverGrunn.values().first { it.codeValue == code.v.trim() }
+                    AnnenFraverGrunn.entries.first { it.codeValue == code.v.trim() }
                 }
             },
     )
@@ -123,7 +123,7 @@ fun CS.toMedisinskArsakType() =
     if (v == null || v == "0") {
         null
     } else {
-        MedisinskArsakType.values().first { it.codeValue == v.trim() }
+        MedisinskArsakType.entries.first { it.codeValue == v.trim() }
     }
 
 // TODO: Remove if-wrapping whenever the EPJ systems stops sending garbage data
@@ -131,7 +131,7 @@ fun CS.toArbeidsrelatertArsakType() =
     if (v == null || v == "0") {
         null
     } else {
-        ArbeidsrelatertArsakType.values().first { it.codeValue == v }
+        ArbeidsrelatertArsakType.entries.first { it.codeValue == v }
     }
 
 // TODO: Remove mapNotNull whenever the EPJ systems stops sending garbage data
@@ -161,7 +161,7 @@ fun CS.toSvarRestriksjon() =
     if (v.isNullOrBlank()) {
         null
     } else {
-        SvarRestriksjon.values().first { it.codeValue == v }
+        SvarRestriksjon.entries.first { it.codeValue == v }
     }
 
 fun Address.toAdresse() =

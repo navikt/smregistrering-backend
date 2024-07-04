@@ -47,7 +47,7 @@ enum class QuestionId(val spmId: String, val spmTekst: String) {
 
     companion object {
         fun fromSpmId(spmId: String): QuestionId {
-            return values().first { questionId -> questionId.spmId == spmId }
+            return entries.first { questionId -> questionId.spmId == spmId }
         }
     }
 }
