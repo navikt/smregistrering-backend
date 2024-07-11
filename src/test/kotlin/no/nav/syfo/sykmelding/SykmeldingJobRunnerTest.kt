@@ -36,6 +36,10 @@ class SykmeldingJobRunnerTest {
             kafkaReceivedSykmeldingProducer,
         )
 
+    init {
+        mockkStatic("kotlinx.coroutines.DelayKt")
+        coEvery { delay(6_000) } returns Unit
+    }
     @AfterEach
     fun afterTest() {
         testDB.connection.dropData()
