@@ -1,7 +1,6 @@
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.8.1"
 val ktorVersion = "2.3.10"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "7.4"
@@ -59,8 +58,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
