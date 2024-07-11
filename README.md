@@ -11,7 +11,7 @@ Repo for manual registration of paper sykmelding, receives paper sykmelding and 
 * Jackson
 
 #### Requirements
-* JDK 17
+* JDK 21
 * Docker
 
 ## FlowChart
