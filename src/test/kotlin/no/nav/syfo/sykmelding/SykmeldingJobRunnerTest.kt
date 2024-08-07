@@ -38,9 +38,8 @@ class SykmeldingJobRunnerTest {
 
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
-        coEvery { delay(3_000) } returns Unit
+        coEvery { delay(15_000) } returns Unit
     }
-
     @AfterEach
     fun afterTest() {
         testDB.connection.dropData()

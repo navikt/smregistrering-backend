@@ -1,7 +1,6 @@
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.8.0"
 val ktorVersion = "2.3.10"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "7.4"
@@ -28,7 +27,7 @@ val commonsTextVersion = "1.12.0"
 val kafkaVersion = "3.7.0"
 val caffeineVersion = "3.1.8"
 val postgresContainerVersion = "1.19.7"
-val kotlinVersion = "1.9.23"
+val kotlinVersion = "2.0.10"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
@@ -37,7 +36,7 @@ val opentelemetryVersion = "2.3.0"
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.10"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -59,8 +58,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
