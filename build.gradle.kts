@@ -27,7 +27,7 @@ val commonsTextVersion = "1.12.0"
 val kafkaVersion = "3.7.0"
 val caffeineVersion = "3.1.8"
 val postgresContainerVersion = "1.19.7"
-val kotlinVersion = "2.0.0"
+val kotlinVersion = "2.0.10"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
@@ -36,7 +36,7 @@ val opentelemetryVersion = "2.3.0"
 
 plugins {
     id("application")
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.10"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
