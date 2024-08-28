@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.InternalAPI
-import java.net.URL
+import java.net.URI
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -64,8 +64,8 @@ fun main() {
     val env = Environment()
 
     val jwkProvider =
-        JwkProviderBuilder(URL(env.jwkKeysUrl))
-            .cached(10, 24, TimeUnit.HOURS)
+        JwkProviderBuilder(URI.create(env.jwkKeysUrl).toURL())
+            .cached(10, Duration.ofHours(24))
             .rateLimited(10, 1, TimeUnit.MINUTES)
             .build()
 

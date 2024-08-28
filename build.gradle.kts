@@ -2,7 +2,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.8.0"
-val ktorVersion = "2.3.10"
+val ktorVersion = "2.3.12"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
@@ -25,21 +25,21 @@ val jaxwsToolsVersion = "2.3.1"
 val javaxJaxwsApiVersion = "2.2.1"
 val javaTimeAdapterVersion = "1.1.3"
 val commonsTextVersion = "1.12.0"
-val kafkaVersion = "3.7.0"
+val kafkaVersion = "3.8.0"
 val caffeineVersion = "3.1.8"
 val postgresContainerVersion = "1.19.7"
-val kotlinVersion = "1.9.23"
+val kotlinVersion = "2.0.20"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
 val opentelemetryVersion = "2.3.0"
-
+val commonsCompressVersion = "1.27.1"
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.20"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 application {
@@ -72,7 +72,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     constraints {
-        implementation("commons-codec:commons-codec:$commonsCodecVersion"){
+        implementation("commons-codec:commons-codec:$commonsCodecVersion") {
             because("override transient version from io.ktor:ktor-client-apache")
         }
     }
@@ -89,9 +89,9 @@ dependencies {
         }
     }
 
-    implementation ("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVerison")
-    implementation ("no.nav.helse.xml:sm2013:$syfoXmlCodegenVerison")
-    implementation ("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVerison")
+    implementation("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVerison")
+    implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVerison")
+    implementation("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVerison")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -101,35 +101,40 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
-    implementation ("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
 
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     compileOnly("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
-    implementation ("javax.xml.bind:jaxb-api:$jaxbApiVersion")
-    implementation ("org.glassfish.jaxb:jaxb-runtime:$jaxbVersion")
-    implementation ("javax.activation:activation:$javaxActivationVersion")
+    implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbVersion")
+    implementation("javax.activation:activation:$javaxActivationVersion")
 
     implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
 
-    implementation ("javax.xml.ws:jaxws-api:$jaxwsApiVersion")
-    implementation ("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
-    implementation ("javax.xml.bind:jaxb-api:$jaxbApiVersion")
-    implementation ("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
-    implementation ("javax.activation:activation:$javaxActivationVersion")
+    implementation("javax.xml.ws:jaxws-api:$jaxwsApiVersion")
+    implementation("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
+    implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
+    implementation("javax.activation:activation:$javaxActivationVersion")
     implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
         exclude(group = "com.sun.xml.ws", module = "policy")
     }
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
-    implementation ("org.apache.commons:commons-text:$commonsTextVersion")
+    implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
     implementation("com.papertrailapp:logback-syslog4j:$logbacksyslog4jVersion")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.testcontainers:postgresql:$postgresContainerVersion")
+    constraints {
+        testImplementation("org.apache.commons:commons-compress:$commonsCompressVersion") {
+            because("overrides vulnerable dependency from org.testcontainers:postgresql")
+        }
+    }
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
@@ -144,9 +149,9 @@ dependencies {
 
 tasks {
     shadowJar {
-mergeServiceFiles {
-     setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
- }
+        mergeServiceFiles {
+            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+        }
         archiveBaseName.set("app")
         archiveClassifier.set("")
         isZip64 = true
