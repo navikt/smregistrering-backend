@@ -18,8 +18,7 @@ Repo for manual registration of paper sykmelding, receives paper sykmelding and 
 This the high level flow for the application
 ```mermaid
   graph LR;
-        
-      smregistrering-backend --- smregistrering;
+      syk-dig ---> smregistrering-backend;
       smregistrering-backend -- check caseworker access --- istilgangskontroll;
       smregistrering-backend -- create,get,complete oppgave --- oppgave;
       smregistrering-backend -- verify token --- azure-AD;
