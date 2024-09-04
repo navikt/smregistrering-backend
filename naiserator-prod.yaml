@@ -19,7 +19,7 @@ spec:
         diskAutoresize: true
         highAvailability: false
         diskType: SSD
-        tier: db-f1-micro
+        tier: db-custom-1-3840
         insights:
           enabled: true
         flags:
