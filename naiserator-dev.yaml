@@ -90,7 +90,6 @@ spec:
         - host: oppgave-q1.dev-fss-pub.nais.io
         - host: graph.microsoft.com
         - host: dokarkiv.dev-fss-pub.nais.io
-    enabled: false
   secureLogs:
     enabled: true
   kafka:

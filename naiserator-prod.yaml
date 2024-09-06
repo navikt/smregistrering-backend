@@ -90,7 +90,6 @@ spec:
         - host: oppgave.prod-fss-pub.nais.io
         - host: graph.microsoft.com
         - host: dokarkiv.prod-fss-pub.nais.io
-    enabled: false
   secureLogs:
     enabled: true
   kafka:
