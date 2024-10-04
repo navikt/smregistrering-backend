@@ -90,7 +90,7 @@ fun mapsmRegistreringManuelltTilFellesformat(
                                                             typeId =
                                                                 XMLCV().apply {
                                                                     dn = "Fødselsnummer"
-                                                                    s = "2.16.578.1.12.4.1.1.8327"
+                                                                    s = "2.16.578.1.12.4.1.1.8116"
                                                                     v = "FNR"
                                                                 }
                                                         },
@@ -281,7 +281,7 @@ fun tilBehandler(sykmelder: Sykmelder): HelseOpplysningerArbeidsuforhet.Behandle
                     typeId =
                         CV().apply {
                             dn = "Fødselsnummer"
-                            s = "2.16.578.1.12.4.1.1.8327"
+                            s = "2.16.578.1.12.4.1.1.8116"
                             v = "FNR"
                         }
                 },
