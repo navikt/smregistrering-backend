@@ -155,14 +155,16 @@ class FellesformatMapperServiceTest {
                         svangerskap = false,
                         yrkesskade = false,
                         yrkesskadeDato = null,
-                        annenFraversArsak = AnnenFraversArsak(
-                            beskrivelse = "Beskrivelse for annen fravær",
-                            grunn = listOf(
-                                AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
-                                AnnenFraverGrunn.DONOR,
-                                AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
-                            )
-                        ),
+                        annenFraversArsak =
+                            AnnenFraversArsak(
+                                beskrivelse = "Beskrivelse for annen fravær",
+                                grunn =
+                                    listOf(
+                                        AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
+                                        AnnenFraverGrunn.DONOR,
+                                        AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
+                                    )
+                            ),
                     ),
                 syketilfelleStartDato = LocalDate.of(2020, 4, 1),
                 skjermesForPasient = false,
@@ -249,14 +251,18 @@ class FellesformatMapperServiceTest {
         assertEquals(false, receivedSykmelding.sykmelding.medisinskVurdering.svangerskap)
         assertEquals(false, receivedSykmelding.sykmelding.medisinskVurdering.yrkesskade)
         assertEquals(null, receivedSykmelding.sykmelding.medisinskVurdering.yrkesskadeDato)
-        assertEquals(AnnenFraversArsak(
-            beskrivelse = "Beskrivelse for annen fravær",
-            grunn = listOf(
-                AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
-                AnnenFraverGrunn.DONOR,
-                AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
-            )
-        ), receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak)
+        assertEquals(
+            AnnenFraversArsak(
+                beskrivelse = "Beskrivelse for annen fravær",
+                grunn =
+                    listOf(
+                        AnnenFraverGrunn.BEHANDLING_FORHINDRER_ARBEID,
+                        AnnenFraverGrunn.DONOR,
+                        AnnenFraverGrunn.ARBEIDSRETTET_TILTAK,
+                    )
+            ),
+            receivedSykmelding.sykmelding.medisinskVurdering.annenFraversArsak
+        )
         assertEquals(false, receivedSykmelding.sykmelding.skjermesForPasient)
         assertEquals(
             Arbeidsgiver(
