@@ -71,6 +71,9 @@ spec:
         - application: syk-dig
           namespace: teamsykmelding
           cluster: dev-gcp
+        - application: syk-dig-backend
+          namespace: teamsykmelding
+          cluster: dev-gcp
     outbound:
       rules:
         - application: syfosmregister
