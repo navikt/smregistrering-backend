@@ -1,15 +1,27 @@
 package no.nav.syfo.aksessering.api
 
+import com.auth0.jwt.JWT
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import net.logstash.logback.argument.StructuredArguments
+import no.nav.syfo.auditLogger.AuditLogger
+import no.nav.syfo.auditlogg
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.log
+import no.nav.syfo.model.Document
+import no.nav.syfo.model.PapirManuellOppgave
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.saf.SafDokumentClient
+import no.nav.syfo.saf.exception.SafForbiddenException
+import no.nav.syfo.saf.exception.SafNotFoundException
 import no.nav.syfo.service.AuthorizationService
+import no.nav.syfo.sikkerlogg
+import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.getAccessTokenFromAuthHeader
 
 fun Route.hentPapirSykmeldingManuellOppgave(
     manuellOppgaveDAO: ManuellOppgaveDAO,
@@ -21,17 +33,10 @@ fun Route.hentPapirSykmeldingManuellOppgave(
         get("/oppgave/{oppgaveid}") {
             log.info("Mottok kall til GET /api/v1/oppgave/")
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
-            log.info("Mottok kall til GET /api/v1/oppgave/ $oppgaveId")
-            call.respond("test")
 
-            /*
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-            if (accessToken == null) {
-                log.info("Mangler JWT Bearer token i HTTP header")
-                call.respond(HttpStatusCode.Unauthorized)
-            }
             log.info("access_token: $accessToken for oppgaveId $oppgaveId")
             val manuellOppgaveDTOList =
                 oppgaveId?.let { manuellOppgaveDAO.hentManuellOppgaver(it) } ?: emptyList()
@@ -177,7 +182,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                         }
                     }
                 }
-            }*/
+            }
         }
     }
 }
