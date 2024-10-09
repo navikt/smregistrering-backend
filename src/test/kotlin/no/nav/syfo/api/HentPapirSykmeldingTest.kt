@@ -1,4 +1,3 @@
-/*
 package no.nav.syfo.api
 
 import com.auth0.jwk.JwkProviderBuilder
@@ -727,4 +726,3 @@ internal class HentPapirSykmeldingTest {
         }
     }
 }
-*/
