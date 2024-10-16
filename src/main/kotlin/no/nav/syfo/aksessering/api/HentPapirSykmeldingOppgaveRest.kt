@@ -109,9 +109,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                                 ),
                                         )
 
-                                    log.info(
-                                        "responsen for oppgaveId $oppgaveId er $papirManuellOppgave"
-                                    )
+                                    log.info("responsen for oppgaveId $oppgaveId er $papirManuellOppgave")
                                     call.respond(papirManuellOppgave)
                                 }
                             } catch (safForbiddenException: SafForbiddenException) {

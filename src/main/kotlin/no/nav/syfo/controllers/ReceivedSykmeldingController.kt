@@ -25,9 +25,7 @@ class ReceivedSykmeldingController(
         papirSmRegistering: PapirSmRegistering,
         loggingMeta: LoggingMeta
     ) {
-        log.info(
-            "Mottok manuell papirsykmelding ${papirSmRegistering.sykmeldingId} med journalpostId ${papirSmRegistering.journalpostId}"
-        )
+        log.info("Mottok manuell papirsykmelding ${papirSmRegistering.sykmeldingId} med journalpostId ${papirSmRegistering.journalpostId}")
         wrapExceptions(loggingMeta) {
             log.info(
                 "Mottok ein manuell papirsykmelding registerings, {}",

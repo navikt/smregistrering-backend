@@ -205,12 +205,10 @@ fun startConsumer(
                                     sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
                                     journalpostId = receivedPapirSmRegistering.journalpostId,
                                 )
-                            if (receivedPapirSmRegistering.fnr != "07922249924"){
-                                receivedSykmeldingController.handleReceivedSykmelding(
-                                    papirSmRegistering = receivedPapirSmRegistering,
-                                    loggingMeta = loggingMeta,
-                                )
-                            }
+                            receivedSykmeldingController.handleReceivedSykmelding(
+                                papirSmRegistering = receivedPapirSmRegistering,
+                                loggingMeta = loggingMeta,
+                            )
                         }
                     }
                 }
