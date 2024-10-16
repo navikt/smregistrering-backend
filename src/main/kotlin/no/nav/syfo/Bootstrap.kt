@@ -217,6 +217,7 @@ fun startConsumer(
                     "Error running kafka consumer, unsubscribing and waiting 60 seconds for retry",
                     ex
                 )
+                log.error("errors: {} {} ", ex.message, ex.stackTrace)
                 kafkaConsumerPapirSmRegistering.unsubscribe()
                 delay(60_000)
             }
