@@ -35,6 +35,7 @@ class FerdigstiltSykmeldingController(
         val ferdigstilteOppgaver =
             sykmeldingId?.let { manuellOppgaveDAO.hentFerdigstiltManuellOppgave(it) } ?: emptyList()
 
+        log.info("ferdigstilte oppgaver for sykmelidingId $sykmeldingId")
         when {
             accessToken == null -> {
                 log.info("Mangler JWT Bearer token i HTTP header")

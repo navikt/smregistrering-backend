@@ -65,6 +65,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 
                     if (!manuellOppgaveDTOList.firstOrNull()?.fnr.isNullOrEmpty()) {
                         val fnr = manuellOppgaveDTOList.first().fnr!!
+                        log.info("Det finnes fnr på oppgavem oppgaveId $oppgaveId")
 
                         if (authorizationService.hasAccess(accessToken, fnr)) {
                             try {
@@ -102,6 +103,7 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                                 ),
                                         )
 
+                                    log.info("responsen for oppgaveId $oppgaveId er $papirManuellOppgave")
                                     call.respond(papirManuellOppgave)
                                 }
                             } catch (safForbiddenException: SafForbiddenException) {

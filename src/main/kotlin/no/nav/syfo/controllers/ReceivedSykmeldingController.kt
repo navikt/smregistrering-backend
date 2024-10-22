@@ -25,6 +25,7 @@ class ReceivedSykmeldingController(
         papirSmRegistering: PapirSmRegistering,
         loggingMeta: LoggingMeta
     ) {
+        log.info("Mottok manuell papirsykmelding ${papirSmRegistering.sykmeldingId} med journalpostId ${papirSmRegistering.journalpostId}")
         wrapExceptions(loggingMeta) {
             log.info(
                 "Mottok ein manuell papirsykmelding registerings, {}",
@@ -36,7 +37,6 @@ class ReceivedSykmeldingController(
                 log.warn(
                     "Manuell papirsykmelding registeringsoppgave med sykmeldingsid {}, er allerede lagret i databasen, {}",
                     papirSmRegistering.sykmeldingId,
-                    StructuredArguments.fields(loggingMeta),
                 )
             } else {
                 val oppgave = oppgaveService.upsertOppgave(papirSmRegistering, loggingMeta)
