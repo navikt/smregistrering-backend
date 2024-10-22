@@ -31,18 +31,13 @@ fun Route.hentPapirSykmeldingManuellOppgave(
 ) {
     route("/api/v1") {
         get("/oppgave/{oppgaveid}") {
-            log.info("Mottok kall til GET /api/v1/oppgave/")
             val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
 
             log.info("Mottok kall til GET /api/v1/oppgave/$oppgaveId")
 
             val accessToken = getAccessTokenFromAuthHeader(call.request)
-            log.info("access_token: $accessToken for oppgaveId $oppgaveId")
             val manuellOppgaveDTOList =
                 oppgaveId?.let { manuellOppgaveDAO.hentManuellOppgaver(it) } ?: emptyList()
-            log.info(
-                "manuelloppgave dto for oppgaveid $oppgaveId : ${manuellOppgaveDTOList.first().oppgaveid}"
-            )
             when {
                 accessToken == null -> {
                     log.info("Mangler JWT Bearer token i HTTP header")
@@ -86,7 +81,6 @@ fun Route.hentPapirSykmeldingManuellOppgave(
                                 if (pdfPapirSykmelding == null) {
                                     call.respond(HttpStatusCode.InternalServerError)
                                 } else {
-                                    log.info("oppretter responsen for oppgaveId $oppgaveId")
                                     val papirManuellOppgave =
                                         PapirManuellOppgave(
                                             fnr = manuellOppgaveDTOList.first().fnr,
