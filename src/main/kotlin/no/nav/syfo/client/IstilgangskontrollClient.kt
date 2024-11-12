@@ -34,7 +34,6 @@ class IstilgangskontrollClient(
             return it
         }
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
-        sikkerlogg.info("obo token for veileder: $oboToken")
 
         try {
             log.info("Sjekker tilgang for veileder på person")
