@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
+import no.nav.syfo.sikkerlogg
 
 class IstilgangskontrollClient(
     environment: Environment,
@@ -33,6 +34,7 @@ class IstilgangskontrollClient(
             return it
         }
         val oboToken = azureAdV2Client.getOnBehalfOfToken(token = accessToken, scope = scope)
+        sikkerlogg.info("obo token for veileder: $oboToken")
 
         try {
             log.info("Sjekker tilgang for veileder på person")
