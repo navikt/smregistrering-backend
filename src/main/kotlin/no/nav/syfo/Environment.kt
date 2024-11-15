@@ -36,6 +36,7 @@ data class Environment(
     val dbName: String = getEnvVar("NAIS_DATABASE_DATABASE"),
     val smtssApiUrl: String = "http://smtss",
     val smtssApiScope: String = getEnvVar("SMTSS_API_SCOPE"),
+    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
 ) {
     fun jdbcUrl(): String {
         return "jdbc:postgresql://$dbHost:$dbPort/$dbName"

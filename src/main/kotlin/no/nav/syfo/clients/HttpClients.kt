@@ -83,7 +83,13 @@ class HttpClients(env: Environment) {
         )
 
     internal val oppgaveClient =
-        OppgaveClient(env.oppgavebehandlingUrl, azureAdV2Client, httpClient, env.oppgaveScope)
+        OppgaveClient(
+            env.oppgavebehandlingUrl,
+            azureAdV2Client,
+            httpClient,
+            env.oppgaveScope,
+            env.cluster
+        )
 
     internal val safClient = SafDokumentClient(env, azureAdV2Client, httpClient)
 
