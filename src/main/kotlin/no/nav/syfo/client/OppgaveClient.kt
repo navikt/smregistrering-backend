@@ -22,7 +22,6 @@ class OppgaveClient(
     private val azureAdV2Client: AzureAdV2Client,
     private val httpClient: HttpClient,
     private val scope: String,
-    private val cluster: String,
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(OppgaveClient::class.java)
@@ -39,21 +38,6 @@ class OppgaveClient(
                 header("X-Correlation-ID", msgId)
                 setBody(oppgave)
             }
-
-        val responseBody =
-            try {
-                httpResponse.body<String>()
-            } catch (e: Exception) {
-                log.error("Kunne ikke lese responskroppen: {}", e.message, e)
-                throw RuntimeException("Feil ved lesing av respons", e)
-            }
-        if (cluster == "dev-gcp" && "Identen finnes ikke i PDL" in responseBody) {
-            log.warn(
-                "Oppgaven kunne ikke opprettes fordi identen finnes ikke i PDL. Men vi er i dev så det går greit"
-            )
-            return httpResponse.body<Oppgave>()
-        }
-
         return when (httpResponse.status) {
             HttpStatusCode.Created -> {
                 log.info("OppgaveClient opprettOppgave svarte 201 CREATED")
