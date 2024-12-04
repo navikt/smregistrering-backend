@@ -4,7 +4,6 @@ import com.auth0.jwk.JwkProvider
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.Principal
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
@@ -35,7 +34,7 @@ fun Application.setupAuth(
     }
 }
 
-fun unauthorized(credentials: JWTCredential): Principal? {
+fun unauthorized(credentials: JWTCredential): Unit? {
     log.warn(
         "Auth: Unexpected audience for jwt {}, {}",
         StructuredArguments.keyValue("issuer", credentials.payload.issuer),

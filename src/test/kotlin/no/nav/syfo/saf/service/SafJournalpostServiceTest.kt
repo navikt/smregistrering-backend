@@ -1,6 +1,5 @@
 package no.nav.syfo.saf.service
 
-import io.ktor.util.InternalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.lang.RuntimeException
@@ -29,7 +28,6 @@ internal class SafJournalpostServiceTest {
     private val safJournalpostService =
         SafJournalpostService(env, azureAdV2Client, safJournalpostClient)
 
-    @InternalAPI
     @Test
     fun erJournalfoert_graphQLResponseNull() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns null
@@ -40,7 +38,6 @@ internal class SafJournalpostServiceTest {
         }
     }
 
-    @InternalAPI
     @Test
     fun erJournalfoert_journalStatusNull() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns
@@ -55,7 +52,6 @@ internal class SafJournalpostServiceTest {
         }
     }
 
-    @InternalAPI
     @Test
     fun erJournalfoert_TRUE() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns
@@ -70,7 +66,6 @@ internal class SafJournalpostServiceTest {
         runBlocking { assertEquals(true, safJournalpostService.erJournalfoert("foo", "bar")) }
     }
 
-    @InternalAPI
     @Test
     fun erJournalfoert_FALSE() {
         coEvery { safJournalpostClient.getJournalpostMetadata(any(), any()) } returns

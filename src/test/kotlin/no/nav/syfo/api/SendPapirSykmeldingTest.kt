@@ -5,20 +5,23 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.withCharset
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.contentType
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
+import io.ktor.server.testing.testApplication
+import io.ktor.utils.io.charsets.Charset
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
@@ -117,45 +120,46 @@ class SendPapirSykmeldingTest {
 
     @Test
     fun `Registrering av papirsykmelding happycase`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                this@SendPapirSykmeldingTest.environment,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingController(
-                        sykmelderService,
-                        pdlPersonService,
-                        smTssClient,
-                        regelClient,
-                        authorizationService,
-                        sendtSykmeldingService,
-                        oppgaveService,
-                        journalpostService,
-                        manuellOppgaveDAO,
-                    ),
+        testApplication {
+            val oppgaveid = 308076319
+            application {
+                setupAuth(
+                    this@SendPapirSykmeldingTest.environment,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+                routing {
+                    sendPapirSykmeldingManuellOppgave(
+                        SendPapirsykmeldingController(
+                            sykmelderService,
+                            pdlPersonService,
+                            smTssClient,
+                            regelClient,
+                            authorizationService,
+                            sendtSykmeldingService,
+                            oppgaveService,
+                            journalpostService,
+                            manuellOppgaveDAO,
+                        ),
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -165,8 +169,6 @@ class SendPapirSykmeldingTest {
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
             coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
-
-            val oppgaveid = 308076319
 
             val manuellOppgave =
                 PapirSmRegistering(
@@ -387,24 +389,23 @@ class SendPapirSykmeldingTest {
                     godkjenninger = null,
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/send") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )}",
                     )
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-            }
+                }
+
+            assertEquals(HttpStatusCode.NoContent, response.status)
 
             verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
             verify(exactly = 1) { sendtSykmeldingService.createJobs(any()) }
@@ -414,45 +415,45 @@ class SendPapirSykmeldingTest {
 
     @Test
     fun `Registrering av papirsykmelding fra JSON`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                this@SendPapirSykmeldingTest.environment,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingController(
-                        sykmelderService,
-                        pdlPersonService,
-                        smTssClient,
-                        regelClient,
-                        authorizationService,
-                        sendtSykmeldingService,
-                        oppgaveService,
-                        journalpostService,
-                        manuellOppgaveDAO,
-                    ),
+        testApplication {
+            application {
+                setupAuth(
+                    this@SendPapirSykmeldingTest.environment,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+                routing {
+                    sendPapirSykmeldingManuellOppgave(
+                        SendPapirsykmeldingController(
+                            sykmelderService,
+                            pdlPersonService,
+                            smTssClient,
+                            regelClient,
+                            authorizationService,
+                            sendtSykmeldingService,
+                            oppgaveService,
+                            journalpostService,
+                            manuellOppgaveDAO,
+                        ),
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -611,35 +612,34 @@ class SendPapirSykmeldingTest {
                     godkjenninger = null,
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/send") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )}",
                     )
-                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-            }
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                },
-            ) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-            }
+                }
+
+            assertEquals(HttpStatusCode.NoContent, response.status)
+
+            val response2 =
+                client.post("/api/v1/oppgave/$oppgaveid/send") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                    setBody(objectMapper.writeValueAsString(smRegisteringManuell))
+                }
+
+            assertEquals(HttpStatusCode.BadRequest, response2.status)
 
             verify(exactly = 1) { sendtSykmeldingService.upsertSendtSykmelding(any()) }
             verify(exactly = 1) { sendtSykmeldingService.createJobs(any()) }
@@ -648,50 +648,50 @@ class SendPapirSykmeldingTest {
 
     @Test
     fun `Registrering av papirsykmelding med ugyldig JSON`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                this@SendPapirSykmeldingTest.environment,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                sendPapirSykmeldingManuellOppgave(
-                    SendPapirsykmeldingController(
-                        sykmelderService,
-                        pdlPersonService,
-                        smTssClient,
-                        regelClient,
-                        authorizationService,
-                        sendtSykmeldingService,
-                        oppgaveService,
-                        journalpostService,
-                        manuellOppgaveDAO,
-                    ),
+        testApplication {
+            application {
+                setupAuth(
+                    this@SendPapirSykmeldingTest.environment,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<ValidationException> { call, cause ->
-                    call.respond(HttpStatusCode.BadRequest, cause.validationResult)
-                    log.error("Caught ValidationException", cause)
-                }
-
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+                routing {
+                    sendPapirSykmeldingManuellOppgave(
+                        SendPapirsykmeldingController(
+                            sykmelderService,
+                            pdlPersonService,
+                            smTssClient,
+                            regelClient,
+                            authorizationService,
+                            sendtSykmeldingService,
+                            oppgaveService,
+                            journalpostService,
+                            manuellOppgaveDAO,
+                        ),
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<ValidationException> { call, cause ->
+                        call.respond(HttpStatusCode.BadRequest, cause.validationResult)
+                        log.error("Caught ValidationException", cause)
+                    }
+
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -846,25 +846,27 @@ class SendPapirSykmeldingTest {
                         ),
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/send") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/send") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
                     setBody(objectMapper.writeValueAsString(smRegisteringManuell))
-                },
-            ) {
-                assertEquals(HttpStatusCode.BadRequest, response.status())
-                assertEquals(ContentType.Application.Json, response.contentType())
-                assertEquals(false, response.content.isNullOrEmpty())
-                assertEquals(
-                    listOf(
-                        "{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}"
-                    ),
-                    response.content!!.lines()
-                )
-            }
+                }
+
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+            assertEquals(
+                ContentType.Application.Json.withCharset(Charset.defaultCharset()),
+                response.contentType()
+            )
+            assertEquals(false, response.bodyAsText().isEmpty())
+            assertEquals(
+                listOf(
+                    "{\"status\":\"MANUAL_PROCESSING\",\"ruleHits\":[{\"ruleName\":\"periodeValidation\",\"messageForSender\":\"Sykmeldingen må ha minst én periode oppgitt for å være gyldig\",\"messageForUser\":\"Sykmelder har gjort en feil i utfyllingen av sykmeldingen.\",\"ruleStatus\":\"MANUAL_PROCESSING\"}]}"
+                ),
+                response.bodyAsText().lines()
+            )
         }
     }
 }
