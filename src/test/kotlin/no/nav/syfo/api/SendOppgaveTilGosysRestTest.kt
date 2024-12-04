@@ -4,8 +4,10 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
@@ -13,8 +15,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
@@ -61,33 +62,37 @@ class SendOppgaveTilGosysRestTest {
 
     @Test
     fun sendOppgaveTilGosysOK() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+        testApplication {
+            application {
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
+                )
+                routing {
+                    sendOppgaveTilGosys(
+                        manuellOppgaveDAO,
+                        sendTilGosysController,
+                        authorizationService
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
             coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
@@ -194,12 +199,12 @@ class SendOppgaveTilGosysRestTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/tilgosys") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
                             "2",
@@ -207,43 +212,46 @@ class SendOppgaveTilGosysRestTest {
                             Claim("preferred_username", "firstname.lastname@nav.no"),
                         )}",
                     )
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-                assertEquals(null, response.content)
-            }
+                }
+
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
         }
     }
 
     @Test
     fun sendOppgaveTilGosysOppgaveFerdigstilt() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+        testApplication {
+            application {
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
+                )
+                routing {
+                    sendOppgaveTilGosys(
+                        manuellOppgaveDAO,
+                        sendTilGosysController,
+                        authorizationService
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
             coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
@@ -278,24 +286,22 @@ class SendOppgaveTilGosysRestTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/tilgosys") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/tilgosys") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )}",
                     )
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-                assertEquals(null, response.content)
-            }
+                }
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
         }
     }
 }

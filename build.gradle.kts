@@ -1,19 +1,24 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.8.0"
-val ktorVersion = "2.3.10"
+
+val javaVersion = JvmTarget.JVM_21
+
+
+val coroutinesVersion = "1.9.0"
+val ktorVersion = "3.0.2"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.10.2"
-val jacksonVersion = "2.17.0"
-val kafkaEmbeddedVersion = "2.8.0"
+val jacksonVersion = "2.18.1"
 val postgresVersion = "42.7.3"
 val flywayVersion = "10.11.0"
 val hikariVersion = "5.1.0"
 val nimbusdsVersion = "9.37.3"
-val mockkVersion = "1.13.10"
+val mockkVersion = "1.13.13"
 val syfoXmlCodegenVerison = "2.0.1"
 val jaxbApiVersion = "2.1"
 val jaxbVersion = "2.3.0.1"
@@ -22,24 +27,25 @@ val jaxwsApiVersion = "2.3.1"
 val javaxAnnotationApiVersion = "1.3.2"
 val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxwsToolsVersion = "2.3.1"
-val javaxJaxwsApiVersion = "2.2.1"
 val javaTimeAdapterVersion = "1.1.3"
 val commonsTextVersion = "1.12.0"
-val kafkaVersion = "3.7.0"
+val kafkaVersion = "3.9.0"
 val caffeineVersion = "3.1.8"
-val postgresContainerVersion = "1.19.7"
-val kotlinVersion = "1.9.23"
+val postgresContainerVersion = "1.20.4"
+val kotlinVersion = "2.1.0"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
 val opentelemetryVersion = "2.3.0"
+val nettycommonVersion = "4.1.115.Final"
+val snappyJavaVersion = "1.1.10.6"
 
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.1.0"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.5"
 }
 
 application {
@@ -47,6 +53,13 @@ application {
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+
+kotlin {
+    compilerOptions {
+        jvmTarget = javaVersion
+    }
 }
 
 repositories {
@@ -64,6 +77,11 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    constraints {
+        implementation("io.netty:netty-common:$nettycommonVersion") {
+            because("override transient version from io.ktor:ktor-server-netty")
+        }
+    }
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
@@ -83,11 +101,6 @@ dependencies {
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:$opentelemetryVersion")
 
-    constraints {
-        implementation("org.xerial.snappy:snappy-java:1.1.10.5") {
-            because("override transient from org.apache.kafka:kafka_2.12")
-        }
-    }
 
     implementation ("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVerison")
     implementation ("no.nav.helse.xml:sm2013:$syfoXmlCodegenVerison")
@@ -102,6 +115,12 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     implementation ("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    constraints {
+        implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion") {
+            because("override transient from org.apache.kafka:kafka_2.12")
+        }
+    }
+
 
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")

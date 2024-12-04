@@ -9,15 +9,17 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.install
+import io.ktor.server.application.port
 import io.ktor.server.auth.authenticate
-import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import io.ktor.util.InternalAPI
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
@@ -42,7 +44,6 @@ import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
 
-@InternalAPI
 fun createApplicationEngine(
     env: Environment,
     sendPapirsykmeldingController: SendPapirsykmeldingController,
@@ -57,14 +58,14 @@ fun createApplicationEngine(
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService,
     pdfService: PdfService,
-): ApplicationEngine =
+): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
     embeddedServer(
         Netty,
-        env.applicationPort,
         configure = {
             // Increase timeout of Netty to handle large content bodies
             requestReadTimeoutSeconds = 15
             responseWriteTimeoutSeconds = 40
+            connector { port = env.applicationPort }
         }
     ) {
         setupAuth(env, jwkProvider, env.jwtIssuer)

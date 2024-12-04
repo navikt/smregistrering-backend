@@ -4,8 +4,11 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
@@ -13,9 +16,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
+import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
@@ -79,43 +80,44 @@ class AvvisOppgaveRestTest {
             sykmelderService,
             manuellOppgaveDAO,
             oppgaveService,
-            journalpostService
+            journalpostService,
         )
     private val env = mockk<Environment>()
 
     @Test
     fun avvisOppgaveOK() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                avvisOppgave(
-                    avvisPapirsykmeldingController = avvisPapirsykmeldingController,
+        testApplication {
+            application {
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
+                routing {
+                    avvisOppgave(
+                        avvisPapirsykmeldingController = avvisPapirsykmeldingController,
+                    )
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error",
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
+                }
             }
 
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
-                    )
-                    log.error("Caught exception", cause)
-                    throw cause
-                }
-            }
             coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
@@ -255,7 +257,7 @@ class AvvisOppgaveRestTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
@@ -279,61 +281,63 @@ class AvvisOppgaveRestTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/avvis") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
-                        "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                        "Bearer ${
+                            generateJWT(
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )
+                        }",
                     )
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-                assertEquals(null, response.content)
-            }
+                }
+
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
         }
     }
 
     @Test
     fun avvisOppgaveAlleredeFerdigstilt() {
-        with(TestApplicationEngine()) {
-            start()
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                avvisOppgave(
-                    avvisPapirsykmeldingController = avvisPapirsykmeldingController,
+        testApplication {
+            application {
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
+                routing {
+                    avvisOppgave(
+                        avvisPapirsykmeldingController = avvisPapirsykmeldingController,
+                    )
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error",
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
+                }
             }
 
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
-                    )
-                    log.error("Caught exception", cause)
-                    throw cause
-                }
-            }
             coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
 
             coEvery { authorizationService.hasAccess(any(), any()) } returns true
@@ -361,7 +365,13 @@ class AvvisOppgaveRestTest {
 
             coEvery { safJournalpostService.erJournalfoert(any(), any()) } returns true
 
-            coEvery { manuellOppgaveDAO.ferdigstillSmRegistering(any(), any(), any()) } returns 1
+            coEvery {
+                manuellOppgaveDAO.ferdigstillSmRegistering(
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns 1
 
             val oppgaveid = 308076319
 
@@ -399,7 +409,7 @@ class AvvisOppgaveRestTest {
                     any(),
                     any(),
                     any(),
-                    any()
+                    any(),
                 )
             } returns ""
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
@@ -423,25 +433,25 @@ class AvvisOppgaveRestTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Post, "/api/v1/oppgave/$oppgaveid/avvis") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader("X-Nav-Enhet", "1234")
-                    addHeader(
+            val response =
+                client.post("/api/v1/oppgave/$oppgaveid/avvis") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header("X-Nav-Enhet", "1234")
+                    header(
                         HttpHeaders.Authorization,
-                        "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                        "Bearer ${
+                            generateJWT(
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )
+                        }",
                     )
                     setBody(objectMapper.writeValueAsString(avvisSykmeldingRequest))
-                },
-            ) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-                assertEquals(null, response.content)
-            }
+                }
+            assertEquals(HttpStatusCode.NoContent, response.status)
+            assertEquals("", response.bodyAsText())
         }
     }
 }

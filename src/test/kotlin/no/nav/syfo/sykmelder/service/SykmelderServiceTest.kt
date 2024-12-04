@@ -1,6 +1,5 @@
 package no.nav.syfo.sykmelder.service
 
-import io.ktor.util.InternalAPI
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.assertFailsWith
@@ -64,7 +63,6 @@ class SykmelderServiceTest {
         }
     }
 
-    @InternalAPI
     @Test
     internal fun `Feiler naar hprNummer er tomt`() {
         val hprNummer = ""
@@ -104,7 +102,6 @@ class SykmelderServiceTest {
         }
     }
 
-    @InternalAPI
     @Test
     internal fun `Feiler naar sykmelder ikke finnes i hpr`() {
         val hprNummer = "1234567"
@@ -132,7 +129,6 @@ class SykmelderServiceTest {
         }
     }
 
-    @InternalAPI
     @Test
     internal fun `Feiler naar aktorid er null`() {
         val hprNummer = "1234567"
