@@ -19,9 +19,11 @@ import no.nav.syfo.sykmelding.jobs.model.Job
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.dropData
 import no.nav.syfo.util.getReceivedSykmelding
+import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.concurrent.Future
 
 class SykmeldingJobRunnerTest {
     private val testDB = TestDB()
@@ -29,6 +31,7 @@ class SykmeldingJobRunnerTest {
     val sendtSykmeldingService = spyk(SendtSykmeldingService(testDB))
     val kafkaReceivedSykmeldingProducer =
         mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>(relaxed = true)
+
     val service =
         SykmeldingJobRunner(
             applicationState,
@@ -39,6 +42,11 @@ class SykmeldingJobRunnerTest {
     init {
         mockkStatic("kotlinx.coroutines.DelayKt")
         coEvery { delay(3_000) } returns Unit
+
+        val futureRecordMetadata = mockk<Future<RecordMetadata>>()
+
+        every { futureRecordMetadata.get() } answers { mockk<RecordMetadata>() }
+        every {kafkaReceivedSykmeldingProducer.producer.send(any())} answers {futureRecordMetadata}
     }
 
     @AfterEach
