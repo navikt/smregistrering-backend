@@ -12,3 +12,6 @@ src/generated
 
 # OS specific
 .DS_Store
+
+### Kotlin ###
+.kotlin

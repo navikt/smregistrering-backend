@@ -125,7 +125,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                         log.info("Successfully sent papirsykmelding for oppgave $oppgaveId")
 
-                        call.respond(httpServiceResponse)
+                        call.respond(status = httpServiceResponse.httpStatusCode,  httpServiceResponse)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(
