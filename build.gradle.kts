@@ -2,7 +2,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.8.0"
-val ktorVersion = "2.3.10"
+val ktorVersion = "3.0.2"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
@@ -28,16 +28,16 @@ val commonsTextVersion = "1.12.0"
 val kafkaVersion = "3.7.0"
 val caffeineVersion = "3.1.8"
 val postgresContainerVersion = "1.19.7"
-val kotlinVersion = "1.9.23"
+val kotlinVersion = "2.1.0"
 val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
 val opentelemetryVersion = "2.3.0"
-
+val nettycommonVersion = "4.1.115.Final"
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version 2.1.0"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -63,7 +63,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")    constraints { 
+         implementation("io.netty:netty-common:$nettycommonVersion") 
+     }
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
