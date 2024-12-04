@@ -37,7 +37,7 @@ val nettycommonVersion = "4.1.115.Final"
 
 plugins {
     id("application")
-    kotlin("jvm") version 2.1.0"
+    kotlin("jvm") version "2.1.0"
     id("com.diffplug.spotless") version "6.25.0"
         id("com.gradleup.shadow") version "8.3.5"
 }
