@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit
 import no.nav.syfo.Environment
 import no.nav.syfo.azuread.v2.AzureAdV2Client
 import no.nav.syfo.log
-import no.nav.syfo.sikkerlogg
 
 class IstilgangskontrollClient(
     environment: Environment,

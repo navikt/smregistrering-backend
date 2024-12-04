@@ -65,7 +65,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             requestPath = "/api/v1/sykmelding/$sykmeldingId",
                         )
 
-                    respond(httpRespons)
+                    call.respond(httpRespons)
                 }
             }
         }
@@ -125,7 +125,7 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                         log.info("Successfully sent papirsykmelding for oppgave $oppgaveId")
 
-                        respond(httpServiceResponse)
+                        call.respond(httpServiceResponse)
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(

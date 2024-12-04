@@ -4,8 +4,10 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.install
@@ -14,8 +16,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -92,106 +93,111 @@ internal class HentPapirSykmeldingTest {
 
     @Test
     fun `Hent oppgave`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            coEvery { safDokumentClient.hentDokument(any(), any(), any(), any(), any()) } returns
-                ByteArray(1)
-            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
-
-            coEvery { authorizationService.hasAccess(any(), any()) } returns true
-            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
-
+        testApplication {
             val oppgaveid = 308076319
 
-            val manuellOppgave =
-                PapirSmRegistering(
-                    journalpostId = "134",
-                    oppgaveId = "123",
-                    fnr = "41424",
-                    aktorId = "1314",
-                    dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
-                    sykmeldingId = "1344444",
-                    syketilfelleStartDato = LocalDate.now(),
-                    behandler =
-                        Behandler(
-                            "John",
-                            "Besserwisser",
-                            "Doe",
-                            "123",
-                            "12345678912",
-                            null,
-                            null,
-                            Adresse(null, null, null, null, null),
-                            "12345",
-                        ),
-                    kontaktMedPasient = null,
-                    meldingTilArbeidsgiver = null,
-                    meldingTilNAV = null,
-                    andreTiltak = "Nei",
-                    tiltakNAV = "Nei",
-                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                    utdypendeOpplysninger = null,
-                    prognose =
-                        Prognose(
-                            true,
-                            "Nei",
-                            ErIArbeid(
-                                egetArbeidPaSikt = true,
-                                annetArbeidPaSikt = false,
-                                arbeidFOM = LocalDate.now(),
-                                vurderingsdato = LocalDate.now(),
+            application {
+                coEvery {
+                    safDokumentClient.hentDokument(any(), any(), any(), any(), any())
+                } returns ByteArray(1)
+                coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+
+                coEvery { authorizationService.hasAccess(any(), any()) } returns true
+                coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
+
+                val manuellOppgave =
+                    PapirSmRegistering(
+                        journalpostId = "134",
+                        oppgaveId = "123",
+                        fnr = "41424",
+                        aktorId = "1314",
+                        dokumentInfoId = "131313",
+                        datoOpprettet = OffsetDateTime.now(),
+                        sykmeldingId = "1344444",
+                        syketilfelleStartDato = LocalDate.now(),
+                        behandler =
+                            Behandler(
+                                "John",
+                                "Besserwisser",
+                                "Doe",
+                                "123",
+                                "12345678912",
+                                null,
+                                null,
+                                Adresse(null, null, null, null, null),
+                                "12345",
                             ),
-                            null,
-                        ),
-                    medisinskVurdering =
-                        MedisinskVurdering(
-                            hovedDiagnose =
-                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                            biDiagnoser = emptyList(),
-                            annenFraversArsak = null,
-                            yrkesskadeDato = null,
-                            yrkesskade = false,
-                            svangerskap = false,
-                        ),
-                    arbeidsgiver = null,
-                    behandletTidspunkt = null,
-                    perioder = null,
-                    skjermesForPasient = false,
-                )
-
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                hentPapirSykmeldingManuellOppgave(
-                    manuellOppgaveDAO,
-                    safDokumentClient,
-                    sendTilGosysController,
-                    authorizationService,
-                )
-            }
-
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
+                        kontaktMedPasient = null,
+                        meldingTilArbeidsgiver = null,
+                        meldingTilNAV = null,
+                        andreTiltak = "Nei",
+                        tiltakNAV = "Nei",
+                        tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                        utdypendeOpplysninger = null,
+                        prognose =
+                            Prognose(
+                                true,
+                                "Nei",
+                                ErIArbeid(
+                                    egetArbeidPaSikt = true,
+                                    annetArbeidPaSikt = false,
+                                    arbeidFOM = LocalDate.now(),
+                                    vurderingsdato = LocalDate.now(),
+                                ),
+                                null,
+                            ),
+                        medisinskVurdering =
+                            MedisinskVurdering(
+                                hovedDiagnose =
+                                    Diagnose(
+                                        system = "System",
+                                        tekst = "Farlig sykdom",
+                                        kode = "007"
+                                    ),
+                                biDiagnoser = emptyList(),
+                                annenFraversArsak = null,
+                                yrkesskadeDato = null,
+                                yrkesskade = false,
+                                svangerskap = false,
+                            ),
+                        arbeidsgiver = null,
+                        behandletTidspunkt = null,
+                        perioder = null,
+                        skjermesForPasient = false,
                     )
-                    log.error("Caught exception", cause)
-                    throw cause
+
+                database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
+                )
+                routing {
+                    hentPapirSykmeldingManuellOppgave(
+                        manuellOppgaveDAO,
+                        safDokumentClient,
+                        sendTilGosysController,
+                        authorizationService,
+                    )
+                }
+
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
+                }
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -240,38 +246,37 @@ internal class HentPapirSykmeldingTest {
                     ruleHits = emptyList(),
                 )
 
-            with(
-                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader(
+            val response =
+                client.get("/api/v1/oppgave/$oppgaveid") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )}",
                     )
-                },
-            ) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(true, response.content?.contains("\"aktorId\":\"1314\""))
-                assertEquals(
-                    true,
-                    response.content?.contains(
+                }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(true, response.bodyAsText().contains("\"aktorId\":\"1314\""))
+            assertEquals(
+                true,
+                response
+                    .bodyAsText()
+                    .contains(
                         "\"fornavn\":\"John\",\"mellomnavn\":\"Besserwisser\",\"etternavn\":\"Doe\""
                     )
-                )
-            }
+            )
 
-            with(
-                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                },
-            ) {
-                assertEquals(HttpStatusCode.Unauthorized, response.status())
-            }
+            val response2 =
+                client.get("/api/v1/oppgave/$oppgaveid") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                }
+            assertEquals(HttpStatusCode.Unauthorized, response2.status)
         }
     }
 
@@ -371,115 +376,119 @@ internal class HentPapirSykmeldingTest {
 
     @Test
     fun `Hent oppgave - Hvis hentDokument() kaster feilmelding skal oppgaven sendes tilbake til GOSYS`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            coEvery {
-                safDokumentClient.hentDokument(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                )
-            } throws SafNotFoundException("Saf returnerte: httpstatus 200")
-            coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
-
-            coEvery { authorizationService.hasAccess(any(), any()) } returns true
-            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
-
+        testApplication {
             val oppgaveid = 308076319
 
-            val manuellOppgave =
-                PapirSmRegistering(
-                    journalpostId = "134",
-                    oppgaveId = "123",
-                    fnr = "41424",
-                    aktorId = "1314",
-                    dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
-                    sykmeldingId = "1344444",
-                    syketilfelleStartDato = LocalDate.now(),
-                    behandler =
-                        Behandler(
-                            "John",
-                            "Besserwisser",
-                            "Doe",
-                            "123",
-                            "12345678912",
-                            null,
-                            null,
-                            Adresse(null, null, null, null, null),
-                            "12345",
-                        ),
-                    kontaktMedPasient = null,
-                    meldingTilArbeidsgiver = null,
-                    meldingTilNAV = null,
-                    andreTiltak = "Nei",
-                    tiltakNAV = "Nei",
-                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                    utdypendeOpplysninger = null,
-                    prognose =
-                        Prognose(
-                            true,
-                            "Nei",
-                            ErIArbeid(
-                                egetArbeidPaSikt = true,
-                                annetArbeidPaSikt = false,
-                                arbeidFOM = LocalDate.now(),
-                                vurderingsdato = LocalDate.now(),
+            application {
+                coEvery {
+                    safDokumentClient.hentDokument(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                    )
+                } throws SafNotFoundException("Saf returnerte: httpstatus 200")
+                coEvery { istilgangskontrollClient.hasAccess(any(), any()) } returns Tilgang(true)
+
+                coEvery { authorizationService.hasAccess(any(), any()) } returns true
+                coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
+
+                val manuellOppgave =
+                    PapirSmRegistering(
+                        journalpostId = "134",
+                        oppgaveId = "123",
+                        fnr = "41424",
+                        aktorId = "1314",
+                        dokumentInfoId = "131313",
+                        datoOpprettet = OffsetDateTime.now(),
+                        sykmeldingId = "1344444",
+                        syketilfelleStartDato = LocalDate.now(),
+                        behandler =
+                            Behandler(
+                                "John",
+                                "Besserwisser",
+                                "Doe",
+                                "123",
+                                "12345678912",
+                                null,
+                                null,
+                                Adresse(null, null, null, null, null),
+                                "12345",
                             ),
-                            null,
-                        ),
-                    medisinskVurdering =
-                        MedisinskVurdering(
-                            hovedDiagnose =
-                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                            biDiagnoser = emptyList(),
-                            annenFraversArsak = null,
-                            yrkesskadeDato = null,
-                            yrkesskade = false,
-                            svangerskap = false,
-                        ),
-                    arbeidsgiver = null,
-                    behandletTidspunkt = null,
-                    perioder = null,
-                    skjermesForPasient = false,
+                        kontaktMedPasient = null,
+                        meldingTilArbeidsgiver = null,
+                        meldingTilNAV = null,
+                        andreTiltak = "Nei",
+                        tiltakNAV = "Nei",
+                        tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                        utdypendeOpplysninger = null,
+                        prognose =
+                            Prognose(
+                                true,
+                                "Nei",
+                                ErIArbeid(
+                                    egetArbeidPaSikt = true,
+                                    annetArbeidPaSikt = false,
+                                    arbeidFOM = LocalDate.now(),
+                                    vurderingsdato = LocalDate.now(),
+                                ),
+                                null,
+                            ),
+                        medisinskVurdering =
+                            MedisinskVurdering(
+                                hovedDiagnose =
+                                    Diagnose(
+                                        system = "System",
+                                        tekst = "Farlig sykdom",
+                                        kode = "007"
+                                    ),
+                                biDiagnoser = emptyList(),
+                                annenFraversArsak = null,
+                                yrkesskadeDato = null,
+                                yrkesskade = false,
+                                svangerskap = false,
+                            ),
+                        arbeidsgiver = null,
+                        behandletTidspunkt = null,
+                        perioder = null,
+                        skjermesForPasient = false,
+                    )
+
+                database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
-
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveDAO,
-                        safDokumentClient,
-                        sendTilGosysController,
-                        authorizationService,
-                    )
+                routing {
+                    authenticate("jwt") {
+                        hentPapirSykmeldingManuellOppgave(
+                            manuellOppgaveDAO,
+                            safDokumentClient,
+                            sendTilGosysController,
+                            authorizationService,
+                        )
+                    }
                 }
-            }
 
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
                 }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
-                    )
-                    log.error("Caught exception", cause)
-                    throw cause
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -504,144 +513,147 @@ internal class HentPapirSykmeldingTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader(
+            val response =
+                client.get("/api/v1/oppgave/$oppgaveid") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header(
                         HttpHeaders.Authorization,
                         "Bearer ${generateJWT(
-                            "2",
-                            "clientId",
-                            Claim("preferred_username", "firstname.lastname@nav.no"),
-                        )}",
+                                "2",
+                                "clientId",
+                                Claim("preferred_username", "firstname.lastname@nav.no"),
+                            )}",
                     )
-                },
-            ) {
-                assertEquals(HttpStatusCode.Gone, response.status())
-                assertEquals("SENT_TO_GOSYS", response.content)
-            }
+                }
 
-            coVerify(exactly = 1) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
+            assertEquals(HttpStatusCode.Gone, response.status)
+            assertEquals("SENT_TO_GOSYS", response.bodyAsText())
         }
+
+        coVerify(exactly = 1) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
     }
 
     @Test
     fun `Hent oppgave - manglende tilgang til dokument`() {
-        with(TestApplicationEngine()) {
-            start()
-
-            coEvery {
-                safDokumentClient.hentDokument(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                )
-            } throws SafForbiddenException("Du har ikke tilgang")
-            coEvery {
-                istilgangskontrollClient.hasAccess(
-                    any(),
-                    any(),
-                )
-            } returns Tilgang(true)
-
-            coEvery { authorizationService.hasAccess(any(), any()) } returns true
-            coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
-
+        testApplication {
             val oppgaveid = 308076319
 
-            val manuellOppgave =
-                PapirSmRegistering(
-                    journalpostId = "134",
-                    oppgaveId = "123",
-                    fnr = "41424",
-                    aktorId = "1314",
-                    dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
-                    sykmeldingId = "1344444",
-                    syketilfelleStartDato = LocalDate.now(),
-                    behandler =
-                        Behandler(
-                            "John",
-                            "Besserwisser",
-                            "Doe",
-                            "123",
-                            "12345678912",
-                            null,
-                            null,
-                            Adresse(null, null, null, null, null),
-                            "12345",
-                        ),
-                    kontaktMedPasient = null,
-                    meldingTilArbeidsgiver = null,
-                    meldingTilNAV = null,
-                    andreTiltak = "Nei",
-                    tiltakNAV = "Nei",
-                    tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
-                    utdypendeOpplysninger = null,
-                    prognose =
-                        Prognose(
-                            true,
-                            "Nei",
-                            ErIArbeid(
-                                egetArbeidPaSikt = true,
-                                annetArbeidPaSikt = false,
-                                arbeidFOM = LocalDate.now(),
-                                vurderingsdato = LocalDate.now(),
+            application {
+                coEvery {
+                    safDokumentClient.hentDokument(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                    )
+                } throws SafForbiddenException("Du har ikke tilgang")
+                coEvery {
+                    istilgangskontrollClient.hasAccess(
+                        any(),
+                        any(),
+                    )
+                } returns Tilgang(true)
+
+                coEvery { authorizationService.hasAccess(any(), any()) } returns true
+                coEvery { authorizationService.getVeileder(any()) } returns Veileder("U1337")
+
+                val manuellOppgave =
+                    PapirSmRegistering(
+                        journalpostId = "134",
+                        oppgaveId = "123",
+                        fnr = "41424",
+                        aktorId = "1314",
+                        dokumentInfoId = "131313",
+                        datoOpprettet = OffsetDateTime.now(),
+                        sykmeldingId = "1344444",
+                        syketilfelleStartDato = LocalDate.now(),
+                        behandler =
+                            Behandler(
+                                "John",
+                                "Besserwisser",
+                                "Doe",
+                                "123",
+                                "12345678912",
+                                null,
+                                null,
+                                Adresse(null, null, null, null, null),
+                                "12345",
                             ),
-                            null,
-                        ),
-                    medisinskVurdering =
-                        MedisinskVurdering(
-                            hovedDiagnose =
-                                Diagnose(system = "System", tekst = "Farlig sykdom", kode = "007"),
-                            biDiagnoser = emptyList(),
-                            annenFraversArsak = null,
-                            yrkesskadeDato = null,
-                            yrkesskade = false,
-                            svangerskap = false,
-                        ),
-                    arbeidsgiver = null,
-                    behandletTidspunkt = null,
-                    perioder = null,
-                    skjermesForPasient = false,
+                        kontaktMedPasient = null,
+                        meldingTilArbeidsgiver = null,
+                        meldingTilNAV = null,
+                        andreTiltak = "Nei",
+                        tiltakNAV = "Nei",
+                        tiltakArbeidsplassen = "Pasienten trenger mer å gjøre",
+                        utdypendeOpplysninger = null,
+                        prognose =
+                            Prognose(
+                                true,
+                                "Nei",
+                                ErIArbeid(
+                                    egetArbeidPaSikt = true,
+                                    annetArbeidPaSikt = false,
+                                    arbeidFOM = LocalDate.now(),
+                                    vurderingsdato = LocalDate.now(),
+                                ),
+                                null,
+                            ),
+                        medisinskVurdering =
+                            MedisinskVurdering(
+                                hovedDiagnose =
+                                    Diagnose(
+                                        system = "System",
+                                        tekst = "Farlig sykdom",
+                                        kode = "007"
+                                    ),
+                                biDiagnoser = emptyList(),
+                                annenFraversArsak = null,
+                                yrkesskadeDato = null,
+                                yrkesskade = false,
+                                svangerskap = false,
+                            ),
+                        arbeidsgiver = null,
+                        behandletTidspunkt = null,
+                        perioder = null,
+                        skjermesForPasient = false,
+                    )
+
+                database.opprettManuellOppgave(manuellOppgave, oppgaveid)
+
+                setupAuth(
+                    env,
+                    jwkProvider,
+                    "https://sts.issuer.net/myid",
                 )
-
-            database.opprettManuellOppgave(manuellOppgave, oppgaveid)
-
-            application.setupAuth(
-                env,
-                jwkProvider,
-                "https://sts.issuer.net/myid",
-            )
-            application.routing {
-                authenticate("jwt") {
-                    hentPapirSykmeldingManuellOppgave(
-                        manuellOppgaveDAO,
-                        safDokumentClient,
-                        sendTilGosysController,
-                        authorizationService,
-                    )
+                routing {
+                    authenticate("jwt") {
+                        hentPapirSykmeldingManuellOppgave(
+                            manuellOppgaveDAO,
+                            safDokumentClient,
+                            sendTilGosysController,
+                            authorizationService,
+                        )
+                    }
                 }
-            }
 
-            application.install(ContentNegotiation) {
-                jackson {
-                    registerKotlinModule()
-                    registerModule(JavaTimeModule())
-                    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                install(ContentNegotiation) {
+                    jackson {
+                        registerKotlinModule()
+                        registerModule(JavaTimeModule())
+                        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                    }
                 }
-            }
-            application.install(StatusPages) {
-                exception<Throwable> { call, cause ->
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        cause.message ?: "Unknown error"
-                    )
-                    log.error("Caught exception", cause)
-                    throw cause
+                install(StatusPages) {
+                    exception<Throwable> { call, cause ->
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            cause.message ?: "Unknown error"
+                        )
+                        log.error("Caught exception", cause)
+                        throw cause
+                    }
                 }
             }
 
@@ -666,15 +678,14 @@ internal class HentPapirSykmeldingTest {
                     status = "OPPRETTET",
                 )
 
-            with(
-                handleRequest(HttpMethod.Get, "/api/v1/oppgave/$oppgaveid") {
-                    addHeader("Accept", "application/json")
-                    addHeader("Content-Type", "application/json")
-                    addHeader(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
-                },
-            ) {
-                assertEquals(HttpStatusCode.Forbidden, response.status())
-            }
+            val response =
+                client.get("/api/v1/oppgave/$oppgaveid") {
+                    header("Accept", "application/json")
+                    header("Content-Type", "application/json")
+                    header(HttpHeaders.Authorization, "Bearer ${generateJWT("2", "clientId")}")
+                }
+
+            assertEquals(HttpStatusCode.Forbidden, response.status)
 
             coVerify(exactly = 0) { oppgaveService.sendOppgaveTilGosys(any(), any(), any()) }
         }
