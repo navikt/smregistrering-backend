@@ -65,7 +65,14 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             requestPath = "/api/v1/sykmelding/$sykmeldingId",
                         )
 
-                    call.respond(httpRespons)
+                    when {
+                        httpRespons.payload != null -> {
+                            call.respond(httpRespons.httpStatusCode, httpRespons.payload)
+                        }
+                        else -> {
+                            call.respond(httpRespons.httpStatusCode)
+                        }
+                    }
                 }
             }
         }
@@ -125,7 +132,14 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                             )
                         log.info("Successfully sent papirsykmelding for oppgave $oppgaveId")
 
-                        call.respond(status = httpServiceResponse.httpStatusCode,  httpServiceResponse)
+                        when {
+                            httpServiceResponse.payload != null -> {
+                                call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+                            }
+                            else -> {
+                                call.respond(httpServiceResponse.httpStatusCode)
+                            }
+                        }
                     } catch (e: SykmelderNotFoundException) {
                         log.warn("Caught SykmelderNotFoundException", e)
                         call.respond(
@@ -150,19 +164,6 @@ fun Route.sendPapirSykmeldingManuellOppgave(
                     }
                 }
             }
-        }
-    }
-}
-
-private suspend fun PipelineContext<Unit, ApplicationCall>.respond(
-    httpServiceResponse: HttpServiceResponse,
-) {
-    when {
-        httpServiceResponse.payload != null -> {
-            call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
-        }
-        else -> {
-            call.respond(httpServiceResponse.httpStatusCode)
         }
     }
 }
