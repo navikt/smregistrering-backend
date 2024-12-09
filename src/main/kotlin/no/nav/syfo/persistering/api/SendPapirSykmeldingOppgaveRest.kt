@@ -2,16 +2,13 @@ package no.nav.syfo.persistering.api
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import io.ktor.util.pipeline.PipelineContext
 import java.util.UUID
-import no.nav.syfo.controllers.HttpServiceResponse
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.log
 import no.nav.syfo.model.SmRegistreringManuell
@@ -134,7 +131,10 @@ fun Route.sendPapirSykmeldingManuellOppgave(
 
                         when {
                             httpServiceResponse.payload != null -> {
-                                call.respond(httpServiceResponse.httpStatusCode, httpServiceResponse.payload)
+                                call.respond(
+                                    httpServiceResponse.httpStatusCode,
+                                    httpServiceResponse.payload
+                                )
                             }
                             else -> {
                                 call.respond(httpServiceResponse.httpStatusCode)

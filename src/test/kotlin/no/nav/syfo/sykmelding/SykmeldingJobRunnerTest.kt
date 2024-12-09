@@ -7,6 +7,7 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
 import java.time.OffsetDateTime
+import java.util.concurrent.Future
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.ApplicationState
@@ -23,7 +24,6 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.concurrent.Future
 
 class SykmeldingJobRunnerTest {
     private val testDB = TestDB()
@@ -46,7 +46,10 @@ class SykmeldingJobRunnerTest {
         val futureRecordMetadata = mockk<Future<RecordMetadata>>()
 
         every { futureRecordMetadata.get() } answers { mockk<RecordMetadata>() }
-        every {kafkaReceivedSykmeldingProducer.producer.send(any())} answers {futureRecordMetadata}
+        every { kafkaReceivedSykmeldingProducer.producer.send(any()) } answers
+            {
+                futureRecordMetadata
+            }
     }
 
     @AfterEach
