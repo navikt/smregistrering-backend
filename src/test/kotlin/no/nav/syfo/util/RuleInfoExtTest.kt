@@ -32,6 +32,24 @@ internal class RuleInfoExtTest {
                 RuleInfo(
                     messageForSender = "",
                     messageForUser = "",
+                    ruleName = WhitelistedRuleHit.INNTIL_1_MAANED.toString(),
+                    ruleStatus = Status.MANUAL_PROCESSING,
+                ),
+                RuleInfo(
+                    messageForSender = "",
+                    messageForUser = "",
+                    ruleName = WhitelistedRuleHit.INNTIL_1_MAANED_MED_BEGRUNNELSE.toString(),
+                    ruleStatus = Status.MANUAL_PROCESSING,
+                ),
+                RuleInfo(
+                    messageForSender = "",
+                    messageForUser = "",
+                    ruleName = WhitelistedRuleHit.TILBAKEDATERING_OVER_4_DAGER.toString(),
+                    ruleStatus = Status.MANUAL_PROCESSING,
+                ),
+                RuleInfo(
+                    messageForSender = "",
+                    messageForUser = "",
                     ruleName = WhitelistedRuleHit.PASIENTEN_HAR_KODE_6.toString(),
                     ruleStatus = Status.MANUAL_PROCESSING,
                 ),
