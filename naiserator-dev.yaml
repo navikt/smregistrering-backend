@@ -6,7 +6,7 @@ metadata:
   labels:
     team: teamsykmelding
   annotations:
-    config.linkerd.io/proxy-outbound-connect-timeout: "10s"
+    config.linkerd.io/proxy-outbound-connect-timeout: "30s"
 spec:
   gcp:
     sqlInstances:
