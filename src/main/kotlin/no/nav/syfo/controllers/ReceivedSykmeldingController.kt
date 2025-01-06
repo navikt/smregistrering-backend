@@ -41,18 +41,14 @@ class ReceivedSykmeldingController(
                     papirSmRegistering.sykmeldingId,
                 )
             } else {
-                try {
-                    val oppgave = oppgaveService.upsertOppgave(papirSmRegistering, loggingMeta)
-                    database.opprettManuellOppgave(papirSmRegistering, oppgave.id!!)
-                    log.info(
-                        "Manuell papirsykmeldingoppgave lagret i databasen, for {}, {}",
-                        StructuredArguments.keyValue("oppgaveId", oppgave.id),
-                        StructuredArguments.fields(loggingMeta),
-                    )
-                    MESSAGE_STORED_IN_DB_COUNTER.inc()
-                } catch (ex: RuntimeException) {
-                    log.error("caught Runtimeexception {}, {}", papirSmRegistering.sykmeldingId, ex.message, ex)
-                }
+                val oppgave = oppgaveService.upsertOppgave(papirSmRegistering, loggingMeta)
+                database.opprettManuellOppgave(papirSmRegistering, oppgave.id!!)
+                log.info(
+                    "Manuell papirsykmeldingoppgave lagret i databasen, for {}, {}",
+                    StructuredArguments.keyValue("oppgaveId", oppgave.id),
+                    StructuredArguments.fields(loggingMeta),
+                )
+                MESSAGE_STORED_IN_DB_COUNTER.inc()
             }
         }
     }
