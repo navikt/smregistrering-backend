@@ -5,6 +5,7 @@ import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
+import no.nav.syfo.sykmelding.db.getSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.getSykmelding
 import no.nav.syfo.sykmelding.db.insertSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
@@ -48,6 +49,10 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
 
     fun getReceivedSykmelding(sykmeldingId: String): ReceivedSykmelding? {
         return databaseInterface.getSykmelding(sykmeldingId)
+    }
+
+    fun getReceivedSykmeldingHistory(sykmeldingId: String): List<SendtSykmeldingHistory> {
+        return databaseInterface.getSendtSykmeldingHistory(sykmeldingId)
     }
 
     fun resetHangingJobs() {

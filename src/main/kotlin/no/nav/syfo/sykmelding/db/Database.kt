@@ -1,9 +1,11 @@
 package no.nav.syfo.sykmelding.db
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.plugins.api.*
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
+import java.time.OffsetDateTime
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
@@ -65,6 +67,39 @@ fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
                 it.executeQuery().toReceivedSykmelding()
             }
     }
+}
+
+fun DatabaseInterface.getSendtSykmeldingHistory(
+    sykmeldingId: String
+): List<SendtSykmeldingHistory> {
+    return connection.use {
+        it.prepareStatement(
+                """
+            SELECT * FROM sendt_sykmelding_history WHERE sykmelding_id = ?
+            """
+            )
+            .use { preparedStatement ->
+                preparedStatement.setString(1, sykmeldingId)
+                preparedStatement.executeQuery().toSendtSykmeldingHistoryList()
+            }
+    }
+}
+
+private fun ResultSet.toSendtSykmeldingHistoryList(): List<SendtSykmeldingHistory> {
+    val resultList = mutableListOf<SendtSykmeldingHistory>()
+    while (next()) {
+        val receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
+        val sendtSykmeldingHistory =
+            SendtSykmeldingHistory(
+                sykmeldingId = getString("sykmelding_id"),
+                id = getString("id"),
+                ferdigstiltAv = getString("ferdigstilt_av"),
+                datoFerdigstilt = getString("datoFerdigstilt").let { OffsetDateTime.parse(it) },
+                receivedSykmelding = receivedSykmelding
+            )
+        resultList.add(sendtSykmeldingHistory)
+    }
+    return resultList
 }
 
 private fun ResultSet.toReceivedSykmelding(): ReceivedSykmelding? {
