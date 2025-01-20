@@ -2,7 +2,6 @@ package no.nav.syfo.aksessering.api
 
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get

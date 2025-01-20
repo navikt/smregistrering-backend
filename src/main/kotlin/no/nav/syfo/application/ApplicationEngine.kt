@@ -23,6 +23,7 @@ import io.ktor.server.routing.routing
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
+import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgaveTilSykDig
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
 import no.nav.syfo.controllers.FerdigstiltSykmeldingController
@@ -43,6 +44,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.SendtSykmeldingService
 
 fun createApplicationEngine(
     env: Environment,
@@ -58,6 +60,7 @@ fun createApplicationEngine(
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService,
     pdfService: PdfService,
+    sendtSykmeldingService: SendtSykmeldingService
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
     embeddedServer(
         Netty,
@@ -102,6 +105,10 @@ fun createApplicationEngine(
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
                 registerPdfRoutes(pdfService)
+                hentPapirSykmeldingManuellOppgaveTilSykDig(
+                    manuellOppgaveDAO,
+                    sendtSykmeldingService
+                )
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

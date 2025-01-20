@@ -155,6 +155,7 @@ fun main() {
             sykmelderService,
             authorizationService,
             pdfService,
+            sendtSykmeldingService
         )
 
     GlobalScope.launch(Dispatchers.IO) {
@@ -162,13 +163,13 @@ fun main() {
         log.info("Started SykmeldingJobRunner")
     }
 
-    startConsumer(
-        applicationState,
-        env.papirSmRegistreringTopic,
-        kafkaConsumers.kafkaConsumerPapirSmRegistering,
-        receivedSykmeldingController,
-    )
-
+    /*  startConsumer(
+            applicationState,
+            env.papirSmRegistreringTopic,
+            kafkaConsumers.kafkaConsumerPapirSmRegistering,
+            receivedSykmeldingController,
+        )
+    */
     ApplicationServer(applicationEngine, applicationState).start()
 }
 
