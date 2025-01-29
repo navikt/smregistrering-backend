@@ -9,7 +9,6 @@ import net.logstash.logback.argument.StructuredArguments
 import no.nav.syfo.log
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
-import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 
 fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
@@ -18,15 +17,15 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
 ) {
     route("/api/v1") {
         get("/oppgave/sykDig/{oppgaveid}") {
-            val oppgaveId = call.parameters["oppgaveid"]?.toIntOrNull()
+            val oppgaveId = call.parameters["oppgaveid"]
             log.info("Mottok kall til GET /api/v1/oppgave/${oppgaveId ?: "ukjent oppgaveId"}")
 
-            if (oppgaveId == null) {
+            if (oppgaveId == null || !oppgaveId.all { it.isDigit() }) {
                 return@get call.respond(HttpStatusCode.NotFound)
             }
 
             val manuellOppgaveDTOList =
-                manuellOppgaveDAO.hentManuellOppgaverSykDig(oppgaveId, false) ?: emptyList()
+                manuellOppgaveDAO.hentManuellOppgaverSykDig(oppgaveId.toInt(), false) ?: emptyList()
             if (manuellOppgaveDTOList.isEmpty()) {
                 log.info(
                     "Fant ingen manuelloppgaver med oppgaveid {}",
