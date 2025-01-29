@@ -16,24 +16,24 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
     sendtSykmeldingService: SendtSykmeldingService,
 ) {
     route("/api/v1") {
-        get("/oppgave/sykDig/{oppgaveid}") {
-            val oppgaveId = call.parameters["oppgaveid"]
-            log.info("Mottok kall til GET /api/v1/oppgave/${oppgaveId ?: "ukjent oppgaveId"}")
+        get("/oppgave/sykDig/{sykmeldingId}") {
+            val sykmeldingId = call.parameters["sykmeldingId"]
+            log.info("Mottok kall til GET /api/v1/oppgave/${sykmeldingId ?: "ukjent sykmeldingId"}")
 
-            if (oppgaveId == null || !oppgaveId.all { it.isDigit() }) {
+            if (sykmeldingId == null) {
                 return@get call.respond(HttpStatusCode.NotFound)
             }
 
             val manuellOppgaveDTOList =
-                manuellOppgaveDAO.hentManuellOppgaverSykDig(oppgaveId.toInt(), false) ?: emptyList()
+                manuellOppgaveDAO.hentManuellOppgaverSykDig(sykmeldingId, false) ?: emptyList()
             if (manuellOppgaveDTOList.isEmpty()) {
                 log.info(
                     "Fant ingen manuelloppgaver med oppgaveid {}",
-                    StructuredArguments.keyValue("oppgaveId", oppgaveId),
+                    StructuredArguments.keyValue("oppgaveId", sykmeldingId),
                 )
                 return@get call.respond(
                     HttpStatusCode.NotFound,
-                    "Fant ingen manuelle oppgaver med oppgaveid $oppgaveId",
+                    "Fant ingen manuelle oppgaver med oppgaveid $sykmeldingId",
                 )
             }
             call.respond(manuellOppgaveDTOList)
