@@ -25,7 +25,7 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
             }
 
             val manuellOppgaveDTOList =
-                manuellOppgaveDAO.hentManuellOppgaverSykDig(sykmeldingId, false) ?: emptyList()
+                manuellOppgaveDAO.hentManuellOppgaverSykDig(sykmeldingId) ?: emptyList()
             if (manuellOppgaveDTOList.isEmpty()) {
                 log.info(
                     "Fant ingen manuelloppgaver med oppgaveid {}",
