@@ -104,5 +104,5 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig =
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
         utfall = getString("utfall")?.trim(),
-        datoFerdigstilt = getTimestamp("dato_ferdigstilt").toLocalDateTime()
+        datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime()
     )
