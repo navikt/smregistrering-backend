@@ -29,5 +29,6 @@ data class ManuellOppgaveDTOSykDig(
     var pdfPapirSykmelding: ByteArray?,
     val ferdigstiltAv: String?,
     val utfall: String?,
-    val datoFerdigstilt: LocalDateTime?
+    val datoFerdigstilt: LocalDateTime?,
+    val avvisningsgrunn: String?,
 )
