@@ -33,7 +33,6 @@ fun DatabaseInterface.hentManuellOppgaver(
 
 fun DatabaseInterface.hentManuellOppgaverSykDig(
     sykmeldingId: String,
-    ferdigstilt: Boolean = false
 ): List<ManuellOppgaveDTOSykDig> =
     connection.use { connection ->
         connection
@@ -42,12 +41,10 @@ fun DatabaseInterface.hentManuellOppgaverSykDig(
                 SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering, utfall, ferdigstilt_av, dato_ferdigstilt
                 FROM MANUELLOPPGAVE  
                 WHERE id=? 
-                AND ferdigstilt=?;
                 """,
             )
             .use {
                 it.setString(1, sykmeldingId)
-                it.setBoolean(2, ferdigstilt)
                 it.executeQuery().toList { toManuellOppgaveDTOSykDig() }
             }
     }

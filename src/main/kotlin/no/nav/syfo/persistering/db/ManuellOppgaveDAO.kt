@@ -22,8 +22,7 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
 
     fun hentManuellOppgaverSykDig(
         @SpanAttribute sykmeldingId: String,
-        ferdigstilt: Boolean = false
-    ): List<ManuellOppgaveDTOSykDig> = database.hentManuellOppgaverSykDig(sykmeldingId, ferdigstilt)
+    ): List<ManuellOppgaveDTOSykDig> = database.hentManuellOppgaverSykDig(sykmeldingId)
 
     fun ferdigstillSmRegistering(
         sykmeldingId: String,
