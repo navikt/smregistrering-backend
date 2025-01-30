@@ -38,7 +38,7 @@ fun DatabaseInterface.hentManuellOppgaverSykDig(
         connection
             .prepareStatement(
                 """
-                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering, utfall, ferdigstilt_av, dato_ferdigstilt
+                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering, utfall, ferdigstilt_av, dato_ferdigstilt, avvisningsgrunn
                 FROM MANUELLOPPGAVE  
                 WHERE id=? 
                 """,
@@ -101,5 +101,6 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig =
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
         utfall = getString("utfall")?.trim(),
-        datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime()
+        datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime(),
+        avvisningsgrunn = getString("avvisningsgrunn")?.trim(),
     )
