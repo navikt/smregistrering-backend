@@ -110,7 +110,7 @@ private fun ResultSet.toSendtSykmeldingHistoryList(): List<SendtSykmeldingHistor
                 sykmeldingId = getString("sykmelding_id"),
                 id = getString("id"),
                 ferdigstiltAv = getString("ferdigstilt_av"),
-                datoFerdigstilt = getString("datoFerdigstilt").let { OffsetDateTime.parse(it) },
+                datoFerdigstilt = getString("dato_ferdigstilt").let { OffsetDateTime.parse(it) },
                 receivedSykmelding = receivedSykmelding,
             )
         resultList.add(sendtSykmeldingHistory)
