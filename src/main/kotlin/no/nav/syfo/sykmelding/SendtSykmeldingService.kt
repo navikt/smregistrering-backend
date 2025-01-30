@@ -7,6 +7,7 @@ import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.getSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.getSykmelding
+import no.nav.syfo.sykmelding.db.getSykmeldingWithTimestamp
 import no.nav.syfo.sykmelding.db.insertSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.sykmelding.jobs.db.getNextJob
@@ -51,6 +52,10 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         return databaseInterface.getSykmelding(sykmeldingId)
     }
 
+    fun getReceivedSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp {
+        return databaseInterface.getSykmeldingWithTimestamp(sykmeldingId)
+    }
+
     fun getReceivedSykmeldingHistory(sykmeldingId: String): List<SendtSykmeldingHistory> {
         return databaseInterface.getSendtSykmeldingHistory(sykmeldingId)
     }
@@ -62,3 +67,7 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         }
     }
 }
+data class ReceivedSykmeldingWithTimestamp(
+    val receivedSykmelding: ReceivedSykmelding,
+    val timestamp: OffsetDateTime
+)
