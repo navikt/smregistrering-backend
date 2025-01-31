@@ -50,35 +50,38 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
             }
             val sykmeldingHistory =
                 sendtSykmeldingService.getReceivedSykmeldingHistory(sykmeldingId)
-            val sykmelding =
-                sendtSykmeldingService.getReceivedSykmeldingWithTimestamp(sykmeldingId)
+            val sykmelding = sendtSykmeldingService.getReceivedSykmeldingWithTimestamp(sykmeldingId)
 
-            if (sykmeldingHistory.isNotEmpty()) {
-                val response = sykmeldingHistory.map { sendSyk ->
-                    SendtSykmeldingHistorySykDig(
-                        id = sendSyk.id,
-                        sykmeldingId = sendSyk.sykmeldingId,
-                        ferdigstiltAv = sendSyk.ferdigstiltAv,
-                        datoFerdigstilt = sendSyk.datoFerdigstilt,
-                        timestamp = sykmelding.timestamp,
-                        receivedSykmelding = sykmelding.receivedSykmelding
-                    )
-                }
+            if (sykmeldingHistory.isNotEmpty() && sykmelding != null) {
+                val response =
+                    sykmeldingHistory.map { sendSyk ->
+                        SendtSykmeldingHistorySykDig(
+                            id = sendSyk.id,
+                            sykmeldingId = sendSyk.sykmeldingId,
+                            ferdigstiltAv = sendSyk.ferdigstiltAv,
+                            datoFerdigstilt = sendSyk.datoFerdigstilt,
+                            timestamp = sykmelding.timestamp,
+                            receivedSykmelding = sykmelding.receivedSykmelding
+                        )
+                    }
                 return@get call.respond(response)
             }
             log.info("Ingen historikk funnet for sykmelding $sykmeldingId")
-            val defaultHistory =
-                listOf(
-                    SendtSykmeldingHistorySykDig(
-                        id = UUID.randomUUID().toString(),
-                        sykmeldingId = sykmeldingId,
-                        ferdigstiltAv = "",
-                        datoFerdigstilt = sykmelding.timestamp,
-                        receivedSykmelding = sykmelding.receivedSykmelding,
-                        timestamp = sykmelding.timestamp
+            if (sykmelding != null) {
+
+                val defaultHistory =
+                    listOf(
+                        SendtSykmeldingHistorySykDig(
+                            id = UUID.randomUUID().toString(),
+                            sykmeldingId = sykmeldingId,
+                            ferdigstiltAv = "",
+                            datoFerdigstilt = sykmelding.timestamp,
+                            receivedSykmelding = sykmelding.receivedSykmelding,
+                            timestamp = sykmelding.timestamp
+                        )
                     )
-                )
-            call.respond(defaultHistory)
+                return@get call.respond(defaultHistory)
+            }
         }
     }
 }
@@ -91,4 +94,3 @@ data class SendtSykmeldingHistorySykDig(
     val timestamp: OffsetDateTime,
     val receivedSykmelding: ReceivedSykmelding,
 )
-

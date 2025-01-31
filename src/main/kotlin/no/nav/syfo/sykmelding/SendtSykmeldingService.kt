@@ -52,7 +52,7 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         return databaseInterface.getSykmelding(sykmeldingId)
     }
 
-    fun getReceivedSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp {
+    fun getReceivedSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp? {
         return databaseInterface.getSykmeldingWithTimestamp(sykmeldingId)
     }
 
@@ -67,6 +67,7 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         }
     }
 }
+
 data class ReceivedSykmeldingWithTimestamp(
     val receivedSykmelding: ReceivedSykmelding,
     val timestamp: OffsetDateTime

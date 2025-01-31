@@ -5,7 +5,7 @@ import io.ktor.client.plugins.api.*
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
-import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
@@ -59,10 +59,10 @@ fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: Sendt
 fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
     return connection.use {
         it.prepareStatement(
-            """
+                """
             select * from sendt_sykmelding where sykmelding_id = ?
         """,
-        )
+            )
             .use {
                 it.setString(1, sykmeldingId)
                 it.executeQuery().toReceivedSykmelding()
@@ -70,14 +70,15 @@ fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
     }
 }
 
-
-fun DatabaseInterface.getSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp {
+fun DatabaseInterface.getSykmeldingWithTimestamp(
+    sykmeldingId: String
+): ReceivedSykmeldingWithTimestamp? {
     return connection.use {
         it.prepareStatement(
-            """
+                """
             select * from sendt_sykmelding where sykmelding_id = ?
         """,
-        )
+            )
             .use {
                 it.setString(1, sykmeldingId)
                 it.executeQuery().toReceivedSykmeldingWithTimestamp()
@@ -90,10 +91,10 @@ fun DatabaseInterface.getSendtSykmeldingHistory(
 ): List<SendtSykmeldingHistory> {
     return connection.use {
         it.prepareStatement(
-            """
+                """
             SELECT * FROM sendt_sykmelding_history WHERE sykmelding_id = ?
             """,
-        )
+            )
             .use { preparedStatement ->
                 preparedStatement.setString(1, sykmeldingId)
                 preparedStatement.executeQuery().toSendtSykmeldingHistoryList()
@@ -110,7 +111,8 @@ private fun ResultSet.toSendtSykmeldingHistoryList(): List<SendtSykmeldingHistor
                 sykmeldingId = getString("sykmelding_id"),
                 id = getString("id"),
                 ferdigstiltAv = getString("ferdigstilt_av"),
-                datoFerdigstilt = getString("dato_ferdigstilt").let { OffsetDateTime.parse(it) },
+                datoFerdigstilt =
+                    getTimestamp("dato_ferdigstilt").toInstant().atOffset(ZoneOffset.UTC),
                 receivedSykmelding = receivedSykmelding,
             )
         resultList.add(sendtSykmeldingHistory)
@@ -125,8 +127,12 @@ private fun ResultSet.toReceivedSykmelding(): ReceivedSykmelding? {
     }
 }
 
-private fun ResultSet.toReceivedSykmeldingWithTimestamp(): ReceivedSykmeldingWithTimestamp {
-    val receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
-    val timestamp = getString("timestamp").let { OffsetDateTime.parse(it) }
-    return ReceivedSykmeldingWithTimestamp(receivedSykmelding, timestamp)
+private fun ResultSet.toReceivedSykmeldingWithTimestamp(): ReceivedSykmeldingWithTimestamp? {
+    return if (next()) {
+        val receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
+        val timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC)
+        ReceivedSykmeldingWithTimestamp(receivedSykmelding, timestamp)
+    } else {
+        null
+    }
 }
