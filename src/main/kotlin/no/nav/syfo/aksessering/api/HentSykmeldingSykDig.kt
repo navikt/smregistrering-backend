@@ -3,6 +3,7 @@ package no.nav.syfo.aksessering.api
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
@@ -59,7 +60,7 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
                             id = sendSyk.id,
                             sykmeldingId = sendSyk.sykmeldingId,
                             ferdigstiltAv = sendSyk.ferdigstiltAv,
-                            datoFerdigstilt = sendSyk.datoFerdigstilt,
+                            datoFerdigstilt = sendSyk.datoFerdigstilt.toLocalDateTime(),
                             timestamp = sykmelding.timestamp,
                             receivedSykmelding = sykmelding.receivedSykmelding
                         )
@@ -75,7 +76,7 @@ fun Route.hentPapirSykmeldingManuellOppgaveTilSykDig(
                             id = UUID.randomUUID().toString(),
                             sykmeldingId = sykmeldingId,
                             ferdigstiltAv = "",
-                            datoFerdigstilt = sykmelding.timestamp,
+                            datoFerdigstilt = sykmelding.timestamp.toLocalDateTime(),
                             receivedSykmelding = sykmelding.receivedSykmelding,
                             timestamp = sykmelding.timestamp
                         )
@@ -90,7 +91,7 @@ data class SendtSykmeldingHistorySykDig(
     val id: String,
     val sykmeldingId: String,
     val ferdigstiltAv: String,
-    val datoFerdigstilt: OffsetDateTime?,
+    val datoFerdigstilt: LocalDateTime?,
     val timestamp: OffsetDateTime,
     val receivedSykmelding: ReceivedSykmelding,
 )
