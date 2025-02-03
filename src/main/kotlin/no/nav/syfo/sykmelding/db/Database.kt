@@ -108,9 +108,9 @@ private fun ResultSet.toSendtSykmeldingHistoryList(): List<SendtSykmeldingHistor
         val receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
         val sendtSykmeldingHistory =
             SendtSykmeldingHistory(
-                sykmeldingId = getString("sykmelding_id"),
-                id = getString("id"),
-                ferdigstiltAv = getString("ferdigstilt_av"),
+                sykmeldingId = getString("sykmelding_id").trim(),
+                id = getString("id").trim(),
+                ferdigstiltAv = getString("ferdigstilt_av").trim(),
                 datoFerdigstilt =
                     getTimestamp("dato_ferdigstilt").toInstant().atOffset(ZoneOffset.UTC),
                 receivedSykmelding = receivedSykmelding,
