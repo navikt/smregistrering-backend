@@ -25,7 +25,6 @@ import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.db.Database
-import no.nav.syfo.kafka.KafkaConsumers
 import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.pdf.PdfService
@@ -73,7 +72,7 @@ fun main() {
 
     val manuellOppgaveDAO = ManuellOppgaveDAO(database)
 
-    val kafkaConsumers = KafkaConsumers(env)
+    // val kafkaConsumers = KafkaConsumers(env)
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env)
 
