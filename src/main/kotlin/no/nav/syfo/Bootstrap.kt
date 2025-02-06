@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.net.URI
 import java.time.Duration
@@ -13,7 +12,6 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
@@ -25,9 +23,7 @@ import no.nav.syfo.controllers.ReceivedSykmeldingController
 import no.nav.syfo.controllers.SendPapirsykmeldingController
 import no.nav.syfo.controllers.SendTilGosysController
 import no.nav.syfo.db.Database
-import no.nav.syfo.kafka.KafkaConsumers
 import no.nav.syfo.kafka.KafkaProducers
-import no.nav.syfo.model.PapirSmRegistering
 import no.nav.syfo.pdf.PdfService
 import no.nav.syfo.pdl.service.PdlPersonService
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
@@ -39,8 +35,6 @@ import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
-import no.nav.syfo.util.LoggingMeta
-import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -73,7 +67,6 @@ fun main() {
 
     val manuellOppgaveDAO = ManuellOppgaveDAO(database)
 
-    val kafkaConsumers = KafkaConsumers(env)
     val kafkaProducers = KafkaProducers(env)
     val httpClients = HttpClients(env)
 
@@ -162,62 +155,5 @@ fun main() {
         log.info("Started SykmeldingJobRunner")
     }
 
-    startConsumer(
-        applicationState,
-        env.papirSmRegistreringTopic,
-        kafkaConsumers.kafkaConsumerPapirSmRegistering,
-        receivedSykmeldingController,
-    )
-
     ApplicationServer(applicationEngine, applicationState).start()
-}
-
-@DelicateCoroutinesApi
-fun startConsumer(
-    applicationState: ApplicationState,
-    topic: String,
-    kafkaConsumerPapirSmRegistering: KafkaConsumer<String, String>,
-    receivedSykmeldingController: ReceivedSykmeldingController,
-) {
-    GlobalScope.launch(Dispatchers.IO) {
-        while (applicationState.ready) {
-            try {
-                log.info("Starting consuming topic $topic")
-                kafkaConsumerPapirSmRegistering.subscribe(listOf(topic))
-                while (applicationState.ready) {
-                    kafkaConsumerPapirSmRegistering.poll(Duration.ofSeconds(10)).forEach {
-                        consumerRecord ->
-                        if (consumerRecord.value() == null) {
-                            log.info(
-                                "Mottatt tombstone for sykmelding med id ${consumerRecord.key()}"
-                            )
-                            receivedSykmeldingController.slettSykmelding(consumerRecord.key())
-                        } else {
-                            val receivedPapirSmRegistering: PapirSmRegistering =
-                                objectMapper.readValue(consumerRecord.value())
-                            val loggingMeta =
-                                LoggingMeta(
-                                    mottakId = receivedPapirSmRegistering.sykmeldingId,
-                                    dokumentInfoId = receivedPapirSmRegistering.dokumentInfoId,
-                                    msgId = receivedPapirSmRegistering.sykmeldingId,
-                                    sykmeldingId = receivedPapirSmRegistering.sykmeldingId,
-                                    journalpostId = receivedPapirSmRegistering.journalpostId,
-                                )
-                            receivedSykmeldingController.handleReceivedSykmelding(
-                                papirSmRegistering = receivedPapirSmRegistering,
-                                loggingMeta = loggingMeta,
-                            )
-                        }
-                    }
-                }
-            } catch (ex: Exception) {
-                log.error(
-                    "Error running kafka consumer, unsubscribing and waiting 60 seconds for retry",
-                    ex
-                )
-                kafkaConsumerPapirSmRegistering.unsubscribe()
-                delay(60_000)
-            }
-        }
-    }
 }
