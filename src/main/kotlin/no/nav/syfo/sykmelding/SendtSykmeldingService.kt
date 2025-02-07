@@ -2,12 +2,13 @@ package no.nav.syfo.sykmelding
 
 import java.time.OffsetDateTime
 import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.kafka.ReceivedSykmeldingWithTimestamp
 import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
-import no.nav.syfo.sykmelding.db.getSendtSykmeldingHistory
+import no.nav.syfo.sykmelding.db.geAlltSendtSykmeldingHistory
+import no.nav.syfo.sykmelding.db.getAllSykmeldingWithTimestamp
 import no.nav.syfo.sykmelding.db.getSykmelding
-import no.nav.syfo.sykmelding.db.getSykmeldingWithTimestamp
 import no.nav.syfo.sykmelding.db.insertSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.sykmelding.jobs.db.getNextJob
@@ -18,7 +19,9 @@ import no.nav.syfo.sykmelding.jobs.model.JOBNAME
 import no.nav.syfo.sykmelding.jobs.model.JOBSTATUS
 import no.nav.syfo.sykmelding.jobs.model.Job
 
-class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
+class SendtSykmeldingService(
+    private val databaseInterface: DatabaseInterface,
+) {
 
     fun getNextJob(): Job? {
         return databaseInterface.getNextJob()
@@ -52,12 +55,12 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         return databaseInterface.getSykmelding(sykmeldingId)
     }
 
-    fun getReceivedSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp? {
-        return databaseInterface.getSykmeldingWithTimestamp(sykmeldingId)
+    fun getAllReceivedSykmeldingWithTimestamp(): List<ReceivedSykmeldingWithTimestamp> {
+        return databaseInterface.getAllSykmeldingWithTimestamp()
     }
 
-    fun getReceivedSykmeldingHistory(sykmeldingId: String): List<SendtSykmeldingHistory> {
-        return databaseInterface.getSendtSykmeldingHistory(sykmeldingId)
+    fun getAllReceivedSykmeldingHistory(): List<SendtSykmeldingHistory> {
+        return databaseInterface.geAlltSendtSykmeldingHistory()
     }
 
     fun resetHangingJobs() {
@@ -67,8 +70,3 @@ class SendtSykmeldingService(private val databaseInterface: DatabaseInterface) {
         }
     }
 }
-
-data class ReceivedSykmeldingWithTimestamp(
-    val receivedSykmelding: ReceivedSykmelding,
-    val timestamp: OffsetDateTime
-)

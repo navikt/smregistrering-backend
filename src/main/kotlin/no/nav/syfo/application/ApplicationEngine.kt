@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.install
-import io.ktor.server.application.port
 import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.connector
@@ -23,7 +22,6 @@ import io.ktor.server.routing.routing
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
-import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgaveTilSykDig
 import no.nav.syfo.application.api.registerNaisApi
 import no.nav.syfo.controllers.AvvisPapirsykmeldingController
 import no.nav.syfo.controllers.FerdigstiltSykmeldingController
@@ -105,10 +103,6 @@ fun createApplicationEngine(
                 sykmelderApi(sykmelderService)
                 sendOppgaveTilGosys(manuellOppgaveDAO, sendTilGosysController, authorizationService)
                 registerPdfRoutes(pdfService)
-                hentPapirSykmeldingManuellOppgaveTilSykDig(
-                    manuellOppgaveDAO,
-                    sendtSykmeldingService
-                )
             }
         }
         intercept(ApplicationCallPipeline.Monitoring, monitorHttpRequests())

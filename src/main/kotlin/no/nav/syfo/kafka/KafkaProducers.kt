@@ -1,7 +1,11 @@
 package no.nav.syfo.kafka
 
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.kafka.aiven.KafkaUtils
+import no.nav.syfo.model.ManuellOppgaveDTOSykDig
+import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.ReceivedSykmeldingWithValidation
 import no.nav.syfo.util.JacksonKafkaSerializer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -20,9 +24,35 @@ class KafkaProducers(private val env: Environment) {
         )
 
     val kafkaRecievedSykmeldingProducer = KafkaRecievedSykmeldingProducer()
+    val kafkaSmregMigrationProducer = KafkaSmregMigrationProducer()
 
     inner class KafkaRecievedSykmeldingProducer {
         val producer = KafkaProducer<String, ReceivedSykmeldingWithValidation>(properties)
         val sm2013AutomaticHandlingTopic = env.okSykmeldingTopic
     }
+
+    inner class KafkaSmregMigrationProducer {
+        val producer = KafkaProducer<String, MigrationObject>(properties)
+        val sm2013AutomaticHandlingTopic = env.smregMigrationTopic
+    }
 }
+
+data class MigrationObject(
+    val sykmeldingId: String,
+    val manuellOppgave: MutableList<ManuellOppgaveDTOSykDig>,
+    val sendtSykmeldingHistory: MutableList<SendtSykmeldingHistorySykDig>?,
+)
+
+data class SendtSykmeldingHistorySykDig(
+    val id: String,
+    val sykmeldingId: String,
+    val ferdigstiltAv: String?,
+    val datoFerdigstilt: LocalDateTime?,
+    val timestamp: OffsetDateTime,
+    val receivedSykmelding: ReceivedSykmelding,
+)
+
+data class ReceivedSykmeldingWithTimestamp(
+    val receivedSykmelding: ReceivedSykmelding,
+    val timestamp: OffsetDateTime
+)

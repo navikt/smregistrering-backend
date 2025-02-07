@@ -33,8 +33,10 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.MigrationService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -156,12 +158,45 @@ fun main() {
         log.info("Started SykmeldingJobRunner")
     }
 
-    /*  startConsumer(
-            applicationState,
-            env.papirSmRegistreringTopic,
-            kafkaConsumers.kafkaConsumerPapirSmRegistering,
-            receivedSykmeldingController,
-        )
-    */
+    val migrationService = MigrationService(sendtSykmeldingService, manuellOppgaveDAO)
+
+    runMigrationProducer(
+        applicationState,
+        env.smregMigrationTopic,
+        kafkaProducers.kafkaSmregMigrationProducer,
+        migrationService
+    )
     ApplicationServer(applicationEngine, applicationState).start()
+}
+
+fun runMigrationProducer(
+    applicationState: ApplicationState,
+    topic: String,
+    kafkaProducer: KafkaProducers.KafkaSmregMigrationProducer,
+    migrationService: MigrationService
+) {
+    GlobalScope.launch(Dispatchers.IO) {
+        while (applicationState.ready) {
+            try {
+                log.info("Starting producer for topic $topic")
+                while (applicationState.ready) {
+                    val migrationObjects = migrationService.getAllMigrationObjects()
+                    migrationObjects.forEach {
+                        kafkaProducer.producer
+                            .send(
+                                ProducerRecord(
+                                    kafkaProducer.sm2013AutomaticHandlingTopic,
+                                    it.sykmeldingId,
+                                    it
+                                )
+                            )
+                            .get()
+                    }
+                }
+            } catch (ex: Exception) {
+                log.error("Error running kafka producer", ex)
+                throw ex
+            }
+        }
+    }
 }

@@ -2,9 +2,9 @@ package no.nav.syfo.persistering.db
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.syfo.aksessering.db.hentAlleManuellOppgaverSykDig
 import no.nav.syfo.aksessering.db.hentManuellOppgaveForSykmelding
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
-import no.nav.syfo.aksessering.db.hentManuellOppgaverSykDig
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ManuellOppgaveDTOSykDig
@@ -20,9 +20,8 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
         ferdigstilt: Boolean = false
     ): List<ManuellOppgaveDTO> = database.hentManuellOppgaver(oppgaveId, ferdigstilt)
 
-    fun hentManuellOppgaverSykDig(
-        @SpanAttribute sykmeldingId: String,
-    ): List<ManuellOppgaveDTOSykDig> = database.hentManuellOppgaverSykDig(sykmeldingId)
+    fun hentAlleManuellOppgaverSykDig(): List<ManuellOppgaveDTOSykDig> =
+        database.hentAlleManuellOppgaverSykDig()
 
     fun ferdigstillSmRegistering(
         sykmeldingId: String,

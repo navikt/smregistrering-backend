@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
@@ -453,7 +453,7 @@ class SendPapirsykmeldingController(
                 UUID.randomUUID().toString(),
                 ferdigstillRegistrering.sykmeldingId,
                 veileder.veilederIdent,
-                OffsetDateTime.now(ZoneOffset.UTC),
+                LocalDateTime.now(ZoneOffset.UTC),
                 receivedSykmelding,
             )
         sendtSykmeldingService.insertSendtSykmeldingHistory(

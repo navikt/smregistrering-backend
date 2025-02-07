@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -328,7 +329,7 @@ class ReceivedSykmeldingControllerTest {
                 UUID.randomUUID().toString(),
                 sykmeldingId,
                 "noen",
-                OffsetDateTime.now(ZoneOffset.UTC),
+                LocalDateTime.now(ZoneOffset.UTC),
                 receivedSykmelding
             )
         )

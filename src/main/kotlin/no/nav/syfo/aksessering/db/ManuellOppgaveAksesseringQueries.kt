@@ -31,22 +31,16 @@ fun DatabaseInterface.hentManuellOppgaver(
             }
     }
 
-fun DatabaseInterface.hentManuellOppgaverSykDig(
-    sykmeldingId: String,
-): List<ManuellOppgaveDTOSykDig> =
+fun DatabaseInterface.hentAlleManuellOppgaverSykDig(): List<ManuellOppgaveDTOSykDig> =
     connection.use { connection ->
         connection
             .prepareStatement(
                 """
                 SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering, utfall, ferdigstilt_av, dato_ferdigstilt, avvisningsgrunn
                 FROM MANUELLOPPGAVE  
-                WHERE id=? 
                 """,
             )
-            .use {
-                it.setString(1, sykmeldingId)
-                it.executeQuery().toList { toManuellOppgaveDTOSykDig() }
-            }
+            .use { it.executeQuery().toList { toManuellOppgaveDTOSykDig() } }
     }
 
 fun DatabaseInterface.hentManuellOppgaveForSykmelding(
