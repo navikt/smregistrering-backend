@@ -3,17 +3,21 @@ package no.nav.syfo.sykmelding
 import no.nav.syfo.kafka.MigrationObject
 import no.nav.syfo.kafka.SendtSykmeldingHistorySykDig
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
+import no.nav.syfo.sikkerlogg
 
 class MigrationService(
     private val sykmeldingService: SendtSykmeldingService,
     private val manuellOppgaveDAO: ManuellOppgaveDAO
 ) {
-
     fun getAllMigrationObjects(): List<MigrationObject> {
         val alleOppgaver = manuellOppgaveDAO.hentAlleManuellOppgaverSykDig()
         val sykmeldingHistory = sykmeldingService.getAllReceivedSykmeldingHistory()
         val sykmelding = sykmeldingService.getAllReceivedSykmeldingWithTimestamp()
         val migrationObjectsMap = mutableMapOf<String, MigrationObject>()
+
+        sikkerlogg.info(
+            "alle oppgaver: ${alleOppgaver}, sykmeldinger: ${sykmelding.size}, sykmeldingHistory: ${sykmeldingHistory.size}"
+        )
 
         alleOppgaver.forEach { oppgave ->
             val existingObject = migrationObjectsMap[oppgave.sykmeldingId]
@@ -77,6 +81,8 @@ class MigrationService(
         }
 
         val migrationObjects = migrationObjectsMap.values.toList()
+
+        sikkerlogg.info("Migration objects: ${migrationObjects.size} $migrationObjects")
         return migrationObjects
     }
 }
