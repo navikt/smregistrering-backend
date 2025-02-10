@@ -1,5 +1,7 @@
 package no.nav.syfo.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -45,6 +47,15 @@ data class Arbeidsgiver(
     val navn: String?,
     val yrkesbetegnelse: String?,
     val stillingsprosent: Int?
+)
+
+data class ArbeidsgiverSykDig
+@JsonCreator
+constructor(
+    @JsonProperty("harArbeidsgiver") val harArbeidsgiver: HarArbeidsgiver,
+    @JsonProperty("navn") val navn: String?,
+    @JsonProperty("yrkesbetegnelse") val yrkesbetegnelse: String?,
+    @JsonProperty("stillingsprosent") val stillingsprosent: Int?
 )
 
 enum class HarArbeidsgiver(
@@ -108,6 +119,15 @@ data class Prognose(
     val erIkkeIArbeid: ErIkkeIArbeid?
 )
 
+data class PrognoseSykDig
+@JsonCreator
+constructor(
+    @JsonProperty("arbeidsforEtterPeriode") val arbeidsforEtterPeriode: Boolean,
+    @JsonProperty("hensynArbeidsplassen") val hensynArbeidsplassen: String?,
+    @JsonProperty("erIArbeid") val erIArbeid: ErIArbeid?,
+    @JsonProperty("erIkkeIArbeid") val erIkkeIArbeid: ErIkkeIArbeid?
+)
+
 data class ErIArbeid(
     val egetArbeidPaSikt: Boolean,
     val annetArbeidPaSikt: Boolean,
@@ -143,6 +163,30 @@ data class Adresse(
     val kommune: String?,
     val postboks: String?,
     val land: String?
+)
+
+data class BehandlerSykDig
+@JsonCreator
+constructor(
+    @JsonProperty("fornavn") val fornavn: String,
+    @JsonProperty("mellomnavn") val mellomnavn: String?,
+    @JsonProperty("etternavn") val etternavn: String,
+    @JsonProperty("aktoerId") val aktoerId: String,
+    @JsonProperty("fnr") val fnr: String,
+    @JsonProperty("hpr") val hpr: String?,
+    @JsonProperty("her") val her: String?,
+    @JsonProperty("adresse") val adresse: AdresseSykDig,
+    @JsonProperty("tlf") val tlf: String?
+)
+
+data class AdresseSykDig
+@JsonCreator
+constructor(
+    @JsonProperty("gate") val gate: String?,
+    @JsonProperty("postnummer") val postnummer: Int?,
+    @JsonProperty("kommune") val kommune: String?,
+    @JsonProperty("postboks") val postboks: String?,
+    @JsonProperty("land") val land: String?
 )
 
 data class AvsenderSystem(val navn: String, val versjon: String)

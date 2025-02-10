@@ -1,13 +1,11 @@
 package no.nav.syfo.aksessering.db
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
+import no.nav.syfo.log
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ManuellOppgaveDTOSykDig
 import no.nav.syfo.model.PapirSmRegistering
@@ -82,31 +80,27 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
     )
 
 fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig {
-    val objectMapper =
-        ObjectMapper()
-            .registerModule(JavaTimeModule()) // Legger til støtte for Java 8-datoer
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
     return ManuellOppgaveDTOSykDig(
         journalpostId = getString("journalpost_id")?.trim() ?: "",
         fnr = getString("fnr")?.trim(),
         aktorId = getString("aktor_id")?.trim(),
         dokumentInfoId = getString("dokument_info_id")?.trim(),
-        datoOpprettet = getTimestamp("dato_opprettet").toInstant().atOffset(ZoneOffset.UTC),
+        datoOpprettet = getTimestamp("dato_opprettet")?.toInstant()?.atOffset(ZoneOffset.UTC),
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
-        papirSmRegistering =
-            getString("papir_sm_registrering")?.let { json ->
-                val fixedJson =
-                    json.replace(
-                        "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
-                            .toRegex(),
-                        "\"datoOpprettet\":\"$1Z\""
-                    )
-                objectMapper.readValue(fixedJson, PapirSmRegistering::class.java)
-            },
+        papirSmRegistering = getString("papir_sm_registrering")?.let {
+            if (it.isNotBlank()) {
+                try {
+                    objectMapper.readValue<PapirSmRegistering>(it)
+                } catch (e: Exception) {
+                    log.error("Feil ved deserialisering av papir_sm_registrering: ${e.message}", e)
+                    null
+                }
+            } else {
+                null
+            }
+        },
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
         utfall = getString("utfall")?.trim(),
