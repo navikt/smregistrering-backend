@@ -1,5 +1,8 @@
 package no.nav.syfo.aksessering.db
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import java.time.ZoneOffset
@@ -78,8 +81,14 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         pdfPapirSykmelding = null,
     )
 
-fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig =
-    ManuellOppgaveDTOSykDig(
+fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig {
+    val objectMapper =
+        ObjectMapper()
+            .registerModule(JavaTimeModule()) // Legger til støtte for Java 8-datoer
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+    return ManuellOppgaveDTOSykDig(
         journalpostId = getString("journalpost_id")?.trim() ?: "",
         fnr = getString("fnr")?.trim(),
         aktorId = getString("aktor_id")?.trim(),
@@ -89,8 +98,14 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig =
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
         papirSmRegistering =
-            getString("papir_sm_registrering")?.let {
-                objectMapper.readValue<PapirSmRegistering>(it)
+            getString("papir_sm_registrering")?.let { json ->
+                val fixedJson =
+                    json.replace(
+                        "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
+                            .toRegex(),
+                        "\"datoOpprettet\":\"$1Z\""
+                    )
+                objectMapper.readValue(fixedJson, PapirSmRegistering::class.java)
             },
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
@@ -98,3 +113,4 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig =
         datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime(),
         avvisningsgrunn = getString("avvisningsgrunn")?.trim(),
     )
+}
