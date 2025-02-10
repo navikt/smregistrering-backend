@@ -194,7 +194,7 @@ fun runMigrationProducer(
                     }
                 }
             } catch (ex: Exception) {
-                log.error("Error running kafka producer", ex)
+                log.error("Error running kafka producer ${ex.message} ${ex.stackTrace}", ex)
                 throw ex
             }
         }
