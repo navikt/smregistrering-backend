@@ -2,6 +2,7 @@ package no.nav.syfo.sykmelding
 
 import no.nav.syfo.kafka.MigrationObject
 import no.nav.syfo.kafka.SendtSykmeldingHistorySykDig
+import no.nav.syfo.log
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
 import no.nav.syfo.sikkerlogg
 
@@ -15,8 +16,8 @@ class MigrationService(
         val sykmelding = sykmeldingService.getAllReceivedSykmeldingWithTimestamp()
         val migrationObjectsMap = mutableMapOf<String, MigrationObject>()
 
-        sikkerlogg.info(
-            "alle oppgaver: ${alleOppgaver}, sykmeldinger: ${sykmelding.size}, sykmeldingHistory: ${sykmeldingHistory.size}"
+        log.info(
+            "alle oppgaver: ${alleOppgaver.size}, sykmeldinger: ${sykmelding.size}, sykmeldingHistory: ${sykmeldingHistory.size}"
         )
 
         alleOppgaver.forEach { oppgave ->

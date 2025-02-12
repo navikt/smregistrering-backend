@@ -5,7 +5,6 @@ import java.sql.ResultSet
 import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.toList
-import no.nav.syfo.log
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ManuellOppgaveDTOSykDig
 import no.nav.syfo.model.PapirSmRegistering
@@ -89,11 +88,16 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig {
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
-        papirSmRegistering = getString("papir_sm_registrering")?.let  {
-            objectMapper.readValue<PapirSmRegistering>(
-                it.replace("\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\"".toRegex(), "\"datoOpprettet\":\"$1Z\"")
-            )
-        },
+        papirSmRegistering =
+            getString("papir_sm_registrering")?.let {
+                objectMapper.readValue<PapirSmRegistering>(
+                    it.replace(
+                        "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
+                            .toRegex(),
+                        "\"datoOpprettet\":\"$1Z\""
+                    )
+                )
+            },
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
         utfall = getString("utfall")?.trim(),
