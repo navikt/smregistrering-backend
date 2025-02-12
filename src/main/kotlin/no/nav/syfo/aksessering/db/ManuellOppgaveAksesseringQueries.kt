@@ -89,17 +89,10 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig {
         sykmeldingId = getString("id")?.trim() ?: "",
         oppgaveid = getInt("oppgave_id"),
         ferdigstilt = getBoolean("ferdigstilt"),
-        papirSmRegistering = getString("papir_sm_registrering")?.let {
-            if (it.isNotBlank()) {
-                try {
-                    objectMapper.readValue<PapirSmRegistering>(it)
-                } catch (e: Exception) {
-                    log.error("Feil ved deserialisering av papir_sm_registrering: ${e.message}", e)
-                    null
-                }
-            } else {
-                null
-            }
+        papirSmRegistering = getString("papir_sm_registrering")?.let  {
+            objectMapper.readValue<PapirSmRegistering>(
+                it.replace("\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\"".toRegex(), "\"datoOpprettet\":\"$1Z\"")
+            )
         },
         pdfPapirSykmelding = null,
         ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
