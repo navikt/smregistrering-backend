@@ -181,7 +181,7 @@ fun runMigrationProducer(
                 log.info("Starting producer for topic $topic")
                 while (applicationState.ready) {
                     val migrationObjects = migrationService.getAllMigrationObjects()
-                    migrationObjects.forEach {
+                  /*  migrationObjects.forEach {
                         kafkaProducer.producer
                             .send(
                                 ProducerRecord(
@@ -191,7 +191,7 @@ fun runMigrationProducer(
                                 )
                             )
                             .get()
-                    }
+                    }*/
                 }
             } catch (ex: Exception) {
                 log.error("Error running kafka producer ${ex.message} ${ex.stackTrace}", ex)
