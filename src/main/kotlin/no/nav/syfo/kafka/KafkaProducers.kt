@@ -11,7 +11,7 @@ import no.nav.syfo.util.JacksonKafkaSerializer
 import org.apache.kafka.clients.producer.KafkaProducer
 
 class KafkaProducers(private val env: Environment) {
-    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig("migration-producer")
+    private val kafkaBaseConfig = KafkaUtils.getAivenKafkaConfig("ok-sykmelding-producer")
 
     init {
         kafkaBaseConfig["auto.offset.reset"] = "none"
@@ -22,6 +22,14 @@ class KafkaProducers(private val env: Environment) {
             env.applicationName,
             valueSerializer = JacksonKafkaSerializer::class
         )
+
+    val kafkaRecievedSykmeldingProducer = KafkaRecievedSykmeldingProducer()
+    val kafkaSmregMigrationProducer = KafkaSmregMigrationProducer()
+
+    inner class KafkaRecievedSykmeldingProducer {
+        val producer = KafkaProducer<String, ReceivedSykmeldingWithValidation>(properties)
+        val sm2013AutomaticHandlingTopic = env.okSykmeldingTopic
+    }
 
     inner class KafkaSmregMigrationProducer {
         val producer = KafkaProducer<String, MigrationObject>(properties)
