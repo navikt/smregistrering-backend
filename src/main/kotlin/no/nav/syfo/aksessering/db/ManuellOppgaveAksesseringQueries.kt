@@ -31,7 +31,7 @@ fun DatabaseInterface.hentManuellOppgaver(
             }
     }
 
-fun DatabaseInterface.hentUmigrertManuellOppgave(): ManuellOppgaveDTOSykDig? =
+fun DatabaseInterface.getUmigrertManuellOppgave(): ManuellOppgaveDTOSykDig? =
     connection.use { connection ->
         connection
             .prepareStatement(

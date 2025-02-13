@@ -2,9 +2,9 @@ package no.nav.syfo.persistering.db
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.syfo.aksessering.db.getUmigrertManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaveForSykmelding
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
-import no.nav.syfo.aksessering.db.hentUmigrertManuellOppgave
 import no.nav.syfo.aksessering.db.oppdaterOppgave
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.log
@@ -23,7 +23,7 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
     ): List<ManuellOppgaveDTO> = database.hentManuellOppgaver(oppgaveId, ferdigstilt)
 
     fun getUmigrertManuellOppgave(): ManuellOppgaveDTOSykDig? {
-        val oppgave = database.hentUmigrertManuellOppgave()
+        val oppgave = database.getUmigrertManuellOppgave()
         if (oppgave == null) {
             log.warn("Ingen umigrert oppgave funnet")
             return null
