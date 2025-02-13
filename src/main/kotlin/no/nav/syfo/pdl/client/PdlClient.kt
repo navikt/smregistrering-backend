@@ -20,7 +20,7 @@ class PdlClient(
     private val temaHeader = "TEMA"
     private val tema = "SYM"
 
-    suspend fun zgetPerson(fnr: String, token: String): GraphQLResponse<PdlResponse> {
+    suspend fun getPerson(fnr: String, token: String): GraphQLResponse<PdlResponse> {
         val getPersonRequest =
             GetPersonRequest(query = graphQlQuery, variables = GetPersonVeriables(ident = fnr))
         return httpClient

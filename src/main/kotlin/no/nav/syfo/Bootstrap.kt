@@ -36,7 +36,6 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.MigrationService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
-import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -181,7 +180,7 @@ fun runMigrationProducer(
                 log.info("Starting producer for topic $topic")
                 while (applicationState.ready) {
                     val migrationObjects = migrationService.getAllMigrationObjects()
-                  /*  migrationObjects.forEach {
+                    /*  migrationObjects.forEach {
                         kafkaProducer.producer
                             .send(
                                 ProducerRecord(
