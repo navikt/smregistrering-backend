@@ -2,10 +2,12 @@ package no.nav.syfo.persistering.db
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.syfo.aksessering.db.hentAlleManuellOppgaverSykDig
 import no.nav.syfo.aksessering.db.hentManuellOppgaveForSykmelding
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
+import no.nav.syfo.aksessering.db.hentUmigrertManuellOppgave
+import no.nav.syfo.aksessering.db.oppdaterOppgave
 import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.log
 import no.nav.syfo.model.ManuellOppgaveDTO
 import no.nav.syfo.model.ManuellOppgaveDTOSykDig
 import no.nav.syfo.model.ReceivedSykmelding
@@ -20,8 +22,25 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
         ferdigstilt: Boolean = false
     ): List<ManuellOppgaveDTO> = database.hentManuellOppgaver(oppgaveId, ferdigstilt)
 
-    fun hentAlleManuellOppgaverSykDig(): List<ManuellOppgaveDTOSykDig> =
-        database.hentAlleManuellOppgaverSykDig()
+    fun getUmigrertManuellOppgave(): ManuellOppgaveDTOSykDig? {
+        val oppgave = database.hentUmigrertManuellOppgave()
+        if (oppgave == null) {
+            log.warn("Ingen umigrert oppgave funnet")
+            return null
+        }
+
+        val oppdatert = database.oppdaterOppgave(oppgave.sykmeldingId)
+
+        if (oppdatert > 0) {
+            log.info(
+                "Hentet og oppdatert migrert oppgave med sykmeldingId: ${oppgave.sykmeldingId}"
+            )
+            return oppgave
+        } else {
+            log.warn("Ingen rader ble oppdatert for sykmeldingId: ${oppgave.sykmeldingId}")
+            return null
+        }
+    }
 
     fun ferdigstillSmRegistering(
         sykmeldingId: String,

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.net.URI
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -36,6 +37,7 @@ import no.nav.syfo.sykmelder.service.SykmelderService
 import no.nav.syfo.sykmelding.MigrationService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -174,28 +176,34 @@ fun runMigrationProducer(
     kafkaProducer: KafkaProducers.KafkaSmregMigrationProducer,
     migrationService: MigrationService
 ) {
-    GlobalScope.launch(Dispatchers.IO) {
+    CoroutineScope(Dispatchers.IO).launch {
+        log.info("Starting producer for topic $topic")
+
         while (applicationState.ready) {
             try {
-                log.info("Starting producer for topic $topic")
-                while (applicationState.ready) {
-                    val migrationObjects = migrationService.getAllMigrationObjects()
-                    /*  migrationObjects.forEach {
-                        kafkaProducer.producer
-                            .send(
-                                ProducerRecord(
-                                    kafkaProducer.sm2013AutomaticHandlingTopic,
-                                    it.sykmeldingId,
-                                    it
-                                )
-                            )
-                            .get()
-                    }*/
+                val migrationObject = migrationService.getMigrationObject()
+
+                if (migrationObject == null) {
+                    log.error("Migration object is null. Stopping producer.")
+                    applicationState.ready = false
+                    break
                 }
+                kafkaProducer.producer
+                    .send(
+                        ProducerRecord(
+                            kafkaProducer.sm2013AutomaticHandlingTopic,
+                            migrationObject.sykmeldingId,
+                            migrationObject
+                        )
+                    )
+                    .get()
             } catch (ex: Exception) {
-                log.error("Error running kafka producer ${ex.message} ${ex.stackTrace}", ex)
-                throw ex
+                log.error("Error running kafka producer: ${ex.message}", ex)
+                applicationState.ready = false // Stopper appen ved feil
+                break
             }
         }
+
+        log.warn("Kafka producer stopped for topic $topic")
     }
 }

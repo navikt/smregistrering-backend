@@ -4,9 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import kotlin.test.Test
-import no.nav.syfo.kafka.ReceivedSykmeldingWithTimestamp
+import kotlin.test.assertNotNull
 import no.nav.syfo.model.ManuellOppgaveDTOSykDig
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
@@ -21,7 +20,7 @@ class MigrationServiceTest {
     private val migrationService = MigrationService(sendtSykmeldingService, manuellOppgaveDAO)
 
     @Test
-    fun `getAllMigrationObjects should merge elements correctly`() {
+    fun `getMigrationObject should merge elements correctly`() {
         val oppgave1 =
             ManuellOppgaveDTOSykDig(
                 "id1",
@@ -64,29 +63,16 @@ class MigrationServiceTest {
                     ),
                 ),
             )
-        val sm1 =
-            ReceivedSykmeldingWithTimestamp(
-                getReceivedSykmelding(
-                    sykmeldingId = "123",
-                    fnrPasient = "123",
-                    sykmelderFnr = "1234",
-                ),
-                OffsetDateTime.now(),
-            )
 
-        every { manuellOppgaveDAO.hentAlleManuellOppgaverSykDig() } returns listOf(oppgave1)
-        every { sendtSykmeldingService.getAllReceivedSykmeldingHistory() } returns history1
-        every { sendtSykmeldingService.getAllReceivedSykmeldingWithTimestamp() } returns listOf(sm1)
+        every { manuellOppgaveDAO.getUmigrertManuellOppgave() } returns oppgave1
+        every { sendtSykmeldingService.getSykmeldingHistory("123") } returns history1
 
-        val result = migrationService.getAllMigrationObjects()
+        val result = migrationService.getMigrationObject()
 
-        assertEquals(1, result.size)
-        assertEquals("123", result[0].sykmeldingId)
-        assertEquals(1, result[0].manuellOppgave.size)
-        assertEquals(2, result[0].sendtSykmeldingHistory?.size)
+        assertNotNull(result)
+        assertEquals("123", result.sykmeldingId)
 
-        verify { manuellOppgaveDAO.hentAlleManuellOppgaverSykDig() }
-        verify { sendtSykmeldingService.getAllReceivedSykmeldingHistory() }
-        verify { sendtSykmeldingService.getAllReceivedSykmeldingWithTimestamp() }
+        verify { manuellOppgaveDAO.getUmigrertManuellOppgave() }
+        verify { sendtSykmeldingService.getSykmeldingHistory("123") }
     }
 }

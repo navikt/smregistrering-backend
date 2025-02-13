@@ -13,7 +13,6 @@ data class SendtSykmeldingHistory(
 ) {
     fun mapToSykDig(): SendtSykmeldingHistorySykDig {
         return SendtSykmeldingHistorySykDig(
-            id = id,
             sykmeldingId = sykmeldingId,
             ferdigstiltAv = ferdigstiltAv,
             datoFerdigstilt = datoFerdigstilt,

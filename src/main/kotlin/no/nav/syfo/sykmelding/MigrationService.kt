@@ -4,86 +4,43 @@ import no.nav.syfo.kafka.MigrationObject
 import no.nav.syfo.kafka.SendtSykmeldingHistorySykDig
 import no.nav.syfo.log
 import no.nav.syfo.persistering.db.ManuellOppgaveDAO
-import no.nav.syfo.sikkerlogg
 
 class MigrationService(
     private val sykmeldingService: SendtSykmeldingService,
     private val manuellOppgaveDAO: ManuellOppgaveDAO
 ) {
-    fun getAllMigrationObjects(): List<MigrationObject> {
-        val alleOppgaver = manuellOppgaveDAO.hentAlleManuellOppgaverSykDig()
-        val sykmeldingHistory = sykmeldingService.getAllReceivedSykmeldingHistory()
-        val sykmelding = sykmeldingService.getAllReceivedSykmeldingWithTimestamp()
-        val migrationObjectsMap = mutableMapOf<String, MigrationObject>()
 
-        log.info(
-            "alle oppgaver: ${alleOppgaver.size}, sykmeldinger: ${sykmelding.size}, sykmeldingHistory: ${sykmeldingHistory.size}"
-        )
-
-        alleOppgaver.forEach { oppgave ->
-            val existingObject = migrationObjectsMap[oppgave.sykmeldingId]
-            if (existingObject == null) {
-                migrationObjectsMap[oppgave.sykmeldingId] =
-                    MigrationObject(
-                        sykmeldingId = oppgave.sykmeldingId,
-                        manuellOppgave = mutableListOf(oppgave),
-                        sendtSykmeldingHistory = mutableListOf()
-                    )
-            } else {
-                existingObject.manuellOppgave.add(oppgave)
-            }
+    fun getMigrationObject(): MigrationObject? {
+        val manuellOppgave = manuellOppgaveDAO.getUmigrertManuellOppgave()
+        if (manuellOppgave == null) {
+            log.info("ingen flere umigrerte oppgaver")
+            return null
         }
-
-        sykmeldingHistory.forEach { history ->
-            val existingObject = migrationObjectsMap[history.sykmeldingId]
-            if (existingObject == null) {
-                migrationObjectsMap[history.sykmeldingId] =
-                    MigrationObject(
-                        sykmeldingId = history.sykmeldingId,
-                        manuellOppgave = mutableListOf(),
-                        sendtSykmeldingHistory = mutableListOf(history.mapToSykDig())
-                    )
-            } else {
-                existingObject.sendtSykmeldingHistory?.add(history.mapToSykDig())
-            }
+        val sykmeldingHistory = sykmeldingService.getSykmeldingHistory(manuellOppgave.sykmeldingId)
+        if (sykmeldingHistory.isNotEmpty()) {
+            return MigrationObject(
+                manuellOppgave.sykmeldingId,
+                manuellOppgave,
+                sykmeldingHistory.map { it.mapToSykDig() }
+            )
         }
-
-        sykmelding.forEach { sm ->
-            val existingObject = migrationObjectsMap[sm.receivedSykmelding.sykmelding.id]
-            if (existingObject == null) {
-                migrationObjectsMap[sm.receivedSykmelding.sykmelding.id] =
-                    MigrationObject(
-                        sykmeldingId = sm.receivedSykmelding.sykmelding.id,
-                        manuellOppgave = mutableListOf(),
-                        sendtSykmeldingHistory = mutableListOf()
+        val sykmelding =
+            sykmeldingService.getReceivedSykmeldingWithTimestamp(manuellOppgave.sykmeldingId)
+        if (sykmelding != null) {
+            return MigrationObject(
+                manuellOppgave.sykmeldingId,
+                manuellOppgave,
+                listOf(
+                    SendtSykmeldingHistorySykDig(
+                        manuellOppgave.sykmeldingId,
+                        manuellOppgave.ferdigstiltAv,
+                        manuellOppgave.datoFerdigstilt,
+                        sykmelding.timestamp,
+                        sykmelding.receivedSykmelding
                     )
-            } else if (existingObject.sendtSykmeldingHistory.isNullOrEmpty()) {
-                migrationObjectsMap[sm.receivedSykmelding.sykmelding.id] =
-                    MigrationObject(
-                        sykmeldingId = sm.receivedSykmelding.sykmelding.id,
-                        manuellOppgave = existingObject.manuellOppgave,
-                        sendtSykmeldingHistory =
-                            mutableListOf(
-                                SendtSykmeldingHistorySykDig(
-                                    id = sm.receivedSykmelding.sykmelding.id,
-                                    sykmeldingId = sm.receivedSykmelding.sykmelding.id,
-                                    ferdigstiltAv =
-                                        existingObject.manuellOppgave.firstOrNull()?.ferdigstiltAv,
-                                    datoFerdigstilt =
-                                        existingObject.manuellOppgave
-                                            .firstOrNull()
-                                            ?.datoFerdigstilt,
-                                    timestamp = sm.timestamp,
-                                    receivedSykmelding = sm.receivedSykmelding
-                                )
-                            )
-                    )
-            }
+                )
+            )
         }
-
-        val migrationObjects = migrationObjectsMap.values.toList()
-
-        sikkerlogg.info("Migration objects: ${migrationObjects.size} $migrationObjects")
-        return migrationObjects
+        return MigrationObject(manuellOppgave.sykmeldingId, manuellOppgave, null)
     }
 }

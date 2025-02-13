@@ -39,12 +39,11 @@ class KafkaProducers(private val env: Environment) {
 
 data class MigrationObject(
     val sykmeldingId: String,
-    val manuellOppgave: MutableList<ManuellOppgaveDTOSykDig>,
-    val sendtSykmeldingHistory: MutableList<SendtSykmeldingHistorySykDig>?,
+    val manuellOppgave: ManuellOppgaveDTOSykDig,
+    val sendtSykmeldingHistory: List<SendtSykmeldingHistorySykDig>?,
 )
 
 data class SendtSykmeldingHistorySykDig(
-    val id: String,
     val sykmeldingId: String,
     val ferdigstiltAv: String?,
     val datoFerdigstilt: LocalDateTime?,

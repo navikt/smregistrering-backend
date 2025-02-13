@@ -7,8 +7,9 @@ import no.nav.syfo.log
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.geAlltSendtSykmeldingHistory
-import no.nav.syfo.sykmelding.db.getAllSykmeldingWithTimestamp
+import no.nav.syfo.sykmelding.db.getSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.getSykmelding
+import no.nav.syfo.sykmelding.db.getSykmeldingWithTimestamp
 import no.nav.syfo.sykmelding.db.insertSendtSykmeldingHistory
 import no.nav.syfo.sykmelding.db.upsertSendtSykmelding
 import no.nav.syfo.sykmelding.jobs.db.getNextJob
@@ -55,12 +56,16 @@ class SendtSykmeldingService(
         return databaseInterface.getSykmelding(sykmeldingId)
     }
 
-    fun getAllReceivedSykmeldingWithTimestamp(): List<ReceivedSykmeldingWithTimestamp> {
-        return databaseInterface.getAllSykmeldingWithTimestamp()
+    fun getReceivedSykmeldingWithTimestamp(sykmeldingId: String): ReceivedSykmeldingWithTimestamp? {
+        return databaseInterface.getSykmeldingWithTimestamp(sykmeldingId)
     }
 
     fun getAllReceivedSykmeldingHistory(): List<SendtSykmeldingHistory> {
         return databaseInterface.geAlltSendtSykmeldingHistory()
+    }
+
+    fun getSykmeldingHistory(sykmeldingId: String): List<SendtSykmeldingHistory> {
+        return databaseInterface.getSendtSykmeldingHistory(sykmeldingId)
     }
 
     fun resetHangingJobs() {

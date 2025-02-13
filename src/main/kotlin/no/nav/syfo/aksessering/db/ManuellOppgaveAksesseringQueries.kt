@@ -31,17 +31,40 @@ fun DatabaseInterface.hentManuellOppgaver(
             }
     }
 
-fun DatabaseInterface.hentAlleManuellOppgaverSykDig(): List<ManuellOppgaveDTOSykDig> =
+fun DatabaseInterface.hentUmigrertManuellOppgave(): ManuellOppgaveDTOSykDig? =
     connection.use { connection ->
         connection
             .prepareStatement(
                 """
-                SELECT id, journalpost_id, fnr, aktor_id, dokument_info_id, dato_opprettet, oppgave_id, ferdigstilt, papir_sm_registrering, utfall, ferdigstilt_av, dato_ferdigstilt, avvisningsgrunn
+                SELECT *
                 FROM MANUELLOPPGAVE  
+                WHERE migrert_timestamp is null 
+                ORDER BY dato_opprettet
+                LIMIT 1
                 """,
             )
-            .use { it.executeQuery().toList { toManuellOppgaveDTOSykDig() } }
+            .use { it.executeQuery().toManuellOppgaveDTOSykDig() }
     }
+
+fun DatabaseInterface.oppdaterOppgave(sykmeldingId: String): Int {
+    connection.use { connection ->
+        val status =
+            connection
+                .prepareStatement(
+                    """
+                UPDATE manuelloppgave
+                set migrert_timestamp = now()
+                where id=?
+                """,
+                )
+                .use {
+                    it.setString(1, sykmeldingId)
+                    it.executeUpdate()
+                }
+        connection.commit()
+        return status
+    }
+}
 
 fun DatabaseInterface.hentManuellOppgaveForSykmelding(
     sykmeldingId: String
@@ -78,30 +101,35 @@ fun ResultSet.toManuellOppgaveDTO(): ManuellOppgaveDTO =
         pdfPapirSykmelding = null,
     )
 
-fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig {
-    return ManuellOppgaveDTOSykDig(
-        journalpostId = getString("journalpost_id")?.trim() ?: "",
-        fnr = getString("fnr")?.trim(),
-        aktorId = getString("aktor_id")?.trim(),
-        dokumentInfoId = getString("dokument_info_id")?.trim(),
-        datoOpprettet = getTimestamp("dato_opprettet")?.toInstant()?.atOffset(ZoneOffset.UTC),
-        sykmeldingId = getString("id")?.trim() ?: "",
-        oppgaveid = getInt("oppgave_id"),
-        ferdigstilt = getBoolean("ferdigstilt"),
-        papirSmRegistering =
-            getString("papir_sm_registrering")?.let {
-                objectMapper.readValue<PapirSmRegistering>(
-                    it.replace(
-                        "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
-                            .toRegex(),
-                        "\"datoOpprettet\":\"$1Z\""
-                    )
-                )
-            },
-        pdfPapirSykmelding = null,
-        ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
-        utfall = getString("utfall")?.trim(),
-        datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime(),
-        avvisningsgrunn = getString("avvisningsgrunn")?.trim(),
-    )
+fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig? {
+    return when (next()) {
+        true ->
+            ManuellOppgaveDTOSykDig(
+                journalpostId = getString("journalpost_id")?.trim() ?: "",
+                fnr = getString("fnr")?.trim(),
+                aktorId = getString("aktor_id")?.trim(),
+                dokumentInfoId = getString("dokument_info_id")?.trim(),
+                datoOpprettet =
+                    getTimestamp("dato_opprettet")?.toInstant()?.atOffset(ZoneOffset.UTC),
+                sykmeldingId = getString("id")?.trim() ?: "",
+                oppgaveid = getInt("oppgave_id"),
+                ferdigstilt = getBoolean("ferdigstilt"),
+                papirSmRegistering =
+                    getString("papir_sm_registrering")?.let {
+                        objectMapper.readValue<PapirSmRegistering>(
+                            it.replace(
+                                "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
+                                    .toRegex(),
+                                "\"datoOpprettet\":\"$1Z\""
+                            )
+                        )
+                    },
+                pdfPapirSykmelding = null,
+                ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
+                utfall = getString("utfall")?.trim(),
+                datoFerdigstilt = getTimestamp("dato_ferdigstilt")?.toLocalDateTime(),
+                avvisningsgrunn = getString("avvisningsgrunn")?.trim(),
+            )
+        else -> null
+    }
 }

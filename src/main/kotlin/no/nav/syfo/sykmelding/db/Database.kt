@@ -71,14 +71,19 @@ fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
     }
 }
 
-fun DatabaseInterface.getAllSykmeldingWithTimestamp(): List<ReceivedSykmeldingWithTimestamp> {
+fun DatabaseInterface.getSykmeldingWithTimestamp(
+    sykmeldingId: String
+): ReceivedSykmeldingWithTimestamp? {
     return connection.use {
         it.prepareStatement(
                 """
-            select * from sendt_sykmelding
+            select * from sendt_sykmelding where sykmelding_id = ?
         """,
             )
-            .use { it.executeQuery().toList { toReceivedSykmeldingWithTimestamp() } }
+            .use {
+                it.setString(1, sykmeldingId)
+                it.executeQuery().toReceivedSykmeldingWithTimestamp()
+            }
     }
 }
 
@@ -90,6 +95,23 @@ fun DatabaseInterface.geAlltSendtSykmeldingHistory(): List<SendtSykmeldingHistor
             """,
             )
             .use { it.executeQuery().toList { toSendtSykmeldingHistoryList() } }
+    }
+}
+
+fun DatabaseInterface.getSendtSykmeldingHistory(
+    sykmeldingId: String
+): List<SendtSykmeldingHistory> {
+    return connection.use {
+        it.prepareStatement(
+                """
+            SELECT * FROM sendt_sykmelding_history
+            where sykmelding_id=?
+            """,
+            )
+            .use {
+                it.setString(1, sykmeldingId)
+                it.executeQuery().toList { toSendtSykmeldingHistoryList() }
+            }
     }
 }
 
@@ -113,9 +135,14 @@ private fun ResultSet.toReceivedSykmelding(): ReceivedSykmelding? {
     }
 }
 
-private fun ResultSet.toReceivedSykmeldingWithTimestamp(): ReceivedSykmeldingWithTimestamp {
-    return ReceivedSykmeldingWithTimestamp(
-        receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding")),
-        timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC),
-    )
+private fun ResultSet.toReceivedSykmeldingWithTimestamp(): ReceivedSykmeldingWithTimestamp? {
+    return when (next()) {
+        true ->
+            ReceivedSykmeldingWithTimestamp(
+                receivedSykmelding =
+                    objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding")),
+                timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC),
+            )
+        else -> null
+    }
 }
