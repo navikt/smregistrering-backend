@@ -116,13 +116,7 @@ fun ResultSet.toManuellOppgaveDTOSykDig(): ManuellOppgaveDTOSykDig? {
                 ferdigstilt = getBoolean("ferdigstilt"),
                 papirSmRegistering =
                     getString("papir_sm_registrering")?.let {
-                        objectMapper.readValue<PapirSmRegistering>(
-                            it.replace(
-                                "\"datoOpprettet\":\"(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})\""
-                                    .toRegex(),
-                                "\"datoOpprettet\":\"$1Z\""
-                            )
-                        )
+                        objectMapper.readValue<PapirSmRegistering>(it)
                     },
                 pdfPapirSykmelding = null,
                 ferdigstiltAv = getString("ferdigstilt_av")?.trim(),
