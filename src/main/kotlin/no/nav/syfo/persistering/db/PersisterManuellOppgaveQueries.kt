@@ -2,6 +2,7 @@ package no.nav.syfo.persistering.db
 
 import java.sql.Timestamp
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.model.PapirSmRegistering
@@ -36,7 +37,14 @@ fun DatabaseInterface.opprettManuellOppgave(
                 it.setString(3, papirSmRegistering.fnr)
                 it.setString(4, papirSmRegistering.aktorId)
                 it.setString(5, papirSmRegistering.dokumentInfoId)
-                it.setTimestamp(6, Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant()))
+                it.setTimestamp(
+                    6,
+                    Timestamp.from(
+                        papirSmRegistering.datoOpprettet
+                            ?.atZone(ZoneId.systemDefault())
+                            ?.toInstant()
+                    )
+                )
                 it.setObject(7, oppgaveId)
                 it.setBoolean(8, ferdigstilt)
                 it.setObject(

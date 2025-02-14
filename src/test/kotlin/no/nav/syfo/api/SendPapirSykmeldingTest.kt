@@ -29,8 +29,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.LocalDateTime
 import java.util.concurrent.Future
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
@@ -174,7 +173,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(ZoneOffset.UTC),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =
@@ -465,7 +464,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =
@@ -698,7 +697,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =

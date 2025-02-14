@@ -2,7 +2,6 @@ package no.nav.syfo.model
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 
 data class PapirSmRegistering(
     val journalpostId: String,

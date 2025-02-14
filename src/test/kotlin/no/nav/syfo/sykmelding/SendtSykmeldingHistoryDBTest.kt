@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.UUID
 import no.nav.syfo.db.DatabaseInterface
@@ -73,7 +72,7 @@ class SendtSykmeldingHistoryDBTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = OffsetDateTime.now(),
+            datoOpprettet = LocalDateTime.now(),
             sykmeldingId = sykmeldingId,
             syketilfelleStartDato = LocalDate.now(),
             behandler =

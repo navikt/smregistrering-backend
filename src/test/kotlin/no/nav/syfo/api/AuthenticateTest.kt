@@ -22,7 +22,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.application.setupAuth
@@ -105,7 +105,7 @@ internal class AuthenticateTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -225,7 +225,7 @@ internal class AuthenticateTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =

@@ -24,7 +24,8 @@ import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -107,7 +108,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -282,7 +283,7 @@ internal class HentPapirSykmeldingTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
+                datoOpprettet = LocalDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler =
@@ -388,7 +389,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -553,7 +554,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -709,7 +710,9 @@ internal class HentPapirSykmeldingTest {
                     it.setString(5, papirSmRegistering.dokumentInfoId)
                     it.setTimestamp(
                         6,
-                        Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant())
+                        Timestamp.from(
+                            papirSmRegistering.datoOpprettet?.atZone(ZoneOffset.UTC)?.toInstant()
+                        )
                     )
                     it.setInt(7, oppgaveId)
                     it.setBoolean(8, false)
