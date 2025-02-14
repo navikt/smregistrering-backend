@@ -1,5 +1,6 @@
 package no.nav.syfo.sykmelding
 
+import no.nav.syfo.aksessering.db.oppdaterOppgave
 import no.nav.syfo.kafka.MigrationObject
 import no.nav.syfo.kafka.SendtSykmeldingHistorySykDig
 import no.nav.syfo.log
@@ -42,5 +43,9 @@ class MigrationService(
             )
         }
         return MigrationObject(manuellOppgave.sykmeldingId, manuellOppgave, null)
+    }
+
+    fun oppdaterOppgave(sykmeldingId: String){
+        manuellOppgaveDAO.updateToMigrert(sykmeldingId)
     }
 }

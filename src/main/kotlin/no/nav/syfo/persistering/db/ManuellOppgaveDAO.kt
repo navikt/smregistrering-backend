@@ -13,6 +13,7 @@ import no.nav.syfo.model.ManuellOppgaveDTOSykDig
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.Utfall
 import no.nav.syfo.sykmelding.db.getSykmelding
+import kotlin.jvm.Throws
 
 class ManuellOppgaveDAO(private val database: DatabaseInterface) {
 
@@ -28,17 +29,17 @@ class ManuellOppgaveDAO(private val database: DatabaseInterface) {
             log.warn("Ingen umigrert oppgave funnet")
             return null
         }
-
-        val oppdatert = database.oppdaterOppgave(oppgave.sykmeldingId)
-
+        return oppgave
+    }
+    fun updateToMigrert(sykmeldingId: String) {
+        val oppdatert = database.oppdaterOppgave(sykmeldingId)
         if (oppdatert > 0) {
             log.info(
-                "Hentet og oppdatert migrert oppgave med sykmeldingId: ${oppgave.sykmeldingId}"
+                "Hentet og oppdatert migrert oppgave med sykmeldingId: ${sykmeldingId}"
             )
-            return oppgave
         } else {
-            log.warn("Ingen rader ble oppdatert for sykmeldingId: ${oppgave.sykmeldingId}")
-            return null
+            log.error("Ingen rader ble oppdatert for sykmeldingId: ${sykmeldingId}")
+            throw Exception("Ingen rader ble oppdatert for sykmeldingId: ${sykmeldingId}")
         }
     }
 

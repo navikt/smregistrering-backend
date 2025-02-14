@@ -1,6 +1,7 @@
 package no.nav.syfo.sykmelding
 
 import kotlinx.coroutines.delay
+import no.nav.syfo.aksessering.db.oppdaterOppgave
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.log
@@ -17,10 +18,10 @@ class SykmeldingJobRunner(
                 val migrationObject = migrationService.getMigrationObject()
 
                 if (migrationObject == null) {
-                    log.error("Migration object is null. Stopping producer.")
-                    applicationState.ready = false
-                    break
+                    log.info("No more migration objects found. Stopping job runner.")
+                    return
                 }
+
                 kafkaSmregMigrationProducer.producer
                     .send(
                         ProducerRecord(
@@ -30,13 +31,14 @@ class SykmeldingJobRunner(
                         )
                     )
                     .get()
+
+                migrationService.oppdaterOppgave(migrationObject.sykmeldingId)
             } catch (ex: Exception) {
-                log.error("Error running kafka producer: ${ex.message}", ex)
+                log.error("Error running Kafka producer: ${ex.message}", ex)
                 applicationState.ready = false
                 applicationState.alive = false
-                break
+                return
             }
-            delay(3_000)
         }
     }
 }
