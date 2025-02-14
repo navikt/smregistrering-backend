@@ -154,7 +154,7 @@ fun main() {
 
     GlobalScope.launch(Dispatchers.IO) {
         sykmeldingJobRunner.startJobRunner()
-        log.info("Started SykmeldingJobRunner")
+        log.info("Stopped SykmeldingJobRunner")
     }
 
     ApplicationServer(applicationEngine, applicationState).start()
