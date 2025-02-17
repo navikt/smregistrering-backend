@@ -1,7 +1,7 @@
 package no.nav.syfo.model
 
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 
 data class PapirSmRegistering(
     val journalpostId: String,
@@ -9,7 +9,7 @@ data class PapirSmRegistering(
     val fnr: String?,
     val aktorId: String?,
     val dokumentInfoId: String?,
-    val datoOpprettet: OffsetDateTime?,
+    val datoOpprettet: LocalDateTime?,
     val sykmeldingId: String,
     val syketilfelleStartDato: LocalDate?,
     val arbeidsgiver: Arbeidsgiver?,

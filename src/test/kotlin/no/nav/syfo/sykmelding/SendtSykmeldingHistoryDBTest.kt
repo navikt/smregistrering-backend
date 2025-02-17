@@ -3,7 +3,7 @@ package no.nav.syfo.sykmelding
 import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
 import no.nav.syfo.db.DatabaseInterface
@@ -56,7 +56,7 @@ class SendtSykmeldingHistoryDBTest {
             id = UUID.randomUUID().toString(),
             sykmeldingId = sykmeldingId,
             ferdigstiltAv = "ferdigstiltAv",
-            datoFerdigstilt = OffsetDateTime.now(ZoneId.of("UTC")),
+            datoFerdigstilt = LocalDateTime.now(ZoneId.of("UTC")),
             getReceivedSykmelding(
                 fnrPasient = "1",
                 sykmelderFnr = "2",
@@ -72,7 +72,7 @@ class SendtSykmeldingHistoryDBTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = OffsetDateTime.now(),
+            datoOpprettet = LocalDateTime.now(),
             sykmeldingId = sykmeldingId,
             syketilfelleStartDato = LocalDate.now(),
             behandler =
@@ -146,7 +146,7 @@ private fun ResultSet.toSendtSykmeldingHistory(): SendtSykmeldingHistory? {
                 sykmeldingId = getString("sykmelding_id").trim(),
                 ferdigstiltAv = getString("ferdigstilt_av").trim(),
                 datoFerdigstilt =
-                    OffsetDateTime.ofInstant(
+                    LocalDateTime.ofInstant(
                         getTimestamp("dato_ferdigstilt").toInstant(),
                         ZoneId.of("UTC")
                     ),

@@ -4,7 +4,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.Instant
+import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.db.toList
+import no.nav.syfo.kafka.ReceivedSykmeldingWithTimestamp
 import no.nav.syfo.model.ReceivedSykmelding
 import no.nav.syfo.model.SendtSykmeldingHistory
 import no.nav.syfo.objectMapper
@@ -44,7 +48,7 @@ fun DatabaseInterface.insertSendtSykmeldingHistory(sendtSykmeldingHistory: Sendt
                 ps.setString(3, sendtSykmeldingHistory.ferdigstiltAv)
                 ps.setTimestamp(
                     4,
-                    Timestamp.from(sendtSykmeldingHistory.datoFerdigstilt.toInstant())
+                    Timestamp.from(sendtSykmeldingHistory.datoFerdigstilt.toInstant(UTC)),
                 )
                 ps.setObject(5, toPGObject(sendtSykmeldingHistory.receivedSykmelding))
                 ps.executeUpdate()
@@ -67,9 +71,78 @@ fun DatabaseInterface.getSykmelding(sykmeldingId: String): ReceivedSykmelding? {
     }
 }
 
+fun DatabaseInterface.getSykmeldingWithTimestamp(
+    sykmeldingId: String
+): ReceivedSykmeldingWithTimestamp? {
+    return connection.use {
+        it.prepareStatement(
+                """
+            select * from sendt_sykmelding where sykmelding_id = ?
+        """,
+            )
+            .use {
+                it.setString(1, sykmeldingId)
+                it.executeQuery().toReceivedSykmeldingWithTimestamp()
+            }
+    }
+}
+
+fun DatabaseInterface.geAlltSendtSykmeldingHistory(): List<SendtSykmeldingHistory> {
+    return connection.use {
+        it.prepareStatement(
+                """
+            SELECT * FROM sendt_sykmelding_history
+            """,
+            )
+            .use { it.executeQuery().toList { toSendtSykmeldingHistoryList() } }
+    }
+}
+
+fun DatabaseInterface.getSendtSykmeldingHistory(
+    sykmeldingId: String
+): List<SendtSykmeldingHistory> {
+    return connection.use {
+        it.prepareStatement(
+                """
+            SELECT * FROM sendt_sykmelding_history
+            where sykmelding_id=?
+            """,
+            )
+            .use {
+                it.setString(1, sykmeldingId)
+                it.executeQuery().toList { toSendtSykmeldingHistoryList() }
+            }
+    }
+}
+
+private fun ResultSet.toSendtSykmeldingHistoryList(): SendtSykmeldingHistory {
+    val receivedSykmelding = objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
+    val sendtSykmeldingHistory =
+        SendtSykmeldingHistory(
+            sykmeldingId = getString("sykmelding_id").trim(),
+            id = getString("id").trim(),
+            ferdigstiltAv = getString("ferdigstilt_av").trim(),
+            datoFerdigstilt = getTimestamp("dato_ferdigstilt").toLocalDateTime(),
+            receivedSykmelding = receivedSykmelding,
+        )
+    return sendtSykmeldingHistory
+}
+
 private fun ResultSet.toReceivedSykmelding(): ReceivedSykmelding? {
     return when (next()) {
         true -> objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding"))
+        else -> null
+    }
+}
+
+private fun ResultSet.toReceivedSykmeldingWithTimestamp(): ReceivedSykmeldingWithTimestamp? {
+    return when (next()) {
+        true ->
+            ReceivedSykmeldingWithTimestamp(
+                receivedSykmelding =
+                    objectMapper.readValue<ReceivedSykmelding>(getString("sykmelding")),
+                timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC),
+            )
         else -> null
     }
 }

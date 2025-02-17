@@ -33,6 +33,7 @@ import no.nav.syfo.service.JournalpostService
 import no.nav.syfo.service.OppgaveService
 import no.nav.syfo.syfosmregister.SyfosmregisterService
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.MigrationService
 import no.nav.syfo.sykmelding.SendtSykmeldingService
 import no.nav.syfo.sykmelding.SykmeldingJobRunner
 import org.slf4j.Logger
@@ -125,12 +126,12 @@ fun main() {
             safJournalpostService,
             receivedSykmeldingController,
         )
-
+    val migrationService = MigrationService(sendtSykmeldingService, manuellOppgaveDAO)
     val sykmeldingJobRunner =
         SykmeldingJobRunner(
             applicationState,
-            sendtSykmeldingService,
-            kafkaProducers.kafkaRecievedSykmeldingProducer,
+            kafkaProducers.kafkaSmregMigrationProducer,
+            migrationService
         )
 
     val applicationEngine =
@@ -148,11 +149,12 @@ fun main() {
             sykmelderService,
             authorizationService,
             pdfService,
+            sendtSykmeldingService
         )
 
     GlobalScope.launch(Dispatchers.IO) {
         sykmeldingJobRunner.startJobRunner()
-        log.info("Started SykmeldingJobRunner")
+        log.info("Stopped SykmeldingJobRunner")
     }
 
     ApplicationServer(applicationEngine, applicationState).start()

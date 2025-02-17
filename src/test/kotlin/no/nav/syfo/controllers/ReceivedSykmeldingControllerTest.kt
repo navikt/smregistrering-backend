@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -147,7 +148,7 @@ class ReceivedSykmeldingControllerTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = OffsetDateTime.now(),
+            datoOpprettet = LocalDateTime.now(),
             sykmeldingId = "1344444",
             syketilfelleStartDato = LocalDate.now(),
             behandler =
@@ -208,7 +209,7 @@ class ReceivedSykmeldingControllerTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
+                datoOpprettet = LocalDateTime.now(),
                 sykmeldingId = sykmeldingId,
                 syketilfelleStartDato = LocalDate.now(),
                 behandler =
@@ -317,7 +318,7 @@ class ReceivedSykmeldingControllerTest {
                 smRegisteringManuell,
                 smRegisteringManuell.pasientFnr,
                 smRegisteringManuell.sykmelderFnr,
-                papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
+                papirSmRegistering.datoOpprettet!!,
                 sykmeldingId,
             )
 
@@ -328,7 +329,7 @@ class ReceivedSykmeldingControllerTest {
                 UUID.randomUUID().toString(),
                 sykmeldingId,
                 "noen",
-                OffsetDateTime.now(ZoneOffset.UTC),
+                LocalDateTime.now(ZoneOffset.UTC),
                 receivedSykmelding
             )
         )

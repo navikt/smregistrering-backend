@@ -26,6 +26,7 @@ data class Environment(
     val jwtIssuer: String = getEnvVar("AZURE_OPENID_CONFIG_ISSUER"),
     val okSykmeldingTopic: String = "teamsykmelding.ok-sykmelding",
     val papirSmRegistreringTopic: String = "teamsykmelding.papir-sm-registering",
+    val smregMigrationTopic: String = "teamsykmelding.smreg-migration",
     val syfoSmregisterEndpointURL: String =
         getEnvVar("SYFOSMREGISTER_ENDPOINT_URL", "http://syfosmregister"),
     val syfoSmregisterScope: String = getEnvVar("SYFOSMREGISTER_SCOPE"),

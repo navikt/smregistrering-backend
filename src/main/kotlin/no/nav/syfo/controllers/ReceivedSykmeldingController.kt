@@ -96,7 +96,7 @@ private fun PapirSmRegistering.toReceveidSykmelding(
         legekontorHerId = null,
         legekontorReshId = null,
         legekontorOrgName = "",
-        mottattDato = papirSykmelding.mottattTidspunkt.toLocalDateTime(),
+        mottattDato = papirSykmelding.mottattTidspunkt,
         rulesetVersion = "",
         merknader = emptyList(),
         partnerreferanse = "",

@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.install
-import io.ktor.server.application.port
 import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.connector
@@ -43,6 +42,7 @@ import no.nav.syfo.saf.SafDokumentClient
 import no.nav.syfo.service.AuthorizationService
 import no.nav.syfo.sykmelder.api.sykmelderApi
 import no.nav.syfo.sykmelder.service.SykmelderService
+import no.nav.syfo.sykmelding.SendtSykmeldingService
 
 fun createApplicationEngine(
     env: Environment,
@@ -58,6 +58,7 @@ fun createApplicationEngine(
     sykmelderService: SykmelderService,
     authorizationService: AuthorizationService,
     pdfService: PdfService,
+    sendtSykmeldingService: SendtSykmeldingService
 ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
     embeddedServer(
         Netty,

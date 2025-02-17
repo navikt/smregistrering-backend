@@ -20,7 +20,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.application.setupAuth
@@ -99,7 +99,7 @@ internal class HentFerdigstiltSykmeldingTest {
                 coEvery { syfosmregisterService.hentSykmelding(any()) } returns
                     PapirsykmeldingDTO(
                         pasientFnr = "12345678912",
-                        mottattTidspunkt = OffsetDateTime.now(),
+                        mottattTidspunkt = LocalDateTime.now(),
                         sykmelding =
                             getReceivedSykmelding(
                                     fnrPasient = "41424",
@@ -118,7 +118,7 @@ internal class HentFerdigstiltSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = sykmeldingId,
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -224,7 +224,7 @@ internal class HentFerdigstiltSykmeldingTest {
                                 100,
                             ),
                         behandletDato = LocalDate.now(),
-                        behandler = papirSmRegistering.behandler,
+                        behandler = papirSmRegistering.behandler!!,
                         kontaktMedPasient =
                             KontaktMedPasient(LocalDate.of(2020, 4, 1), "Ja nei det."),
                         meldingTilArbeidsgiver = "Nei",
@@ -238,7 +238,7 @@ internal class HentFerdigstiltSykmeldingTest {
                         smRegisteringManuell,
                         smRegisteringManuell.pasientFnr,
                         smRegisteringManuell.sykmelderFnr,
-                        papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
+                        papirSmRegistering.datoOpprettet!!,
                         sykmeldingId,
                     )
 

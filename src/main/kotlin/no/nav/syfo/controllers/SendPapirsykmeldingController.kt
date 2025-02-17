@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT
 import io.ktor.http.HttpStatusCode
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import net.logstash.logback.argument.StructuredArguments
@@ -196,7 +196,7 @@ class SendPapirsykmeldingController(
                         pdlPasient = pasient,
                         sykmelder = sykmelder,
                         sykmeldingId = sykmeldingId,
-                        datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
+                        datoOpprettet = manuellOppgave.datoOpprettet,
                         journalpostId = journalpostId,
                     )
 
@@ -225,7 +225,7 @@ class SendPapirsykmeldingController(
                         legekontorOrgName = "",
                         legekontorHerId = null,
                         legekontorReshId = null,
-                        mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
+                        mottattDato = manuellOppgave.datoOpprettet
                                 ?: getLocalDateTime(msgHead.msgInfo.genDate),
                         rulesetVersion = healthInformation.regelSettVersjon,
                         fellesformat = fellesformatMarshaller.toString(fellesformat),
@@ -453,7 +453,7 @@ class SendPapirsykmeldingController(
                 UUID.randomUUID().toString(),
                 ferdigstillRegistrering.sykmeldingId,
                 veileder.veilederIdent,
-                OffsetDateTime.now(ZoneOffset.UTC),
+                LocalDateTime.now(ZoneOffset.UTC),
                 receivedSykmelding,
             )
         sendtSykmeldingService.insertSendtSykmeldingHistory(

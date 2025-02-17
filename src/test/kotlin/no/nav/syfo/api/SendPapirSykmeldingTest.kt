@@ -29,8 +29,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.LocalDateTime
 import java.util.concurrent.Future
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
@@ -43,7 +42,6 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.controllers.SendPapirsykmeldingController
-import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.AktivitetIkkeMulig
@@ -97,8 +95,6 @@ class SendPapirSykmeldingTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
-    private val kafkaRecievedSykmeldingProducer =
-        mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = OppgaveService(oppgaveClient)
     private val smTssClient = mockk<SmtssClient>()
@@ -177,7 +173,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(ZoneOffset.UTC),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =
@@ -297,10 +293,6 @@ class SendPapirSykmeldingTest {
 
             val future = mockk<Future<RecordMetadata>>()
             coEvery { future.get() } returns mockk()
-            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
-                mockk<Future<RecordMetadata>>()
-            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
-                "automattopic"
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123,
@@ -472,7 +464,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =
@@ -522,11 +514,6 @@ class SendPapirSykmeldingTest {
                         StandardCharsets.UTF_8,
                     ),
                 )
-
-            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
-                mockk<Future<RecordMetadata>>()
-            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
-                "automattopic"
 
             coEvery { oppgaveClient.hentOppgave(any(), any()) } returns
                 Oppgave(
@@ -710,7 +697,7 @@ class SendPapirSykmeldingTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = OffsetDateTime.now(),
+                    datoOpprettet = LocalDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =
@@ -774,10 +761,6 @@ class SendPapirSykmeldingTest {
                     ),
                 )
 
-            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
-                mockk<Future<RecordMetadata>>()
-            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
-                "automattopic"
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123,

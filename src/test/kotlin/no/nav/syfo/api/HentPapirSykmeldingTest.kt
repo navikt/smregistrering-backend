@@ -24,8 +24,8 @@ import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.util.concurrent.Future
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentPapirSykmeldingManuellOppgave
 import no.nav.syfo.aksessering.db.hentManuellOppgaver
@@ -37,7 +37,6 @@ import no.nav.syfo.client.RegelClient
 import no.nav.syfo.client.SmtssClient
 import no.nav.syfo.client.Tilgang
 import no.nav.syfo.controllers.SendTilGosysController
-import no.nav.syfo.kafka.KafkaProducers
 import no.nav.syfo.log
 import no.nav.syfo.model.Adresse
 import no.nav.syfo.model.Behandler
@@ -60,7 +59,6 @@ import no.nav.syfo.service.Veileder
 import no.nav.syfo.testutil.Claim
 import no.nav.syfo.testutil.TestDB
 import no.nav.syfo.testutil.generateJWT
-import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -72,8 +70,6 @@ internal class HentPapirSykmeldingTest {
     private val jwkProvider = JwkProviderBuilder(uri).build()
     private val manuellOppgaveDAO = ManuellOppgaveDAO(database)
     private val safDokumentClient = mockk<SafDokumentClient>()
-    private val kafkaRecievedSykmeldingProducer =
-        mockk<KafkaProducers.KafkaRecievedSykmeldingProducer>()
     private val oppgaveClient = mockk<OppgaveClient>()
     private val oppgaveService = mockk<OppgaveService>()
     private val smTssClient = mockk<SmtssClient>()
@@ -112,7 +108,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -201,10 +197,6 @@ internal class HentPapirSykmeldingTest {
                 }
             }
 
-            coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
-                mockk<Future<RecordMetadata>>()
-            coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
-                "automattopic"
             coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
                 Oppgave(
                     id = 123,
@@ -291,7 +283,7 @@ internal class HentPapirSykmeldingTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = OffsetDateTime.now(),
+                datoOpprettet = LocalDateTime.now(),
                 sykmeldingId = "1344444",
                 syketilfelleStartDato = LocalDate.now(),
                 behandler =
@@ -343,10 +335,6 @@ internal class HentPapirSykmeldingTest {
 
         opprettManuellOppgaveNullPapirsm(database.connection, manuellOppgave, oppgaveid)
 
-        coEvery { kafkaRecievedSykmeldingProducer.producer.send(any()) } returns
-            mockk<Future<RecordMetadata>>()
-        coEvery { kafkaRecievedSykmeldingProducer.sm2013AutomaticHandlingTopic } returns
-            "automattopic"
         coEvery { oppgaveClient.ferdigstillOppgave(any(), any()) } returns
             Oppgave(
                 id = 123,
@@ -401,7 +389,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -566,7 +554,7 @@ internal class HentPapirSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = OffsetDateTime.now(),
+                        datoOpprettet = LocalDateTime.now(),
                         sykmeldingId = "1344444",
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -722,7 +710,9 @@ internal class HentPapirSykmeldingTest {
                     it.setString(5, papirSmRegistering.dokumentInfoId)
                     it.setTimestamp(
                         6,
-                        Timestamp.from(papirSmRegistering.datoOpprettet?.toInstant())
+                        Timestamp.from(
+                            papirSmRegistering.datoOpprettet?.atZone(ZoneOffset.UTC)?.toInstant()
+                        )
                     )
                     it.setInt(7, oppgaveId)
                     it.setBoolean(8, false)
