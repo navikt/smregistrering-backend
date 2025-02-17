@@ -1,2 +1,0 @@
-DROP INDEX CONCURRENTLY IF EXISTS migrert_timestamp_index;
-DROP INDEX CONCURRENTLY IF EXISTS idx_migrert_dato;
