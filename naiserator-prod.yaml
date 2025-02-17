@@ -55,9 +55,10 @@ spec:
         - id: elastic
   resources:
     limits:
+      cpu: 2000m
       memory: 3Gi
     requests:
-      cpu: 100m
+      cpu: 500m
       memory: 800Mi
   azure:
     application:
