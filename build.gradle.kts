@@ -37,7 +37,7 @@ val commonsCodecVersion = "1.16.1"
 val logbacksyslog4jVersion = "1.0.0"
 val ktfmtVersion = "0.44"
 val opentelemetryVersion = "2.3.0"
-val nettycommonVersion = "4.1.115.Final"
+val nettycommonVersion = "4.1.118.Final"
 val snappyJavaVersion = "1.1.10.6"
 
 
