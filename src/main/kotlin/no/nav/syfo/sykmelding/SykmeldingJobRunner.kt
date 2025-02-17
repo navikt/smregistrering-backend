@@ -1,6 +1,5 @@
 package no.nav.syfo.sykmelding
 
-import kotlinx.coroutines.delay
 import no.nav.syfo.aksessering.db.oppdaterOppgave
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.kafka.KafkaProducers
@@ -33,7 +32,9 @@ class SykmeldingJobRunner(
                     .get()
 
                 migrationService.oppdaterOppgave(migrationObject.sykmeldingId)
-                log.info("publiserte oppgave på migreringstopic med sykmelding med id ${migrationObject.sykmeldingId}")
+                log.info(
+                    "publiserte oppgave på migreringstopic med sykmelding med id ${migrationObject.sykmeldingId}"
+                )
             } catch (ex: Exception) {
                 log.error("Error running Kafka producer: ${ex.message}", ex)
                 applicationState.ready = false
