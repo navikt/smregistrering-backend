@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.client.DokArkivClient
 import no.nav.syfo.client.OppgaveClient
@@ -198,7 +199,7 @@ class AvvisPapirsykmeldingControllerTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = LocalDateTime.now(),
+            datoOpprettet = OffsetDateTime.now(),
             sykmeldingId = "1344444",
             syketilfelleStartDato = LocalDate.now(),
             behandler =

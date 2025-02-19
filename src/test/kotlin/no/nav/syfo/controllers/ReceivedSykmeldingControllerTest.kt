@@ -148,7 +148,7 @@ class ReceivedSykmeldingControllerTest {
             fnr = "41424",
             aktorId = "1314",
             dokumentInfoId = "131313",
-            datoOpprettet = LocalDateTime.now(),
+            datoOpprettet = OffsetDateTime.now(),
             sykmeldingId = "1344444",
             syketilfelleStartDato = LocalDate.now(),
             behandler =
@@ -209,7 +209,7 @@ class ReceivedSykmeldingControllerTest {
                 fnr = "41424",
                 aktorId = "1314",
                 dokumentInfoId = "131313",
-                datoOpprettet = LocalDateTime.now(),
+                datoOpprettet = OffsetDateTime.now(),
                 sykmeldingId = sykmeldingId,
                 syketilfelleStartDato = LocalDate.now(),
                 behandler =
@@ -318,7 +318,7 @@ class ReceivedSykmeldingControllerTest {
                 smRegisteringManuell,
                 smRegisteringManuell.pasientFnr,
                 smRegisteringManuell.sykmelderFnr,
-                papirSmRegistering.datoOpprettet!!,
+                papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
                 sykmeldingId,
             )
 

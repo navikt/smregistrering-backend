@@ -10,9 +10,6 @@ import java.net.URI
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
@@ -152,10 +149,10 @@ fun main() {
             sendtSykmeldingService
         )
 
-    GlobalScope.launch(Dispatchers.IO) {
+    /*    GlobalScope.launch(Dispatchers.IO) {
         sykmeldingJobRunner.startJobRunner()
         log.info("Stopped SykmeldingJobRunner")
-    }
+    }*/
 
     ApplicationServer(applicationEngine, applicationState).start()
 }

@@ -21,7 +21,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.application.setupAuth
 import no.nav.syfo.client.DokArkivClient
@@ -158,7 +158,7 @@ class AvvisOppgaveRestTest {
                     fnr = "41424",
                     aktorId = "1314",
                     dokumentInfoId = "131313",
-                    datoOpprettet = LocalDateTime.now(),
+                    datoOpprettet = OffsetDateTime.now(),
                     sykmeldingId = "1344444",
                     syketilfelleStartDato = LocalDate.now(),
                     behandler =

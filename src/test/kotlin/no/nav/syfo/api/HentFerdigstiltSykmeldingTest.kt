@@ -20,7 +20,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import no.nav.syfo.Environment
 import no.nav.syfo.aksessering.api.hentFerdigstiltSykmelding
 import no.nav.syfo.application.setupAuth
@@ -99,7 +99,7 @@ internal class HentFerdigstiltSykmeldingTest {
                 coEvery { syfosmregisterService.hentSykmelding(any()) } returns
                     PapirsykmeldingDTO(
                         pasientFnr = "12345678912",
-                        mottattTidspunkt = LocalDateTime.now(),
+                        mottattTidspunkt = OffsetDateTime.now(),
                         sykmelding =
                             getReceivedSykmelding(
                                     fnrPasient = "41424",
@@ -118,7 +118,7 @@ internal class HentFerdigstiltSykmeldingTest {
                         fnr = "41424",
                         aktorId = "1314",
                         dokumentInfoId = "131313",
-                        datoOpprettet = LocalDateTime.now(),
+                        datoOpprettet = OffsetDateTime.now(),
                         sykmeldingId = sykmeldingId,
                         syketilfelleStartDato = LocalDate.now(),
                         behandler =
@@ -238,7 +238,7 @@ internal class HentFerdigstiltSykmeldingTest {
                         smRegisteringManuell,
                         smRegisteringManuell.pasientFnr,
                         smRegisteringManuell.sykmelderFnr,
-                        papirSmRegistering.datoOpprettet!!,
+                        papirSmRegistering.datoOpprettet!!.toLocalDateTime(),
                         sykmeldingId,
                     )
 

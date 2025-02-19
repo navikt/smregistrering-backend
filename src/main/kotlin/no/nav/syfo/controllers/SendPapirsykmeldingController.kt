@@ -196,7 +196,7 @@ class SendPapirsykmeldingController(
                         pdlPasient = pasient,
                         sykmelder = sykmelder,
                         sykmeldingId = sykmeldingId,
-                        datoOpprettet = manuellOppgave.datoOpprettet,
+                        datoOpprettet = manuellOppgave.datoOpprettet?.toLocalDateTime(),
                         journalpostId = journalpostId,
                     )
 
@@ -225,7 +225,7 @@ class SendPapirsykmeldingController(
                         legekontorOrgName = "",
                         legekontorHerId = null,
                         legekontorReshId = null,
-                        mottattDato = manuellOppgave.datoOpprettet
+                        mottattDato = manuellOppgave.datoOpprettet?.toLocalDateTime()
                                 ?: getLocalDateTime(msgHead.msgInfo.genDate),
                         rulesetVersion = healthInformation.regelSettVersjon,
                         fellesformat = fellesformatMarshaller.toString(fellesformat),

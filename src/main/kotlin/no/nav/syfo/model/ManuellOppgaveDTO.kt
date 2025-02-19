@@ -8,7 +8,7 @@ data class ManuellOppgaveDTO(
     val fnr: String?,
     val aktorId: String?,
     val dokumentInfoId: String?,
-    val datoOpprettet: LocalDateTime?,
+    val datoOpprettet: OffsetDateTime?,
     val sykmeldingId: String,
     val oppgaveid: Int?,
     val ferdigstilt: Boolean,
